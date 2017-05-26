@@ -1,0 +1,8 @@
+imports:
+    - { resource: services.yml }
+
+framework:
+    secret: 'ToDOSetARealSecret'
+    router:
+        resource: '%kernel.project_dir%/app/config/routing.php'
+        strict_requirements: true
