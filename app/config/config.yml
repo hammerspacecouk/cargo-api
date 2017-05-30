@@ -6,3 +6,52 @@ framework:
     router:
         resource: '%kernel.project_dir%/app/config/routing.php'
         strict_requirements: true
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   pdo_mysql
+        host:     "%env(DB_HOST)%"
+        port:     "%env(DB_PORT)%"
+        dbname:   "%env(DB_NAME)%"
+        user:     "%env(DB_USER)%"
+        password: "%env(DB_PASSWORD)%"
+        charset:  UTF8
+        types:
+            uuid_binary:
+                class: Ramsey\Uuid\Doctrine\UuidBinaryType
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        mappings:
+            App:
+                dir:  %kernel.root_dir%/../src/Data/Database/Entity
+                is_bundle: false
+                type: annotation
+                prefix: App\Data\Database\Entity
+        dql:
+            datetime_functions:
+                date: DoctrineExtensions\Query\Mysql\Date
+                date_format: DoctrineExtensions\Query\Mysql\DateFormat
+            string_functions:
+                ifnull: DoctrineExtensions\Query\Mysql\IfNull
+
+# Doctrine migrations
+doctrine_migrations:
+    dir_name: %kernel.root_dir%/../src/Data/Database/Migration
+    namespace: App\Data\Database\Migration
+    table_name: migration_versions
+    name: Application Migrations
+
+monolog:
+    handlers:
+        main:
+            type:         fingers_crossed
+            action_level: error
+            handler:      nested
+        nested:
+            type:  stream
+            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+        console:
+            type:  console
