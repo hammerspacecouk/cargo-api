@@ -31,7 +31,8 @@ abstract class AbstractService
         return $entity->createQueryBuilder(self::TBL);
     }
 
-    protected function getOffset(int $limit, int $page): int {
+    protected function getOffset(int $limit, int $page): int
+    {
         return ($limit * ($page - 1));
     }
 }

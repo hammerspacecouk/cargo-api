@@ -16,7 +16,7 @@ doctrine:
         dbname:   "%env(DB_NAME)%"
         user:     "%env(DB_USER)%"
         password: "%env(DB_PASSWORD)%"
-        charset:  UTF8
+        charset:  UTF8MB4
         types:
             uuid_binary:
                 class: Ramsey\Uuid\Doctrine\UuidBinaryType
@@ -25,7 +25,7 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore
         mappings:
             App:
-                dir:  %kernel.root_dir%/../src/Data/Database/Entity
+                dir:  "%kernel.root_dir%/../src/Data/Database/Entity"
                 is_bundle: false
                 type: annotation
                 prefix: App\Data\Database\Entity
@@ -38,7 +38,7 @@ doctrine:
 
 # Doctrine migrations
 doctrine_migrations:
-    dir_name: %kernel.root_dir%/../src/Data/Database/Migration
+    dir_name: "%kernel.root_dir%/../src/Data/Database/Migration"
     namespace: App\Data\Database\Migration
     table_name: migration_versions
     name: Application Migrations

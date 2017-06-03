@@ -7,7 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\HasLifecycleCallbacks()
- * @ORM\Table(name="crates")})
+ * @ORM\Table(
+ *     name="crates",
+ *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ * )})
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\CrateRepository")
  */
 class Crate extends AbstractEntity
 {

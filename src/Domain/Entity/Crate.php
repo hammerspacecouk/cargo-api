@@ -22,6 +22,7 @@ class Crate extends Entity implements \JsonSerializable
     {
         return [
             'id' => $this->id,
+            'type' => 'Crate',
             'status' => $this->status,
             'contents' => $this->contents,
         ];

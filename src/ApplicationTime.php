@@ -25,7 +25,7 @@ class ApplicationTime
 
     public static function setTime(int $appTime = null)
     {
-        static::$appTime = DateTimeImmutable::createFromFormat('U', $appTime ?? time());
+        static::$appTime = DateTimeImmutable::createFromFormat('U', $appTime ?? (string) time());
     }
 
     /**

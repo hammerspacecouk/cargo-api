@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
-namespace App\Controller\Crates;
+namespace App\Controller\Ports;
 
 use App\Controller\PaginationRequestTrait;
-use App\Service\CratesService;
+use App\Service\PortsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,15 +15,15 @@ class ListAction
 
     public function __invoke(
         Request $request,
-        CratesService $cratesService
+        PortsService $portsService
     ): JsonResponse {
         $page = $this->getPageNumber($request);
-        $total = $cratesService->countAllAvailable();
+        $total = $portsService->countAll();
         $pagination = $this->getPagination($request, $page, self::PER_PAGE, $total);
 
         $items = [];
         if ($total) {
-            $items = $cratesService->findAvailable(self::PER_PAGE, $page);
+            $items = $portsService->findAll(self::PER_PAGE, $page);
         }
 
         return new JsonResponse([
