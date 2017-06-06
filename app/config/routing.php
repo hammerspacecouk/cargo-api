@@ -34,4 +34,13 @@ $collection->add('ports_crates', new Route('/ports/{uuid}/crates', [
     '_controller' => Controller\Ports\CratesAction::class,
 ]));
 
+// ships
+$collection->add('ships_list', new Route('/ships', [
+    '_controller' => Controller\Ships\ListAction::class,
+]));
+
+$collection->add('ships_show', new Route('/ships/{uuid}', [
+    '_controller' => Controller\Ships\ShowAction::class,
+]));
+
 return $collection;

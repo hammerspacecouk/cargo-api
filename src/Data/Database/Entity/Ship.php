@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace App\Data\Database\Entity;
 
+use App\Data\Database\Entity\ShipClass;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,13 +19,18 @@ class Ship extends AbstractEntity
     /** @ORM\Column(type="string") */
     public $name;
 
-    /** @ORM\Column(type="int") */
-    public $class = 0;
+    /**
+     * @ORM\ManyToOne(targetEntity="ShipClass")
+     * @ORM\JoinColumn()
+     */
+    public $shipClass;
 
     public function __construct(
-        string $name
+        string $name,
+        ShipClass $shipClass
     ) {
         parent::__construct();
         $this->name = $name;
+        $this->shipClass = $shipClass;
     }
 }

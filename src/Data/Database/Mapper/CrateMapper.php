@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Crate;
+use App\Domain\ValueObject\Enum\CrateStatus;
 
 class CrateMapper extends Mapper
 {
@@ -10,7 +11,7 @@ class CrateMapper extends Mapper
     {
         $domainEntity = new Crate(
             $item['id'],
-            $item['status'],
+            new CrateStatus($item['status']),
             $item['contents']
         );
         return $domainEntity;

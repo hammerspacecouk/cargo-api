@@ -13,4 +13,14 @@ class MapperFactory
     {
         return new PortMapper($this);
     }
+
+    public function createShipMapper(): ShipMapper
+    {
+        return new ShipMapper($this);
+    }
+
+    public function createShipClassMapper(): ShipClassMapper
+    {
+        return new ShipClassMapper($this);
+    }
 }
