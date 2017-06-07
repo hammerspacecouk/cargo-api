@@ -4,17 +4,23 @@ namespace App\Data\Database\EntityRepository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class CrateLocationRepository extends EntityRepository
 {
-    public function queryCurrentLocationForCrateId(
-        Uuid $crateId
-    ): Query {
+    public function getCurrentForCrateID(
+        UuidInterface $crateId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
         $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port', 'ship')
+            ->leftJoin('tbl.port', 'port')
+            ->leftJoin('tbl.ship', 'ship')
             ->where('IDENTITY(tbl.crate) = :crate')
+            ->orderBy('tbl.createdAt', 'DESC')
+            ->setMaxResults(1)
             ->setParameter('crate', $crateId->getBytes())
         ;
-        return $qb->getQuery();
+        return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 }

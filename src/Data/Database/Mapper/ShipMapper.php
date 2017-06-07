@@ -3,21 +3,33 @@ declare(strict_types = 1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipLocation;
 
 class ShipMapper extends Mapper
 {
     public function getShip(array $item): Ship
     {
-        $shipClass = null;
-        if (isset($item['shipClass'])) {
-            $shipClass = $this->mapperFactory->createShipClassMapper()->getShipClass($item['shipClass']);
-        }
-
-        $domainEntity = new Ship(
+        return new Ship(
             $item['id'],
             $item['name'],
-            $shipClass
+            $this->getShipClass($item)
         );
-        return $domainEntity;
+    }
+
+    private function getShipClass(?array $item)
+    {
+        if ($item['shipClass']) {
+            return $this->mapperFactory->createShipClassMapper()->getShipClass($item['shipClass']);
+        }
+        return null;
+    }
+
+    private function getLocation(?array $item): ?ShipLocation
+    {
+        $location = $item['location'] ?? null;
+        if ($location['port']) {
+            return $this->mapperFactory->createPortMapper()->getPort($location['port']);
+        }
+        return null;
     }
 }

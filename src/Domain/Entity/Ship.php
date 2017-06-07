@@ -6,19 +6,31 @@ use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\ShipClass;
 use Ramsey\Uuid\Uuid;
 
-class Ship extends Entity implements \JsonSerializable
+class Ship extends Entity implements \JsonSerializable, CrateLocation
 {
     private $name;
     private $shipClass;
+    private $location;
 
     public function __construct(
         Uuid $id,
         string $name,
-        ?ShipClass $shipClass
+        ?ShipClass $shipClass,
+        ?ShipLocation $location = null
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->shipClass = $shipClass;
+    }
+
+    public function getLocation()
+    {
+        if ($this->location === null) {
+            throw new DataNotFetchedException(
+                'Tried to use the crate location, but it was not fetched'
+            );
+        }
+        return $this->location;
     }
 
     public function getShipClass(): ShipClass
@@ -40,6 +52,9 @@ class Ship extends Entity implements \JsonSerializable
         ];
         if ($this->shipClass) {
             $data['class'] = $this->shipClass;
+        }
+        if ($this->location) {
+            $data['location'] = $this->location;
         }
         return $data;
     }

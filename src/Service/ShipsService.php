@@ -12,11 +12,10 @@ class ShipsService extends AbstractService
 {
     const STARTER_SHIP_UUID = 'c274d46f-5b3b-433c-81a8-ac9f97247699';
 
-    public function makeNew():void
+    public function makeNew(): void
     {
         $starterShip = $this->entityManager->getRepository(ShipClass::class)
-            ->queryByID(Uuid::fromString(self::STARTER_SHIP_UUID))
-            ->getOneOrNullResult();
+            ->getById(Uuid::fromString(self::STARTER_SHIP_UUID));
 
         $crate = new Ship((string) time(), $starterShip);
 
@@ -24,7 +23,7 @@ class ShipsService extends AbstractService
         $this->entityManager->flush();
     }
 
-    public function countAll()
+    public function countAll(): int
     {
         $qb = $this->getQueryBuilder(Ship::class)
             ->select('count(1)');
@@ -52,7 +51,7 @@ class ShipsService extends AbstractService
         }, $results);
     }
 
-    public function findByID(
+    public function getByID(
         UuidInterface $uuid
     ): ?ShipEntity {
         $qb = $this->getQueryBuilder(Ship::class)
@@ -69,5 +68,35 @@ class ShipsService extends AbstractService
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($results[0]);
+    }
+
+    public function moveShipToPort(
+        Uuid $shipId,
+        Uuid $portId
+    ): void {
+        /** @var ShipRepository $shipRepo */
+        $shipRepo = $this->getShipRepo();
+
+        // fetch the ship and the port
+        $ship = $shipRepo->getById($shipId, Query::HYDRATE_OBJECT);
+        if (!$ship) {
+            throw new \InvalidArgumentException('No such active ship');
+        }
+
+        $port = $this->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
+        if (!$port) {
+            throw new \InvalidArgumentException('No such port');
+        }
+
+        // make a new ship location
+        $newLocation = new DbShipLocation(
+            $ship,
+            $port,
+            null
+        );
+        $newLocation->isCurrent = true;
+
+        $this->entityManager->persist($newLocation);
+        $this->entityManager->flush();
     }
 }

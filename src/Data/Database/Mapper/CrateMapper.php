@@ -3,17 +3,29 @@ declare(strict_types = 1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Crate;
-use App\Domain\ValueObject\Enum\CrateStatus;
+use App\Domain\Entity\CrateLocation;
 
 class CrateMapper extends Mapper
 {
     public function getCrate(array $item): Crate
     {
-        $domainEntity = new Crate(
+        return new Crate(
             $item['id'],
-            new CrateStatus($item['status']),
-            $item['contents']
+            $item['contents'],
+            $item['isDestroyed'],
+            $this->getLocation($item)
         );
-        return $domainEntity;
+    }
+
+    private function getLocation(?array $item): ?CrateLocation
+    {
+        $location = $item['location'] ?? null;
+        if ($location['port']) {
+            return $this->mapperFactory->createPortMapper()->getPort($location['port']);
+        }
+        if ($location['ship']) {
+            return $this->mapperFactory->createShipMapper()->getShip($location['ship']);
+        }
+        return null;
     }
 }

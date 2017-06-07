@@ -4,12 +4,11 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
-use App\Data\Database\Entity\Port as DbPort;
-use App\Data\Database\EntityRepository\CrateLocationRepository;
 use App\Data\Database\EntityRepository\CrateRepository;
-use App\Data\Database\EntityRepository\PortRepository;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -32,7 +31,7 @@ class CratesService extends AbstractService
         '✉',
     ];
 
-    public function makeNew():void
+    public function makeNew(): void
     {
         $crate = new DbCrate(self::CONTENTS[array_rand(self::CONTENTS)]);
 
@@ -40,14 +39,12 @@ class CratesService extends AbstractService
         $this->entityManager->flush();
     }
 
-    public function countAllAvailable()
+    public function countAllAvailable(): int
     {
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->select('count(1)')
-            ->where('tbl.status != :inactiveStatus')
-            ->setParameter('inactiveStatus', DbCrate::STATUS_INACTIVE)
+            ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
         ;
-
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
@@ -56,8 +53,7 @@ class CratesService extends AbstractService
         int $page = 1
     ): array {
         $qb = $this->getQueryBuilder(DbCrate::class)
-            ->where('tbl.status != :inactiveStatus')
-            ->setParameter('inactiveStatus', DbCrate::STATUS_INACTIVE)
+            ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
         ;
@@ -70,22 +66,36 @@ class CratesService extends AbstractService
         }, $results);
     }
 
-    public function findByID(
+    public function getByID(
         UuidInterface $uuid
     ): ?Crate {
-        $results = $this->entityManager->getRepository(DbCrate::class)
-            ->queryActiveByID($uuid)
-            ->getArrayResult();
+        $result = $this->getCrateRepo()->getActiveByID($uuid);
 
-        if (empty($results)) {
+        if (!$result) {
             return null;
         }
 
         $mapper = $this->mapperFactory->createCrateMapper();
-        return $mapper->getCrate($results[0]);
+        return $mapper->getCrate($result[0]);
     }
 
-    public function countForPort(Port $port)
+    public function getByIDWithLocation(
+        UuidInterface $uuid
+    ): ?Crate {
+        $result = $this->getCrateRepo()->getActiveByID($uuid);
+
+        if (!$result) {
+            return null;
+        }
+
+        $location = $this->getCrateLocationRepo()
+            ->getCurrentForCrateID($uuid);
+
+        $mapper = $this->mapperFactory->createCrateMapper();
+        return $mapper->getCrate($result, $location);
+    }
+
+    public function countForPort(Port $port): int
     {
         $qb = $this->getQueryBuilder(DbCrateLocation::class)
             ->select('count(1)')
@@ -114,7 +124,7 @@ class CratesService extends AbstractService
 
         $mapper = $this->mapperFactory->createCrateMapper();
 
-        $results = $qb->getQuery()->getArrayResult();
+        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         return array_map(function ($result) use ($mapper) {
             return $mapper->getCrate($result['crate']);
         }, $results);
@@ -125,39 +135,26 @@ class CratesService extends AbstractService
         Uuid $portId
     ): void {
         /** @var CrateRepository $crateRepo */
-        $crateRepo = $this->entityManager->getRepository(DbCrate::class);
-        /** @var PortRepository $portRepo */
-        $portRepo = $this->entityManager->getRepository(DbPort::class);
-        /** @var CrateLocationRepository $locoRepo */
-        $locoRepo = $this->entityManager->getRepository(DbCrateLocation::class);
+        $crateRepo = $this->getCrateRepo();
 
         // fetch the crate and the port
-        $crate = $crateRepo->queryByID($crateId)->getOneOrNullResult();
-        if (!$crate || $crate->status === DbCrate::STATUS_INACTIVE) {
+        $crate = $crateRepo->getById($crateId, Query::HYDRATE_OBJECT);
+        if (!$crate) {
             throw new \InvalidArgumentException('No such active crate');
         }
 
-        $port = $portRepo->queryByID($portId)->getOneOrNullResult();
+        $port = $this->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         if (!$port) {
             throw new \InvalidArgumentException('No such port');
         }
 
-        // fetch the current crate location
-        /** @var DbCrateLocation|null $currentLocation */
-        $currentLocation = $locoRepo->queryCurrentLocationForCrateId($crate->id)
-            ->getOneOrNullResult();
-
-        // disable the old location (if there is one)
-        if ($currentLocation) {
-            $currentLocation->isCurrent = false;
-            $this->entityManager->persist($currentLocation);
-        }
-
         // make a new crate location
-        $newLocation = new DbCrateLocation();
+        $newLocation = new DbCrateLocation(
+            $crate,
+            $port,
+            null
+        );
         $newLocation->isCurrent = true;
-        $newLocation->crate = $crate;
-        $newLocation->port = $port;
 
         $this->entityManager->persist($newLocation);
         $this->entityManager->flush();

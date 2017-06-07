@@ -3,7 +3,6 @@ declare(strict_types = 1);
 namespace App\Controller\Crates;
 
 use App\Controller\IDRequestTrait;
-use App\Controller\PaginationRequestTrait;
 use App\Service\CratesService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +18,7 @@ class ShowAction
     ): JsonResponse {
         $uuid = $this->getID($request);
 
-        $crate = $cratesService->findByID($uuid);
+        $crate = $cratesService->getByIDWithLocation($uuid);
         if (!$crate) {
             throw new NotFoundHttpException('No such crate');
         }

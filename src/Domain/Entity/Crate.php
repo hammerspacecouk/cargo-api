@@ -2,32 +2,48 @@
 declare(strict_types = 1);
 namespace App\Domain\Entity;
 
-use App\Domain\ValueObject\Enum\CrateStatus;
+use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\Uuid;
 
 class Crate extends Entity implements \JsonSerializable
 {
-    private $status = CrateStatus::INACTIVE;
-
+    private $isDestroyed;
     private $contents;
+    private $location;
 
     public function __construct(
         Uuid $id,
-        CrateStatus $status,
-        string $contents
+        string $contents,
+        bool $isDestroyed = false,
+        ?CrateLocation $location = null
     ) {
         parent::__construct($id);
-        $this->status = $status->getValue();
         $this->contents = $contents;
+        $this->location = $location;
+        $this->isDestroyed = $isDestroyed;
+    }
+
+    public function getLocation()
+    {
+        if ($this->location === null) {
+            throw new DataNotFetchedException(
+                'Tried to use the crate location, but it was not fetched'
+            );
+        }
+        return $this->location;
     }
 
     public function jsonSerialize()
     {
-        return [
+        $data = [
             'id' => $this->id,
             'type' => 'Crate',
-            'status' => $this->status,
+            'isDestroyed' => $this->isDestroyed,
             'contents' => $this->contents,
         ];
+        if ($this->location) {
+            $data['location'] = $this->location;
+        }
+        return $data;
     }
 }

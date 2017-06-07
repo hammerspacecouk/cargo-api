@@ -6,6 +6,8 @@ services:
 
     App\:
         resource: '../../src/*'
+        exclude: '../../src/Data/Database/Entity/*'
+        exclude: '../../src/Domain/*'
 
     App\Controller\:
         resource: '../../src/Controller/'

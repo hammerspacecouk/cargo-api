@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="crate_locations",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
+ *     indexes={@ORM\Index(name="crate_location_created", columns={"created_at"})})
  * )})
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\CrateLocationRepository")
  */
@@ -27,6 +28,20 @@ class CrateLocation extends AbstractEntity
      */
     public $port;
 
-    /** @ORM\Column(type="boolean") */
-    public $isCurrent = true;
+    /**
+     * @ORM\ManyToOne(targetEntity="Ship")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    public $ship;
+
+    public function __construct(
+        Crate $crate,
+        ?Port $port,
+        ?Ship $ship
+    ) {
+        parent::__construct();
+        $this->crate = $crate;
+        $this->port = $port;
+        $this->ship = $ship;
+    }
 }

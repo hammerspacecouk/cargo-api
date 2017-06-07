@@ -19,6 +19,9 @@ class Port extends AbstractEntity
     /** @ORM\Column(type="string") */
     public $name;
 
+    /** @ORM\Column(type="boolean") */
+    public $isSafeHaven = false;
+
     public function __construct(
         string $name
     ) {

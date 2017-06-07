@@ -42,7 +42,7 @@ class PortsService extends AbstractService
         }, $results);
     }
 
-    public function findByID(
+    public function getByID(
         UuidInterface $uuid
     ): ?PortEntity {
         $qb = $this->getQueryBuilder(Port::class)

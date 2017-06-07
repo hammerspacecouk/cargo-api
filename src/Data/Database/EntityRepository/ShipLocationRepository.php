@@ -4,17 +4,20 @@ namespace App\Data\Database\EntityRepository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class AbstractEntityRepository extends EntityRepository
+class ShipLocationRepository extends EntityRepository
 {
-    public function getByID(
-        UuidInterface $uuid,
+    public function getCurrentForShipID(
+        UuidInterface $shipId,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
+            ->where('IDENTITY(tbl.ship) = :ship')
+            ->orderBy('tbl.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('ship', $shipId->getBytes())
         ;
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
