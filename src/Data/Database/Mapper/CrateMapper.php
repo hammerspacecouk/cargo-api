@@ -4,6 +4,7 @@ namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\CrateLocation;
+use App\Domain\Entity\Null\NullEntity;
 
 class CrateMapper extends Mapper
 {
@@ -19,12 +20,15 @@ class CrateMapper extends Mapper
 
     private function getLocation(?array $item): ?CrateLocation
     {
-        $location = $item['location'] ?? null;
-        if ($location['port']) {
-            return $this->mapperFactory->createPortMapper()->getPort($location['port']);
-        }
-        if ($location['ship']) {
-            return $this->mapperFactory->createShipMapper()->getShip($location['ship']);
+        if (array_key_exists('location', $item)) {
+            $location = $item['location'];
+            if ($location['port']) {
+                return $this->mapperFactory->createPortMapper()->getPort($location['port']);
+            }
+            if ($location['ship']) {
+                return $this->mapperFactory->createShipMapper()->getShip($location['ship']);
+            }
+            return new NullEntity();
         }
         return null;
     }

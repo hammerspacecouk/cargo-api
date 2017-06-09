@@ -6,9 +6,11 @@ use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\Database\Entity\ShipClass as DbShipClass;
 use App\Data\Database\EntityRepository\CrateLocationRepository;
 use App\Data\Database\EntityRepository\CrateRepository;
 use App\Data\Database\EntityRepository\PortRepository;
+use App\Data\Database\EntityRepository\ShipClassRepository;
 use App\Data\Database\EntityRepository\ShipRepository;
 use App\Data\Database\Mapper\MapperFactory;
 use Doctrine\ORM\EntityManager;
@@ -63,5 +65,10 @@ abstract class AbstractService
     protected function getShipRepo(): ShipRepository
     {
         return $this->entityManager->getRepository(DbShip::class);
+    }
+
+    protected function getShipClassRepo(): ShipClassRepository
+    {
+        return $this->entityManager->getRepository(DbShipClass::class);
     }
 }

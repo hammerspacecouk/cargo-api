@@ -23,4 +23,17 @@ class CrateLocationRepository extends EntityRepository
         ;
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
+
+    public function findCurrentForShipID(
+        UuidInterface $crateId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'crate')
+            ->leftJoin('tbl.crate', 'crate')
+            ->where('IDENTITY(tbl.ship) = :ship')
+            ->setParameter('ship', $crateId->getBytes())
+        ;
+        return $qb->getQuery()->getResult($resultType);
+    }
 }

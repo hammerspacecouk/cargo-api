@@ -12,15 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MoveCrateCommand extends Command
 {
     private $cratesService;
-    private $portsService;
 
     public function __construct(
-        CratesService $cratesService,
-        PortsService $portsService
+        CratesService $cratesService
     ) {
         parent::__construct();
         $this->cratesService = $cratesService;
-        $this->portsService = $portsService;
     }
 
     protected function configure()
@@ -34,9 +31,9 @@ class MoveCrateCommand extends Command
                 'The crate ID to move'
             )
             ->addArgument(
-                'portId',
+                'destinationID',
                 InputArgument::REQUIRED,
-                'The port ID to move to'
+                'The ID of the destination'
             )
         ;
     }
@@ -46,11 +43,11 @@ class MoveCrateCommand extends Command
         OutputInterface $output
     ) {
         $crateId = Uuid::fromString($input->getArgument('crateId'));
-        $portId = Uuid::fromString($input->getArgument('portId'));
+        $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
-        $output->writeln('Will be moving crate ' . $crateId . ' to port ' . $portId);
+        $output->writeln('Will be moving crate ' . $crateId . ' to ' . $destinationId);
 
-        $this->cratesService->moveCrateToPort($crateId, $portId);
+        $this->cratesService->moveCrateToLocation($crateId, $destinationId);
 
         $output->writeln('Done');
     }

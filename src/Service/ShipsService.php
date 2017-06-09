@@ -2,9 +2,13 @@
 declare(strict_types = 1);
 namespace App\Service;
 
-use App\Data\Database\Entity\Ship;
-use App\Data\Database\Entity\ShipClass;
+use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
+use App\Data\Database\Entity\Port as DbPort;
+use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
+use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -14,18 +18,34 @@ class ShipsService extends AbstractService
 
     public function makeNew(): void
     {
-        $starterShip = $this->entityManager->getRepository(ShipClass::class)
-            ->getById(Uuid::fromString(self::STARTER_SHIP_UUID));
+        $starterShip = $this->getShipClassRepo()
+            ->getById(Uuid::fromString(self::STARTER_SHIP_UUID), Query::HYDRATE_OBJECT);
 
-        $crate = new Ship((string) time(), $starterShip);
+        $ship = new DbShip(
+            ID::makeNewID(DbShip::class),
+            (string) time(),
+            $starterShip
+        );
+        $this->entityManager->persist($ship);
 
-        $this->entityManager->persist($crate);
+        // new ships need to be put into a safe port
+        $safePort = $this->getPortRepo()
+            ->getARandomSafePort(Query::HYDRATE_OBJECT);
+
+        $location = new DbShipLocation(
+            ID::makeNewID(DbShipLocation::class),
+            $ship,
+            $safePort
+        );
+
+        $this->entityManager->persist($location);
+
         $this->entityManager->flush();
     }
 
     public function countAll(): int
     {
-        $qb = $this->getQueryBuilder(Ship::class)
+        $qb = $this->getQueryBuilder(DbShip::class)
             ->select('count(1)');
         ;
 
@@ -36,7 +56,7 @@ class ShipsService extends AbstractService
         int $limit,
         int $page = 1
     ): array {
-        $qb = $this->getQueryBuilder(Ship::class)
+        $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->setMaxResults($limit)
@@ -54,7 +74,7 @@ class ShipsService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?ShipEntity {
-        $qb = $this->getQueryBuilder(Ship::class)
+        $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
@@ -70,19 +90,32 @@ class ShipsService extends AbstractService
         return $mapper->getShip($results[0]);
     }
 
-    public function moveShipToPort(
-        Uuid $shipId,
-        Uuid $portId
+    public function moveShipToLocation(
+        UuidInterface $shipId,
+        UuidInterface $locationId
     ): void {
-        /** @var ShipRepository $shipRepo */
         $shipRepo = $this->getShipRepo();
 
         // fetch the ship and the port
         $ship = $shipRepo->getById($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
-            throw new \InvalidArgumentException('No such active ship');
+            throw new \InvalidArgumentException('No such ship');
         }
 
+        $locationType = ID::getIDType($locationId);
+
+        if ($locationType === DbPort::class) {
+            $this->moveShipToPortId($ship, $locationId);
+            return;
+        }
+
+        throw new \InvalidArgumentException('Invalid destination ID');
+    }
+
+    private function moveShipToPortId(
+        DbShip $ship,
+        UuidInterface $portId
+    ) {
         $port = $this->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         if (!$port) {
             throw new \InvalidArgumentException('No such port');
@@ -90,13 +123,27 @@ class ShipsService extends AbstractService
 
         // make a new ship location
         $newLocation = new DbShipLocation(
+            ID::makeNewID(DbShipLocation::class),
             $ship,
-            $port,
-            null
+            $port
         );
-        $newLocation->isCurrent = true;
-
         $this->entityManager->persist($newLocation);
+
+        // move all crates on the ship into the port
+        // get the crates
+        $crateLocations = $this->getCrateLocationRepo()
+            ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
+        if (!empty($crateLocations)) {
+            foreach($crateLocations as $crateLocation) {
+                $newLocation = new DbCrateLocation(
+                    ID::makeNewID(DbCrateLocation::class),
+                    $crateLocation->crate,
+                    $port,
+                    null
+                );
+                $this->entityManager->persist($newLocation);
+            }
+        }
         $this->entityManager->flush();
     }
 }

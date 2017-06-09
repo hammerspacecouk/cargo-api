@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
@@ -29,10 +30,11 @@ class ShipLocation extends AbstractEntity
     public $port;
 
     public function __construct(
+        UuidInterface $id,
         Ship $ship,
         Port $port
     ) {
-        parent::__construct();
+        parent::__construct($id);
         $this->ship = $ship;
         $this->port = $port;
     }

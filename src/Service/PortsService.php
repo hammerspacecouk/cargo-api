@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Port;
+use App\Data\ID;
 use App\Domain\Entity\Port as PortEntity;
 use Ramsey\Uuid\UuidInterface;
 
@@ -10,7 +11,10 @@ class PortsService extends AbstractService
 {
     public function makeNew():void
     {
-        $crate = new Port((string) time());
+        $crate = new Port(
+            ID::makeNewID(Port::class),
+            (string) time()
+        );
 
         $this->entityManager->persist($crate);
         $this->entityManager->flush();

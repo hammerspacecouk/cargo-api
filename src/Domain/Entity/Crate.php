@@ -2,14 +2,15 @@
 declare(strict_types = 1);
 namespace App\Domain\Entity;
 
+use App\Domain\Entity\Null\NullEntity;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\Uuid;
 
 class Crate extends Entity implements \JsonSerializable
 {
-    private $isDestroyed;
     private $contents;
     private $location;
+    private $isDestroyed;
 
     public function __construct(
         Uuid $id,
@@ -23,12 +24,15 @@ class Crate extends Entity implements \JsonSerializable
         $this->isDestroyed = $isDestroyed;
     }
 
-    public function getLocation()
+    public function getLocation(): ?CrateLocation
     {
-        if ($this->location === null) {
+        if (!$this->location) {
             throw new DataNotFetchedException(
                 'Tried to use the crate location, but it was not fetched'
             );
+        }
+        if ($this->location instanceof NullEntity) {
+            return null;
         }
         return $this->location;
     }

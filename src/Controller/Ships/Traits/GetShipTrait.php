@@ -23,4 +23,16 @@ trait GetShipTrait
         }
         return $ship;
     }
+
+    public function getShipWithLocation(
+        Request $request,
+        ShipsService $shipsService
+    ): Ship {
+        $uuid = $this->getID($request);
+        $ship = $shipsService->getByID($uuid);
+        if (!$ship) {
+            throw new NotFoundHttpException('No such ship');
+        }
+        return $ship;
+    }
 }

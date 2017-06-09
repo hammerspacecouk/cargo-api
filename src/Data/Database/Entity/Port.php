@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity
@@ -23,9 +24,10 @@ class Port extends AbstractEntity
     public $isSafeHaven = false;
 
     public function __construct(
+        Uuid $id,
         string $name
     ) {
-        parent::__construct();
+        parent::__construct($id);
         $this->name = $name;
     }
 }

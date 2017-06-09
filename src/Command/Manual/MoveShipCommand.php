@@ -12,15 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MoveShipCommand extends Command
 {
     private $shipsService;
-    private $portsService;
 
     public function __construct(
-        ShipsService $shipsService,
-        PortsService $portsService
+        ShipsService $shipsService
     ) {
         parent::__construct();
         $this->shipsService = $shipsService;
-        $this->portsService = $portsService;
     }
 
     protected function configure()
@@ -34,9 +31,9 @@ class MoveShipCommand extends Command
                 'The ship ID to move'
             )
             ->addArgument(
-                'portId',
+                'destinationID',
                 InputArgument::REQUIRED,
-                'The port ID to move to'
+                'The ID of the destination'
             )
         ;
     }
@@ -46,11 +43,11 @@ class MoveShipCommand extends Command
         OutputInterface $output
     ) {
         $shipId = Uuid::fromString($input->getArgument('shipId'));
-        $portId = Uuid::fromString($input->getArgument('portId'));
+        $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
-        $output->writeln('Will be moving ship ' . $shipId . ' to port ' . $portId);
+        $output->writeln('Will be moving ship ' . $shipId . ' to ' . $destinationId);
 
-        $this->shipsService->moveShipToPort($shipId, $portId);
+        $this->shipsService->moveShipToLocation($shipId, $destinationId);
 
         $output->writeln('Done');
     }

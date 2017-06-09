@@ -23,7 +23,7 @@ class ListAction
 
         $items = [];
         if ($total) {
-            $items = $cratesService->findAvailable(self::PER_PAGE, $page);
+            $items = $cratesService->findActive(self::PER_PAGE, $page);
         }
 
         return new JsonResponse([

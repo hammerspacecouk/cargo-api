@@ -5,6 +5,7 @@ namespace App\Data\Database\Entity;
 use App\ApplicationTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractEntity
 {
@@ -26,9 +27,10 @@ abstract class AbstractEntity
     /** @ORM\Column(type="datetime", nullable=false) */
     public $updatedAt;
 
-    public function __construct()
-    {
-        $this->id = Uuid::uuid4();
+    public function __construct(
+        UuidInterface $id
+    ) {
+        $this->id = $id;
         $this->uuid = (string) $this->id;
     }
 
