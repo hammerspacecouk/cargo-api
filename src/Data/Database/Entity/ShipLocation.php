@@ -29,13 +29,24 @@ class ShipLocation extends AbstractEntity
      */
     public $port;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Channel")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    public $channel;
+
+    /** @ORM\Column(type="boolean") */
+    public $isCurrent = true;
+
     public function __construct(
         UuidInterface $id,
-        Ship $ship,
-        Port $port
+        ?Ship $ship,
+        ?Port $port,
+        Channel $channel
     ) {
         parent::__construct($id);
         $this->ship = $ship;
         $this->port = $port;
+        $this->channel = $channel;
     }
 }

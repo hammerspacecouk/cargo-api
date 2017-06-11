@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace App\Data\Database\EntityRepository;
 
+use App\ApplicationTime;
+use App\Data\Database\Entity\CrateLocation;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -24,6 +26,18 @@ class CrateLocationRepository extends EntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    public function findCurrentForCreateID(
+        UuidInterface $crateId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->where('tbl.id = :id')
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('id', $crateId->getBytes())
+        ;
+        return $qb->getQuery()->getResult($resultType);
+    }
+
     public function findCurrentForShipID(
         UuidInterface $crateId,
         $resultType = Query::HYDRATE_ARRAY
@@ -32,8 +46,25 @@ class CrateLocationRepository extends EntityRepository
             ->select('tbl', 'crate')
             ->leftJoin('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.ship) = :ship')
+            ->andWhere('tbl.isCurrent = true')
             ->setParameter('ship', $crateId->getBytes())
         ;
         return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function disableAllActiveForCrateID(UuidInterface $uuid): void
+    {
+        // remove any old crate locations
+        $q = $this->getEntityManager()->createQuery(
+            'UPDATE ' . CrateLocation::class . ' cl ' .
+            'SET ' .
+            'cl.isCurrent = false, ' .
+            'cl.updatedAt = :time ' .
+            'WHERE IDENTITY(cl.crate) = :crate ' .
+            'AND cl.isCurrent = true'
+        );
+        $q->setParameter('time', ApplicationTime::getTime());
+        $q->setParameter('crate', $uuid->getBytes());
+        $q->execute();
     }
 }

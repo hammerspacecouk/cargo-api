@@ -6,6 +6,7 @@ use App\Domain\Entity\Null\NullEntity;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\ValueObject\ShipClass;
+use App\Domain\ValueObject\Travelling;
 
 class ShipMapper extends Mapper
 {
@@ -29,12 +30,14 @@ class ShipMapper extends Mapper
 
     private function getLocation(?array $item): ?ShipLocation
     {
-        if (array_key_exists('location', $item)) {
+        if (isset($item['location'])) {
             $location = $item['location'];
-            if ($location['port']) {
+            if (isset($location['port'])) {
                 return $this->mapperFactory->createPortMapper()->getPort($location['port']);
             }
-            return new NullEntity();
+            if (isset($location['channel'])) {
+                return new Travelling();
+            }
         }
         return null;
     }

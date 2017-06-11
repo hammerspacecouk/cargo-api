@@ -35,8 +35,7 @@ class MakeShipClassesCommand extends Command
         foreach ($this->getSourceData() as $data)
         {
             $output->writeln('Making ' . $data[0]);
-            $shipClass = new ShipClass($data[1], $data[2], $data[3]);
-            $shipClass->id = Uuid::fromString($data[0]);
+            $shipClass = new ShipClass(Uuid::fromString($data[0]), $data[1], $data[2], $data[3]);
             $shipClass->uuid = (string) $shipClass->id;
             $this->entityManager->persist($shipClass);
         }

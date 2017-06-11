@@ -35,6 +35,9 @@ class CrateLocation extends AbstractEntity
      */
     public $ship;
 
+    /** @ORM\Column(type="boolean") */
+    public $isCurrent = true;
+
     public function __construct(
         UuidInterface $id,
         Crate $crate,

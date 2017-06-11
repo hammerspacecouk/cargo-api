@@ -29,7 +29,7 @@ trait GetShipTrait
         ShipsService $shipsService
     ): Ship {
         $uuid = $this->getID($request);
-        $ship = $shipsService->getByID($uuid);
+        $ship = $shipsService->getByIDWithLocation($uuid);
         if (!$ship) {
             throw new NotFoundHttpException('No such ship');
         }

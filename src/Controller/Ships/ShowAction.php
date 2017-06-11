@@ -14,7 +14,7 @@ class ShowAction
         Request $request,
         ShipsService $shipsService
     ): JsonResponse {
-        $ship = $this->getShip($request, $shipsService);
+        $ship = $this->getShipWithLocation($request, $shipsService);
         return new JsonResponse($ship);
     }
 }

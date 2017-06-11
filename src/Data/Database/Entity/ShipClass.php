@@ -4,6 +4,7 @@ namespace App\Data\Database\Entity;
 
 use App\Data\Database\Entity\AbstractEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
@@ -26,11 +27,12 @@ class ShipClass extends AbstractEntity
     public $capacity;
 
     public function __construct(
+        UuidInterface $id,
         string $name,
         int $orderNumber,
         int $capacity
     ) {
-        parent::__construct();
+        parent::__construct($id);
         $this->name = $name;
         $this->orderNumber = $orderNumber;
         $this->capacity = $capacity;

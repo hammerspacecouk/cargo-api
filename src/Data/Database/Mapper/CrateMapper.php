@@ -22,10 +22,10 @@ class CrateMapper extends Mapper
     {
         if (array_key_exists('location', $item)) {
             $location = $item['location'];
-            if ($location['port']) {
+            if (isset($location['port'])) {
                 return $this->mapperFactory->createPortMapper()->getPort($location['port']);
             }
-            if ($location['ship']) {
+            if (isset($location['ship'])) {
                 return $this->mapperFactory->createShipMapper()->getShip($location['ship']);
             }
             return new NullEntity();

@@ -10,15 +10,4 @@ use Ramsey\Uuid\UuidInterface;
 
 class CrateRepository extends AbstractEntityRepository
 {
-    public function getActiveByID(
-        UuidInterface $uuid,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->innerJoin(CrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
-        return $qb->getQuery()->getOneOrNullResult($resultType);
-    }
 }

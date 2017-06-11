@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace App\Service;
 
+use App\ApplicationTime;
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
@@ -10,6 +11,7 @@ use App\Data\Database\EntityRepository\CrateRepository;
 use App\Data\ID;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\UuidInterface;
@@ -49,6 +51,7 @@ class CratesService extends AbstractService
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->select('count(1)')
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
+            ->where('location.isCurrent = true')
         ;
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
@@ -59,6 +62,7 @@ class CratesService extends AbstractService
     ): array {
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
+            ->where('location.isCurrent = true')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
         ;
@@ -136,13 +140,13 @@ class CratesService extends AbstractService
     }
 
     public function moveCrateToLocation(
-        UuidInterface $crateId,
+        UuidInterface $crateID,
         UuidInterface $locationId
     ): void {
         $crateRepo = $this->getCrateRepo();
 
         // fetch the crate and the port
-        $crate = $crateRepo->getById($crateId, Query::HYDRATE_OBJECT);
+        $crate = $crateRepo->getById($crateID, Query::HYDRATE_OBJECT);
         if (!$crate) {
             throw new \InvalidArgumentException('No such active crate');
         }
@@ -164,15 +168,21 @@ class CratesService extends AbstractService
             throw new \InvalidArgumentException('Invalid destination ID');
         }
 
-        // make a new crate location
-        $newLocation = new DbCrateLocation(
-            ID::makeNewID(DbCrateLocation::class),
-            $crate,
-            $port,
-            $ship
-        );
+        // start the transaction
+        $this->entityManager->transactional(function() use ($crate, $port, $ship) {
+            // remove any old crate locations
+            $this->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
 
-        $this->entityManager->persist($newLocation);
-        $this->entityManager->flush();
+            // make a new crate location
+            $newLocation = new DbCrateLocation(
+                ID::makeNewID(DbCrateLocation::class),
+                $crate,
+                $port,
+                $ship
+            );
+
+            $this->entityManager->persist($newLocation);
+            $this->entityManager->flush();
+        });
     }
 }

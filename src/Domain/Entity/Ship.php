@@ -21,6 +21,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         parent::__construct($id);
         $this->name = $name;
         $this->shipClass = $shipClass;
+        $this->location = $location;
     }
 
     public function getLocation()

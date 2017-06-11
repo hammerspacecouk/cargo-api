@@ -2,12 +2,14 @@
 declare(strict_types = 1);
 namespace App\Service;
 
+use App\Data\Database\Entity\Channel as DbChannel;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
+use App\Domain\Exception\IllegalMoveException;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -35,7 +37,8 @@ class ShipsService extends AbstractService
         $location = new DbShipLocation(
             ID::makeNewID(DbShipLocation::class),
             $ship,
-            $safePort
+            $safePort,
+            null
         );
 
         $this->entityManager->persist($location);
@@ -90,13 +93,35 @@ class ShipsService extends AbstractService
         return $mapper->getShip($results[0]);
     }
 
+    public function getByIDWithLocation(
+        UuidInterface $uuid
+    ): ?ShipEntity {
+        $qb = $this->getQueryBuilder(DbShip::class)
+            ->select('tbl', 'c')
+            ->join('tbl.shipClass', 'c')
+            ->where('tbl.id = :id')
+            ->setParameter('id', $uuid->getBytes())
+        ;
+
+        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+        if (!$result) {
+            return null;
+        }
+
+        $result['location'] = $this->getShipLocationRepo()
+            ->getCurrentForShipID($uuid);
+
+        $mapper = $this->mapperFactory->createShipMapper();
+        return $mapper->getShip($result);
+    }
+
     public function moveShipToLocation(
         UuidInterface $shipId,
         UuidInterface $locationId
     ): void {
         $shipRepo = $this->getShipRepo();
 
-        // fetch the ship and the port
+        // fetch the ship
         $ship = $shipRepo->getById($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
@@ -104,8 +129,23 @@ class ShipsService extends AbstractService
 
         $locationType = ID::getIDType($locationId);
 
+        // fetch the ships current location
+        $currentShipLocation = $this->getShipLocationRepo()
+            ->getCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
+
         if ($locationType === DbPort::class) {
-            $this->moveShipToPortId($ship, $locationId);
+            // if the current location is a port this is an Illegal move
+            if ($currentShipLocation->port) {
+                throw new IllegalMoveException('You can only move into a port if you came from a channel');
+            }
+            $this->moveShipToPortId($ship, $currentShipLocation, $locationId);
+            return;
+        } elseif ($locationType === DbChannel::class) {
+            // if the current location is a port this is an Illegal move
+            if ($currentShipLocation->channel) {
+                throw new IllegalMoveException('You can only move into a channel if you came from a port');
+            }
+            $this->moveShipToChannelId($ship, $currentShipLocation, $locationId);
             return;
         }
 
@@ -114,6 +154,7 @@ class ShipsService extends AbstractService
 
     private function moveShipToPortId(
         DbShip $ship,
+        DbShipLocation $currentShipLocation,
         UuidInterface $portId
     ) {
         $port = $this->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
@@ -121,11 +162,16 @@ class ShipsService extends AbstractService
             throw new \InvalidArgumentException('No such port');
         }
 
+        // remove the old ship location
+        $currentShipLocation->isCurrent = false;
+        $this->entityManager->persist($currentShipLocation);
+
         // make a new ship location
         $newLocation = new DbShipLocation(
             ID::makeNewID(DbShipLocation::class),
             $ship,
-            $port
+            $port,
+            null
         );
         $this->entityManager->persist($newLocation);
 
@@ -135,6 +181,9 @@ class ShipsService extends AbstractService
             ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
         if (!empty($crateLocations)) {
             foreach($crateLocations as $crateLocation) {
+                $crateLocation->isCurrent = false;
+                $this->entityManager->persist($crateLocation);
+
                 $newLocation = new DbCrateLocation(
                     ID::makeNewID(DbCrateLocation::class),
                     $crateLocation->crate,
@@ -144,6 +193,31 @@ class ShipsService extends AbstractService
                 $this->entityManager->persist($newLocation);
             }
         }
+        $this->entityManager->flush();
+    }
+
+    private function moveShipToChannelId(
+        DbShip $ship,
+        DbShipLocation $currentShipLocation,
+        UuidInterface $channelId
+    ) {
+        $channel = $this->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
+        if (!$channel) {
+            throw new \InvalidArgumentException('No such channel');
+        }
+
+        // remove the old ship location
+        $currentShipLocation->isCurrent = false;
+        $this->entityManager->persist($currentShipLocation);
+
+        // make a new ship location
+        $newLocation = new DbShipLocation(
+            ID::makeNewID(DbShipLocation::class),
+            $ship,
+            null,
+            $channel
+        );
+        $this->entityManager->persist($newLocation);
         $this->entityManager->flush();
     }
 }
