@@ -9,6 +9,14 @@ services:
         exclude: '../../src/Data/Database/Entity/*'
         exclude: '../../src/Domain/*'
 
+    App\TokenConfig:
+        arguments:
+            - '%env(TOKEN_PRIVATE_KEY)%'
+            - '%env(TOKEN_COOKIE_NAME)%'
+            - '%env(TOKEN_ISSUER)%'
+            - '%env(TOKEN_AUDIENCE)%'
+            - '%env(TOKEN_ID)%'
+
     App\Controller\:
         resource: '../../src/Controller/'
         public: true

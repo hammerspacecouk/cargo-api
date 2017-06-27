@@ -11,6 +11,13 @@ $collection->add('home', new Route('/', [
     '_controller' => Controller\Home\IndexAction::class,
 ]));
 
+// login
+$collection->add('login', new Route('/login', [
+    '_controller' => Controller\Security\LoginAction::class,
+]));
+$collection->add('login_check', new Route('/login/check', [
+    '_controller' => Controller\Security\CheckLoginAction::class,
+]));
 
 // Crates
 $collection->add('crates_list', new Route('/crates', [

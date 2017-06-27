@@ -20,3 +20,6 @@ $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
 $kernel->terminate($request, $response);
+
+// it's over. go home https://www.youtube.com/watch?v=T1XgFsitnQw
+exit;
