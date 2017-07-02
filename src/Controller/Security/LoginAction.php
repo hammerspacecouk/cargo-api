@@ -2,14 +2,12 @@
 declare(strict_types = 1);
 namespace App\Controller\Security;
 
-use App\TokenConfig;
+use App\Config\TokenConfig;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\{
-    Cookie, JsonResponse, Request
-};
-use Symfony\Component\HttpKernel\Exception\{
-    AccessDeniedHttpException, BadRequestHttpException
-};
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class LoginAction
 {
@@ -30,29 +28,38 @@ class LoginAction
         Request $request,
         TokenConfig $tokenConfig
     ): JsonResponse {
-        $username = $request->get('username');
-        if (!$username) {
-            throw new BadRequestHttpException('No user provided');
-        }
 
-        // look up the user details
-        if (!isset(self::TEMP_USERS[$username])) {
-            throw new AccessDeniedHttpException('Invalid credentials');
-        }
+        // receive a response back from google
 
-        // generate a new token
-        $userId = Uuid::fromString(self::TEMP_USERS[$username]['uuid']);
 
-        $token = $this->makeWebTokenForUserId(
-            $tokenConfig,
-            $userId
-        );
-
-        $response = new JsonResponse([
-            'token' => (string) $token
+        return new JsonResponse([
+            'google' => '/login/google'
         ]);
-        $response->headers->setCookie($this->makeCookieForWebToken($tokenConfig, $token));
 
-        return $response;
+
+//        $username = $request->get('username');
+//        if (!$username) {
+//            throw new BadRequestHttpException('No user provided');
+//        }
+//
+//        // look up the user details
+//        if (!isset(self::TEMP_USERS[$username])) {
+//            throw new AccessDeniedHttpException('Invalid credentials');
+//        }
+//
+//        // generate a new token
+//        $userId = Uuid::fromString(self::TEMP_USERS[$username]['uuid']);
+//
+//        $token = $this->makeWebTokenForUserId(
+//            $tokenConfig,
+//            $userId
+//        );
+//
+//        $response = new JsonResponse([
+//            'token' => (string) $token
+//        ]);
+//        $response->headers->setCookie($this->makeCookieForWebToken($tokenConfig, $token));
+//
+//        return $response;
     }
 }

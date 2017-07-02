@@ -9,29 +9,20 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
- *     name="ships",
+ *     name="users",
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
  * )})
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
  */
-class Ship extends AbstractEntity
+class User extends AbstractEntity
 {
     /** @ORM\Column(type="string") */
-    public $name;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="ShipClass")
-     * @ORM\JoinColumn()
-     */
-    public $shipClass;
+    public $email;
 
     public function __construct(
         UuidInterface $id,
-        string $name,
-        ShipClass $shipClass
+        string $email
     ) {
         parent::__construct($id);
-        $this->name = $name;
-        $this->shipClass = $shipClass;
+        $this->email = $email;
     }
 }

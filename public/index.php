@@ -7,7 +7,7 @@ use Symfony\Component\Debug\Debug;
 
 require __DIR__.'/../vendor/autoload.php';
 
-$env = Kernel::ENV_DEV;
+$env = Kernel::ENV_DEV; // todo, read from actual environment variables
 $debug = ($env === Kernel::ENV_DEV);
 
 if ($debug) {

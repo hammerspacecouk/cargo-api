@@ -9,6 +9,7 @@ use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\Database\Entity\ShipLocation;
+use App\Data\Database\Entity\User;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -23,6 +24,7 @@ class ID
         Ship::class => '3909',
         ShipClass::class => '5b3b',
         ShipLocation::class => '7abc',
+        User::class => '0000',
     ];
 
     public static function makeNewID($entityClass)

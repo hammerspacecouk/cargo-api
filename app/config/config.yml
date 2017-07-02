@@ -1,6 +1,9 @@
 imports:
     - { resource: services.yml }
 
+parameters:
+    host: https://www.example.com
+
 framework:
     secret: 'ToDOSetARealSecret'
     router:

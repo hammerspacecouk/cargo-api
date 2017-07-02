@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace App\Controller\Security;
 
-use App\TokenConfig;
+use App\Config\TokenConfig;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 

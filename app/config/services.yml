@@ -9,7 +9,11 @@ services:
         exclude: '../../src/Data/Database/Entity/*'
         exclude: '../../src/Domain/*'
 
-    App\TokenConfig:
+    App\Config\ApplicationConfig:
+        arguments:
+            - '%hostname%'
+
+    App\Config\TokenConfig:
         arguments:
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(TOKEN_COOKIE_NAME)%'
@@ -21,3 +25,9 @@ services:
         resource: '../../src/Controller/'
         public: true
         tags: ['controller.service_arguments']
+
+    Google_Client:
+        class: Google_Client
+        arguments:
+            - client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+              client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'

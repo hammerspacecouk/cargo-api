@@ -169,7 +169,7 @@ class CratesService extends AbstractService
         }
 
         // start the transaction
-        $this->entityManager->transactional(function() use ($crate, $port, $ship) {
+        $this->entityManager->transactional(function () use ($crate, $port, $ship) {
             // remove any old crate locations
             $this->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
 

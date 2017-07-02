@@ -180,7 +180,7 @@ class ShipsService extends AbstractService
         $crateLocations = $this->getCrateLocationRepo()
             ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
         if (!empty($crateLocations)) {
-            foreach($crateLocations as $crateLocation) {
+            foreach ($crateLocations as $crateLocation) {
                 $crateLocation->isCurrent = false;
                 $this->entityManager->persist($crateLocation);
 

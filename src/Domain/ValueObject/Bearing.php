@@ -84,5 +84,4 @@ class Bearing implements \JsonSerializable
     {
         return $this->__toString();
     }
-
 }

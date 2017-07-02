@@ -3,7 +3,7 @@ declare(strict_types = 1);
 namespace App\Controller\Security\Traits;
 
 use App\ApplicationTime;
-use App\TokenConfig;
+use App\Config\TokenConfig;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -11,12 +11,10 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\HttpFoundation\{
-    Cookie, Request
-};
-use Symfony\Component\HttpKernel\Exception\{
-    AccessDeniedHttpException, BadRequestHttpException
-};
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait UserTokenTrait
 {
@@ -65,6 +63,7 @@ trait UserTokenTrait
         TokenConfig $tokenConfig
     ): ?Token {
         $tokenString = $request->cookies->get($tokenConfig->getCookieName());
+        // todo - also possible to get it out of the Auth header
         if (!$tokenString) {
             throw new BadRequestHttpException('No credentials');
         }

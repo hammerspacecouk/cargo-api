@@ -12,8 +12,11 @@ $collection->add('home', new Route('/', [
 ]));
 
 // login
-$collection->add('login', new Route('/login', [
-    '_controller' => Controller\Security\LoginAction::class,
+//$collection->add('login', new Route('/login', [
+//    '_controller' => Controller\Security\LoginAction::class,
+//]));
+$collection->add('login_google', new Route('/login/google', [
+    '_controller' => Controller\Security\LoginGoogleAction::class,
 ]));
 $collection->add('login_check', new Route('/login/check', [
     '_controller' => Controller\Security\CheckLoginAction::class,
