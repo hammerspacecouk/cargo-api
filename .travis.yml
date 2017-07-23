@@ -6,3 +6,15 @@ before_script:
 script:
   - composer cs
   - composer test
+  - composer install --no-dev
+  - mkdir build/app
+  - zip build/app/app.zip app nginx public src vendor
+deploy:
+  # Deploy the zip to s3
+  - provider: s3
+    region: $AWS_REGION
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: $APPLICATION_BUCKET
+    skip_cleanup: true
+    local_dir: build/app
