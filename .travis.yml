@@ -8,7 +8,7 @@ script:
   - composer test
   - composer install --no-dev
   - mkdir build/app
-  - zip build/app/app.zip app nginx public src vendor
+  - zip -r build/app/app.zip app nginx public src vendor
 deploy:
   # Deploy the zip to s3
   - provider: s3
