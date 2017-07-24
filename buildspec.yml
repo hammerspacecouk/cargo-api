@@ -1,12 +1,9 @@
 version: 0.1
 
 phases:
-  install:
-    commands:
-      - apt-get composer
   pre_build:
     commands:
-      - echo Installing source NPM dependencies...
+      - echo Installing composer dependencies...
       - composer install
   build:
     commands:
