@@ -15,6 +15,11 @@ phases:
   post_build:
     commands:
       - composer install --no-dev
+
 artifacts:
   files:
-    - **/*
+    - app/**/*
+    - nginx/**/*
+    - public/**/*
+    - src/**/*
+    - vendor/**/*
