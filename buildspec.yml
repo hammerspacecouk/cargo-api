@@ -1,0 +1,20 @@
+version: 0.1
+
+phases:
+  install:
+    commands:
+      - apt-get composer
+  pre_build:
+    commands:
+      - echo Installing source NPM dependencies...
+      - composer install
+  build:
+    commands:
+      - composer cs
+      - composer test
+  post_build:
+    commands:
+      - composer install --no-dev
+artifacts:
+  files:
+    - **/*
