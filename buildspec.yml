@@ -7,14 +7,14 @@ phases:
   pre_build:
     commands:
       - echo Installing composer dependencies...
-      - composer install
+      - composer install --prefer-dist
   build:
     commands:
       - composer cs
       - composer test
   post_build:
     commands:
-      - composer install --no-dev
+      - composer install --no-dev --prefer-dist
 
 artifacts:
   files:
