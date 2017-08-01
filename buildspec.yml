@@ -1,9 +1,6 @@
 version: 0.1
 
 phases:
-  install:
-    commands:
-      - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
   pre_build:
     commands:
       - echo Installing composer dependencies...

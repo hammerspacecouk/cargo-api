@@ -1,0 +1,13 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/api.www.planetcargo.live.conf/
+permissions:
+  - object: /
+    owner: nginx
+    group: nginx
+hooks:
+  ApplicationStart:
+    - location: scripts/application-start.sh
+      timeout: 3600
