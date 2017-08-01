@@ -17,6 +17,7 @@ artifacts:
   files:
     - appspec.yml
     - app/**/*
+    - scripts/**/*
     - nginx/**/*
     - public/**/*
     - src/**/*
