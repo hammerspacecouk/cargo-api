@@ -22,7 +22,6 @@ class Kernel extends SymfonyKernel
 
     public function __construct(string $environment, bool $debug)
     {
-        date_default_timezone_set('UTC'); // server is always UTC
         parent::__construct($environment, $debug);
 
         if ($environment === self::ENV_DEV) {

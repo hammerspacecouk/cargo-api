@@ -22,3 +22,4 @@ artifacts:
     - public/**/*
     - src/**/*
     - vendor/**/*
+    - tmp

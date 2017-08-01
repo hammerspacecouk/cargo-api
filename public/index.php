@@ -7,6 +7,8 @@ use Symfony\Component\Debug\Debug;
 
 require __DIR__.'/../vendor/autoload.php';
 
+date_default_timezone_set('UTC'); // servers should always be UTC
+
 $env = Kernel::ENV_DEV; // todo, read from actual environment variables
 $debug = ($env === Kernel::ENV_DEV);
 
