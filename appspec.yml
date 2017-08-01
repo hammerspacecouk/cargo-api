@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /var/www/api.www.planetcargo.live.conf/
+    destination: /var/www/api.www.planetcargo.live/
 permissions:
   - object: /
     owner: nginx
