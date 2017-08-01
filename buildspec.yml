@@ -8,6 +8,7 @@ phases:
   build:
     commands:
       - composer cs
+      - composer stan
       - composer test
   post_build:
     commands:

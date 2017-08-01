@@ -65,18 +65,20 @@ class Pagination implements \JsonSerializable
 
     private function getPreviousPagePath(): ?string
     {
-        if (is_null($page = $this->getPreviousPage())) {
-            return null;
+        $page = $this->getPreviousPage();
+        if ($page) {
+            return $this->getPath($page);
         }
-        return $this->getPath($page);
+        return null;
     }
 
     private function getNextPagePath(): ?string
     {
-        if (is_null($page = $this->getNextPage())) {
-            return null;
+        $page = $this->getNextPage();
+        if ($page) {
+            return $this->getPath($page);
         }
-        return $this->getPath($page);
+        return null;
     }
 
     private function getPath(int $page): string

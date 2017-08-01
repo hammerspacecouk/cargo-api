@@ -21,7 +21,7 @@ class ShipsService extends AbstractService
     public function makeNew(): void
     {
         $starterShip = $this->getShipClassRepo()
-            ->getById(Uuid::fromString(self::STARTER_SHIP_UUID), Query::HYDRATE_OBJECT);
+            ->getByID(Uuid::fromString(self::STARTER_SHIP_UUID), Query::HYDRATE_OBJECT);
 
         $ship = new DbShip(
             ID::makeNewID(DbShip::class),
@@ -122,7 +122,7 @@ class ShipsService extends AbstractService
         $shipRepo = $this->getShipRepo();
 
         // fetch the ship
-        $ship = $shipRepo->getById($shipId, Query::HYDRATE_OBJECT);
+        $ship = $shipRepo->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
         }

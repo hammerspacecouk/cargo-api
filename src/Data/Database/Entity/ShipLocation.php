@@ -42,7 +42,7 @@ class ShipLocation extends AbstractEntity
         UuidInterface $id,
         ?Ship $ship,
         ?Port $port,
-        Channel $channel
+        ?Channel $channel
     ) {
         parent::__construct($id);
         $this->ship = $ship;

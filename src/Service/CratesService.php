@@ -146,7 +146,7 @@ class CratesService extends AbstractService
         $crateRepo = $this->getCrateRepo();
 
         // fetch the crate and the port
-        $crate = $crateRepo->getById($crateID, Query::HYDRATE_OBJECT);
+        $crate = $crateRepo->getByID($crateID, Query::HYDRATE_OBJECT);
         if (!$crate) {
             throw new \InvalidArgumentException('No such active crate');
         }

@@ -11,6 +11,7 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -24,7 +25,10 @@ trait UserTokenTrait
     ): UuidInterface {
 
         $token = $this->getJWT($request, $tokenConfig);
-        return Uuid::fromString($token->getClaim('userUUID'));
+        if ($token) {
+            return Uuid::fromString($token->getClaim('userUUID'));
+        }
+        throw new RuntimeException('No token found');
     }
 
     protected function makeWebTokenForUserId(
@@ -49,7 +53,7 @@ trait UserTokenTrait
         $secureCookie = false; // todo - be true as often as possible
         return new Cookie(
             $tokenConfig->getCookieName(),
-            $token,
+            (string) $token,
             ApplicationTime::getTime()->add(new \DateInterval('P2Y')),
             '/',
             null,

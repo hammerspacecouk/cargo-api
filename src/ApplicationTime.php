@@ -11,7 +11,7 @@ use DateTimeImmutable;
  */
 class ApplicationTime
 {
-    /** @var DateTimeImmutable  */
+    /** @var DateTimeImmutable|null */
     private static $appTime = null;
 
     public static function getTime()

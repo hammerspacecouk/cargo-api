@@ -25,7 +25,13 @@ class UsersService extends AbstractService
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        return $this->getByEmailAddress($email);
+        $user = $this->getByEmailAddress($email);
+        if ($user) {
+            return $user;
+        }
+
+        // something has gone horribly wrong
+        throw new \RuntimeException('Could not find the newly made user. It gone and died');
     }
 
     public function getByEmailAddress(string $email): ?UserEntity
