@@ -15,6 +15,7 @@ phases:
 
 artifacts:
   files:
+    - appspec.yml
     - app/**/*
     - nginx/**/*
     - public/**/*
