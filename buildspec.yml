@@ -12,6 +12,7 @@ phases:
   post_build:
     commands:
       - composer install --no-dev --prefer-dist
+      - mkdir tmp
 
 artifacts:
   files:
