@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-    APP_ENV=prod
 # Set the app environment
+APP_ENV=prod
 if [ "$DEPLOYMENT_GROUP_NAME" == "api-alpha" ]
 then
     APP_ENV=alpha
-else
 fi
 
 # Fetch parameters
