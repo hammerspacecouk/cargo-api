@@ -16,8 +16,8 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 class Kernel extends SymfonyKernel
 {
     public const ENV_DEV = 'dev';
-    public const ENV_ALPHA = 'dev';
-    public const ENV_BETA = 'dev';
+    public const ENV_ALPHA = 'alpha';
+    public const ENV_BETA = 'beta';
     public const ENV_PROD = '';
 
     public function __construct(string $environment, bool $debug)

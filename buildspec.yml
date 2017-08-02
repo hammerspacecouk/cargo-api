@@ -13,7 +13,6 @@ phases:
   post_build:
     commands:
       - composer install --no-dev --prefer-dist
-      - mkdir tmp
 
 artifacts:
   files:
@@ -24,4 +23,3 @@ artifacts:
     - public/**/*
     - src/**/*
     - vendor/**/*
-    - tmp

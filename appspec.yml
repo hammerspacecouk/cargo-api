@@ -8,6 +8,9 @@ permissions:
     owner: nginx
     group: nginx
 hooks:
+  AfterInstall:
+    - location: scripts/fetch-parameters.sh
+      timeout: 300
   ApplicationStart:
     - location: scripts/application-start.sh
-      timeout: 3600
+      timeout: 300
