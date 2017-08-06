@@ -4,7 +4,9 @@ namespace App\Domain\ValueObject;
 
 class Bearing implements \JsonSerializable
 {
-    const BEARINGS = [
+    public const BEARINGS_COUNT = 6;
+
+    private const BEARINGS = [
         'NW' => 'SE',
         'NE' => 'SW',
         'E' => 'W',
@@ -20,6 +22,11 @@ class Bearing implements \JsonSerializable
     ) {
         $bearing = self::validate($bearing);
         $this->bearing = $bearing;
+    }
+
+    public static function getInitialRandomStepNumber(): int
+    {
+        return rand(0, 5);
     }
 
     public static function getEmptyBearingsList(): array

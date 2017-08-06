@@ -9,6 +9,7 @@ use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipClass as DbShipClass;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\EntityRepository\ChannelRepository;
 use App\Data\Database\EntityRepository\CrateLocationRepository;
 use App\Data\Database\EntityRepository\CrateRepository;
@@ -16,6 +17,7 @@ use App\Data\Database\EntityRepository\PortRepository;
 use App\Data\Database\EntityRepository\ShipClassRepository;
 use App\Data\Database\EntityRepository\ShipLocationRepository;
 use App\Data\Database\EntityRepository\ShipRepository;
+use App\Data\Database\EntityRepository\UserRepository;
 use App\Data\Database\Mapper\MapperFactory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
@@ -83,5 +85,10 @@ abstract class AbstractService
     protected function getShipLocationRepo(): ShipLocationRepository
     {
         return $this->entityManager->getRepository(DbShipLocation::class);
+    }
+
+    protected function getUserRepo(): UserRepository
+    {
+        return $this->entityManager->getRepository(DbUser::class);
     }
 }

@@ -7,13 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipClassRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ship_classes",
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
  * )})
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipClassRepository")
  */
 class ShipClass extends AbstractEntity
 {
@@ -26,15 +25,25 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $capacity;
 
+    /** @ORM\Column(type="boolean") */
+    public $isStarterShip;
+
+    /** @ORM\Column(type="float") */
+    public $purchaseCost;
+
     public function __construct(
         UuidInterface $id,
         string $name,
         int $orderNumber,
-        int $capacity
+        int $capacity,
+        bool $isStarterShip,
+        float $purchaseCost
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->orderNumber = $orderNumber;
         $this->capacity = $capacity;
+        $this->isStarterShip = $isStarterShip;
+        $this->purchaseCost = $purchaseCost;
     }
 }

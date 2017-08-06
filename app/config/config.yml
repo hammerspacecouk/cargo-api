@@ -3,6 +3,7 @@ imports:
 
 parameters:
     hostname: https://www.planetcargo.live
+    distance_multiplier: 3600
 
 framework:
     secret: 'ToDOSetARealSecret'

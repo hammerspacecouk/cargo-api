@@ -4,9 +4,11 @@ namespace App\Data\Database\Entity;
 
 use App\ApplicationTime;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
+/**
+ * @ORM\MappedSuperclass
+ */
 abstract class AbstractEntity
 {
     /**

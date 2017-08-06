@@ -12,6 +12,7 @@ services:
     App\Config\ApplicationConfig:
         arguments:
             - '%hostname%'
+            - '%distance_multiplier%'
 
     App\Config\TokenConfig:
         arguments:

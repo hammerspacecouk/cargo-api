@@ -10,7 +10,8 @@ class UserMapper extends Mapper
     {
         $domainEntity = new User(
             $item['id'],
-            $item['email']
+            $item['email'],
+            $item['rotationSteps']
         );
         return $domainEntity;
     }

@@ -1,5 +1,5 @@
 <?php
-namespace App\Command\Manual;
+namespace App\Command\Action;
 
 use App\Service\ShipsService;
 use App\Service\PortsService;
@@ -23,7 +23,7 @@ class MoveShipCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:manual:move-ship')
+            ->setName('game:action:move-ship')
             ->setDescription('Move a ship into a port')
             ->addArgument(
                 'shipId',

@@ -4,7 +4,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\ShipClass;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class Ship extends Entity implements \JsonSerializable, CrateLocation
 {
@@ -13,7 +13,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
     private $location;
 
     public function __construct(
-        Uuid $id,
+        UuidInterface $id,
         string $name,
         ?ShipClass $shipClass,
         ?ShipLocation $location = null
@@ -24,7 +24,12 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         $this->location = $location;
     }
 
-    public function getLocation()
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getLocation(): ?ShipLocation
     {
         if ($this->location === null) {
             throw new DataNotFetchedException(

@@ -1,5 +1,5 @@
 <?php
-namespace App\Command\Game;
+namespace App\Command\Setup;
 
 use App\Domain\ValueObject\Bearing;
 use App\Service\PortsService;
@@ -22,7 +22,7 @@ class MakeChannelCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:make-channel')
+            ->setName('game:setup:make-channel')
             ->setDescription('Creates a new channel')
             ->addArgument(
                 'fromPortId',

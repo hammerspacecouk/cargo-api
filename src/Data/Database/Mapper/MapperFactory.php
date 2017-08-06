@@ -4,6 +4,11 @@ namespace App\Data\Database\Mapper;
 
 class MapperFactory
 {
+    public function createChannelMapper(): ChannelMapper
+    {
+        return new ChannelMapper($this);
+    }
+
     public function createCrateMapper(): CrateMapper
     {
         return new CrateMapper($this);

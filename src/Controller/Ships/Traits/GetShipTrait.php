@@ -5,6 +5,7 @@ namespace App\Controller\Ships\Traits;
 use App\Controller\IDRequestTrait;
 use App\Domain\Entity\Ship;
 use App\Service\ShipsService;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -32,6 +33,19 @@ trait GetShipTrait
         $ship = $shipsService->getByIDWithLocation($uuid);
         if (!$ship) {
             throw new NotFoundHttpException('No such ship');
+        }
+        return $ship;
+    }
+
+    public function getShipForOwnerId(
+        Request $request,
+        ShipsService $shipsService,
+        UuidInterface $userId
+    ): Ship {
+        $uuid = $this->getID($request);
+        $ship = $shipsService->getByIDForOwnerId($uuid, $userId);
+        if (!$ship) {
+            throw new NotFoundHttpException('No such ship for this user');
         }
         return $ship;
     }

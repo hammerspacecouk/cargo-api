@@ -6,14 +6,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipLocationRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ship_locations",
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
  *     indexes={@ORM\Index(name="ship_location_created", columns={"created_at"})})
  * )})
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipLocationRepository")
  */
 class ShipLocation extends AbstractEntity
 {

@@ -5,10 +5,29 @@ namespace App\Service;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\ID;
 use App\Domain\Entity\User as UserEntity;
+use App\Domain\ValueObject\Bearing;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\UuidInterface;
 
 class UsersService extends AbstractService
 {
+    public function getById(
+        UuidInterface $uuid
+    ): ?UserEntity {
+        $qb = $this->getQueryBuilder(DbUser::class)
+            ->where('tbl.id = :id')
+            ->setParameter('id', $uuid->getBytes())
+        ;
+
+        $results = $qb->getQuery()->getArrayResult();
+        if (empty($results)) {
+            return null;
+        }
+
+        $mapper = $this->mapperFactory->createUserMapper();
+        return $mapper->getUser(reset($results));
+    }
+
     public function getOrCreateUserByEmail(string $email): UserEntity
     {
         $user = $this->getByEmailAddress($email);
@@ -19,7 +38,8 @@ class UsersService extends AbstractService
         // make a new user
         $user = new DbUser(
             ID::makeNewID(DbUser::class),
-            $email
+            $email,
+            Bearing::getInitialRandomStepNumber()
         );
 
         $this->entityManager->persist($user);
@@ -47,6 +67,6 @@ class UsersService extends AbstractService
         }
 
         $mapper = $this->mapperFactory->createUserMapper();
-        return $mapper->getUser($results[0]);
+        return $mapper->getUser(reset($results));
     }
 }

@@ -1,7 +1,6 @@
 <?php
-namespace App\Command\Game;
+namespace App\Command\Maintenance;
 
-use App\Data\Database\Entity\Crate;
 use App\Service\CratesService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,8 +19,8 @@ class MakeCrateCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:make-crate')
-            ->setDescription('Creates a new crate and places it on the map')
+            ->setName('game:maintenance:make-crate')
+            ->setDescription('Creates a new inactive crate')
         ;
     }
 

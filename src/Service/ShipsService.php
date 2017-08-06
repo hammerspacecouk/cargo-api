@@ -9,6 +9,7 @@ use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
+use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
@@ -16,17 +17,19 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipsService extends AbstractService
 {
-    const STARTER_SHIP_UUID = 'c274d46f-5b3b-433c-81a8-ac9f97247699';
-
-    public function makeNew(): void
+    public function makeNew(User $owner): void
     {
-        $starterShip = $this->getShipClassRepo()
-            ->getByID(Uuid::fromString(self::STARTER_SHIP_UUID), Query::HYDRATE_OBJECT);
+        // all ships begin as starter ships, and must be upgraded
+        $starterShip = $this->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
+
+        $user = $this->getUserRepo()
+            ->getByID($owner->getId(), Query::HYDRATE_OBJECT);
 
         $ship = new DbShip(
             ID::makeNewID(DbShip::class),
-            (string) time(),
-            $starterShip
+            'Ship' . (string) time(),
+            $starterShip,
+            $user
         );
         $this->entityManager->persist($ship);
 
@@ -74,6 +77,28 @@ class ShipsService extends AbstractService
         }, $results);
     }
 
+    public function findLatestShipLocations(
+        int $limit,
+        int $page = 1
+    ): array {
+        $locations = $this->getShipLocationRepo()->getLatestShipsInPorts($limit, $this->getOffset($limit, $page));
+
+        // invert the relationship
+        $ships = [];
+        foreach ($locations as $location) {
+            $ship = $location['ship'];
+            unset($location['ship']);
+            $ship['location'] = $location;
+            $ships[] = $ship;
+        }
+
+        $mapper = $this->mapperFactory->createShipMapper();
+
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getShip($result);
+        }, $ships);
+    }
+
     public function getByID(
         UuidInterface $uuid
     ): ?ShipEntity {
@@ -84,13 +109,35 @@ class ShipsService extends AbstractService
             ->setParameter('id', $uuid->getBytes())
         ;
 
-        $results = $qb->getQuery()->getArrayResult();
-        if (empty($results)) {
+        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+        if (!$result) {
             return null;
         }
 
         $mapper = $this->mapperFactory->createShipMapper();
-        return $mapper->getShip($results[0]);
+        return $mapper->getShip($result);
+    }
+
+    public function getByIDForOwnerId(
+        UuidInterface $shipId,
+        UuidInterface $ownerId
+    ): ?ShipEntity {
+        $qb = $this->getQueryBuilder(DbShip::class)
+            ->select('tbl', 'c')
+            ->join('tbl.shipClass', 'c')
+            ->where('tbl.id = :id')
+            ->andWhere('IDENTITY(tbl.owner) = :ownerId')
+            ->setParameter('id', $shipId->getBytes())
+            ->setParameter('ownerId', $ownerId->getBytes())
+        ;
+
+        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+        if (!$result) {
+            return null;
+        }
+
+        $mapper = $this->mapperFactory->createShipMapper();
+        return $mapper->getShip($result);
     }
 
     public function getByIDWithLocation(
@@ -109,10 +156,45 @@ class ShipsService extends AbstractService
         }
 
         $result['location'] = $this->getShipLocationRepo()
-            ->getCurrentForShipID($uuid);
+            ->getCurrentForShipId($uuid);
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($result);
+    }
+
+    public function countForOwnerIDWithLocation(
+        UuidInterface $userId
+    ): int {
+        $qb = $this->getQueryBuilder(DbShip::class)
+            ->select('count(1)')
+            ->where('IDENTITY(tbl.owner) = :id')
+            ->setParameter('id', $userId->getBytes())
+        ;
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getForOwnerIDWithLocation(
+        UuidInterface $userId,
+        int $limit,
+        int $page = 1
+    ): array {
+        $qb = $this->getQueryBuilder(DbShip::class)
+            ->select('tbl', 'c')
+            ->join('tbl.shipClass', 'c')
+            ->where('IDENTITY(tbl.owner) = :id')
+            ->setMaxResults($limit)
+            ->setFirstResult($this->getOffset($limit, $page))
+            ->setParameter('id', $userId->getBytes())
+        ;
+
+        $results = $qb->getQuery()->getArrayResult();
+        $results = $this->attachLocationToShips($results);
+
+        $mapper = $this->mapperFactory->createShipMapper();
+
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getShip($result);
+        }, $results);
     }
 
     public function moveShipToLocation(
@@ -131,7 +213,7 @@ class ShipsService extends AbstractService
 
         // fetch the ships current location
         $currentShipLocation = $this->getShipLocationRepo()
-            ->getCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
+            ->getCurrentForShipId($ship->id, Query::HYDRATE_OBJECT);
 
         if ($locationType === DbPort::class) {
             // if the current location is a port this is an Illegal move
@@ -140,7 +222,9 @@ class ShipsService extends AbstractService
             }
             $this->moveShipToPortId($ship, $currentShipLocation, $locationId);
             return;
-        } elseif ($locationType === DbChannel::class) {
+        }
+
+        if ($locationType === DbChannel::class) {
             // if the current location is a port this is an Illegal move
             if ($currentShipLocation->channel) {
                 throw new IllegalMoveException('You can only move into a channel if you came from a port');
@@ -219,5 +303,31 @@ class ShipsService extends AbstractService
         );
         $this->entityManager->persist($newLocation);
         $this->entityManager->flush();
+    }
+
+    private function attachLocationToShips(array $ships): array
+    {
+        if (empty($ships)) {
+            return $ships;
+        }
+
+        // get all the IDs
+        $ids = array_map(function ($ship) {
+            return $ship['id']->getBytes();
+        }, $ships);
+
+        // do a batch query to find all the location and key them by ship
+        $locations = [];
+        foreach ($this->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
+            $locations[$location['ship']['uuid']] = $location;
+        }
+
+        $shipsWithLocations = [];
+        foreach ($ships as $ship) {
+            $ship['location'] = $locations[$ship['uuid']] ?? null;
+            $shipsWithLocations[] = $ship;
+        }
+
+        return $shipsWithLocations;
     }
 }

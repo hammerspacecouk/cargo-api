@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UserRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="users",
@@ -18,11 +18,16 @@ class User extends AbstractEntity
     /** @ORM\Column(type="string") */
     public $email;
 
+    /** @ORM\Column(type="integer") */
+    public $rotationSteps;
+
     public function __construct(
         UuidInterface $id,
-        string $email
+        string $email,
+        int $rotationSteps
     ) {
         parent::__construct($id);
         $this->email = $email;
+        $this->rotationSteps = $rotationSteps;
     }
 }

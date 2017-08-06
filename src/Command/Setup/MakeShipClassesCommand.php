@@ -21,7 +21,7 @@ class MakeShipClassesCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('setup:make-ship-classes')
+            ->setName('setup:setup:make-ship-classes')
             ->setDescription('One off command for populating enum table')
         ;
     }
@@ -34,7 +34,14 @@ class MakeShipClassesCommand extends Command
 
         foreach ($this->getSourceData() as $data) {
             $output->writeln('Making ' . $data[0]);
-            $shipClass = new ShipClass(Uuid::fromString($data[0]), $data[1], $data[2], $data[3]);
+            $shipClass = new ShipClass(
+                Uuid::fromString($data[0]),
+                $data[1],
+                $data[2],
+                $data[3],
+                $data[4],
+                $data[5]
+            );
             $shipClass->uuid = (string) $shipClass->id;
             $this->entityManager->persist($shipClass);
         }
@@ -46,10 +53,10 @@ class MakeShipClassesCommand extends Command
 
     private function getSourceData()
     {
-        // todo, move this to XML, JSON or YML
+        // todo, move this to XML, JSON, YML or CSV
         return [
-            ['c274d46f-5b3b-433c-81a8-ac9f97247699', 'Paddle Boat', 100, 2],
-            ['6cef17a5-d14d-47df-9027-579172b19498', 'Container Ship', 10000, 50],
+            ['c274d46f-5b3b-433c-81a8-ac9f97247699', 'Paddle Boat', 100, 2, true, 100],
+            ['6cef17a5-5b3b-47df-9027-579172b19498', 'Container Ship', 10000, 50, false, 10000],
         ];
     }
 }

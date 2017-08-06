@@ -2,18 +2,23 @@
 declare(strict_types = 1);
 namespace App\Domain\Entity;
 
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class Port extends Entity implements \JsonSerializable, CrateLocation, ShipLocation
 {
     private $name;
 
     public function __construct(
-        Uuid $id,
+        UuidInterface $id,
         string $name
     ) {
         parent::__construct($id);
         $this->name = $name;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function jsonSerialize()

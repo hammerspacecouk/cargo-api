@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace App\Data\Database\Mapper;
 
-use App\Domain\Entity\Null\NullEntity;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\ValueObject\ShipClass;

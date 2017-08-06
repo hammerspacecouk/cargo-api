@@ -1,5 +1,5 @@
 <?php
-namespace App\Command\Manual;
+namespace App\Command\Action;
 
 use App\Service\CratesService;
 use App\Service\PortsService;
@@ -23,8 +23,8 @@ class MoveCrateCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:manual:move-crate')
-            ->setDescription('Move a crate into a port')
+            ->setName('game:action:move-crate')
+            ->setDescription('Move a crate into a port or ship')
             ->addArgument(
                 'crateId',
                 InputArgument::REQUIRED,

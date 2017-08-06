@@ -4,7 +4,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\Entity\Null\NullEntity;
 use App\Domain\Exception\DataNotFetchedException;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class Crate extends Entity implements \JsonSerializable
 {
@@ -13,7 +13,7 @@ class Crate extends Entity implements \JsonSerializable
     private $isDestroyed;
 
     public function __construct(
-        Uuid $id,
+        UuidInterface $id,
         string $contents,
         bool $isDestroyed = false,
         ?CrateLocation $location = null

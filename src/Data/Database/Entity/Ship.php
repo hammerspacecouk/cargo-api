@@ -6,18 +6,23 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ships",
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
  * )})
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
  */
 class Ship extends AbstractEntity
 {
     /** @ORM\Column(type="string") */
     public $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    public $owner;
 
     /**
      * @ORM\ManyToOne(targetEntity="ShipClass")
@@ -28,10 +33,12 @@ class Ship extends AbstractEntity
     public function __construct(
         UuidInterface $id,
         string $name,
-        ShipClass $shipClass
+        ShipClass $shipClass,
+        User $owner
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->shipClass = $shipClass;
+        $this->owner = $owner;
     }
 }

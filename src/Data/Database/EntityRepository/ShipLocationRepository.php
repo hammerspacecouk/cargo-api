@@ -11,7 +11,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipLocationRepository extends EntityRepository
 {
-    public function getCurrentForShipID(
+    public function getCurrentForShipId(
         UuidInterface $shipId,
         $resultType = Query::HYDRATE_ARRAY
     ) {
@@ -20,11 +20,45 @@ class ShipLocationRepository extends EntityRepository
             ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.channel', 'channel')
             ->where('IDENTITY(tbl.ship) = :ship')
+            ->andWhere('tbl.isCurrent = true')
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1)
             ->setParameter('ship', $shipId->getBytes())
         ;
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function getCurrentForShipIds(
+        array $shipIds,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'port', 'channel')
+            ->leftJoin('tbl.port', 'port')
+            ->leftJoin('tbl.ship', 'ship')
+            ->leftJoin('tbl.channel', 'channel')
+            ->where('IDENTITY(tbl.ship) IN (:ships)')
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('ships', $shipIds)
+        ;
+        return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function getLatestShipsInPorts(
+        int $limit,
+        int $offset = 0,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'port')
+            ->innerJoin('tbl.port', 'port')
+            ->leftJoin('tbl.ship', 'ship')
+            ->where('tbl.isCurrent = true')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('tbl.createdAt', 'DESC')
+        ;
+        return $qb->getQuery()->getResult($resultType);
     }
 
     public function disableAllActiveForShipID(UuidInterface $uuid): void

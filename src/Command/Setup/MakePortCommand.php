@@ -1,5 +1,5 @@
 <?php
-namespace App\Command\Game;
+namespace App\Command\Setup;
 
 use App\Data\Database\Entity\Port;
 use App\Service\PortsService;
@@ -20,7 +20,7 @@ class MakePortCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:make-port')
+            ->setName('game:setup:make-port')
             ->setDescription('Creates a new port and places it on the map')
         ;
     }
