@@ -53,17 +53,17 @@ $collection->add('ships_show', new Route('/ships/{uuid}', [
     '_controller' => Controller\Ships\ShowAction::class,
 ]));
 
-// My - requires cookie
-$collection->add('my_status', new Route('/my', [
-    '_controller' => Controller\My\IndexAction::class,
+// Play - requires cookie
+$collection->add('play_status', new Route('/play', [
+    '_controller' => Controller\Play\IndexAction::class,
 ]));
 
-$collection->add('my_positions', new Route('/my/ships', [
-    '_controller' => Controller\My\Ships\ListAction::class,
+$collection->add('play_positions', new Route('/play/ships', [
+    '_controller' => Controller\Play\Ships\ListAction::class,
 ]));
 
-$collection->add('my_position_ship', new Route('/my/ships/{uuid}', [
-    '_controller' => Controller\My\Ships\ShowAction::class,
+$collection->add('play_position_ship', new Route('/play/ships/{uuid}', [
+    '_controller' => Controller\Play\Ships\ShowAction::class,
 ]));
 
 return $collection;

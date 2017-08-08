@@ -2,25 +2,30 @@
 declare(strict_types = 1);
 namespace App\Controller\Home;
 
-use App\Domain\Entity\Ship;
-use App\Service\ShipsService;
+use App\Domain\Entity\ShipInChannel;
+use App\Domain\Entity\ShipInPort;
+use App\Service\ShipLocationsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class IndexAction
 {
     // general status and stats of the game as a whole
     public function __invoke(
-        ShipsService $shipsService
+        ShipLocationsService $shipsLocationsService
     ): JsonResponse {
 
-        $latestShipLocations = $shipsService->findLatestShipLocations(10);
+        $latestShipLocations = $shipsLocationsService->findLatest(10);
 
         $shipsStatuses = [];
-        foreach ($latestShipLocations as $ship) {
-            /** @var Ship $ship */
-            $shipsStatuses[] = $ship->getName() . ' arrived at ' . $ship->getLocation()->getName();
+        foreach ($latestShipLocations as $location) {
+            if ($location instanceof ShipInPort) {
+                $shipsStatuses[] = $location->getShip()->getName() . ' arrived at ' . $location->getPort()->getName();
+            } elseif ($location instanceof ShipInChannel) {
+                $shipsStatuses[] = $location->getShip()->getName() .
+                    ' departed ' . $location->getOrigin()->getName() .
+                    ' headed for ' . $location->getDestination()->getName();
+            }
         }
-
 
         return new JsonResponse([
             'status' => 'ok',

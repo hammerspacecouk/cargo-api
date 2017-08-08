@@ -4,7 +4,7 @@ namespace App\Domain\Entity;
 
 use Ramsey\Uuid\UuidInterface;
 
-class Port extends Entity implements \JsonSerializable, CrateLocation, ShipLocation
+class Port extends Entity implements \JsonSerializable, CrateLocation
 {
     private $name;
 

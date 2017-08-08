@@ -1,8 +1,9 @@
 <?php
 declare(strict_types = 1);
-namespace App\Controller\My;
+namespace App\Controller\Play\Ships;
 
 use App\Config\TokenConfig;
+use App\Controller\PaginationRequestTrait;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Service\ShipsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,9 +13,12 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 /**
  * The 'My' Section reads from your cookie, so is custom and un-cacheable
  */
-class IndexAction
+class ListAction
 {
     use UserTokenTrait;
+    use PaginationRequestTrait;
+
+    const PER_PAGE = 100;
 
     public function __invoke(
         Request $request,
@@ -27,13 +31,18 @@ class IndexAction
             throw new UnauthorizedHttpException('No user found');
         }
 
-        $ships = $shipsService->getForOwnerIDWithLocation($userId, 100);
+        $page = $this->getPageNumber($request);
+        $total = $shipsService->countForOwnerIDWithLocation($userId);
+        $pagination = $this->getPagination($request, $page, self::PER_PAGE, $total);
 
-        $status = [
-            'userId' => $userId,
-            'ships' => $ships,
-        ];
+        $items = [];
+        if ($total) {
+            $items = $shipsService->getForOwnerIDWithLocation($userId, self::PER_PAGE, $page);
+        }
 
-        return new JsonResponse($status);
+        return new JsonResponse([
+            'pagination' => $pagination,
+            'items' => $items,
+        ]);
     }
 }

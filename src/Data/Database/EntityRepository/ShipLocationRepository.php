@@ -44,19 +44,22 @@ class ShipLocationRepository extends EntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function getLatestShipsInPorts(
+    public function getLatest(
         int $limit,
         int $offset = 0,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'port')
-            ->innerJoin('tbl.port', 'port')
+            ->select('tbl', 'ship', 'port', 'channel', 'fromPort', 'toPort')
+            ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.ship', 'ship')
+            ->leftJoin('tbl.channel', 'channel')
+            ->leftJoin('channel.fromPort', 'fromPort')
+            ->leftJoin('channel.toPort', 'toPort')
             ->where('tbl.isCurrent = true')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('tbl.createdAt', 'DESC')
+            ->orderBy('tbl.entryTime', 'DESC')
         ;
         return $qb->getQuery()->getResult($resultType);
     }

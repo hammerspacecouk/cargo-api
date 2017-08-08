@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace App\Service;
 
+use App\ApplicationTime;
 use App\Data\Database\Entity\Channel as DbChannel;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
@@ -41,7 +42,8 @@ class ShipsService extends AbstractService
             ID::makeNewID(DbShipLocation::class),
             $ship,
             $safePort,
-            null
+            null,
+            ApplicationTime::getTime()
         );
 
         $this->entityManager->persist($location);
@@ -248,6 +250,7 @@ class ShipsService extends AbstractService
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
+        $currentShipLocation->leftAt = ApplicationTime::getTime();
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location
@@ -255,7 +258,8 @@ class ShipsService extends AbstractService
             ID::makeNewID(DbShipLocation::class),
             $ship,
             $port,
-            null
+            null,
+            ApplicationTime::getTime()
         );
         $this->entityManager->persist($newLocation);
 
@@ -292,6 +296,7 @@ class ShipsService extends AbstractService
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
+        $currentShipLocation->leftAt = ApplicationTime::getTime();
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location
@@ -299,7 +304,8 @@ class ShipsService extends AbstractService
             ID::makeNewID(DbShipLocation::class),
             $ship,
             null,
-            $channel
+            $channel,
+            ApplicationTime::getTime()
         );
         $this->entityManager->persist($newLocation);
         $this->entityManager->flush();

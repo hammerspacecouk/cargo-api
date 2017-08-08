@@ -1,6 +1,6 @@
 <?php
 declare(strict_types = 1);
-namespace App\Controller\My\Ships;
+namespace App\Controller\Play\Ships;
 
 use App\Config\ApplicationConfig;
 use App\Config\TokenConfig;

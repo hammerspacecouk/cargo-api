@@ -5,7 +5,7 @@ namespace App\Domain\Entity;
 use App\Domain\ValueObject\Bearing;
 use Ramsey\Uuid\UuidInterface;
 
-class Channel extends Entity implements \JsonSerializable, ShipLocation
+class Channel extends Entity implements \JsonSerializable
 {
     private $origin;
     private $destination;

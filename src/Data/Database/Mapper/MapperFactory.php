@@ -29,6 +29,11 @@ class MapperFactory
         return new ShipClassMapper($this);
     }
 
+    public function createShipLocationMapper(): ShipLocationMapper
+    {
+        return new ShipLocationMapper($this);
+    }
+
     public function createUserMapper(): UserMapper
     {
         return new UserMapper($this);
