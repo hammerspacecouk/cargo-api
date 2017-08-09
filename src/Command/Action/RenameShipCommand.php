@@ -46,16 +46,6 @@ class RenameShipCommand extends Command
                 InputArgument::REQUIRED,
                 'User token'
             )
-            ->addArgument(
-                'firstWord',
-                InputArgument::REQUIRED,
-                'First word of name. ' . $instruction
-            )
-            ->addArgument(
-                'secondWord',
-                InputArgument::OPTIONAL,
-                'Second word of name. ' . $instruction
-            )
         ;
     }
 
@@ -66,21 +56,11 @@ class RenameShipCommand extends Command
         $shipId = Uuid::fromString($input->getArgument('shipId'));
         $token = $this->parseToken($input->getArgument('token'));
         $userID = Uuid::fromString($token->getClaim('userUUID'));
-        $allowedWords = $token->getClaim('nameParts');
-
         // todo - validate userID and that the ship is yours
-
-        $firstWord = $input->getArgument('firstWord') ?? null;
-        $secondWord = $input->getArgument('secondWord');
-
-        if ($firstWord !== $allowedWords[0]) {
-            throw new \InvalidArgumentException('Not allowed first word');
-        }
-
-        if ($secondWord !== $allowedWords[1]) {
-            throw new \InvalidArgumentException('Not allowed second word');
-        }
-
+        $words = $token->getClaim('nameParts');
+        $firstWord = $words[0];
+        $secondWord = $words[1];
+        
         $output->writeln(
             sprintf(
                 'Attempting to name ship %s to The %s %s',
