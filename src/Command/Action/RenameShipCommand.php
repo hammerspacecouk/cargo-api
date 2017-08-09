@@ -48,7 +48,7 @@ class RenameShipCommand extends Command
             )
             ->addArgument(
                 'firstWord',
-                InputArgument::OPTIONAL,
+                InputArgument::REQUIRED,
                 'First word of name. ' . $instruction
             )
             ->addArgument(
@@ -68,16 +68,14 @@ class RenameShipCommand extends Command
         $userID = Uuid::fromString($token->getClaim('userUUID'));
         $allowedWords = $token->getClaim('nameParts');
 
-        // todo - validate userID
+        // todo - validate userID and that the ship is yours
 
         $firstWord = $input->getArgument('firstWord') ?? null;
         $secondWord = $input->getArgument('secondWord');
 
-        // todo - can't use PLACEHOLDER_EMPTY constant as I want to remove that class
-        if ($firstWord && $firstWord !== ShipName::PLACEHOLDER_EMPTY &&  $firstWord !== $allowedWords[0]) {
+        if ($firstWord !== $allowedWords[0]) {
             throw new \InvalidArgumentException('Not allowed first word');
         }
-
 
         if ($secondWord !== $allowedWords[1]) {
             throw new \InvalidArgumentException('Not allowed second word');

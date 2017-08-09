@@ -130,7 +130,7 @@ class ShipsService extends AbstractService
 
     public function renameShip(
         UuidInterface $shipId,
-        ?string $firstWord,
+        string $firstWord,
         string $secondWord
     ): string {
         $shipRepo = $this->getShipRepo();
@@ -144,13 +144,7 @@ class ShipsService extends AbstractService
 
         // todo - abstract somewhere else
         // todo - validate the words are in the dictionary (?, might not need to with the token)
-        $parts = ['The'];
-        if ($firstWord && $firstWord !== \App\Data\StaticData\ShipName\ShipName::PLACEHOLDER_EMPTY) {
-            $parts[] = $firstWord;
-        }
-        $parts[] = $secondWord;
-
-        $ship->name = implode(' ', $parts);
+        $ship->name = 'The ' . $firstWord . ' ' . $secondWord;
         $this->entityManager->persist($ship);
         $this->entityManager->flush();
 
