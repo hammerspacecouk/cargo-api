@@ -58,17 +58,15 @@ class RequestShipName extends Command
 
         $name = $this->shipsService->getRandomName();
 
-        $token = $this->makeToken($userId, $name->getParts());
+        $token = $this->makeToken($userId, $name);
 
         // todo - convert to json web token
-        $output->writeln('Name Chosen: ' . $name->getFullName());
-        $output->writeln('First word: ' . $name->getFirstWord());
-        $output->writeln('Second word: ' . $name->getSecondWord());
+        $output->writeln('Name Offered: ' . $name);
         $output->writeln('Token to return: ');
         $output->writeln((string) $token);
     }
 
-    private function makeToken(UuidInterface $userId, array $nameParts)
+    private function makeToken(UuidInterface $userId, string $name)
     {
         $signer = new Sha256();
         $token = (new Builder())->setIssuer($this->tokenConfig->getIssuer())
@@ -77,7 +75,7 @@ class RequestShipName extends Command
             ->setIssuedAt(ApplicationTime::getTime()->getTimestamp())
             ->setExpiration(ApplicationTime::getTime()->add(new \DateInterval('P1D'))->getTimestamp())
             ->set('userUUID', (string) $userId)
-            ->set('nameParts', $nameParts)
+            ->set('name', $name)
             ->sign($signer, $this->tokenConfig->getPrivateKey())
             ->getToken();
 

@@ -37,6 +37,11 @@ class DictionaryRepository extends AbstractEntityRepository
         return $words[array_rand($words)];
     }
 
+    public function getRandomShipName(): string
+    {
+        return 'The ' . $this->getRandomShipNameFirst() . ' ' . $this->getRandomShipNameSecond();
+    }
+
     public function getRandomShipNameFirst(): string
     {
         return $this->getRandomWord(Dictionary::CONTEXT_SHIP_NAME_1);

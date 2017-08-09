@@ -57,20 +57,17 @@ class RenameShipCommand extends Command
         $token = $this->parseToken($input->getArgument('token'));
         $userID = Uuid::fromString($token->getClaim('userUUID'));
         // todo - validate userID and that the ship is yours
-        $words = $token->getClaim('nameParts');
-        $firstWord = $words[0];
-        $secondWord = $words[1];
-        
+        $name = $token->getClaim('name');
+
         $output->writeln(
             sprintf(
-                'Attempting to name ship %s to The %s %s',
+                'Attempting to name ship %s to %s',
                 $shipId->toString(),
-                (string) $firstWord,
-                (string) $secondWord
+                $name
             )
         );
 
-        $newName = $this->shipsService->renameShip($shipId, $firstWord, $secondWord);
+        $newName = $this->shipsService->renameShip($shipId, $name);
 
         $output->writeln('Ship was named ' . $newName);
 

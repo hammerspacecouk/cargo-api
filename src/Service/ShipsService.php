@@ -98,12 +98,9 @@ class ShipsService extends AbstractService
         return $mapper->getShip($result);
     }
 
-    public function getRandomName()
+    public function getRandomName(): string
     {
-        $firstWord = $this->getDictionaryRepo()->getRandomShipNameFirst();
-        $secondWord = $this->getDictionaryRepo()->getRandomShipNameSecond();
-
-        return new ShipName($firstWord, $secondWord);
+        return $this->getDictionaryRepo()->getRandomShipName();
     }
 
     public function getByIDForOwnerId(
@@ -130,8 +127,7 @@ class ShipsService extends AbstractService
 
     public function renameShip(
         UuidInterface $shipId,
-        string $firstWord,
-        string $secondWord
+        string $name
     ): string {
         $shipRepo = $this->getShipRepo();
 
@@ -144,7 +140,7 @@ class ShipsService extends AbstractService
 
         // todo - abstract somewhere else
         // todo - validate the words are in the dictionary (?, might not need to with the token)
-        $ship->name = 'The ' . $firstWord . ' ' . $secondWord;
+        $ship->name = $name;
         $this->entityManager->persist($ship);
         $this->entityManager->flush();
 
