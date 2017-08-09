@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Data\Database\Entity\Channel as DbChannel;
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
+use App\Data\Database\Entity\Dictionary as DbDictionary;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipClass as DbShipClass;
@@ -13,6 +14,7 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\EntityRepository\ChannelRepository;
 use App\Data\Database\EntityRepository\CrateLocationRepository;
 use App\Data\Database\EntityRepository\CrateRepository;
+use App\Data\Database\EntityRepository\DictionaryRepository;
 use App\Data\Database\EntityRepository\PortRepository;
 use App\Data\Database\EntityRepository\ShipClassRepository;
 use App\Data\Database\EntityRepository\ShipLocationRepository;
@@ -51,7 +53,6 @@ abstract class AbstractService
         return ($limit * ($page - 1));
     }
 
-
     protected function getChannelRepo(): ChannelRepository
     {
         return $this->entityManager->getRepository(DbChannel::class);
@@ -65,6 +66,11 @@ abstract class AbstractService
     protected function getCrateLocationRepo(): CrateLocationRepository
     {
         return $this->entityManager->getRepository(DbCrateLocation::class);
+    }
+
+    protected function getDictionaryRepo(): DictionaryRepository
+    {
+        return $this->entityManager->getRepository(DbDictionary::class);
     }
 
     protected function getPortRepo(): PortRepository

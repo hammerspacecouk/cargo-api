@@ -21,7 +21,7 @@ class MakeShipClassesCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('setup:setup:make-ship-classes')
+            ->setName('game:setup:make-ship-classes')
             ->setDescription('One off command for populating enum table')
         ;
     }

@@ -12,8 +12,8 @@ use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
+use App\Domain\ValueObject\ShipName;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipsService extends AbstractService
@@ -28,7 +28,7 @@ class ShipsService extends AbstractService
 
         $ship = new DbShip(
             ID::makeNewID(DbShip::class),
-            'Ship' . (string) time(),
+            $this->shipNameRepo->getRandomName(),
             $starterShip,
             $user
         );
@@ -79,28 +79,6 @@ class ShipsService extends AbstractService
         }, $results);
     }
 
-    public function findLatestShipLocations(
-        int $limit,
-        int $page = 1
-    ): array {
-        $locations = $this->getShipLocationRepo()->getLatestShipsInPorts($limit, $this->getOffset($limit, $page));
-
-        // invert the relationship
-        $ships = [];
-        foreach ($locations as $location) {
-            $ship = $location['ship'];
-            unset($location['ship']);
-            $ship['location'] = $location;
-            $ships[] = $ship;
-        }
-
-        $mapper = $this->mapperFactory->createShipMapper();
-
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getShip($result);
-        }, $ships);
-    }
-
     public function getByID(
         UuidInterface $uuid
     ): ?ShipEntity {
@@ -118,6 +96,14 @@ class ShipsService extends AbstractService
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($result);
+    }
+
+    public function getRandomName()
+    {
+        $firstWord = $this->getDictionaryRepo()->getRandomShipNameFirst();
+        $secondWord = $this->getDictionaryRepo()->getRandomShipNameSecond();
+
+        return new ShipName($firstWord, $secondWord);
     }
 
     public function getByIDForOwnerId(
@@ -140,6 +126,35 @@ class ShipsService extends AbstractService
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($result);
+    }
+
+    public function renameShip(
+        UuidInterface $shipId,
+        ?string $firstWord,
+        string $secondWord
+    ): string {
+        $shipRepo = $this->getShipRepo();
+
+        // fetch the ship
+        /** @var DbShip $ship */
+        $ship = $shipRepo->getByID($shipId, Query::HYDRATE_OBJECT);
+        if (!$ship) {
+            throw new \InvalidArgumentException('No such ship');
+        }
+
+        // todo - abstract somewhere else
+        // todo - validate the words are in the dictionary (?, might not need to with the token)
+        $parts = ['The'];
+        if ($firstWord && $firstWord !== \App\Data\StaticData\ShipName\ShipName::PLACEHOLDER_EMPTY) {
+            $parts[] = $firstWord;
+        }
+        $parts[] = $secondWord;
+
+        $ship->name = implode(' ', $parts);
+        $this->entityManager->persist($ship);
+        $this->entityManager->flush();
+
+        return $ship->name;
     }
 
     public function getByIDWithLocation(

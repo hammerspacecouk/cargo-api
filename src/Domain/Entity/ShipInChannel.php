@@ -10,7 +10,6 @@ class ShipInChannel extends AbstractShipLocation
 {
     private $origin;
     private $destination;
-    private $entryTime;
     private $exitTime;
 
     public function __construct(
@@ -29,7 +28,7 @@ class ShipInChannel extends AbstractShipLocation
 
     public function jsonSerialize()
     {
-        return null; // todo
+        return 'TRAVELLING';
     }
 
     public function getOrigin(): Port

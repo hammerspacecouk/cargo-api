@@ -22,7 +22,7 @@ class ShipInPort extends AbstractShipLocation
 
     public function jsonSerialize()
     {
-        return null; // todo
+        return $this->port;
     }
 
     public function getPort(): Port

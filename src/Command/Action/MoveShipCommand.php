@@ -2,7 +2,6 @@
 namespace App\Command\Action;
 
 use App\Service\ShipsService;
-use App\Service\PortsService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

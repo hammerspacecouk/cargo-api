@@ -30,13 +30,7 @@ class ShipMapper extends Mapper
     private function getLocation(?array $item): ?ShipLocation
     {
         if (isset($item['location'])) {
-            $location = $item['location'];
-            if (isset($location['port'])) {
-                return $this->mapperFactory->createPortMapper()->getPort($location['port']);
-            }
-            if (isset($location['channel'])) {
-                return new Travelling();
-            }
+            return $this->mapperFactory->createShipLocationMapper()->getShipLocation($item['location']);
         }
         return null;
     }
