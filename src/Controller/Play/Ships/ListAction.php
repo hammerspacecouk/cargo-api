@@ -6,6 +6,7 @@ use App\Config\TokenConfig;
 use App\Controller\PaginationRequestTrait;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Service\ShipsService;
+use App\Service\TokensService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -23,13 +24,10 @@ class ListAction
     public function __invoke(
         Request $request,
         TokenConfig $tokenConfig,
+        TokensService $tokensService,
         ShipsService $shipsService
     ): JsonResponse {
-
-        $userId = $this->getUserId($request, $tokenConfig);
-        if (!$userId) {
-            throw new UnauthorizedHttpException('No user found');
-        }
+        $userId = $this->getUserIdReadOnly($request, $tokenConfig, $tokensService);
 
         $page = $this->getPageNumber($request);
         $total = $shipsService->countForOwnerIDWithLocation($userId);

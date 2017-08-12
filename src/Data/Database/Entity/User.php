@@ -10,7 +10,8 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="users",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
+ *     indexes={@ORM\Index(name="user_email", columns={"email"})})
  * )})
  */
 class User extends AbstractEntity

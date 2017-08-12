@@ -2,7 +2,7 @@ imports:
     - { resource: ../config.yml }
 
 parameters:
-    hostname: http://localhost:8090
+    hostname: http://127.0.0.1:8090
     distance_multiplier: 60
 
 framework:

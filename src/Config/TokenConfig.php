@@ -12,20 +12,16 @@ class TokenConfig
 
     private $audience;
 
-    private $id;
-
     public function __construct(
         string $privateKey,
         string $cookieName,
         string $issuer,
-        string $audience,
-        string $id
+        string $audience
     ) {
         $this->privateKey = $privateKey;
         $this->cookieName = $cookieName;
         $this->issuer = $issuer;
         $this->audience = $audience;
-        $this->id = $id;
     }
 
     public function getPrivateKey(): string
@@ -46,10 +42,5 @@ class TokenConfig
     public function getAudience(): string
     {
         return $this->audience;
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
     }
 }

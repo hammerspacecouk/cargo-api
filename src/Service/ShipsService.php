@@ -14,6 +14,7 @@ use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\ShipName;
 use Doctrine\ORM\Query;
+use Lcobucci\JWT\Token;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipsService extends AbstractService
@@ -28,7 +29,7 @@ class ShipsService extends AbstractService
 
         $ship = new DbShip(
             ID::makeNewID(DbShip::class),
-            $this->shipNameRepo->getRandomName(),
+            $this->getDictionaryRepo()->getRandomShipName(),
             $starterShip,
             $user
         );
@@ -98,11 +99,6 @@ class ShipsService extends AbstractService
         return $mapper->getShip($result);
     }
 
-    public function getRandomName(): string
-    {
-        return $this->getDictionaryRepo()->getRandomShipName();
-    }
-
     public function getByIDForOwnerId(
         UuidInterface $shipId,
         UuidInterface $ownerId
@@ -125,26 +121,11 @@ class ShipsService extends AbstractService
         return $mapper->getShip($result);
     }
 
-    public function renameShip(
+    public function shipOwnedBy(
         UuidInterface $shipId,
-        string $name
-    ): string {
-        $shipRepo = $this->getShipRepo();
-
-        // fetch the ship
-        /** @var DbShip $ship */
-        $ship = $shipRepo->getByID($shipId, Query::HYDRATE_OBJECT);
-        if (!$ship) {
-            throw new \InvalidArgumentException('No such ship');
-        }
-
-        // todo - abstract somewhere else
-        // todo - validate the words are in the dictionary (?, might not need to with the token)
-        $ship->name = $name;
-        $this->entityManager->persist($ship);
-        $this->entityManager->flush();
-
-        return $ship->name;
+        UuidInterface $ownerId
+    ) {
+        return !!$this->getByIDForOwnerId($shipId, $ownerId);
     }
 
     public function getByIDWithLocation(
@@ -255,7 +236,7 @@ class ShipsService extends AbstractService
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
-        $currentShipLocation->leftAt = ApplicationTime::getTime();
+        $currentShipLocation->exitTime = ApplicationTime::getTime();
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location
@@ -301,7 +282,7 @@ class ShipsService extends AbstractService
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
-        $currentShipLocation->leftAt = ApplicationTime::getTime();
+        $currentShipLocation->exitTime = ApplicationTime::getTime();
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location

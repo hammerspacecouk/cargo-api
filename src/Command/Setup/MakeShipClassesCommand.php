@@ -55,8 +55,9 @@ class MakeShipClassesCommand extends Command
     {
         // todo, move this to XML, JSON, YML or CSV
         return [
-            ['c274d46f-5b3b-433c-81a8-ac9f97247699', 'Paddle Boat', 100, 2, true, 100],
-            ['6cef17a5-5b3b-47df-9027-579172b19498', 'Container Ship', 10000, 50, false, 10000],
+            ['c274d46f-5b3b-433c-81a8-ac9f97247699', 'Paddle Boat', 100, 2, true, 20000],
+            ['e7b213e8-5b3b-456d-b32a-85ae277a09ee', 'Sail Boat', 200, 3, false, 300],
+            ['6cef17a5-5b3b-47df-9027-579172b19498', 'Container Ship', 10000, 50, false, 100000],
         ];
     }
 }

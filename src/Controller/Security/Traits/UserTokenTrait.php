@@ -4,14 +4,12 @@ namespace App\Controller\Security\Traits;
 
 use App\ApplicationTime;
 use App\Config\TokenConfig;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use App\Domain\Exception\InvalidTokenException;
+use App\Domain\ValueObject\Token\UserIDToken;
+use App\Service\TokensService;
 use Lcobucci\JWT\Token;
-use Lcobucci\JWT\ValidationData;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidInterface;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -21,31 +19,33 @@ trait UserTokenTrait
 {
     protected function getUserId(
         Request $request,
-        TokenConfig $tokenConfig
+        TokenConfig $tokenConfig,
+        TokensService $tokensService,
+        bool $checkInvalidTokens = true
     ): UuidInterface {
+        $tokenString = $request->cookies->get($tokenConfig->getCookieName());
 
-        $token = $this->getJWT($request, $tokenConfig);
-        if ($token) {
-            return Uuid::fromString($token->getClaim('userUUID'));
+        // todo - also possible to get it out of the Auth header
+        if (!$tokenString) {
+            throw new BadRequestHttpException('No credentials');
         }
-        throw new RuntimeException('No token found');
+
+        try {
+            $token = $tokensService->parseTokenFromString($tokenString, $checkInvalidTokens);
+            $userIdToken = new UserIDToken($token);
+        } catch (InvalidTokenException | InvalidUuidStringException $e) {
+            throw new AccessDeniedHttpException('Token Invalid: ' . $e->getMessage());
+        }
+
+        return $userIdToken->getUuid();
     }
 
-    protected function makeWebTokenForUserId(
+    protected function getUserIdReadOnly(
+        Request $request,
         TokenConfig $tokenConfig,
-        UuidInterface $userId
-    ): Token {
-        $signer = new Sha256();
-        $token = (new Builder())->setIssuer($tokenConfig->getIssuer())
-        ->setAudience($tokenConfig->getAudience())
-        ->setId($tokenConfig->getId(), true)
-        ->setIssuedAt(ApplicationTime::getTime()->getTimestamp())
-            ->setExpiration(ApplicationTime::getTime()->add(new \DateInterval('P2Y'))->getTimestamp())
-            ->set('userUUID', (string) $userId)
-            ->sign($signer, $tokenConfig->getPrivateKey())
-            ->getToken();
-
-        return $token;
+        TokensService $tokensService
+    ): UuidInterface {
+        return $this->getUserId($request, $tokenConfig, $tokensService, false);
     }
 
     protected function makeCookieForWebToken(TokenConfig $tokenConfig, Token $token): Cookie
@@ -54,37 +54,11 @@ trait UserTokenTrait
         return new Cookie(
             $tokenConfig->getCookieName(),
             (string) $token,
-            ApplicationTime::getTime()->add(new \DateInterval('P2Y')),
+            ApplicationTime::getTime()->add(new \DateInterval('P2Y')), // todo - check interval/session based etc
             '/',
             null,
             $secureCookie,
             true
         );
-    }
-
-    private function getJWT(
-        Request $request,
-        TokenConfig $tokenConfig
-    ): ?Token {
-        $tokenString = $request->cookies->get($tokenConfig->getCookieName());
-        // todo - also possible to get it out of the Auth header
-        if (!$tokenString) {
-            throw new BadRequestHttpException('No credentials');
-        }
-        $token = (new Parser())->parse((string) $tokenString);
-
-        $data = new ValidationData();
-        $data->setIssuer($tokenConfig->getIssuer());
-        $data->setAudience($tokenConfig->getAudience());
-        $data->setId($tokenConfig->getId());
-        $data->setCurrentTime(ApplicationTime::getTime()->getTimestamp());
-
-        $signer = new Sha256();
-        if (!$token->verify($signer, $tokenConfig->getPrivateKey()) ||
-            !$token->validate($data)) {
-            throw new AccessDeniedHttpException('Invalid credentials');
-        }
-
-        return $token;
     }
 }

@@ -15,13 +15,13 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Crate extends AbstractEntity
 {
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="text") */
     public $contents;
 
     /** @ORM\Column(type="float") */
     public $value = 0;
 
-    /** @ORM\Column(type="date", nullable=true) */
+    /** @ORM\Column(type="datetime", nullable=true) */
     public $valueCalculationDate;
 
     /** @ORM\Column(type="float") */

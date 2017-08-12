@@ -1,14 +1,13 @@
 <?php
 namespace App\Command\Action;
 
-use App\ApplicationTime;
-use App\Config\TokenConfig;
+use App\Controller\Security\Traits\UserTokenTrait;
+use App\Domain\ValueObject\Token\ShipNameToken;
+use App\Domain\ValueObject\Token\UserIDToken;
+use App\Service\ActionsService;
 use App\Service\ShipsService;
-use Firebase\JWT\JWT;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use App\Service\TokensService;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,16 +15,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RequestShipName extends Command
 {
+    use UserTokenTrait;
+
+    private $actionsService;
+    private $tokensService;
     private $shipsService;
-    private $tokenConfig;
 
     public function __construct(
-        ShipsService $shipsService,
-        TokenConfig $tokenConfig
+        TokensService $tokensService,
+        ActionsService $actionsService,
+        ShipsService $shipsService
     ) {
         parent::__construct();
+        $this->actionsService = $actionsService;
+        $this->tokensService = $tokensService;
         $this->shipsService = $shipsService;
-        $this->tokenConfig = $tokenConfig;
     }
 
     protected function configure()
@@ -38,6 +42,11 @@ class RequestShipName extends Command
                 InputArgument::REQUIRED,
                 'User identifying token (who will be charged)'
             )
+            ->addArgument(
+                'shipID',
+                InputArgument::REQUIRED,
+                'Ship this name is intended for'
+            )
         ;
     }
 
@@ -46,39 +55,29 @@ class RequestShipName extends Command
         OutputInterface $output
     ) {
         $userToken = $input->getArgument('userToken');
-
-        // todo - move this validation to the controller that will handle the incoming POST
         $output->writeln('Checking user');
-        // todo - validate token
-        // todo - check the user has enough credits
+        $token = $this->tokensService->parseTokenFromString($userToken);
+        $userIdToken = new UserIDToken($token);
+        $userId = $userIdToken->getUuid();
 
-        $output->writeln('Deducting cost');
-        // todo - deduct credits
-        $userId = Uuid::uuid4(); // todo - obviously
+        $shipId = Uuid::fromString($input->getArgument('shipID'));
 
-        $name = $this->shipsService->getRandomName();
+        // check the ship exists and belongs to the user
+        if (!$this->shipsService->shipOwnedBy($shipId, $userId)) {
+            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
+        }
 
-        $token = $this->makeToken($userId, $name);
+        $name = $this->actionsService->requestShipName($userId);
 
-        // todo - convert to json web token
+        $token = $this->tokensService->makeToken(
+            ShipNameToken::makeClaims(
+                $shipId,
+                $name
+            )
+        );
+
         $output->writeln('Name Offered: ' . $name);
-        $output->writeln('Token to return: ');
+        $output->writeln('Action token: ');
         $output->writeln((string) $token);
-    }
-
-    private function makeToken(UuidInterface $userId, string $name)
-    {
-        $signer = new Sha256();
-        $token = (new Builder())->setIssuer($this->tokenConfig->getIssuer())
-            ->setAudience($this->tokenConfig->getAudience())
-            ->setId($this->tokenConfig->getId(), true)
-            ->setIssuedAt(ApplicationTime::getTime()->getTimestamp())
-            ->setExpiration(ApplicationTime::getTime()->add(new \DateInterval('P1D'))->getTimestamp())
-            ->set('userUUID', (string) $userId)
-            ->set('name', $name)
-            ->sign($signer, $this->tokenConfig->getPrivateKey())
-            ->getToken();
-
-        return $token;
     }
 }

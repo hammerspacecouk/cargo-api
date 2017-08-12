@@ -6,6 +6,7 @@ use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Dictionary;
+use App\Data\Database\Entity\InvalidToken;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
@@ -22,6 +23,7 @@ class ID
         Crate::class => 'ca4e',
         CrateLocation::class => 'dd57',
         Dictionary::class => 'dddd',
+        InvalidToken::class => 'ffff',
         Port::class => '03fe',
         Ship::class => '3909',
         ShipClass::class => '5b3b',

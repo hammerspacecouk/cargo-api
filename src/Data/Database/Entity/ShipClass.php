@@ -16,7 +16,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class ShipClass extends AbstractEntity
 {
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="text") */
     public $name;
 
     /** @ORM\Column(type="integer", unique=true) */

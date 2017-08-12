@@ -20,7 +20,6 @@ services:
             - '%env(TOKEN_COOKIE_NAME)%'
             - '%env(TOKEN_ISSUER)%'
             - '%env(TOKEN_AUDIENCE)%'
-            - '%env(TOKEN_ID)%'
 
     App\Controller\:
         resource: '../../src/Controller/'
@@ -32,3 +31,15 @@ services:
         arguments:
             - client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
               client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+
+    DateTimeZone:
+        class: DateTimeZone
+        arguments:
+            - "UTC" # Always UTC. Only do conversion at the very edge with the user
+
+    # Ensure that injected times are all the same instance
+    DateTimeImmutable:
+        class: DateTimeImmutable
+        arguments:
+            - "now"
+            - '@DateTimeZone'

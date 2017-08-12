@@ -4,6 +4,8 @@ namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
 use App\Config\TokenConfig;
+use App\Domain\ValueObject\Token\UserIDToken;
+use App\Service\TokensService;
 use App\Service\UsersService;
 use Google_Client;
 use Google_Service_Oauth2;
@@ -21,6 +23,7 @@ class LoginGoogleAction
         Request $request,
         ApplicationConfig $applicationConfig,
         TokenConfig $tokenConfig,
+        TokensService $tokensService,
         Google_Client $client,
         UsersService $usersService
     ): Response {
@@ -49,10 +52,7 @@ class LoginGoogleAction
         $email = $user->email;
         $user = $usersService->getOrCreateUserByEmail($email);
 
-        $token = $this->makeWebTokenForUserId(
-            $tokenConfig,
-            $user->getId()
-        );
+        $token = $tokensService->makeToken(UserIDToken::makeClaims($user->getId()));
 
         $response = new JsonResponse([
             'token' => (string) $token

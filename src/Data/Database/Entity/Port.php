@@ -10,13 +10,12 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ports",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="name_idx", columns={"name"})},
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
  * )})
  */
 class Port extends AbstractEntity
 {
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="text") */
     public $name;
 
     /** @ORM\Column(type="boolean") */

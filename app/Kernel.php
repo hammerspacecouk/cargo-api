@@ -24,6 +24,8 @@ class Kernel extends SymfonyKernel
     {
         parent::__construct($environment, $debug);
 
+        date_default_timezone_set('UTC'); // servers should always be UTC
+
         if ($environment === self::ENV_DEV) {
             $dotenv = new Dotenv();
             $dotenv->load(__DIR__.'/../.env');
