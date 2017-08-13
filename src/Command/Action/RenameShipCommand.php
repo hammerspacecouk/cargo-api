@@ -1,10 +1,9 @@
 <?php
 namespace App\Command\Action;
 
-use App\Config\TokenConfig;
+use App\Data\TokenHandler;
 use App\Domain\ValueObject\Token\ShipNameToken;
 use App\Service\ActionsService;
-use App\Service\TokensService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,18 +12,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RenameShipCommand extends Command
 {
     private $actionsService;
-    private $tokenConfig;
-    private $tokensService;
+    private $tokenHandler;
 
     public function __construct(
         ActionsService $actionsService,
-        TokensService $tokensService,
-        TokenConfig $tokenConfig
+        TokenHandler $tokenHandler
     ) {
         parent::__construct();
         $this->actionsService = $actionsService;
-        $this->tokenConfig = $tokenConfig;
-        $this->tokensService = $tokensService;
+        $this->tokenHandler = $tokenHandler;
     }
 
     protected function configure()
@@ -33,7 +29,7 @@ class RenameShipCommand extends Command
             ->setName('game:action:rename-ship')
             ->setDescription('Rename a ship')
             ->addArgument(
-                'ActionToken',
+                'actionToken',
                 InputArgument::REQUIRED,
                 'Action token'
             )
@@ -44,7 +40,7 @@ class RenameShipCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $token = $this->tokensService->parseTokenFromString($input->getArgument('ActionToken'));
+        $token = $this->tokenHandler->parseTokenFromString($input->getArgument('actionToken'));
         $tokenDetail = new ShipNameToken($token);
 
         $shipId = $tokenDetail->getShipId();

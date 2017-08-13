@@ -2,11 +2,10 @@
 declare(strict_types = 1);
 namespace App\Controller\Play\Ships;
 
-use App\Config\TokenConfig;
 use App\Controller\PaginationRequestTrait;
 use App\Controller\Security\Traits\UserTokenTrait;
+use App\Data\TokenHandler;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -23,11 +22,10 @@ class ListAction
 
     public function __invoke(
         Request $request,
-        TokenConfig $tokenConfig,
-        TokensService $tokensService,
+        TokenHandler $tokenHandler,
         ShipsService $shipsService
     ): JsonResponse {
-        $userId = $this->getUserIdReadOnly($request, $tokenConfig, $tokensService);
+        $userId = $this->getUserId($request, $tokenHandler);
 
         $page = $this->getPageNumber($request);
         $total = $shipsService->countForOwnerIDWithLocation($userId);

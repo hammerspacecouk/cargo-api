@@ -12,8 +12,7 @@ class DictionaryRepository extends AbstractEntityRepository
     private function getAllByContext(string $context): array
     {
         if (isset(self::$contextCache[$context])) {
-            var_dump('cached bithces!!');
-            return self::$contextCache;
+            return self::$contextCache[$context];
         }
 
         $qb = $this->createQueryBuilder('tbl')

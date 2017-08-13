@@ -12,14 +12,13 @@ use Ramsey\Uuid\UuidInterface;
 class InvalidTokenRepository extends AbstractEntityRepository
 {
     public function markAsUsed(
-        Token $token
+        UuidInterface $tokenId,
+        DateTimeImmutable $expiryTime
     ): void {
         // we can clean up used tokens once they meet their original expiry time and become invalid naturally
-        $expiry = (new DateTimeImmutable())->setTimestamp($token->getClaim('exp'));
-
         $entity = new TokenEntity(
-            $this->uuidFromToken($token),
-            $expiry,
+            $tokenId,
+            $expiryTime,
             TokenEntity::STATUS_USED
         );
 
@@ -29,10 +28,9 @@ class InvalidTokenRepository extends AbstractEntityRepository
     }
 
     public function isInvalid(
-        Token $token
+        UuidInterface $tokenId
     ): bool {
-        $token = $this->getByID($this->uuidFromToken($token));
-        return !!$token;
+        return !!$this->getByID($tokenId);
     }
 
     public function removeExpired(DateTimeImmutable $now): void

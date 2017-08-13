@@ -2,12 +2,8 @@
 declare(strict_types = 1);
 namespace App\Controller\Security;
 
-use App\Config\TokenConfig;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class LoginAction
 {
@@ -25,8 +21,7 @@ class LoginAction
     ];
 
     public function __invoke(
-        Request $request,
-        TokenConfig $tokenConfig
+        Request $request
     ): JsonResponse {
 
         // receive a response back from google

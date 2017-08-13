@@ -6,7 +6,6 @@ use App\Data\Database\Entity\Channel as DbChannel;
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Dictionary as DbDictionary;
-use App\Data\Database\Entity\InvalidToken as DbInvalidToken;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipClass as DbShipClass;
@@ -16,13 +15,13 @@ use App\Data\Database\EntityRepository\ChannelRepository;
 use App\Data\Database\EntityRepository\CrateLocationRepository;
 use App\Data\Database\EntityRepository\CrateRepository;
 use App\Data\Database\EntityRepository\DictionaryRepository;
-use App\Data\Database\EntityRepository\InvalidTokenRepository;
 use App\Data\Database\EntityRepository\PortRepository;
 use App\Data\Database\EntityRepository\ShipClassRepository;
 use App\Data\Database\EntityRepository\ShipLocationRepository;
 use App\Data\Database\EntityRepository\ShipRepository;
 use App\Data\Database\EntityRepository\UserRepository;
 use App\Data\Database\Mapper\MapperFactory;
+use App\Data\TokenHandler;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
@@ -36,15 +35,18 @@ abstract class AbstractService
 
     protected $entityManager;
     protected $mapperFactory;
+    protected $tokenHandler;
     protected $currentTime;
 
     public function __construct(
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
+        TokenHandler $tokenHandler,
         DateTimeImmutable $currentTime
     ) {
         $this->entityManager = $entityManager;
         $this->mapperFactory = $mapperFactory;
+        $this->tokenHandler = $tokenHandler;
         $this->currentTime = $currentTime;
     }
 
@@ -77,11 +79,6 @@ abstract class AbstractService
     protected function getDictionaryRepo(): DictionaryRepository
     {
         return $this->entityManager->getRepository(DbDictionary::class);
-    }
-
-    protected function getInvalidTokenRepo(): InvalidTokenRepository
-    {
-        return $this->entityManager->getRepository(DbInvalidToken::class);
     }
 
     protected function getPortRepo(): PortRepository

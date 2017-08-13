@@ -4,8 +4,8 @@ namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
 use App\Config\TokenConfig;
+use App\Data\TokenHandler;
 use App\Domain\ValueObject\Token\UserIDToken;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Google_Client;
 use Google_Service_Oauth2;
@@ -23,7 +23,7 @@ class LoginGoogleAction
         Request $request,
         ApplicationConfig $applicationConfig,
         TokenConfig $tokenConfig,
-        TokensService $tokensService,
+        TokenHandler $tokensHandler,
         Google_Client $client,
         UsersService $usersService
     ): Response {
@@ -52,12 +52,16 @@ class LoginGoogleAction
         $email = $user->email;
         $user = $usersService->getOrCreateUserByEmail($email);
 
-        $token = $tokensService->makeToken(UserIDToken::makeClaims($user->getId()));
+        // todo - figure out refresh token vs access token logic
+        $token = $tokensHandler->makeToken(
+            UserIDToken::makeClaims($user->getId()),
+            TokenHandler::EXPIRY_ONE_DAY
+        );
 
         $response = new JsonResponse([
             'token' => (string) $token
         ]);
-        $response->headers->setCookie($this->makeCookieForWebToken($tokenConfig, $token));
+        $response->headers->setCookie($tokensHandler->makeRefreshTokenCookie($token));
 
         return $response;
     }

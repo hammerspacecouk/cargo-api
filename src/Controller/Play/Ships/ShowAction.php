@@ -8,6 +8,7 @@ use App\Config\ApplicationConfig;
 use App\Config\TokenConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
+use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
@@ -16,7 +17,6 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Service\ChannelsService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -41,13 +41,13 @@ class ShowAction
         Request $request,
         ApplicationConfig $applicationConfig,
         TokenConfig $tokenConfig,
-        TokensService $tokensService,
+        TokenHandler $tokensService,
         UsersService $usersService,
         ShipsService $shipsService,
         ChannelsService $channelsService
     ): JsonResponse
     {
-        $userId = $this->getUserIdReadOnly($request, $tokenConfig, $tokensService);
+        $userId = $this->getUserId($request, $tokensService);
         $user = $usersService->getById($userId);
         if (!$user) {
             throw new UnauthorizedHttpException('No user found');
@@ -99,8 +99,6 @@ class ShowAction
         $channels = $channelsService->getAllLinkedToPort($port);
 
         $directions = Bearing::getEmptyBearingsList();
-
-        die('actions list to be created by actionsService');
 
         foreach ($channels as $channel) {
             /** @var $channel Channel */
