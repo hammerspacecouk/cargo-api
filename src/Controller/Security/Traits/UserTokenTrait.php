@@ -2,33 +2,49 @@
 declare(strict_types = 1);
 namespace App\Controller\Security\Traits;
 
-use App\ApplicationTime;
-use App\Config\TokenConfig;
-use App\Data\TokenHandler;
 use App\Domain\Exception\InvalidTokenException;
-use App\Domain\ValueObject\Token\UserIDToken;
-use Lcobucci\JWT\Token;
+use App\Domain\Exception\MissingTokenException;
+use App\Service\TokensService;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait UserTokenTrait
 {
+    protected $cookies = [];
+
     protected function getUserId(
         Request $request,
-        TokenHandler $tokenHandler
-    ): UuidInterface {
+        TokensService $tokensService
+    ): UuidInterface
+    {
         try {
-            $token = $tokenHandler->getRefreshToken($request);
+            // try and get back a userId
 
-            $userIdToken = new UserIDToken($token);
+            $token = $tokensService->getAccessToken($request);
+
+            $this->cookies = $token->getCookies();
+
+
+            // todo - catch no refresh token (bounce to login)
+
+
+        } catch (MissingTokenException $e) {
+            throw new AccessDeniedHttpException('No credentials provided');
         } catch (InvalidTokenException | InvalidUuidStringException $e) {
             throw new AccessDeniedHttpException('Token Invalid: ' . $e->getMessage());
         }
 
-        return $userIdToken->getUuid();
+        return $token->getUserId();
+    }
+
+    protected function userResponse(JsonResponse $response): JsonResponse
+    {
+        foreach ($this->cookies as $cookie) {
+            $response->headers->setCookie($cookie);
+        }
+        return $response;
     }
 }

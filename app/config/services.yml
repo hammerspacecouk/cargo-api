@@ -17,9 +17,7 @@ services:
     App\Config\TokenConfig:
         arguments:
             - '%env(TOKEN_PRIVATE_KEY)%'
-            - '%env(TOKEN_COOKIE_NAME)%'
             - '%env(TOKEN_ISSUER)%'
-            - '%env(TOKEN_AUDIENCE)%'
 
     App\Controller\:
         resource: '../../src/Controller/'

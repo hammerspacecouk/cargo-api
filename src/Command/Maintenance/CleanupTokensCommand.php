@@ -1,7 +1,7 @@
 <?php
 namespace App\Command\Maintenance;
 
-use App\Data\Database\Entity\InvalidToken;
+use App\Data\Database\Entity\Token;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;
@@ -36,7 +36,7 @@ class CleanupTokensCommand extends Command
     ) {
         $output->writeln('Cleaning');
 
-        $this->entityManager->getRepository(InvalidToken::class)
+        $this->entityManager->getRepository(Token::class)
             ->removeExpired($this->now);
 
         $output->writeln('Done');

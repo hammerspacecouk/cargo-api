@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Domain\ValueObject\Token\ShipNameToken;
-use App\Domain\ValueObject\Token\UserIDToken;
+use App\Domain\ValueObject\Token\AccessToken;
 use Doctrine\ORM\Query;
 use Lcobucci\JWT\Token;
 use Ramsey\Uuid\Uuid;
@@ -50,7 +50,7 @@ class ActionsService extends AbstractService
         Token $token,
         UuidInterface $shipId
     ): RenameShipAction {
-        $userIdToken = new UserIDToken($token);
+        $userIdToken = new AccessToken($token);
         $userId = $userIdToken->getUuid();
 
         // check the ship exists and belongs to the user

@@ -28,32 +28,6 @@ class UsersService extends AbstractService
         return $mapper->getUser(reset($results));
     }
 
-    public function getOrCreateUserByEmail(string $email): UserEntity
-    {
-        $user = $this->getByEmailAddress($email);
-        if ($user) {
-            return $user;
-        }
-
-        // make a new user
-        $user = new DbUser(
-            ID::makeNewID(DbUser::class),
-            $email,
-            Bearing::getInitialRandomStepNumber()
-        );
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        $user = $this->getByEmailAddress($email);
-        if ($user) {
-            return $user;
-        }
-
-        // something has gone horribly wrong
-        throw new \RuntimeException('Could not find the newly made user. It gone and died');
-    }
-
     public function getByEmailAddress(string $email): ?UserEntity
     {
         $qb = $this->getQueryBuilder(DbUser::class)

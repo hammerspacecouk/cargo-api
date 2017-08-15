@@ -3,12 +3,18 @@ declare(strict_types = 1);
 namespace App\Data;
 
 use App\Config\TokenConfig;
-use App\Data\Database\Entity\InvalidToken as DbInvalidToken;
-use App\Data\Database\EntityRepository\InvalidTokenRepository;
+use App\Data\Database\Entity\Token as DbToken;
+use App\Data\Database\Entity\User;
+use App\Data\Database\EntityRepository\TokenRepository;
+use App\Data\Database\EntityRepository\UserRepository;
 use App\Domain\Exception\InvalidTokenException;
+use App\Domain\Exception\MissingTokenException;
+use App\Domain\ValueObject\Token\AccessToken;
+use App\Domain\ValueObject\Token\RefreshToken;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -21,13 +27,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TokenHandler
 {
-    // todo - make private
-    public const EXPIRY_ONE_DAY = 'P1D';
-    public const EXPIRY_ONE_HOUR = 'PT1H';
-    public const EXPIRY_ONE_MINUTE = 'PT1M';
-    public const EXPIRY_DEFAULT = self::EXPIRY_ONE_HOUR;
+    private const EXPIRY_TWO_MONTHS = 'P2M';
+    private const EXPIRY_ONE_DAY = 'P1D';
+    private const EXPIRY_ONE_HOUR = 'PT1H';
 
-    private const COOKIE_REFRESH_NAME = 'token';
+    private const EXPIRY_REFRESH_TOKEN = self::EXPIRY_TWO_MONTHS;
+    private const EXPIRY_ACCESS_TOKEN = self::EXPIRY_ONE_HOUR;
+    private const EXPIRY_DEFAULT = self::EXPIRY_ONE_DAY;
+
+    private const COOKIE_REFRESH_NAME = 'refresh_token';
     private const COOKIE_ACCESS_NAME = 'access_token';
 
     private $tokenConfig;
@@ -44,16 +52,115 @@ class TokenHandler
         $this->currentTime = $currentTime;
     }
 
+    public function makeNewRefreshTokenCookie(string $emailAddress, string $description)
+    {
+        $accessKey = bin2hex(random_bytes(32)); // random key to be the password
+        $digest = RefreshToken::secureAccessKey($accessKey); // digest to be stored (accessKey must not be stored)
+
+        $tokenId = ID::makeNewID(DbToken::class);
+        $claims = RefreshToken::makeClaims($accessKey);
+
+        $token = $this->makeToken($claims, $tokenId, self::EXPIRY_REFRESH_TOKEN);
+
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            $user = $this->getUserRepo()->getOrCreateUserByEmail($emailAddress);
+
+            // store in the database as a valid token
+            $tokenEntity = new DbToken(
+                $tokenId,
+                DbToken::TYPE_REFRESH,
+                $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN)),
+                $user,
+                $digest,
+                $description
+            );
+            $this->entityManager->persist($tokenEntity);
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            throw $e;
+        }
+
+        return $this->makeRefreshCookie($token);
+    }
+
+    public function getAccessToken(Request $request): AccessToken
+    {
+        // check to see if the request already has an access token
+        $accessToken = $request->cookies->get(self::COOKIE_ACCESS_NAME);
+        if ($accessToken) {
+            try {
+                $accessToken = $this->parseTokenFromString($accessToken, false);
+                $accessToken = new AccessToken($accessToken);
+
+                // update access token
+                $tokenId = $accessToken->getId();
+                $claims = AccessToken::makeClaims($accessToken->getUserId());
+
+                $accessToken = $this->makeToken($claims, $tokenId, self::EXPIRY_ACCESS_TOKEN);
+
+                // generate an access cookie
+                $accessCookie = $this->makeAccessCookie($accessToken);
+                return new AccessToken($accessToken, [$accessCookie]);
+            } catch (InvalidTokenException $e) {
+                // ignore this token and carry on to try the refresh token
+            }
+        }
+
+        // check to see if it has a valid refresh token
+        $refreshToken = $request->cookies->get(self::COOKIE_REFRESH_NAME);
+        if (!$refreshToken) {
+            throw new MissingTokenException('No access or refresh token found');
+        }
+
+        // fetch the token from the DB to check it exists (and the user exists)
+        $refreshToken = new RefreshToken($this->parseTokenFromString($refreshToken, false));
+
+        /** @var DbToken $tokenEntity */
+        $tokenEntity = $this->getTokenRepo()->findRefreshTokenWithUser($refreshToken->getId(), Query::HYDRATE_OBJECT);
+        if (!$tokenEntity) {
+            throw new MissingTokenException('Token could not be found');
+        }
+
+        // check the password matches
+        if (!$refreshToken->validateAccessKey($tokenEntity->digest)) {
+            throw new InvalidTokenException('Token could not be verified due to being invalid');
+        }
+
+        // generate an access token
+        $tokenId = ID::makeNewID(DbToken::class);
+        $claims = AccessToken::makeClaims($tokenEntity->user->id);
+
+        $accessToken = $this->makeToken($claims, $tokenId, self::EXPIRY_ACCESS_TOKEN);
+
+        // generate an access cookie
+        $accessCookie = $this->makeAccessCookie($accessToken);
+
+        // update the refresh token expiry
+        $refreshCookie = $this->extendRefreshToken($refreshToken, $tokenEntity);
+
+        return new AccessToken($accessToken, [
+            $accessCookie,
+            $refreshCookie
+        ]);
+    }
+
     public function makeToken(
         array $claims,
+        UuidInterface $id = null,
         string $expiry = self::EXPIRY_DEFAULT
     ): Token {
+        if (!$id) {
+            $id = ID::makeNewID(DbToken::class);
+        }
+
         $signer = new Sha256();
-        $builder = (new Builder())->setIssuer($this->tokenConfig->getIssuer())
-            ->setAudience($this->tokenConfig->getAudience())
+        $builder = (new Builder())
             ->setIssuedAt($this->currentTime->getTimestamp())
-            ->setId(ID::makeNewID(DbInvalidToken::class))
-            ->setExpiration($this->currentTime->add($this->getExpiry($expiry))->getTimestamp());
+            ->setId((string) $id)
+            ->setExpiration($this->currentTime->add($this->getExpiryInterval($expiry))->getTimestamp());
 
         foreach ($claims as $key => $value) {
             $builder->set($key, $value);
@@ -66,81 +173,96 @@ class TokenHandler
     }
 
     public function parseToken(
-        Token $token
+        Token $token,
+        $checkIfInvalidated = true
     ): Token {
         $data = new ValidationData();
-        $data->setIssuer($this->tokenConfig->getIssuer());
-        $data->setAudience($this->tokenConfig->getAudience());
         $data->setCurrentTime($this->currentTime->getTimestamp());
+
+        if ($checkIfInvalidated &&
+            !$this->getTokenRepo()->isValid($this->uuidFromToken($token))
+        ) {
+            throw new InvalidTokenException('Token has been invalidated');
+        }
 
         $signer = new Sha256();
         if (!$token->verify($signer, $this->tokenConfig->getPrivateKey()) ||
-            !$token->validate($data) ||
-            $this->tokenIsInvalidated($token)) {
+            !$token->validate($data)
+        ) {
             throw new InvalidTokenException('Token was tampered with or expired');
         }
         return $token;
     }
 
-    public function tokenIsInvalidated(Token $token): bool
-    {
-        return $this->getInvalidTokenRepo()->isInvalid($this->uuidFromToken($token));
-    }
-
-    public function markAsUsed(Token $token): void
-    {
-        $id = $this->uuidFromToken($token);
-        $expiry = (new DateTimeImmutable())->setTimestamp($token->getClaim('exp'));
-        $this->getInvalidTokenRepo()->markAsUsed($id, $expiry);
-    }
-
     public function parseTokenFromString(
-        string $tokenString
+        string $tokenString,
+        $checkIfInvalidated = true
     ): Token {
         $token = (new Parser())->parse($tokenString);
-        return $this->parseToken($token);
+        return $this->parseToken($token, $checkIfInvalidated);
     }
 
-    // todo - move some of this into a service. Controllers shouldn't be looking in the Data folder
-    public function makeRefreshTokenCookie(Token $token): Cookie
+    private function extendRefreshToken(RefreshToken $refreshToken, DbToken $tokenEntity)
     {
-        $secureCookie = false; // todo - be true as often as possible
-        return new Cookie(
-            self::COOKIE_REFRESH_NAME,
+        $claims = RefreshToken::makeClaims($refreshToken->getAccessKey());
+        $token = $this->makeToken($claims, $refreshToken->getId(), self::EXPIRY_REFRESH_TOKEN);
+
+        $tokenEntity->expiry = $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN));
+        $this->entityManager->persist($tokenEntity);
+        $this->entityManager->flush();
+
+        return $this->makeRefreshCookie($token);
+    }
+
+    private function makeRefreshCookie(Token $token): Cookie
+    {
+        return $this->makeCookie(
             (string) $token,
-            $this->currentTime->add(new \DateInterval('P2Y')),
-            '/',
-            null,
-            $secureCookie,
-            true
+            self::COOKIE_REFRESH_NAME,
+            $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN))
         );
     }
 
-    public function getRefreshToken(Request $request): Token
+    private function makeAccessCookie(Token $token): Cookie
     {
-        $tokenString = $request->cookies->get(self::COOKIE_REFRESH_NAME);
-
-        // todo - also possible to get it out of the Auth header
-        if (!$tokenString) {
-            throw new InvalidTokenException('No credentials');
-        }
-        $token = $this->parseTokenFromString($tokenString);
-
+        return $this->makeCookie(
+            (string) $token,
+            self::COOKIE_ACCESS_NAME,
+            $this->currentTime->add(new DateInterval(self::EXPIRY_ACCESS_TOKEN))
+        );
     }
 
-    private function getExpiry(string $expiry = self::EXPIRY_DEFAULT)
+    private function makeCookie(string $content, string $name, DateTimeImmutable $expire)
+    {
+        return new Cookie(
+            $name,
+            $content,
+            $expire,
+            '/',
+            null, // todo - limit domain scope
+            false, // secureCookie - todo - be true as often as possible
+            true // httpOnly
+        );
+    }
+
+    private function getExpiryInterval(string $expiry = self::EXPIRY_DEFAULT)
     {
         return new DateInterval($expiry);
-    }
-
-    private function getInvalidTokenRepo(): InvalidTokenRepository
-    {
-        return $this->entityManager->getRepository(DbInvalidToken::class);
     }
 
     private function uuidFromToken(
         Token $token
     ): UuidInterface {
         return Uuid::fromString($token->getClaim('jti'));
+    }
+
+    private function getTokenRepo(): TokenRepository
+    {
+        return $this->entityManager->getRepository(DbToken::class);
+    }
+
+    private function getUserRepo(): UserRepository
+    {
+        return $this->entityManager->getRepository(User::class);
     }
 }

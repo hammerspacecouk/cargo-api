@@ -10,6 +10,7 @@ use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipClass as DbShipClass;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Data\Database\Entity\Token as DbToken;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\EntityRepository\ChannelRepository;
 use App\Data\Database\EntityRepository\CrateLocationRepository;
@@ -19,6 +20,7 @@ use App\Data\Database\EntityRepository\PortRepository;
 use App\Data\Database\EntityRepository\ShipClassRepository;
 use App\Data\Database\EntityRepository\ShipLocationRepository;
 use App\Data\Database\EntityRepository\ShipRepository;
+use App\Data\Database\EntityRepository\TokenRepository;
 use App\Data\Database\EntityRepository\UserRepository;
 use App\Data\Database\Mapper\MapperFactory;
 use App\Data\TokenHandler;
@@ -99,6 +101,11 @@ abstract class AbstractService
     protected function getShipLocationRepo(): ShipLocationRepository
     {
         return $this->entityManager->getRepository(DbShipLocation::class);
+    }
+
+    protected function getTokenRepo(): TokenRepository
+    {
+        return $this->entityManager->getRepository(DbToken::class);
     }
 
     protected function getUserRepo(): UserRepository

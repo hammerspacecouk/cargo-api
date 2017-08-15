@@ -14,9 +14,6 @@ DB_READ_HOST=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/DB_READ_H
 DB_READ_USER=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/DB_READ_USER --region eu-west-2 --query Parameters[0].Value --output text)
 DB_NAME=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/DB_NAME --region eu-west-2 --query Parameters[0].Value --output text)
 DB_PORT=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/DB_PORT --region eu-west-2 --query Parameters[0].Value --output text)
-TOKEN_AUDIENCE=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/TOKEN_AUDIENCE --region eu-west-2 --query Parameters[0].Value --output text)
-TOKEN_COOKIE_NAME=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/TOKEN_COOKIE_NAME --region eu-west-2 --query Parameters[0].Value --output text)
-TOKEN_ID=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/TOKEN_ID --region eu-west-2 --query Parameters[0].Value --output text)
 TOKEN_ISSUER=$(aws ssm get-parameters --names /planet-cargo/${APP_ENV}/TOKEN_ISSUER --region eu-west-2 --query Parameters[0].Value --output text)
 
 # Fetch encrypted parameters
@@ -38,9 +35,6 @@ env[DB_READ_USER] = ${DB_READ_USER}
 env[DB_NAME] = ${DB_NAME}
 env[DB_PORT] = ${DB_PORT}
 
-env[TOKEN_AUDIENCE] = ${TOKEN_AUDIENCE}
-env[TOKEN_COOKIE_NAME] = ${TOKEN_COOKIE_NAME}
-env[TOKEN_ID] = ${TOKEN_ID}
 env[TOKEN_ISSUER] = ${TOKEN_ISSUER}
 
 env[DB_WRITE_PASSWORD] = ${DB_WRITE_PASSWORD}
@@ -48,4 +42,5 @@ env[DB_READ_PASSWORD] = ${DB_READ_PASSWORD}
 env[TOKEN_PRIVATE_KEY] = ${TOKEN_PRIVATE_KEY}
 env[OAUTH_GOOGLE_CLIENT_ID] = ${OAUTH_GOOGLE_CLIENT_ID}
 env[OAUTH_GOOGLE_CLIENT_SECRET] = ${OAUTH_GOOGLE_CLIENT_SECRET}
+
 EOL
