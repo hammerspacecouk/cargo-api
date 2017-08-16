@@ -23,7 +23,7 @@ trait UserTokenTrait
         try {
             // try and get back a userId
 
-            $token = $tokensService->getAccessToken($request);
+            $token = $tokensService->getAccessTokenFormRequest($request);
 
             $this->cookies = $token->getCookies();
 
@@ -42,6 +42,8 @@ trait UserTokenTrait
 
     protected function userResponse(JsonResponse $response): JsonResponse
     {
+        $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+
         foreach ($this->cookies as $cookie) {
             $response->headers->setCookie($cookie);
         }

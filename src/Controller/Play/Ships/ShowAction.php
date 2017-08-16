@@ -3,25 +3,19 @@ declare(strict_types=1);
 
 namespace App\Controller\Play\Ships;
 
-use App\ApplicationTime;
 use App\Config\ApplicationConfig;
-use App\Config\TokenConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
-use App\Data\TokenHandler;
-use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
+use App\Domain\ValueObject\Token\MoveShipActionToken;
 use App\Service\ChannelsService;
 use App\Service\ShipsService;
+use App\Service\TokensService;
 use App\Service\UsersService;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Token;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -35,19 +29,27 @@ class ShowAction
     use UserTokenTrait;
     use GetShipTrait;
 
-    const PER_PAGE = 100;
+    private const PER_PAGE = 100;
+
+    /** @var TokensService */
+    private $tokensService;
+
+    /** @var ChannelsService */
+    private $channelsService;
 
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
-        TokenConfig $tokenConfig,
-        TokenHandler $tokensService,
+        TokensService $tokensService,
         UsersService $usersService,
         ShipsService $shipsService,
         ChannelsService $channelsService
     ): JsonResponse
     {
-        $userId = $this->getUserId($request, $tokensService);
+        $this->tokensService = $tokensService;
+        $this->channelsService = $channelsService;
+
+        $userId = $this->getUserId($request, $this->tokensService);
         $user = $usersService->getById($userId);
         if (!$user) {
             throw new UnauthorizedHttpException('No user found');
@@ -74,11 +76,9 @@ class ShowAction
         if ($location instanceof ShipInPort) {
             $data['directions'] = $this->getDirectionsFromPort(
                 $applicationConfig,
-                $channelsService,
                 $location->getPort(),
                 $ship,
-                $user,
-                $tokenConfig
+                $user
             );
         }
 
@@ -88,20 +88,17 @@ class ShowAction
     // todo - be less messy - share some properties
     private function getDirectionsFromPort(
         ApplicationConfig $applicationConfig,
-        ChannelsService $channelsService,
         Port $port,
         Ship $ship,
-        User $user,
-        TokenConfig $tokenConfig
+        User $user
     ): array
     {
         // find all channels for a port, with their bearing and distance
-        $channels = $channelsService->getAllLinkedToPort($port);
+        $channels = $this->channelsService->getAllLinkedToPort($port);
 
         $directions = Bearing::getEmptyBearingsList();
 
         foreach ($channels as $channel) {
-            /** @var $channel Channel */
             $bearing = $channel->getBearing()->getValue();
             $destination = $channel->getDestination();
             $reverseDirection = false;
@@ -111,11 +108,19 @@ class ShowAction
                 $reverseDirection = true;
             }
 
+            // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
             $directions[$bearing] = [
                 'destination' => $destination,
                 'distance' => $applicationConfig->getDistanceMultiplier() * $channel->getDistance(),
-                'actionToken' => (string) $this->makeToken($ship, $channel, $reverseDirection, $tokenConfig)
+                'actionToken' => (string) $this->tokensService->makeActionToken(
+                    MoveShipActionToken::makeClaims(
+                        $ship->getId(),
+                        $channel->getId(),
+                        $reverseDirection
+                    )
+                ),
+                'actionPath' => '/', // todo - using this or not?
             ];
         }
 
@@ -123,28 +128,5 @@ class ShowAction
             'type' => "Port",
             'directions' => $directions,
         ];
-    }
-
-    private function makeToken(
-        Ship $ship,
-        Channel $channel,
-        bool $reversed,
-        TokenConfig $tokenConfig
-    ): Token {
-        // todo - abstract token building
-        $signer = new Sha256();
-        $token = (new Builder())->setIssuer($tokenConfig->getIssuer())
-            ->setAudience($tokenConfig->getAudience())
-            ->setId($tokenConfig->getId(), true)
-            ->setIssuedAt(ApplicationTime::getTime()->getTimestamp())
-            ->setExpiration(ApplicationTime::getTime()->add(new \DateInterval('P1D'))->getTimestamp())
-            ->set('action', 'MOVE_SHIP_TO_CHANNEL') // todo - game actions constant
-            ->set('shipUUID', (string) $ship->getId())
-            ->set('channelUUID', (string) $channel->getId())
-            ->set('isReversed', $reversed)
-            ->sign($signer, $tokenConfig->getPrivateKey())
-            ->getToken();
-
-        return $token;
     }
 }

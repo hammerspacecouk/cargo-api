@@ -86,7 +86,7 @@ class TokenHandler
         return $this->makeRefreshCookie($token);
     }
 
-    public function getAccessToken(Request $request): AccessToken
+    public function getAccessTokenFromRequest(Request $request): AccessToken
     {
         // check to see if the request already has an access token
         $accessToken = $request->cookies->get(self::COOKIE_ACCESS_NAME);
@@ -145,6 +145,12 @@ class TokenHandler
             $accessCookie,
             $refreshCookie
         ]);
+    }
+
+    public function getAccessTokenFromString(string $tokenString): AccessToken
+    {
+        $accessToken = $this->parseTokenFromString($tokenString, false);
+        return new AccessToken($accessToken);
     }
 
     public function makeToken(
@@ -228,12 +234,16 @@ class TokenHandler
         return $this->makeCookie(
             (string) $token,
             self::COOKIE_ACCESS_NAME,
-            $this->currentTime->add(new DateInterval(self::EXPIRY_ACCESS_TOKEN))
+            null
         );
     }
 
-    private function makeCookie(string $content, string $name, DateTimeImmutable $expire)
+    private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire)
     {
+        if (!$expire) {
+            $expire = 0; // session cookie
+        }
+
         return new Cookie(
             $name,
             $content,

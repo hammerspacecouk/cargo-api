@@ -2,9 +2,9 @@
 namespace App\Command\Action;
 
 use App\Controller\Security\Traits\UserTokenTrait;
-use App\Data\TokenHandler;
 use App\Service\ActionsService;
 use App\Service\ShipsService;
+use App\Service\TokensService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,18 +16,18 @@ class RequestShipName extends Command
     use UserTokenTrait;
 
     private $actionsService;
-    private $tokenHandler;
     private $shipsService;
+    private $tokensService;
 
     public function __construct(
-        TokenHandler $tokenHandler,
         ActionsService $actionsService,
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        TokensService $tokensService
     ) {
         parent::__construct();
         $this->actionsService = $actionsService;
-        $this->tokenHandler = $tokenHandler;
         $this->shipsService = $shipsService;
+        $this->tokensService = $tokensService;
     }
 
     protected function configure()
@@ -52,15 +52,15 @@ class RequestShipName extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $userToken = $input->getArgument('userToken');
-        $token = $this->tokenHandler->parseTokenFromString($userToken);
+        $accessToken = $input->getArgument('userToken');
 
+        $userId = $this->tokensService->getUserIdFromAccessTokenString($accessToken);
         $shipId = Uuid::fromString($input->getArgument('shipID'));
 
-        $nameAction = $this->actionsService->requestShipName($token, $shipId);
+        $shipNameToken = $this->actionsService->requestShipName($userId, $shipId);
 
-        $output->writeln('Name Offered: ' . $nameAction->getName());
+        $output->writeln('Name Offered: ' . $shipNameToken->getShipName());
         $output->writeln('Action token: ');
-        $output->writeln((string) $token);
+        $output->writeln((string) $shipNameToken);
     }
 }
