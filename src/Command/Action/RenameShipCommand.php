@@ -40,7 +40,7 @@ class RenameShipCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $token = $this->tokenHandler->parseTokenFromString($input->getArgument('actionToken'));
+        $token = $this->tokensService->parseTokenFromString($input->getArgument('actionToken'));
         $tokenDetail = new ShipNameToken($token);
 
         $shipId = $tokenDetail->getShipId();
@@ -53,9 +53,9 @@ class RenameShipCommand extends Command
             )
         );
 
-        $newName = $this->actionsService->renameShip($tokenDetail);
+        $this->shipsService->renameShip($shipId, $name);
 
-        $output->writeln('Ship was named ' . $newName);
+        $output->writeln('Ship was named ' . $name);
 
         $output->writeln('Done');
     }

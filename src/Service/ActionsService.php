@@ -47,11 +47,9 @@ class ActionsService extends AbstractService
     }
 
     public function requestShipName(
-        Token $token,
+        UuidInterface $userId,
         UuidInterface $shipId
-    ): RenameShipAction {
-        $userIdToken = new AccessToken($token);
-        $userId = $userIdToken->getUuid();
+    ): ShipNameToken {
 
         // check the ship exists and belongs to the user
         if (!$this->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
@@ -71,12 +69,6 @@ class ActionsService extends AbstractService
             )
         );
 
-
-
-
-
-        // todo - check there are enough credits and deduct them. throw if not
-        // $this->logger->info('Deducting cost');
-        return $this->getDictionaryRepo()->getRandomShipName();
+        return new ShipNameToken($token);
     }
 }

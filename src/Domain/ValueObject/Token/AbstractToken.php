@@ -52,4 +52,9 @@ abstract class AbstractToken
         $data[self::KEY_TOKEN_TYPE] = static::TYPE;
         return $data;
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->token;
+    }
 }
