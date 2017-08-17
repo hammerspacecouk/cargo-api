@@ -3,7 +3,10 @@ declare(strict_types = 1);
 namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
+use DateTimeImmutable;
 use Lcobucci\JWT\Token;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractToken
 {
@@ -11,16 +14,30 @@ abstract class AbstractToken
     private const KEY_TOKEN_TYPE = 'tt';
 
     protected $token;
+    private $id;
+    private $expiry;
 
     public function __construct(Token $token)
     {
         $this->validateTokenType($token);
         $this->token = $token;
+        $this->id = Uuid::fromString($token->getClaim('jti'));
+        $this->expiry = DateTimeImmutable::createFromFormat('U', (string) $token->getClaim('exp'));
     }
 
     public function getOriginalToken(): Token
     {
         return $this->token;
+    }
+
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
+
+    public function getExpiry(): DateTimeImmutable
+    {
+        return $this->expiry;
     }
 
     private function validateTokenType(Token $token): void
@@ -32,8 +49,14 @@ abstract class AbstractToken
         }
     }
 
-    public static function createClaims(array $data): array {
+    public static function createClaims(array $data): array
+    {
         $data[self::KEY_TOKEN_TYPE] = static::TYPE;
         return $data;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->token;
     }
 }

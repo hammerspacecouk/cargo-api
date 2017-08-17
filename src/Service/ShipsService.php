@@ -12,9 +12,7 @@ use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
-use App\Domain\ValueObject\ShipName;
 use Doctrine\ORM\Query;
-use Lcobucci\JWT\Token;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipsService extends AbstractService
@@ -223,6 +221,25 @@ class ShipsService extends AbstractService
 
         throw new \InvalidArgumentException('Invalid destination ID');
     }
+
+    public function requestShipName(
+        UuidInterface $userId,
+        UuidInterface $shipId
+    ): string {
+
+        // check the ship exists and belongs to the user
+        if (!$this->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
+            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
+        }
+
+        // todo - check the user has enough credits
+
+        // todo -deduct the user credits
+
+        // todo - should it check to see if it already exists?
+        return $this->getDictionaryRepo()->getRandomShipName();
+    }
+
 
     private function moveShipToPortId(
         DbShip $ship,

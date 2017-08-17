@@ -23,7 +23,7 @@ class MoveCrateCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:action:move-crate')
+            ->setName('play:action:move-crate')
             ->setDescription('Move a crate into a port or ship')
             ->addArgument(
                 'crateId',

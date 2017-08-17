@@ -2,9 +2,6 @@
 namespace App\Command\Action;
 
 use App\Controller\Security\Traits\UserTokenTrait;
-use App\Domain\ValueObject\Token\ShipNameToken;
-use App\Domain\ValueObject\Token\UserIDToken;
-use App\Service\ActionsService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use Ramsey\Uuid\Uuid;
@@ -17,25 +14,22 @@ class RequestShipName extends Command
 {
     use UserTokenTrait;
 
-    private $actionsService;
-    private $tokensService;
     private $shipsService;
+    private $tokensService;
 
     public function __construct(
-        TokensService $tokensService,
-        ActionsService $actionsService,
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        TokensService $tokensService
     ) {
         parent::__construct();
-        $this->actionsService = $actionsService;
-        $this->tokensService = $tokensService;
         $this->shipsService = $shipsService;
+        $this->tokensService = $tokensService;
     }
 
     protected function configure()
     {
         $this
-            ->setName('game:action:request-ship-name')
+            ->setName('play:action:request-ship-name')
             ->setDescription('Request a new name for a ship. Will cost you')
             ->addArgument(
                 'userToken',
@@ -54,27 +48,13 @@ class RequestShipName extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $userToken = $input->getArgument('userToken');
-        $output->writeln('Checking user');
-        $token = $this->tokensService->parseTokenFromString($userToken);
-        $userIdToken = new UserIDToken($token);
-        $userId = $userIdToken->getUuid();
+        $accessToken = $input->getArgument('userToken');
 
+        $userId = $this->tokensService->getUserIdFromAccessTokenString($accessToken);
         $shipId = Uuid::fromString($input->getArgument('shipID'));
 
-        // check the ship exists and belongs to the user
-        if (!$this->shipsService->shipOwnedBy($shipId, $userId)) {
-            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
-        }
-
-        $name = $this->actionsService->requestShipName($userId);
-
-        $token = $this->tokensService->makeToken(
-            ShipNameToken::makeClaims(
-                $shipId,
-                $name
-            )
-        );
+        $name = $this->shipsService->requestShipName($userId, $shipId);
+        $token = $this->tokensService->getRenameShipToken($shipId, $name);
 
         $output->writeln('Name Offered: ' . $name);
         $output->writeln('Action token: ');

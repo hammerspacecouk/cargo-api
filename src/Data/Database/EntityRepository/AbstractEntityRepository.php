@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
-class AbstractEntityRepository extends EntityRepository
+abstract class AbstractEntityRepository extends EntityRepository
 {
     public function getByID(
         UuidInterface $uuid,

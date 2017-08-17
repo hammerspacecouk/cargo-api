@@ -3,10 +3,12 @@ declare(strict_types = 1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Channel as DbChannel;
+use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 
 class ChannelsService extends AbstractService
 {
+    /** @return Channel[] */
     public function getAllLinkedToPort(Port $port): array
     {
         $qb = $this->getQueryBuilder(DbChannel::class)

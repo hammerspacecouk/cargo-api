@@ -3,10 +3,9 @@ declare(strict_types = 1);
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
-use App\Config\TokenConfig;
-use App\Domain\ValueObject\Token\UserIDToken;
 use App\Service\TokensService;
 use App\Service\UsersService;
+use DateTimeImmutable;
 use Google_Client;
 use Google_Service_Oauth2;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,10 +21,10 @@ class LoginGoogleAction
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
-        TokenConfig $tokenConfig,
         TokensService $tokensService,
         Google_Client $client,
-        UsersService $usersService
+        UsersService $usersService,
+        DateTimeImmutable $currentTime
     ): Response {
         $code = $request->get('code');
         $error = $request->get('error');
@@ -49,15 +48,15 @@ class LoginGoogleAction
         $oauthClient = new Google_Service_Oauth2($client);
         $user = $oauthClient->userinfo_v2_me->get();
 
-        $email = $user->email;
-        $user = $usersService->getOrCreateUserByEmail($email);
+        $description = $request->headers->get('User-Agent', 'Unknown') . ' - ' .
+            $currentTime->format(\DateTime::ISO8601);
 
-        $token = $tokensService->makeToken(UserIDToken::makeClaims($user->getId()));
+        $cookie = $tokensService->makeNewRefreshTokenCookie($user->email, $description);
 
         $response = new JsonResponse([
-            'token' => (string) $token
+            'status' => 'ok'
         ]);
-        $response->headers->setCookie($this->makeCookieForWebToken($tokenConfig, $token));
+        $response->headers->setCookie($cookie);
 
         return $response;
     }

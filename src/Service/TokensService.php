@@ -2,102 +2,88 @@
 declare(strict_types = 1);
 namespace App\Service;
 
-use App\Config\TokenConfig;
-use App\Data\Database\Entity\InvalidToken;
-use App\Data\Database\Mapper\MapperFactory;
+use App\Data\Database\Entity\Token as DbToken;
 use App\Data\ID;
-use App\Domain\Exception\InvalidTokenException;
-use DateInterval;
-use DateTimeImmutable;
-use Doctrine\ORM\EntityManager;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Token;
-use Lcobucci\JWT\ValidationData;
+use App\Domain\Entity\Channel;
+use App\Domain\Entity\Ship;
+use App\Domain\ValueObject\Token\AccessToken;
+use App\Domain\ValueObject\Token\Action\MoveShipToken;
+use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
 
 class TokensService extends AbstractService
 {
-    public const EXPIRY_ONE_DAY = 'P1D';
-    public const EXPIRY_ONE_HOUR = 'PT1H';
-    public const EXPIRY_ONE_MINUTE = 'PT1M';
-    public const EXPIRY_DEFAULT = self::EXPIRY_ONE_HOUR;
+    public function makeNewRefreshTokenCookie(string $email, string $description): Cookie
+    {
+        return $this->tokenHandler->makeNewRefreshTokenCookie($email, $description);
+    }
 
-    private $tokenConfig;
+    public function getAccessTokenFormRequest(Request $request): AccessToken
+    {
+        return $this->tokenHandler->getAccessTokenFromRequest($request);
+    }
 
-    public function __construct(
-        EntityManager $entityManager,
-        MapperFactory $mapperFactory,
-        DateTimeImmutable $currentTime,
-        TokenConfig $tokenConfig
-    ) {
-        parent::__construct(
-            $entityManager,
-            $mapperFactory,
-            $currentTime
+    public function getUserIdFromAccessTokenString(string $tokenString): UuidInterface
+    {
+        $token = $this->tokenHandler->getAccessTokenFromString($tokenString);
+        return $token->getUserId();
+    }
+
+    public function getMoveShipToken(
+        Ship $ship,
+        Channel $channel,
+        bool $reverseDirection
+    ): MoveShipToken {
+        $token = $this->makeActionToken(MoveShipToken::makeClaims(
+            $ship->getId(),
+            $channel->getId(),
+            $reverseDirection
+        ));
+
+        return new MoveShipToken($token);
+    }
+
+    public function getRenameShipToken(
+        UuidInterface $shipId,
+        string $newName
+    ): RenameShipToken {
+        $token = $this->tokenHandler->makeToken(
+            RenameShipToken::makeClaims(
+                $shipId,
+                $newName
+            )
         );
-        $this->tokenConfig = $tokenConfig;
+        return new RenameShipToken($token);
     }
 
-    public function makeToken(
-        array $claims,
-        string $expiry = self::EXPIRY_DEFAULT
-    ): Token {
-        $signer = new Sha256();
-        $builder = (new Builder())->setIssuer($this->tokenConfig->getIssuer())
-            ->setAudience($this->tokenConfig->getAudience())
-            ->setIssuedAt($this->currentTime->getTimestamp())
-            ->setId(ID::makeNewID(InvalidToken::class))
-            ->setExpiration($this->currentTime->add($this->getExpiry($expiry))->getTimestamp());
+    public function useRenameShipToken(
+        string $token
+    ): RenameShipToken {
+        $token = $this->tokenHandler->parseTokenFromString($token);
+        $tokenDetail = new RenameShipToken($token);
+        $name = $tokenDetail->getShipName();
+        $shipId = $tokenDetail->getShipId();
 
-        foreach ($claims as $key => $value) {
-            $builder->set($key, $value);
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            $this->getShipRepo()->renameShip($shipId, $name);
+            $this->tokenHandler->markAsUsed($token);
+            $this->entityManager->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            throw $e;
         }
 
-        // Now that all the data is present we can sign it
-        $builder->sign($signer, $this->tokenConfig->getPrivateKey());
-
-        return $builder->getToken();
+        return $tokenDetail;
     }
 
-    public function parseToken(
-        Token $token,
-        bool $checkIfInvalid = true
-    ): Token {
-        $data = new ValidationData();
-        $data->setIssuer($this->tokenConfig->getIssuer());
-        $data->setAudience($this->tokenConfig->getAudience());
-        $data->setCurrentTime($this->currentTime->getTimestamp());
-
-        $signer = new Sha256();
-        if (!$token->verify($signer, $this->tokenConfig->getPrivateKey()) ||
-            !$token->validate($data) ||
-            $this->tokenIsInvalidated($token, $checkIfInvalid)) {
-            throw new InvalidTokenException('Token was tampered with or expired');
-        }
-        return $token;
-    }
-
-    public function tokenIsInvalidated($token, $check = true)
+    private function makeActionToken(array $claims)
     {
-        if ($check) {
-            return $this->getInvalidTokenRepo()->isInvalid($token);
-        }
-        return false;
+        return $this->tokenHandler->makeToken(
+            $claims,
+            ID::makeNewID(DbToken::class)
+        );
     }
-
-    public function parseTokenFromString(
-        string $tokenString,
-        bool $checkIfInvalid = true
-    ): Token {
-        $token = (new Parser())->parse($tokenString);
-        return $this->parseToken($token, $checkIfInvalid);
-    }
-
-    private function getExpiry(string $expiry = self::EXPIRY_DEFAULT)
-    {
-        return new DateInterval($expiry);
-    }
-
-
 }

@@ -12,8 +12,7 @@ class DictionaryRepository extends AbstractEntityRepository
     private function getAllByContext(string $context): array
     {
         if (isset(self::$contextCache[$context])) {
-            var_dump('cached bithces!!');
-            return self::$contextCache;
+            return self::$contextCache[$context];
         }
 
         $qb = $this->createQueryBuilder('tbl')
@@ -22,7 +21,7 @@ class DictionaryRepository extends AbstractEntityRepository
             ->setParameter('context', $context)
         ;
 
-        $data = array_map(function($result) {
+        $data = array_map(function ($result) {
             return $result['word'];
         }, $qb->getQuery()->getResult(Query::HYDRATE_ARRAY));
 

@@ -85,9 +85,7 @@ class UpdateDictionary extends Command
         $progress = new ProgressBar($output, $total);
         $progress->start();
 
-        foreach($inputData as $word) {
-
-
+        foreach ($inputData as $word) {
             $shipClass = new Dictionary(
                 ID::makeNewID(Dictionary::class),
                 $word,
@@ -106,5 +104,4 @@ class UpdateDictionary extends Command
 
         $output->writeln('Done');
     }
-
 }

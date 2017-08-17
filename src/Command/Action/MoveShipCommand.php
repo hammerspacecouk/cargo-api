@@ -22,7 +22,7 @@ class MoveShipCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:action:move-ship')
+            ->setName('play:action:move-ship')
             ->setDescription('Move a ship into a port')
             ->addArgument(
                 'shipId',
