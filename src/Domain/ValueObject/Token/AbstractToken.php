@@ -49,7 +49,8 @@ abstract class AbstractToken
         }
     }
 
-    public static function createClaims(array $data): array {
+    public static function createClaims(array $data): array
+    {
         $data[self::KEY_TOKEN_TYPE] = static::TYPE;
         return $data;
     }

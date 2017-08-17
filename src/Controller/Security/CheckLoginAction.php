@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace App\Controller\Security;
 
-use App\Data\TokenHandler;
+use App\Service\TokensService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,10 +12,10 @@ class CheckLoginAction
 
     public function __invoke(
         Request $request,
-        TokenHandler $tokenHandler
+        TokensService $tokensService
     ): JsonResponse {
 
-        $userId = $this->getUserId($request, $tokenHandler);
+        $userId = $this->getUserId($request, $tokensService);
 
         $response = new JsonResponse('Hello uuid: ' . (string) $userId);
 

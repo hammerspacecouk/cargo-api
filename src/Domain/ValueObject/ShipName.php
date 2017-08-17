@@ -46,5 +46,4 @@ class ShipName implements \JsonSerializable
             'parts' => $this->getParts(),
         ];
     }
-
 }

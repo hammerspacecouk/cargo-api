@@ -43,8 +43,8 @@ class ShowAction
         UsersService $usersService,
         ShipsService $shipsService,
         ChannelsService $channelsService
-    ): JsonResponse
-    {
+    ): JsonResponse {
+    
         $this->tokensService = $tokensService;
         $this->channelsService = $channelsService;
 
@@ -90,8 +90,8 @@ class ShowAction
         Port $port,
         Ship $ship,
         User $user
-    ): array
-    {
+    ): array {
+    
         // find all channels for a port, with their bearing and distance
         $channels = $this->channelsService->getAllLinkedToPort($port);
 

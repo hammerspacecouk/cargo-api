@@ -21,7 +21,7 @@ class DictionaryRepository extends AbstractEntityRepository
             ->setParameter('context', $context)
         ;
 
-        $data = array_map(function($result) {
+        $data = array_map(function ($result) {
             return $result['word'];
         }, $qb->getQuery()->getResult(Query::HYDRATE_ARRAY));
 

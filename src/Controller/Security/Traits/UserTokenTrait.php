@@ -18,8 +18,8 @@ trait UserTokenTrait
     protected function getUserId(
         Request $request,
         TokensService $tokensService
-    ): UuidInterface
-    {
+    ): UuidInterface {
+    
         try {
             // try and get back a userId
 
@@ -29,8 +29,6 @@ trait UserTokenTrait
 
 
             // todo - catch no refresh token (bounce to login)
-
-
         } catch (MissingTokenException $e) {
             throw new AccessDeniedHttpException('No credentials provided');
         } catch (InvalidTokenException | InvalidUuidStringException $e) {
