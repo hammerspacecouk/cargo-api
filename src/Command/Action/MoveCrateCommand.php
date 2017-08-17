@@ -1,8 +1,9 @@
 <?php
+declare(strict_types = 1);
 namespace App\Command\Action;
 
 use App\Service\CratesService;
-use App\Service\PortsService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,12 +13,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MoveCrateCommand extends Command
 {
     private $cratesService;
+    private $logger;
 
     public function __construct(
-        CratesService $cratesService
+        CratesService $cratesService,
+        LoggerInterface $logger
     ) {
         parent::__construct();
         $this->cratesService = $cratesService;
+        $this->logger = $logger;
     }
 
     protected function configure()
@@ -45,10 +49,10 @@ class MoveCrateCommand extends Command
         $crateId = Uuid::fromString($input->getArgument('crateId'));
         $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
-        $output->writeln('Will be moving crate ' . $crateId . ' to ' . $destinationId);
+        $this->logger->info('Will be moving crate ' . $crateId . ' to ' . $destinationId);
 
         $this->cratesService->moveCrateToLocation($crateId, $destinationId);
 
-        $output->writeln('Done');
+        $this->logger->info('Done');
     }
 }

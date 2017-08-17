@@ -27,6 +27,7 @@ use App\Data\TokenHandler;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractService
 {
@@ -39,17 +40,20 @@ abstract class AbstractService
     protected $mapperFactory;
     protected $tokenHandler;
     protected $currentTime;
+    protected $logger;
 
     public function __construct(
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
         TokenHandler $tokenHandler,
-        DateTimeImmutable $currentTime
+        DateTimeImmutable $currentTime,
+        LoggerInterface $logger
     ) {
         $this->entityManager = $entityManager;
         $this->mapperFactory = $mapperFactory;
         $this->tokenHandler = $tokenHandler;
         $this->currentTime = $currentTime;
+        $this->logger = $logger;
     }
 
     protected function getQueryBuilder(string $name): QueryBuilder

@@ -4,6 +4,7 @@ namespace App\Controller\Crates;
 
 use App\Controller\IDRequestTrait;
 use App\Service\CratesService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -14,8 +15,11 @@ class ShowAction
 
     public function __invoke(
         Request $request,
-        CratesService $cratesService
+        CratesService $cratesService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
         $uuid = $this->getID($request);
 
         $crate = $cratesService->getByIDWithLocation($uuid);

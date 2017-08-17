@@ -20,6 +20,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -41,15 +42,18 @@ class TokenHandler
     private $tokenConfig;
     private $currentTime;
     private $entityManager;
+    private $logger;
 
     public function __construct(
         EntityManager $entityManager,
         DateTimeImmutable $currentTime,
-        TokenConfig $tokenConfig
+        TokenConfig $tokenConfig,
+        LoggerInterface $logger
     ) {
         $this->tokenConfig = $tokenConfig;
         $this->entityManager = $entityManager;
         $this->currentTime = $currentTime;
+        $this->logger = $logger;
     }
 
     public function makeNewRefreshTokenCookie(string $emailAddress, string $description)
@@ -64,7 +68,12 @@ class TokenHandler
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
-            $user = $this->getUserRepo()->getOrCreateUserByEmail($emailAddress);
+            $userRepo = $this->getUserRepo();
+            $user = $userRepo->getByEmail($emailAddress);
+            if (!$user) {
+                $this->logger->notice('[NEW PLAYER] Creating a new player');
+                $user = $userRepo->createByEmail($emailAddress);
+            }
 
             // store in the database as a valid token
             $tokenEntity = new DbToken(
@@ -76,10 +85,12 @@ class TokenHandler
                 $description
             );
             $this->entityManager->persist($tokenEntity);
+            $this->logger->info('Saving');
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Failed to created refresh token. Rollback transaction');
             throw $e;
         }
 

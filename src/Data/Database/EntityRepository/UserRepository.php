@@ -8,19 +8,21 @@ use App\Domain\ValueObject\Bearing;
 
 class UserRepository extends AbstractEntityRepository
 {
-    public function getOrCreateUserByEmail(string $email): User
+    public function getByEmail(string $email): User
     {
-        $user = $this->findOneBy(['email' => $email]);
-        if (!$user) {
-            $user = new User(
-                ID::makeNewID(User::class),
-                $email,
-                Bearing::getInitialRandomStepNumber()
-            );
+        return $this->findOneBy(['email' => $email]);
+    }
 
-            $this->getEntityManager()->persist($user);
-            $this->getEntityManager()->flush();
-        }
+    public function createByEmail(string $email): User
+    {
+        $user = new User(
+            ID::makeNewID(User::class),
+            $email,
+            Bearing::getInitialRandomStepNumber()
+        );
+
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
 
         return $user;
     }

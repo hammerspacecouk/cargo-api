@@ -1,7 +1,9 @@
 <?php
+declare(strict_types = 1);
 namespace App\Command\Action;
 
 use App\Service\ShipsService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,12 +13,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MoveShipCommand extends Command
 {
     private $shipsService;
+    private $logger;
 
     public function __construct(
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        LoggerInterface $logger
     ) {
         parent::__construct();
         $this->shipsService = $shipsService;
+        $this->logger = $logger;
     }
 
     protected function configure()
@@ -44,7 +49,7 @@ class MoveShipCommand extends Command
         $shipId = Uuid::fromString($input->getArgument('shipId'));
         $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
-        $output->writeln('Will be moving ship ' . $shipId . ' to ' . $destinationId);
+        $output->writeln('Will be moving ship ' . (string) $shipId . ' to ' . (string) $destinationId);
 
         $this->shipsService->moveShipToLocation($shipId, $destinationId);
 

@@ -63,6 +63,8 @@ class ShipsService extends AbstractService
         int $limit,
         int $page = 1
     ): array {
+        $this->logger->info(__CLASS__ . ':' . __METHOD__);
+
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')

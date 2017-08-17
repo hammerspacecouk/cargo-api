@@ -5,6 +5,7 @@ namespace App\Controller\Ports;
 use App\Controller\PaginationRequestTrait;
 use App\Service\CratesService;
 use App\Service\PortsService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,8 +19,11 @@ class CratesAction
     public function __invoke(
         Request $request,
         PortsService $portsService,
-        CratesService $cratesService
+        CratesService $cratesService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
         $port = $this->getPort($request, $portsService);
 
         $page = $this->getPageNumber($request);

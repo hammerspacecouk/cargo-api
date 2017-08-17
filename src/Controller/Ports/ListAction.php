@@ -4,6 +4,7 @@ namespace App\Controller\Ports;
 
 use App\Controller\PaginationRequestTrait;
 use App\Service\PortsService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,8 +16,11 @@ class ListAction
 
     public function __invoke(
         Request $request,
-        PortsService $portsService
+        PortsService $portsService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
         $page = $this->getPageNumber($request);
         $total = $portsService->countAll();
         $pagination = $this->getPagination($request, $page, self::PER_PAGE, $total);

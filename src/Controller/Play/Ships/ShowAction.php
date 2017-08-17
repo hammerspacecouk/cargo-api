@@ -15,6 +15,7 @@ use App\Service\ChannelsService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use App\Service\UsersService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -42,8 +43,11 @@ class ShowAction
         TokensService $tokensService,
         UsersService $usersService,
         ShipsService $shipsService,
-        ChannelsService $channelsService
+        ChannelsService $channelsService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
     
         $this->tokensService = $tokensService;
         $this->channelsService = $channelsService;

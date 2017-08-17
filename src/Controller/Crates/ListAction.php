@@ -4,6 +4,7 @@ namespace App\Controller\Crates;
 
 use App\Controller\PaginationRequestTrait;
 use App\Service\CratesService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,8 +16,11 @@ class ListAction
 
     public function __invoke(
         Request $request,
-        CratesService $cratesService
+        CratesService $cratesService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
         $page = $this->getPageNumber($request);
         $total = $cratesService->countAllAvailable();
         $pagination = $this->getPagination($request, $page, self::PER_PAGE, $total);
