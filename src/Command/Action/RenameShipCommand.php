@@ -1,9 +1,7 @@
 <?php
 namespace App\Command\Action;
 
-use App\Data\TokenHandler;
-use App\Domain\ValueObject\Token\ShipNameToken;
-use App\Service\ActionsService;
+use App\Service\TokensService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,21 +10,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RenameShipCommand extends Command
 {
     private $actionsService;
-    private $tokenHandler;
+    private $tokensService;
 
     public function __construct(
-        ActionsService $actionsService,
-        TokenHandler $tokenHandler
+        TokensService $tokensService
     ) {
         parent::__construct();
-        $this->actionsService = $actionsService;
-        $this->tokenHandler = $tokenHandler;
+        $this->tokensService = $tokensService;
     }
 
     protected function configure()
     {
         $this
-            ->setName('game:action:rename-ship')
+            ->setName('play:action:rename-ship')
             ->setDescription('Rename a ship')
             ->addArgument(
                 'actionToken',
@@ -40,23 +36,15 @@ class RenameShipCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $token = $this->tokensService->parseTokenFromString($input->getArgument('actionToken'));
-        $tokenDetail = new ShipNameToken($token);
-
-        $shipId = $tokenDetail->getShipId();
-        $name = $tokenDetail->getShipName();
+        $output->writeln('Renaming');
+        $token = $this->tokensService->useRenameShipToken($input->getArgument('actionToken'));
         $output->writeln(
             sprintf(
-                'Attempting to name ship %s to %s',
-                $shipId->toString(),
-                $name
+                'Renamed ship %s to %s',
+                (string) $token->getShipId(),
+                $token->getShipName()
             )
         );
-
-        $this->shipsService->renameShip($shipId, $name);
-
-        $output->writeln('Ship was named ' . $name);
-
         $output->writeln('Done');
     }
 }

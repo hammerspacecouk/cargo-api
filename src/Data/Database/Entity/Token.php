@@ -22,8 +22,10 @@ class Token extends AbstractEntity
     public const TYPE_RESERVED = 'RESERVED';
     public const TYPE_INVALIDATED = 'INVALIDATED';
 
-    public const VALID_TYPES = [
-        self::TYPE_REFRESH,
+    public const INVALID_TYPES = [
+        self::TYPE_USED,
+        self::TYPE_RESERVED,
+        self::TYPE_INVALIDATED,
     ];
 
     /** @ORM\Column(type="datetime", nullable=true) */

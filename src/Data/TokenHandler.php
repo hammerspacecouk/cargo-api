@@ -208,6 +208,14 @@ class TokenHandler
         return $this->parseToken($token, $checkIfInvalidated);
     }
 
+    public function markAsUsed(Token $token): void
+    {
+        $this->getTokenRepo()->markAsUsed(
+            $this->uuidFromToken($token),
+            $this->expiryFromToken($token)
+        );
+    }
+
     private function extendRefreshToken(RefreshToken $refreshToken, DbToken $tokenEntity)
     {
         $claims = RefreshToken::makeClaims($refreshToken->getAccessKey());
@@ -264,6 +272,12 @@ class TokenHandler
         Token $token
     ): UuidInterface {
         return Uuid::fromString($token->getClaim('jti'));
+    }
+
+    private function expiryFromToken(
+        Token $token
+    ): DateTimeImmutable {
+        return DateTimeImmutable::createFromFormat('U', (string) $token->getClaim('exp'));
     }
 
     private function getTokenRepo(): TokenRepository

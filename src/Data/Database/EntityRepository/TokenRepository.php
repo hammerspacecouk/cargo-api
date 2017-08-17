@@ -32,11 +32,11 @@ class TokenRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->select('count(tbl.id)')
             ->where('tbl.id = :id')
-            ->where('tbl.type IN (:validTypes)')
+            ->andWhere('tbl.type IN (:validTypes)')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('validTypes', TokenEntity::VALID_TYPES)
+            ->setParameter('validTypes', TokenEntity::INVALID_TYPES)
         ;
-        return !!$qb->getQuery()->getSingleScalarResult();
+        return !$qb->getQuery()->getSingleScalarResult();
     }
 
     public function markAsUsed(

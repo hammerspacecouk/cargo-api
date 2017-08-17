@@ -1,15 +1,15 @@
 <?php
 declare(strict_types = 1);
-namespace App\Domain\ValueObject\Token;
+namespace App\Domain\ValueObject\Token\Action;
 
 use App\Domain\Exception\InvalidTokenException;
 use Lcobucci\JWT\Token;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class MoveShipActionToken extends AbstractToken
+class MoveShipToken extends AbstractActionToken
 {
-    protected const TYPE = 'mvshp';
+    protected const TYPE = 'move-ship';
 
     private const KEY_SHIP = 'shp';
     private const KEY_CHANNEL = 'cnl';

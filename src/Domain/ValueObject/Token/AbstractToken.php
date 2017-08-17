@@ -15,6 +15,7 @@ abstract class AbstractToken
 
     protected $token;
     private $id;
+    private $expiry;
 
     public function __construct(Token $token)
     {

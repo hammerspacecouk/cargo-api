@@ -2,7 +2,6 @@
 namespace App\Command\Action;
 
 use App\Controller\Security\Traits\UserTokenTrait;
-use App\Service\ActionsService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use Ramsey\Uuid\Uuid;
@@ -15,17 +14,14 @@ class RequestShipName extends Command
 {
     use UserTokenTrait;
 
-    private $actionsService;
     private $shipsService;
     private $tokensService;
 
     public function __construct(
-        ActionsService $actionsService,
         ShipsService $shipsService,
         TokensService $tokensService
     ) {
         parent::__construct();
-        $this->actionsService = $actionsService;
         $this->shipsService = $shipsService;
         $this->tokensService = $tokensService;
     }
@@ -33,7 +29,7 @@ class RequestShipName extends Command
     protected function configure()
     {
         $this
-            ->setName('game:action:request-ship-name')
+            ->setName('play:action:request-ship-name')
             ->setDescription('Request a new name for a ship. Will cost you')
             ->addArgument(
                 'userToken',
@@ -57,10 +53,11 @@ class RequestShipName extends Command
         $userId = $this->tokensService->getUserIdFromAccessTokenString($accessToken);
         $shipId = Uuid::fromString($input->getArgument('shipID'));
 
-        $shipNameToken = $this->actionsService->requestShipName($userId, $shipId);
+        $name = $this->shipsService->requestShipName($userId, $shipId);
+        $token = $this->tokensService->getRenameShipToken($shipId, $name);
 
-        $output->writeln('Name Offered: ' . $shipNameToken->getShipName());
+        $output->writeln('Name Offered: ' . $name);
         $output->writeln('Action token: ');
-        $output->writeln((string) $shipNameToken);
+        $output->writeln((string) $token);
     }
 }

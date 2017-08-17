@@ -11,7 +11,6 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
-use App\Domain\ValueObject\Token\MoveShipActionToken;
 use App\Service\ChannelsService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
@@ -82,7 +81,7 @@ class ShowAction
             );
         }
 
-        return new JsonResponse($data);
+        return $this->userResponse(new JsonResponse($data));
     }
 
     // todo - be less messy - share some properties
@@ -113,14 +112,11 @@ class ShowAction
             $directions[$bearing] = [
                 'destination' => $destination,
                 'distance' => $applicationConfig->getDistanceMultiplier() * $channel->getDistance(),
-                'actionToken' => (string) $this->tokensService->makeActionToken(
-                    MoveShipActionToken::makeClaims(
-                        $ship->getId(),
-                        $channel->getId(),
-                        $reverseDirection
-                    )
+                'action' => $this->tokensService->getMoveShipToken(
+                    $ship,
+                    $channel,
+                    $reverseDirection
                 ),
-                'actionPath' => '/', // todo - using this or not?
             ];
         }
 

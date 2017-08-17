@@ -1,14 +1,14 @@
 <?php
 declare(strict_types = 1);
-namespace App\Domain\ValueObject\Token;
+namespace App\Domain\ValueObject\Token\Action;
 
 use App\Domain\Exception\InvalidTokenException;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class ShipNameToken extends AbstractToken
+class RenameShipToken extends AbstractActionToken
 {
-    protected const TYPE = 'sn';
+    protected const TYPE = 'rename-ship';
 
     private const KEY_SHIP_NAME = 'sn';
     private const KEY_SHIP_ID = 'si';
