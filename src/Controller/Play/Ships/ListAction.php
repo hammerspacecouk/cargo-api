@@ -6,6 +6,7 @@ use App\Controller\PaginationRequestTrait;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Service\ShipsService;
 use App\Service\TokensService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,8 +23,11 @@ class ListAction
     public function __invoke(
         Request $request,
         TokensService $tokensService,
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
         $userId = $this->getUserId($request, $tokensService);
 
         $page = $this->getPageNumber($request);

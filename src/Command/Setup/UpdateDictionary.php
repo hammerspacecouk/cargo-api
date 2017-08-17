@@ -1,12 +1,11 @@
 <?php
+declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Data\Database\Entity\Dictionary;
-use App\Data\Database\Entity\ShipClass;
 use App\Data\ID;
 use Doctrine\ORM\EntityManager;
 use InvalidArgumentException;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;

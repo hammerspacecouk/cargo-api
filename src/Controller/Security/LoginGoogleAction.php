@@ -8,6 +8,7 @@ use App\Service\UsersService;
 use DateTimeImmutable;
 use Google_Client;
 use Google_Service_Oauth2;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,8 +25,10 @@ class LoginGoogleAction
         TokensService $tokensService,
         Google_Client $client,
         UsersService $usersService,
-        DateTimeImmutable $currentTime
+        DateTimeImmutable $currentTime,
+        LoggerInterface $logger
     ): Response {
+        $logger->info(__CLASS__);
         $code = $request->get('code');
         $error = $request->get('error');
 

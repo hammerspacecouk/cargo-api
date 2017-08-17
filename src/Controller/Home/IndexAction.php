@@ -5,14 +5,18 @@ namespace App\Controller\Home;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Service\ShipLocationsService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class IndexAction
 {
     // general status and stats of the game as a whole
     public function __invoke(
-        ShipLocationsService $shipsLocationsService
+        ShipLocationsService $shipsLocationsService,
+        LoggerInterface $logger
     ): JsonResponse {
+
+        $logger->info(__CLASS__);
 
         $latestShipLocations = $shipsLocationsService->findLatest(10);
 

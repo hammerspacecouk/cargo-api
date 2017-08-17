@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace App\Command\Admin;
 
 use App\Service\ShipsService;

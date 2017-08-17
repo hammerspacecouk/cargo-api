@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Data\Database\Entity\Port;

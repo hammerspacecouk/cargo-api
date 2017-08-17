@@ -68,11 +68,16 @@ class TokensService extends AbstractService
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
+            $this->logger->info('Renaming ship');
             $this->getShipRepo()->renameShip($shipId, $name);
+            $this->logger->info('Marking token as used');
             $this->tokenHandler->markAsUsed($token);
+            $this->logger->info('Committing transaction');
             $this->entityManager->getConnection()->commit();
+            $this->logger->notice('[SHIP RENAME] Ship ' . (string) $shipId . ' renamed to ' . $name);
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Rolled back "useRenameShipToken" transaction');
             throw $e;
         }
 
