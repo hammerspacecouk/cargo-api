@@ -29,7 +29,7 @@ class PortsService extends AbstractService
         Bearing $bearing,
         int $distance
     ): void {
-        $portRepo = $this->getPortRepo();
+        $portRepo = $this->entityManager->getPortRepo();
 
         $fromPort = $portRepo->getByID($fromId, Query::HYDRATE_OBJECT);
         $toPort = $portRepo->getByID($toId, Query::HYDRATE_OBJECT);

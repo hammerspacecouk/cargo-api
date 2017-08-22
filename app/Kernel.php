@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace App;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle;
 use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -38,6 +39,7 @@ class Kernel extends SymfonyKernel
             new FrameworkBundle(),
             new MonologBundle(),
             new DoctrineBundle(),
+            new DoctrineCacheBundle(),
             new DoctrineMigrationsBundle(),
         ];
 

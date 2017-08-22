@@ -7,10 +7,11 @@ permissions:
   - object: /
     owner: nginx
     group: nginx
+
 hooks:
   AfterInstall:
-    - location: scripts/fetch-parameters.sh
+    - location: bin/fetch-parameters.sh
       timeout: 300
   ApplicationStart:
-    - location: scripts/application-start.sh
+    - location: bin/application-start.sh
       timeout: 300

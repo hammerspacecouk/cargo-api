@@ -5,6 +5,7 @@ namespace App\Data;
 use App\Config\TokenConfig;
 use App\Data\Database\Entity\Token as DbToken;
 use App\Data\Database\Entity\User;
+use App\Data\Database\EntityManager;
 use App\Data\Database\EntityRepository\TokenRepository;
 use App\Data\Database\EntityRepository\UserRepository;
 use App\Domain\Exception\InvalidTokenException;
@@ -13,7 +14,6 @@ use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\RefreshToken;
 use DateInterval;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
@@ -68,7 +68,7 @@ class TokenHandler
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
-            $userRepo = $this->getUserRepo();
+            $userRepo = $this->entityManager->getUserRepo();
             $user = $userRepo->getByEmail($emailAddress);
             if (!$user) {
                 $this->logger->notice('[NEW PLAYER] Creating a new player');
@@ -130,7 +130,7 @@ class TokenHandler
         $refreshToken = new RefreshToken($this->parseTokenFromString($refreshToken, false));
 
         /** @var DbToken $tokenEntity */
-        $tokenEntity = $this->getTokenRepo()->findRefreshTokenWithUser($refreshToken->getId(), Query::HYDRATE_OBJECT);
+        $tokenEntity = $this->entityManager->getTokenRepo()->findRefreshTokenWithUser($refreshToken->getId(), Query::HYDRATE_OBJECT);
         if (!$tokenEntity) {
             throw new MissingTokenException('Token could not be found');
         }
@@ -197,7 +197,7 @@ class TokenHandler
         $data->setCurrentTime($this->currentTime->getTimestamp());
 
         if ($checkIfInvalidated &&
-            !$this->getTokenRepo()->isValid($this->uuidFromToken($token))
+            !$this->entityManager->getTokenRepo()->isValid($this->uuidFromToken($token))
         ) {
             throw new InvalidTokenException('Token has been invalidated');
         }
@@ -221,7 +221,7 @@ class TokenHandler
 
     public function markAsUsed(Token $token): void
     {
-        $this->getTokenRepo()->markAsUsed(
+        $this->entityManager->getTokenRepo()->markAsUsed(
             $this->uuidFromToken($token),
             $this->expiryFromToken($token)
         );

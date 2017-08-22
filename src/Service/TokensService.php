@@ -69,7 +69,7 @@ class TokensService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
         try {
             $this->logger->info('Renaming ship');
-            $this->getShipRepo()->renameShip($shipId, $name);
+            $this->entityManager->getShipRepo()->renameShip($shipId, $name);
             $this->logger->info('Marking token as used');
             $this->tokenHandler->markAsUsed($token);
             $this->logger->info('Committing transaction');

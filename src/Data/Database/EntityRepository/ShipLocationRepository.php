@@ -2,14 +2,11 @@
 declare(strict_types = 1);
 namespace App\Data\Database\EntityRepository;
 
-use App\ApplicationTime;
 use App\Data\Database\Entity\ShipLocation;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class ShipLocationRepository extends EntityRepository
+class ShipLocationRepository extends AbstractEntityRepository
 {
     public function getCurrentForShipId(
         UuidInterface $shipId,
@@ -75,7 +72,7 @@ class ShipLocationRepository extends EntityRepository
             'WHERE IDENTITY(cl.ship) = :ship ' .
             'AND cl.isCurrent = true'
         );
-        $q->setParameter('time', ApplicationTime::getTime());
+        $q->setParameter('time', $this->currentTime);
         $q->setParameter('ship', $uuid->getBytes());
         $q->execute();
     }

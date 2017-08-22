@@ -2,13 +2,11 @@
 declare(strict_types = 1);
 namespace App\Data\Database\EntityRepository;
 
-use App\ApplicationTime;
 use App\Data\Database\Entity\CrateLocation;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
-class CrateLocationRepository extends EntityRepository
+class CrateLocationRepository extends AbstractEntityRepository
 {
     public function getCurrentForCrateID(
         UuidInterface $crateId,
@@ -63,7 +61,7 @@ class CrateLocationRepository extends EntityRepository
             'WHERE IDENTITY(cl.crate) = :crate ' .
             'AND cl.isCurrent = true'
         );
-        $q->setParameter('time', ApplicationTime::getTime());
+        $q->setParameter('time', $this->currentTime);
         $q->setParameter('crate', $uuid->getBytes());
         $q->execute();
     }

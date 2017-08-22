@@ -2,16 +2,13 @@
 declare(strict_types = 1);
 namespace App\Service;
 
-use App\ApplicationTime;
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
-use App\Data\Database\EntityRepository\CrateRepository;
 use App\Data\ID;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\UuidInterface;
@@ -78,7 +75,7 @@ class CratesService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?Crate {
-        $result = $this->getCrateRepo()->getByID($uuid);
+        $result = $this->entityManager->getCrateRepo()->getByID($uuid);
 
         if (!$result) {
             return null;
@@ -91,13 +88,13 @@ class CratesService extends AbstractService
     public function getByIDWithLocation(
         UuidInterface $uuid
     ): ?Crate {
-        $result = $this->getCrateRepo()->getByID($uuid);
+        $result = $this->entityManager->getCrateRepo()->getByID($uuid);
 
         if (!$result) {
             return null;
         }
 
-        $result['location'] = $this->getCrateLocationRepo()
+        $result['location'] = $this->entityManager->getCrateLocationRepo()
             ->getCurrentForCrateID($uuid);
 
         $mapper = $this->mapperFactory->createCrateMapper();
@@ -143,7 +140,7 @@ class CratesService extends AbstractService
         UuidInterface $crateID,
         UuidInterface $locationId
     ): void {
-        $crateRepo = $this->getCrateRepo();
+        $crateRepo = $this->entityManager->getCrateRepo();
 
         // fetch the crate and the port
         $crate = $crateRepo->getByID($crateID, Query::HYDRATE_OBJECT);
@@ -157,10 +154,10 @@ class CratesService extends AbstractService
 
         switch ($locationType) {
             case DbPort::class:
-                $port = $this->getPortRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
+                $port = $this->entityManager->getPortRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
                 break;
             case DbShip::class:
-                $ship = $this->getShipRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
+                $ship = $this->entityManager->getShipRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
                 break;
         }
 
@@ -171,7 +168,7 @@ class CratesService extends AbstractService
         // start the transaction
         $this->entityManager->transactional(function () use ($crate, $port, $ship) {
             // remove any old crate locations
-            $this->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
+            $this->entityManager->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
 
             // make a new crate location
             $newLocation = new DbCrateLocation(

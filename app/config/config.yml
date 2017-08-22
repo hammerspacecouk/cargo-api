@@ -40,12 +40,6 @@ doctrine:
                 is_bundle: false
                 type: annotation
                 prefix: App\Data\Database\Entity
-        dql:
-            datetime_functions:
-                date: DoctrineExtensions\Query\Mysql\Date
-                date_format: DoctrineExtensions\Query\Mysql\DateFormat
-            string_functions:
-                ifnull: DoctrineExtensions\Query\Mysql\IfNull
 
 # Doctrine migrations
 doctrine_migrations:
@@ -53,6 +47,11 @@ doctrine_migrations:
     namespace: App\Data\Database\Migration
     table_name: migration_versions
     name: Application Migrations
+
+doctrine_cache:
+    providers:
+        data_cache:
+            type: php_file
 
 monolog:
     handlers:

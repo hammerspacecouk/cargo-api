@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace App\Data\Database\Entity;
 
-use App\ApplicationTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -34,24 +33,5 @@ abstract class AbstractEntity
     ) {
         $this->id = $id;
         $this->uuid = (string) $this->id;
-    }
-
-    /**
-     * Set createdAt
-     * @ORM\PrePersist
-     */
-    public function onCreate(): void
-    {
-        $this->createdAt = ApplicationTime::getTime();
-        $this->updatedAt = ApplicationTime::getTime();
-    }
-
-    /**
-     * Set updatedAt
-     * @ORM\PreUpdate
-     */
-    public function onUpdate(): void
-    {
-        $this->updatedAt = ApplicationTime::getTime();
     }
 }

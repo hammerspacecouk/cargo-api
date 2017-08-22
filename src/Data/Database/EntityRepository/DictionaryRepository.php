@@ -7,13 +7,18 @@ use Doctrine\ORM\Query;
 
 class DictionaryRepository extends AbstractEntityRepository
 {
-    private static $contextCache = [];
+    private const CACHE_LIFETIME = 60*60*24*2; // 2 days
 
     private function getAllByContext(string $context): array
     {
-        if (isset(self::$contextCache[$context])) {
-            return self::$contextCache[$context];
+        $cacheKey = 'DictionaryRepository-getAll-' . $context;
+        $this->logger->debug('Checking cache for ' . $cacheKey);
+        $data = $this->cache->get($cacheKey);
+        if ($data) {
+            $this->logger->debug('Cache HIT for ' . $cacheKey);
+            return $data;
         }
+        $this->logger->debug('Cache MISS for ' . $cacheKey);
 
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl.word')
@@ -25,7 +30,8 @@ class DictionaryRepository extends AbstractEntityRepository
             return $result['word'];
         }, $qb->getQuery()->getResult(Query::HYDRATE_ARRAY));
 
-        self::$contextCache[$context] = $data;
+        $this->logger->debug('Caching for ' . self::CACHE_LIFETIME . ' seconds');
+        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
 
         return $data;
     }

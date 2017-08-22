@@ -8,7 +8,7 @@ class ShipLocationsService extends AbstractService
         int $limit,
         int $page = 1
     ): array {
-        $locations = $this->getShipLocationRepo()->getLatest($limit, $this->getOffset($limit, $page));
+        $locations = $this->entityManager->getShipLocationRepo()->getLatest($limit, $this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createShipLocationMapper();
 

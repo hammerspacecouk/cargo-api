@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace App\Service;
 
-use App\ApplicationTime;
 use App\Data\Database\Entity\Channel as DbChannel;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
@@ -20,21 +19,21 @@ class ShipsService extends AbstractService
     public function makeNew(User $owner): void
     {
         // all ships begin as starter ships, and must be upgraded
-        $starterShip = $this->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
+        $starterShip = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
 
-        $user = $this->getUserRepo()
+        $user = $this->entityManager->getUserRepo()
             ->getByID($owner->getId(), Query::HYDRATE_OBJECT);
 
         $ship = new DbShip(
             ID::makeNewID(DbShip::class),
-            $this->getDictionaryRepo()->getRandomShipName(),
+            $this->entityManager->getDictionaryRepo()->getRandomShipName(),
             $starterShip,
             $user
         );
         $this->entityManager->persist($ship);
 
         // new ships need to be put into a safe port
-        $safePort = $this->getPortRepo()
+        $safePort = $this->entityManager->getPortRepo()
             ->getARandomSafePort(Query::HYDRATE_OBJECT);
 
         $location = new DbShipLocation(
@@ -42,7 +41,7 @@ class ShipsService extends AbstractService
             $ship,
             $safePort,
             null,
-            ApplicationTime::getTime()
+            $this->currentTime
         );
 
         $this->entityManager->persist($location);
@@ -143,7 +142,7 @@ class ShipsService extends AbstractService
             return null;
         }
 
-        $result['location'] = $this->getShipLocationRepo()
+        $result['location'] = $this->entityManager->getShipLocationRepo()
             ->getCurrentForShipId($uuid);
 
         $mapper = $this->mapperFactory->createShipMapper();
@@ -189,7 +188,7 @@ class ShipsService extends AbstractService
         UuidInterface $shipId,
         UuidInterface $locationId
     ): void {
-        $shipRepo = $this->getShipRepo();
+        $shipRepo = $this->entityManager->getShipRepo();
 
         // fetch the ship
         $ship = $shipRepo->getByID($shipId, Query::HYDRATE_OBJECT);
@@ -200,7 +199,7 @@ class ShipsService extends AbstractService
         $locationType = ID::getIDType($locationId);
 
         // fetch the ships current location
-        $currentShipLocation = $this->getShipLocationRepo()
+        $currentShipLocation = $this->entityManager->getShipLocationRepo()
             ->getCurrentForShipId($ship->id, Query::HYDRATE_OBJECT);
 
         if ($locationType === DbPort::class) {
@@ -230,7 +229,7 @@ class ShipsService extends AbstractService
     ): string {
 
         // check the ship exists and belongs to the user
-        if (!$this->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
+        if (!$this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
             throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
         }
 
@@ -239,7 +238,8 @@ class ShipsService extends AbstractService
         // todo -deduct the user credits
 
         // todo - should it check to see if it already exists?
-        return $this->getDictionaryRepo()->getRandomShipName();
+
+        return $this->entityManager->getDictionaryRepo()->getRandomShipName();
     }
 
 
@@ -248,14 +248,14 @@ class ShipsService extends AbstractService
         DbShipLocation $currentShipLocation,
         UuidInterface $portId
     ) {
-        $port = $this->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
+        $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         if (!$port) {
             throw new \InvalidArgumentException('No such port');
         }
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
-        $currentShipLocation->exitTime = ApplicationTime::getTime();
+        $currentShipLocation->exitTime = $this->currentTime;
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location
@@ -264,13 +264,13 @@ class ShipsService extends AbstractService
             $ship,
             $port,
             null,
-            ApplicationTime::getTime()
+            $this->currentTime
         );
         $this->entityManager->persist($newLocation);
 
         // move all crates on the ship into the port
         // get the crates
-        $crateLocations = $this->getCrateLocationRepo()
+        $crateLocations = $this->entityManager->getCrateLocationRepo()
             ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
         if (!empty($crateLocations)) {
             foreach ($crateLocations as $crateLocation) {
@@ -294,14 +294,14 @@ class ShipsService extends AbstractService
         DbShipLocation $currentShipLocation,
         UuidInterface $channelId
     ) {
-        $channel = $this->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
+        $channel = $this->entityManager->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
         if (!$channel) {
             throw new \InvalidArgumentException('No such channel');
         }
 
         // remove the old ship location
         $currentShipLocation->isCurrent = false;
-        $currentShipLocation->exitTime = ApplicationTime::getTime();
+        $currentShipLocation->exitTime = $this->currentTime;
         $this->entityManager->persist($currentShipLocation);
 
         // make a new ship location
@@ -310,7 +310,7 @@ class ShipsService extends AbstractService
             $ship,
             null,
             $channel,
-            ApplicationTime::getTime()
+            $this->currentTime
         );
         $this->entityManager->persist($newLocation);
         $this->entityManager->flush();
@@ -329,7 +329,7 @@ class ShipsService extends AbstractService
 
         // do a batch query to find all the location and key them by ship
         $locations = [];
-        foreach ($this->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
+        foreach ($this->entityManager->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
             $locations[$location['ship']['uuid']] = $location;
         }
 

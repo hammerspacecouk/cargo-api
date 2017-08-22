@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Data\Database\Entity\ShipClass;
-use Doctrine\ORM\EntityManager;
+use App\Data\Database\EntityManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

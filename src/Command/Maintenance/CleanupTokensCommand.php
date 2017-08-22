@@ -3,8 +3,8 @@ declare(strict_types=1);
 namespace App\Command\Maintenance;
 
 use App\Data\Database\Entity\Token;
+use App\Data\Database\EntityManager;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

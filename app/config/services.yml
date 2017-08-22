@@ -41,3 +41,8 @@ services:
         arguments:
             - "now"
             - '@DateTimeZone'
+
+    Psr\SimpleCache\CacheInterface:
+        class: Roave\DoctrineSimpleCache\SimpleCacheAdapter
+        arguments:
+            - "@doctrine_cache.providers.data_cache"
