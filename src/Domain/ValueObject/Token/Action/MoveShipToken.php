@@ -31,6 +31,22 @@ class MoveShipToken extends AbstractActionToken
         throw new InvalidTokenException('No Ship ID found');
     }
 
+    public function getChannelId(): UuidInterface
+    {
+        if ($this->token->hasClaim(self::KEY_CHANNEL)) {
+            return Uuid::fromString($this->token->getClaim(self::KEY_CHANNEL));
+        }
+        throw new InvalidTokenException('No Channel ID found');
+    }
+
+    public function isReversed(): bool
+    {
+        if ($this->token->hasClaim(self::KEY_REVERSED)) {
+            return $this->token->getClaim(self::KEY_REVERSED);
+        }
+        throw new InvalidTokenException('No Channel ID found');
+    }
+
     public function getCookies(): array
     {
         return $this->cookies;

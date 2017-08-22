@@ -20,7 +20,7 @@ class ListAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $page = $this->getPageNumber($request);
         $total = $cratesService->countAllAvailable();
         $pagination = $this->getPagination($request, $page, self::PER_PAGE, $total);

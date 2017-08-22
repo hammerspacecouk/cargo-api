@@ -289,33 +289,6 @@ class ShipsService extends AbstractService
         $this->entityManager->flush();
     }
 
-    private function moveShipToChannelId(
-        DbShip $ship,
-        DbShipLocation $currentShipLocation,
-        UuidInterface $channelId
-    ) {
-        $channel = $this->entityManager->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
-        if (!$channel) {
-            throw new \InvalidArgumentException('No such channel');
-        }
-
-        // remove the old ship location
-        $currentShipLocation->isCurrent = false;
-        $currentShipLocation->exitTime = $this->currentTime;
-        $this->entityManager->persist($currentShipLocation);
-
-        // make a new ship location
-        $newLocation = new DbShipLocation(
-            ID::makeNewID(DbShipLocation::class),
-            $ship,
-            null,
-            $channel,
-            $this->currentTime
-        );
-        $this->entityManager->persist($newLocation);
-        $this->entityManager->flush();
-    }
-
     private function attachLocationToShips(array $ships): array
     {
         if (empty($ships)) {

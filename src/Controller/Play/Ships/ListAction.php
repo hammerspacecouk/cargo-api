@@ -27,7 +27,7 @@ class ListAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $userId = $this->getUserId($request, $tokensService);
 
         $page = $this->getPageNumber($request);

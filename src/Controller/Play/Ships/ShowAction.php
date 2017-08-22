@@ -47,7 +47,7 @@ class ShowAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
     
         $this->tokensService = $tokensService;
         $this->channelsService = $channelsService;

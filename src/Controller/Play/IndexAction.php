@@ -23,7 +23,7 @@ class IndexAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $userId = $this->getUserId($request, $tokensService);
 
         $ships = $shipsService->getForOwnerIDWithLocation($userId, 100);

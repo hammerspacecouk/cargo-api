@@ -62,8 +62,13 @@ $collection->add('play_positions', new Route('/play/ships', [
     '_controller' => Controller\Play\Ships\ListAction::class,
 ]));
 
-$collection->add('play_position_ship', new Route('/play/ships/{uuid}', [
+$collection->add('play_positions_ship', new Route('/play/ships/{uuid}', [
     '_controller' => Controller\Play\Ships\ShowAction::class,
+]));
+
+// actions
+$collection->add('action_move_ship', new Route('/action/move-ship', [
+    '_controller' => Controller\Actions\MoveShipAction::class,
 ]));
 
 return $collection;

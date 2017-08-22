@@ -8,7 +8,7 @@ use JsonSerializable;
 abstract class AbstractActionToken extends AbstractToken implements JsonSerializable
 {
     private const TYPE = null;
-    private const PATH_PREFIX = '/play/action/';
+    private const PATH_PREFIX = '/action/';
 
     public function getPath()
     {

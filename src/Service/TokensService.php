@@ -9,6 +9,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -82,6 +83,62 @@ class TokensService extends AbstractService
         }
 
         return $tokenDetail;
+    }
+
+    public function useMoveShipToken(
+        string $token
+    ): void {
+        $token = $this->tokenHandler->parseTokenFromString($token);
+        $tokenDetail = new MoveShipToken($token);
+
+        $shipId = $tokenDetail->getShipId();
+        $channelId = $tokenDetail->getChannelId();
+        $reversed = $tokenDetail->isReversed();
+
+        $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
+        if (!$ship) {
+            throw new \InvalidArgumentException('No such ship');
+        }
+
+        $channel = $this->entityManager->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
+        if (!$channel) {
+            throw new \InvalidArgumentException('No such channel');
+        }
+
+        // todo - calculate a real exit time, taking into account any active abilities
+        $exitTime = $this->currentTime->add(new \DateInterval('PT1H'));
+
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            $this->logger->info('Revoking previous location');
+            $this->entityManager->getShipLocationRepo()->exitLocation($ship);
+
+            $this->logger->info('Creating new location');
+            $this->entityManager->getShipLocationRepo()->makeInChannel(
+                $ship,
+                $channel,
+                $exitTime,
+                $reversed
+            );
+
+            // todo - mark any abilities as used
+
+            $this->logger->info('Marking token as used');
+            $this->tokenHandler->markAsUsed($token);
+            $this->logger->info('Committing transaction');
+            $this->entityManager->getConnection()->commit();
+            $this->logger->notice(sprintf(
+                '[MOVE SHIP] Ship: %s, Channel: %s, Reversed: %s',
+                (string) $shipId,
+                (string) $channelId,
+                (string) $reversed
+            ));
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Rolled back "useMoveShipToken" transaction');
+            throw $e;
+        }
+        // todo - this return should contain the arrival time
     }
 
     private function makeActionToken(array $claims)

@@ -17,7 +17,7 @@ class ShowAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $ship = $this->getShipWithLocation($request, $shipsService);
         return new JsonResponse($ship);
     }

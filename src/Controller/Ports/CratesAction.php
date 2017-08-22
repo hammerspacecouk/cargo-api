@@ -23,7 +23,7 @@ class CratesAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $port = $this->getPort($request, $portsService);
 
         $page = $this->getPageNumber($request);

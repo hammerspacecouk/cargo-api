@@ -19,7 +19,7 @@ class ShowAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $uuid = $this->getID($request);
 
         $crate = $cratesService->getByIDWithLocation($uuid);

@@ -16,7 +16,7 @@ class IndexAction
         LoggerInterface $logger
     ): JsonResponse {
 
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
 
         $latestShipLocations = $shipsLocationsService->findLatest(10);
 

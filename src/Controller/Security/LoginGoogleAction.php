@@ -28,7 +28,7 @@ class LoginGoogleAction
         DateTimeImmutable $currentTime,
         LoggerInterface $logger
     ): Response {
-        $logger->info(__CLASS__);
+        $logger->debug(__CLASS__);
         $code = $request->get('code');
         $error = $request->get('error');
 
