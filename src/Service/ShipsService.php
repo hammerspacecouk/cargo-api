@@ -217,7 +217,7 @@ class ShipsService extends AbstractService
             if ($currentShipLocation->channel) {
                 throw new IllegalMoveException('You can only move into a channel if you came from a port');
             }
-            die('what!') // todo
+            die('what!'); // todo
 //            $this->moveShipToChannelId($ship, $currentShipLocation, $locationId);
             return;
         }
