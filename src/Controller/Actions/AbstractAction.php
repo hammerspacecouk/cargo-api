@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace App\Controller\Actions;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -15,6 +16,12 @@ class AbstractAction
     protected function getAdditionalDataFromRequest(Request $request): array
     {
         return []; // todo - will this be used?
+    }
+
+    protected function actionResponse(JsonResponse $response): JsonResponse
+    {
+        $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+        return $response;
     }
 
     private function getDataFromRequest(Request $request, string $dataKey)

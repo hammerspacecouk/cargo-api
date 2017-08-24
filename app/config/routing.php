@@ -15,6 +15,9 @@ $collection->add('home', new Route('/', [
 //$collection->add('login', new Route('/login', [
 //    '_controller' => Controller\Security\LoginAction::class,
 //]));
+$collection->add('login_email', new Route('/login/email', [
+    '_controller' => Controller\Security\LoginEmailAction::class,
+]));
 $collection->add('login_google', new Route('/login/google', [
     '_controller' => Controller\Security\LoginGoogleAction::class,
 ]));
@@ -67,8 +70,20 @@ $collection->add('play_positions_ship', new Route('/play/ships/{uuid}', [
 ]));
 
 // actions
-$collection->add('action_move_ship', new Route('/action/move-ship', [
+$collection->add('actions_list', new Route('/actions', [
+    '_controller' => Controller\Actions\ListAction::class,
+]));
+
+$collection->add('actions_move_ship', new Route('/actions/move-ship', [
     '_controller' => Controller\Actions\MoveShipAction::class,
+]));
+
+$collection->add('actions_rename_ship', new Route('/actions/rename-ship', [
+    '_controller' => Controller\Actions\RenameShipAction::class,
+]));
+
+$collection->add('actions_request_ship_name', new Route('/actions/request-ship-name', [
+    '_controller' => Controller\Actions\RequestShipNameAction::class,
 ]));
 
 return $collection;

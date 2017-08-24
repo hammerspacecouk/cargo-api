@@ -28,6 +28,9 @@ class Token extends AbstractEntity
         self::TYPE_INVALIDATED,
     ];
 
+    /** @ORM\Column(type="datetime", nullable=false) */
+    public $lastUpdate;
+
     /** @ORM\Column(type="datetime", nullable=true) */
     public $expiry;
 
@@ -36,7 +39,7 @@ class Token extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=true, onDelete="DELETE")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     public $user;
 
@@ -49,6 +52,7 @@ class Token extends AbstractEntity
     public function __construct(
         UuidInterface $id,
         string $type,
+        DateTimeImmutable $lastUpdate,
         ?DateTimeImmutable $expiry,
         ?User $user = null,
         ?string $digest = null,
@@ -56,6 +60,7 @@ class Token extends AbstractEntity
     ) {
         parent::__construct($id);
         $this->type = $type;
+        $this->lastUpdate = $lastUpdate;
         $this->expiry = $expiry;
         $this->user = $user;
         $this->digest = $digest;

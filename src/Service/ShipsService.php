@@ -11,6 +11,7 @@ use App\Data\ID;
 use App\Domain\Entity\Ship as ShipEntity;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
+use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -216,7 +217,8 @@ class ShipsService extends AbstractService
             if ($currentShipLocation->channel) {
                 throw new IllegalMoveException('You can only move into a channel if you came from a port');
             }
-            $this->moveShipToChannelId($ship, $currentShipLocation, $locationId);
+            die('what!') // todo
+//            $this->moveShipToChannelId($ship, $currentShipLocation, $locationId);
             return;
         }
 
@@ -240,6 +242,28 @@ class ShipsService extends AbstractService
         // todo - should it check to see if it already exists?
 
         return $this->entityManager->getDictionaryRepo()->getRandomShipName();
+    }
+
+    public function useRenameShipToken(
+        RenameShipToken $tokenDetail
+    ): void {
+        $name = $tokenDetail->getShipName();
+        $shipId = $tokenDetail->getShipId();
+
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            $this->logger->info('Renaming ship');
+            $this->entityManager->getShipRepo()->renameShip($shipId, $name);
+            $this->logger->info('Marking token as used');
+            $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
+            $this->logger->info('Committing transaction');
+            $this->entityManager->getConnection()->commit();
+            $this->logger->notice('[SHIP RENAME] Ship ' . (string) $shipId . ' renamed to ' . $name);
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Rolled back "useRenameShipToken" transaction');
+            throw $e;
+        }
     }
 
 

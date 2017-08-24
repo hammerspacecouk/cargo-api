@@ -13,6 +13,8 @@ services:
         arguments:
             - '%hostname%'
             - '%distance_multiplier%'
+            - "%env(MAILER_FROM_NAME)%"
+            - "%env(MAILER_FROM_ADDRESS)%"
 
     App\Config\TokenConfig:
         arguments:

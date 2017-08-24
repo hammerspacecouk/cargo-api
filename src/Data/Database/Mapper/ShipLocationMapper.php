@@ -64,16 +64,16 @@ class ShipLocationMapper extends Mapper
 
     private function getChannelOrigin(array $item): ?Port
     {
-        if (isset($item['channel']['destination'])) {
-            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['destination']);
+        if (isset($item['channel']['fromPort'])) {
+            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['fromPort']);
         }
         return null;
     }
 
     private function getChannelDestination(array $item): ?Port
     {
-        if (isset($item['channel']['origin'])) {
-            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['origin']);
+        if (isset($item['channel']['toPort'])) {
+            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['toPort']);
         }
         return null;
     }

@@ -66,3 +66,14 @@ monolog:
             level: debug
         console:
             type:  console
+
+swiftmailer:
+    transport: "smtp"
+    host:      "%env(MAILER_HOST)%"
+    username:  "%env(MAILER_USERNAME)%"
+    password:  "%env(MAILER_PASSWORD)%"
+    spool:
+        type: memory
+    port: 587
+    encryption: "tls"
+    auth_mode: "login"

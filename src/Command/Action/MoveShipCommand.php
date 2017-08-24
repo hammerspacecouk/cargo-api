@@ -46,13 +46,13 @@ class MoveShipCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
+        die('todo - convert to using the controller action');
+        $this->logger->debug(__CLASS__);
         $shipId = Uuid::fromString($input->getArgument('shipId'));
         $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
         $output->writeln('Will be moving ship ' . (string) $shipId . ' to ' . (string) $destinationId);
 
         $this->shipsService->moveShipToLocation($shipId, $destinationId);
-
-        $output->writeln('Done');
     }
 }

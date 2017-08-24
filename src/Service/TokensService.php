@@ -4,11 +4,13 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Token as DbToken;
 use App\Data\ID;
+use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use App\Domain\ValueObject\Token\EmailLoginToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -21,7 +23,7 @@ class TokensService extends AbstractService
         return $this->tokenHandler->makeNewRefreshTokenCookie($email, $description);
     }
 
-    public function getAccessTokenFormRequest(Request $request): AccessToken
+    public function getAccessTokenFromRequest(Request $request): AccessToken
     {
         return $this->tokenHandler->getAccessTokenFromRequest($request);
     }
@@ -59,31 +61,37 @@ class TokensService extends AbstractService
         return new RenameShipToken($token);
     }
 
-    public function useRenameShipToken(
-        string $token
-    ): RenameShipToken {
-        $token = $this->tokenHandler->parseTokenFromString($token);
-        $tokenDetail = new RenameShipToken($token);
-        $name = $tokenDetail->getShipName();
-        $shipId = $tokenDetail->getShipId();
-
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
-            $this->logger->info('Renaming ship');
-            $this->entityManager->getShipRepo()->renameShip($shipId, $name);
-            $this->logger->info('Marking token as used');
-            $this->tokenHandler->markAsUsed($token);
-            $this->logger->info('Committing transaction');
-            $this->entityManager->getConnection()->commit();
-            $this->logger->notice('[SHIP RENAME] Ship ' . (string) $shipId . ' renamed to ' . $name);
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Rolled back "useRenameShipToken" transaction');
-            throw $e;
-        }
-
-        return $tokenDetail;
+    public function getEmailLoginToken(
+        string $emailAddress
+    ): EmailLoginToken {
+        $token = $this->tokenHandler->makeToken(
+            EmailLoginToken::makeClaims(
+                $emailAddress
+            ),
+            null,
+            TokenHandler::EXPIRY_EMAIL_LOGIN
+        );
+        return new EmailLoginToken($token);
     }
+
+
+    // Parse tokens
+    public function parseEmailLoginToken(
+        string $tokenString
+    ): EmailLoginToken {
+        return $this->parseToken($tokenString, EmailLoginToken::class, false);
+    }
+
+    public function parseRenameShipToken(
+        string $tokenString
+    ): RenameShipToken {
+        return $this->parseToken($tokenString, RenameShipToken::class);
+    }
+
+
+
+
+
 
     public function useMoveShipToken(
         string $token
@@ -147,5 +155,11 @@ class TokensService extends AbstractService
             $claims,
             ID::makeNewID(DbToken::class)
         );
+    }
+
+    private function parseToken(string $tokenString, string $class, $checkIfInvalidated = true)
+    {
+        $token = $this->tokenHandler->parseTokenFromString($tokenString, $checkIfInvalidated);
+        return new $class($token);
     }
 }

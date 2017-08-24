@@ -28,13 +28,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TokenHandler
 {
+    public const EXPIRY_REFRESH_TOKEN = self::EXPIRY_TWO_MONTHS;
+    public const EXPIRY_ACCESS_TOKEN = self::EXPIRY_ONE_HOUR;
+    public const EXPIRY_EMAIL_LOGIN = self::EXPIRY_ONE_HOUR;
+    public const EXPIRY_DEFAULT = self::EXPIRY_ONE_DAY;
+
     private const EXPIRY_TWO_MONTHS = 'P2M';
     private const EXPIRY_ONE_DAY = 'P1D';
     private const EXPIRY_ONE_HOUR = 'PT1H';
-
-    private const EXPIRY_REFRESH_TOKEN = self::EXPIRY_TWO_MONTHS;
-    private const EXPIRY_ACCESS_TOKEN = self::EXPIRY_ONE_HOUR;
-    private const EXPIRY_DEFAULT = self::EXPIRY_ONE_DAY;
 
     private const COOKIE_REFRESH_NAME = 'refresh_token';
     private const COOKIE_ACCESS_NAME = 'access_token';
@@ -79,6 +80,7 @@ class TokenHandler
             $tokenEntity = new DbToken(
                 $tokenId,
                 DbToken::TYPE_REFRESH,
+                $this->currentTime,
                 $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN)),
                 $user,
                 $digest,
@@ -100,7 +102,8 @@ class TokenHandler
     public function getAccessTokenFromRequest(Request $request): AccessToken
     {
         // check to see if the request already has an access token
-        $accessToken = $request->cookies->get(self::COOKIE_ACCESS_NAME);
+        $accessToken = $request->cookies->get(self::COOKIE_ACCESS_NAME) ?? $this->getBearerToken($request);
+
         if ($accessToken) {
             try {
                 $accessToken = $this->parseTokenFromString($accessToken, false);
@@ -130,7 +133,10 @@ class TokenHandler
         $refreshToken = new RefreshToken($this->parseTokenFromString($refreshToken, false));
 
         /** @var DbToken $tokenEntity */
-        $tokenEntity = $this->entityManager->getTokenRepo()->findRefreshTokenWithUser($refreshToken->getId(), Query::HYDRATE_OBJECT);
+        $tokenEntity = $this->entityManager->getTokenRepo()->findRefreshTokenWithUser(
+            $refreshToken->getId(),
+            Query::HYDRATE_OBJECT
+        );
         if (!$tokenEntity) {
             throw new MissingTokenException('Token could not be found');
         }
@@ -227,11 +233,24 @@ class TokenHandler
         );
     }
 
+    private function getBearerToken(Request $request): ?string
+    {
+        $authHeader = $request->headers->get('Authorization');
+        if ($authHeader) {
+            $parts = explode(' ', trim($authHeader));
+            if ($parts[0] === 'Bearer' && isset($parts[1])) {
+                return $parts[1];
+            }
+        }
+        return null;
+    }
+
     private function extendRefreshToken(RefreshToken $refreshToken, DbToken $tokenEntity)
     {
         $claims = RefreshToken::makeClaims($refreshToken->getAccessKey());
         $token = $this->makeToken($claims, $refreshToken->getId(), self::EXPIRY_REFRESH_TOKEN);
 
+        $tokenEntity->lastUpdate = $this->currentTime;
         $tokenEntity->expiry = $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN));
         $this->entityManager->persist($tokenEntity);
         $this->entityManager->flush();

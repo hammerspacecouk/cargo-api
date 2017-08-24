@@ -2,17 +2,18 @@
 declare(strict_types = 1);
 namespace App\Command\Action;
 
+use App\Controller\Actions\RequestShipNameAction;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 
-class RequestShipName extends Command
+class RequestShipNameCommand extends Command
 {
     use UserTokenTrait;
 
@@ -53,22 +54,30 @@ class RequestShipName extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $this->logger->info(__CLASS__);
+        $this->logger->debug(__CLASS__);
 
-        $accessToken = $input->getArgument('userToken');
-        $this->logger->debug('Input Token: ' . (string) $accessToken);
+        $userToken = $input->getArgument('userToken');
+        $this->logger->info('User Token: ' . $userToken);
 
-        $userId = $this->tokensService->getUserIdFromAccessTokenString($accessToken);
-        $shipId = Uuid::fromString($input->getArgument('shipID'));
-        $this->logger->info('User ID: ' . (string) $userId);
-        $this->logger->info('Ship ID: ' . (string) $shipId);
+        $shipId = $input->getArgument('shipID');
+        $this->logger->info('Ship Id: ' . $shipId);
 
-        $this->logger->info('Requesting name');
-        $name = $this->shipsService->requestShipName($userId, $shipId);
-        $token = $this->tokensService->getRenameShipToken($shipId, $name);
+        $this->logger->info('Building Request');
 
-        $output->writeln('Name Offered: ' . $name);
+        $action = new RequestShipNameAction();
+
+        $request = new Request([
+            'shipId' => $shipId
+        ]);
+        $request->headers->set('Authorization', 'Bearer ' . $userToken);
+
+        $response = $action($request, $this->tokensService, $this->shipsService, $this->logger);
+
+        $this->logger->info('Parsing response');
+        $data = json_decode($response->getContent());
+
+        $output->writeln('Name Offered: ' . $data->nameOffered);
         $output->writeln('Action token: ');
-        $output->writeln((string) $token);
+        $output->writeln($data->action->token);
     }
 }

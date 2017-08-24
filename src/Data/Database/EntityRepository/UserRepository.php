@@ -8,7 +8,7 @@ use App\Domain\ValueObject\Bearing;
 
 class UserRepository extends AbstractEntityRepository
 {
-    public function getByEmail(string $email): User
+    public function getByEmail(string $email): ?User
     {
         return $this->findOneBy(['email' => $email]);
     }

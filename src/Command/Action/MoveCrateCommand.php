@@ -46,6 +46,8 @@ class MoveCrateCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
+        die('out of date. rework');
+        $this->logger->debug(__CLASS__);
         $crateId = Uuid::fromString($input->getArgument('crateId'));
         $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 

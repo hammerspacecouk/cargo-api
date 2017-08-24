@@ -8,6 +8,7 @@ use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MonologBundle\MonologBundle;
+use Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\Dotenv\Dotenv;
@@ -41,6 +42,7 @@ class Kernel extends SymfonyKernel
             new DoctrineBundle(),
             new DoctrineCacheBundle(),
             new DoctrineMigrationsBundle(),
+            new SwiftmailerBundle(),
         ];
 
         if (in_array($this->getEnvironment(), [self::ENV_DEV], true)) {

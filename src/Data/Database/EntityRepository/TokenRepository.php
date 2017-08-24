@@ -49,6 +49,7 @@ class TokenRepository extends AbstractEntityRepository
             $entity = new TokenEntity(
                 $tokenId,
                 TokenEntity::TYPE_USED,
+                $this->currentTime,
                 $expiryTime
             );
         }

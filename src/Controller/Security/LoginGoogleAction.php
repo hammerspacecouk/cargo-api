@@ -25,7 +25,6 @@ class LoginGoogleAction
         TokensService $tokensService,
         Google_Client $client,
         UsersService $usersService,
-        DateTimeImmutable $currentTime,
         LoggerInterface $logger
     ): Response {
         $logger->debug(__CLASS__);
@@ -42,17 +41,18 @@ class LoginGoogleAction
         $client->addScope(Google_Service_Oauth2::USERINFO_EMAIL);
 
         if (!$code) {
+            $logger->notice('[LOGIN] [GOOGLE REQUEST]');
             return new RedirectResponse($client->createAuthUrl());
         }
 
         // check the code
+        $logger->notice('[LOGIN] [GOOGLE]');
         $client->fetchAccessTokenWithAuthCode($code);
 
         $oauthClient = new Google_Service_Oauth2($client);
         $user = $oauthClient->userinfo_v2_me->get();
 
-        $description = $request->headers->get('User-Agent', 'Unknown') . ' - ' .
-            $currentTime->format(\DateTime::ISO8601);
+        $description = $request->headers->get('User-Agent', 'Unknown');
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($user->email, $description);
 
