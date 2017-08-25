@@ -311,6 +311,9 @@ class ShipsService extends AbstractService
             }
         }
         $this->entityManager->flush();
+
+        // todo - add this port to the list of visited ports for this user
+        // calculate the user's new rank and cache it
     }
 
     private function attachLocationToShips(array $ships): array

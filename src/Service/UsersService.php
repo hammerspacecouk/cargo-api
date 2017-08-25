@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\ID;
 use App\Domain\Entity\User as UserEntity;
+use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -42,5 +43,17 @@ class UsersService extends AbstractService
 
         $mapper = $this->mapperFactory->createUserMapper();
         return $mapper->getUser(reset($results));
+    }
+
+    public function startPlayer(User $user)
+    {
+        // todo - find a safe haven port (which is open)
+        // todo - set the port as the users home port
+        // $userEntity->homePort = bob
+
+        // todo - make a new ship
+        // todo - put the ship into the homePort
+        // todo - add the homeport to the visited ports
+        // todo - activate two crates. put one on the ship and one in the port
     }
 }

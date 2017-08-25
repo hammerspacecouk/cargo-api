@@ -22,6 +22,11 @@ class User extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Port")
+     */
+    public $homePort;
+
     public function __construct(
         UuidInterface $id,
         string $email,

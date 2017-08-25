@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace App\Data\Database\Entity;
 
-use App\Data\Database\Entity\AbstractEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -28,8 +27,13 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $isStarterShip;
 
-    /** @ORM\Column(type="float") */
+    /** @ORM\Column(type="integer") */
     public $purchaseCost;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="PlayerRank")
+     */
+    public $minimumRank;
 
     public function __construct(
         UuidInterface $id,
@@ -37,7 +41,8 @@ class ShipClass extends AbstractEntity
         int $orderNumber,
         int $capacity,
         bool $isStarterShip,
-        float $purchaseCost
+        integer $purchaseCost,
+        ?PlayerRank $minimumRank
     ) {
         parent::__construct($id);
         $this->name = $name;
@@ -45,5 +50,6 @@ class ShipClass extends AbstractEntity
         $this->capacity = $capacity;
         $this->isStarterShip = $isStarterShip;
         $this->purchaseCost = $purchaseCost;
+        $this->minimumRank = $minimumRank;
     }
 }

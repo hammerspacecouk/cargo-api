@@ -6,31 +6,33 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PortRepository")
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PlayerStandingRepository")
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
- *     name="ports",
+ *     name="player_standings",
  *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
  * )})
  */
-class Port extends AbstractEntity
+class PlayerStanding extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
     public $name;
 
-    /** @ORM\Column(type="boolean") */
-    public $isSafeHaven = false;
+    /** @ORM\Column(type="integer", unique=true) */
+    public $orderNumber;
 
-    /** @ORM\Column(type="boolean") */
-    public $isOpen = true;
+    /** @ORM\Column(type="integer", unique=true) */
+    public $threshold;
 
     public function __construct(
         UuidInterface $id,
         string $name,
-        bool $isOpen
+        int $orderNumber,
+        int $threshold
     ) {
         parent::__construct($id);
         $this->name = $name;
-        $this->isOpen = $isOpen;
+        $this->orderNumber = $orderNumber;
+        $this->threshold = $threshold;
     }
 }

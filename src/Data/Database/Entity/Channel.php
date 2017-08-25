@@ -33,17 +33,24 @@ class Channel extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $distance;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="PlayerRank")
+     */
+    public $minimumEntryRank;
+
     public function __construct(
         UuidInterface $id,
         Port $fromPort,
         Port $toPort,
         string $bearing,
-        int $distance
+        int $distance,
+        ?PlayerRank $minimumEntryRank
     ) {
         parent::__construct($id);
         $this->fromPort = $fromPort;
         $this->toPort = $toPort;
         $this->bearing = $bearing;
         $this->distance = $distance;
+        $this->minimumEntryRank = $minimumEntryRank;
     }
 }
