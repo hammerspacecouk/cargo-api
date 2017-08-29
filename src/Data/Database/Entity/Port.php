@@ -7,15 +7,14 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PortRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ports",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
  * )})
  */
 class Port extends AbstractEntity
 {
-    /** @ORM\Column(type="text") */
+    /** @ORM\Column(type="string", unique=true) */
     public $name;
 
     /** @ORM\Column(type="boolean") */
@@ -27,10 +26,12 @@ class Port extends AbstractEntity
     public function __construct(
         UuidInterface $id,
         string $name,
+        bool $isSafeHaven,
         bool $isOpen
     ) {
         parent::__construct($id);
         $this->name = $name;
+        $this->isSafeHaven = $isSafeHaven;
         $this->isOpen = $isOpen;
     }
 }

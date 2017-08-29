@@ -7,10 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ships",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
  * )})
  */
 class Ship extends AbstractEntity

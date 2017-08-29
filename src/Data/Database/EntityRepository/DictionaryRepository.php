@@ -36,6 +36,18 @@ class DictionaryRepository extends AbstractEntityRepository
         return $data;
     }
 
+    public function wordExistsInContext(string $word, string $context): bool
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('count(tbl.id)')
+            ->where('tbl.word = :word')
+            ->andWhere('tbl.context = :context')
+            ->setParameter('word', $word)
+            ->setParameter('context', $context)
+        ;
+        return !!$qb->getQuery()->getSingleScalarResult();
+    }
+
     public function getRandomWord(string $context): string
     {
         $words = $this->getAllByContext($context);

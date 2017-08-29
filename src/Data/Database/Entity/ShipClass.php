@@ -7,10 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipClassRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ship_classes",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
  * )})
  */
 class ShipClass extends AbstractEntity
@@ -41,7 +40,7 @@ class ShipClass extends AbstractEntity
         int $orderNumber,
         int $capacity,
         bool $isStarterShip,
-        integer $purchaseCost,
+        int $purchaseCost,
         ?PlayerRank $minimumRank
     ) {
         parent::__construct($id);

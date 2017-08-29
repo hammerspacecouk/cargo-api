@@ -8,10 +8,9 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipLocationRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="ship_locations",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={@ORM\Index(name="ship_location_entry_time", columns={"entry_time"})})
  * )})
  */

@@ -27,7 +27,11 @@ doctrine:
                 dbname:   "%env(DB_NAME)%"
                 user:     "%env(DB_READ_USER)%"
                 password: "%env(DB_READ_PASSWORD)%"
-        charset:  UTF8MB4
+        charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
+            engine: InnoDB
         types:
             uuid_binary:
                 class: Ramsey\Uuid\Doctrine\UuidBinaryType

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
+use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager as DoctrineEntityManager;
@@ -77,6 +78,16 @@ class EntityManager extends DoctrineEntityManager
     public function getDictionaryRepo(): EntityRepository\DictionaryRepository
     {
         return $this->getRepository(Entity\Dictionary::class);
+    }
+
+    public function getPlayerRankRepo(): EntityRepository\PlayerRankRepository
+    {
+        return $this->getRepository(Entity\PlayerRank::class);
+    }
+
+    public function getPlayerStandingRepo(): EntityRepository\PlayerStandingRepository
+    {
+        return $this->getRepository(Entity\PlayerStanding::class);
     }
 
     public function getPortRepo(): EntityRepository\PortRepository

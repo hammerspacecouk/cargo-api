@@ -12,43 +12,32 @@ use Ramsey\Uuid\UuidInterface;
 
 class PortsService extends AbstractService
 {
-    public function makeNew(): void
-    {
-        $crate = new Port(
-            ID::makeNewID(Port::class),
-            (string) time()
-        );
-
-        $this->entityManager->persist($crate);
-        $this->entityManager->flush();
-    }
-
-    public function makeChannelBetween(
-        UuidInterface $fromId,
-        UuidInterface $toId,
-        Bearing $bearing,
-        int $distance
-    ): void {
-        $portRepo = $this->entityManager->getPortRepo();
-
-        $fromPort = $portRepo->getByID($fromId, Query::HYDRATE_OBJECT);
-        $toPort = $portRepo->getByID($toId, Query::HYDRATE_OBJECT);
-
-        if (!$fromPort || !$toPort) {
-            throw new \InvalidArgumentException('Could not find both ports');
-        }
-
-        $channel = new Channel(
-            ID::makeNewID(Channel::class),
-            $fromPort,
-            $toPort,
-            (string) $bearing,
-            $distance
-        );
-
-        $this->entityManager->persist($channel);
-        $this->entityManager->flush();
-    }
+//    public function makeChannelBetween(
+//        UuidInterface $fromId,
+//        UuidInterface $toId,
+//        Bearing $bearing,
+//        int $distance
+//    ): void {
+//        $portRepo = $this->entityManager->getPortRepo();
+//
+//        $fromPort = $portRepo->getByID($fromId, Query::HYDRATE_OBJECT);
+//        $toPort = $portRepo->getByID($toId, Query::HYDRATE_OBJECT);
+//
+//        if (!$fromPort || !$toPort) {
+//            throw new \InvalidArgumentException('Could not find both ports');
+//        }
+//
+//        $channel = new Channel(
+//            ID::makeNewID(Channel::class),
+//            $fromPort,
+//            $toPort,
+//            (string) $bearing,
+//            $distance
+//        );
+//
+//        $this->entityManager->persist($channel);
+//        $this->entityManager->flush();
+//    }
 
     public function countAll()
     {

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace App\Command\Setup;
 
+use App\Command\ParseCSVTrait;
 use App\Data\Database\Entity\Dictionary;
 use App\Data\Database\EntityManager;
 use App\Data\ID;
@@ -14,14 +15,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateDictionary extends Command
 {
+    use ParseCSVTrait;
+
     private const CONTEXT_MAP = [
         'shipName1' => Dictionary::CONTEXT_SHIP_NAME_1,
         'shipName2' => Dictionary::CONTEXT_SHIP_NAME_2,
     ];
 
     private $entityManager;
-
-
 
     public function __construct(EntityManager $entityManager)
     {
@@ -51,7 +52,7 @@ class UpdateDictionary extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $output->writeln('Fetching source file');
+        $output->writeln('Fetching source data');
 
         $filePath = $input->getArgument('inputList');
         $context = $input->getArgument('context');
@@ -65,42 +66,34 @@ class UpdateDictionary extends Command
 
         $context = self::CONTEXT_MAP[$context];
 
-        $inputData = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $inputData = $this->csvToArray($filePath);
 
         $output->writeln('Preparing to update dictionary');
 
         $total = count($inputData);
 
-        $output->writeln('Removing current entries from context: ' . $context);
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->delete(Dictionary::class, 'd')
-            ->where('d.context = :context')
-            ->setParameter('context', $context);
-
-        $count = $qb->getQuery()->execute();
-
-        $output->writeln('Deleted ' . $count);
-
         $progress = new ProgressBar($output, $total);
         $progress->start();
 
-        foreach ($inputData as $word) {
-            $shipClass = new Dictionary(
-                ID::makeNewID(Dictionary::class),
-                $word,
-                $context
-            );
-            $shipClass->uuid = (string) $shipClass->id;
-            $this->entityManager->persist($shipClass);
+        foreach ($inputData as $row) {
+            $word = $row['word'];
+
+            if (!$this->entityManager->getDictionaryRepo()->wordExistsInContext($word, $context)) {
+                $dictionaryWord = new Dictionary(
+                    ID::makeNewID(Dictionary::class),
+                    $word,
+                    $context
+                );
+                $this->entityManager->persist($dictionaryWord);
+            }
 
             $progress->advance();
         }
 
-        $progress->finish();
-        $output->writeln('');
-        $output->writeln('Flush all');
         $this->entityManager->flush();
+        $progress->finish();
 
+        $output->writeln('');
         $output->writeln('Done');
     }
 }

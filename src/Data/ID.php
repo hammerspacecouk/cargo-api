@@ -37,8 +37,12 @@ class ID
         User::class => '0000',
     ];
 
-    public static function makeNewID($entityClass)
+    public static function makeNewID($entityClass): UuidInterface
     {
+        if (!isset(self::ENTITY_MAPPINGS[$entityClass])) {
+            throw new InvalidArgumentException($entityClass . ' not in the list of entity mappings');
+        }
+
         $id = Uuid::uuid4();
         $str = (string) $id;
         $str = substr_replace($str, self::ENTITY_MAPPINGS[$entityClass], 9, 4);

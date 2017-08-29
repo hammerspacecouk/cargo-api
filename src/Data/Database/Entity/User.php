@@ -7,10 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UserRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="users",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={@ORM\Index(name="user_email", columns={"email"})})
  * )})
  */
@@ -18,6 +17,9 @@ class User extends AbstractEntity
 {
     /** @ORM\Column(type="string") */
     public $email;
+
+    /** @ORM\Column(type="boolean") */
+    public $emailBlocked;
 
     /** @ORM\Column(type="integer") */
     public $rotationSteps;

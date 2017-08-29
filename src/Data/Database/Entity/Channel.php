@@ -7,12 +7,11 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ChannelRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="channels",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"},
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={@ORM\Index(name="channel_created", columns={"created_at"})})
- * )})
+ * )
  */
 class Channel extends AbstractEntity
 {

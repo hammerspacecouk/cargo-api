@@ -7,10 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PlayerStandingRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(
  *     name="player_standings",
- *     options={"collate":"utf8mb4_general_ci", "charset":"utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
  * )})
  */
 class PlayerStanding extends AbstractEntity

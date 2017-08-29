@@ -18,7 +18,7 @@ abstract class AbstractEntity
     public $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=false)
      */
     public $uuid;
 
