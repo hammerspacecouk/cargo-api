@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Data\ID;
@@ -26,8 +27,7 @@ class GenerateIds extends Command
                 InputArgument::OPTIONAL,
                 'Total to generate',
                 1000
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -38,11 +38,11 @@ class GenerateIds extends Command
         $namespace = 'App\Data\Database\Entity';
         $class = $namespace . '\\' . $class;
 
-        $number = (int) $input->getOption('total');
+        $number = (int)$input->getOption('total');
 
         for ($i = 0; $i < $number; $i++) {
             $id = ID::makeNewID($class);
-            $output->writeln( (string) $id);
+            $output->writeln((string)$id);
         }
     }
 }

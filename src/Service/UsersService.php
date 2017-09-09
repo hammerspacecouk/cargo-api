@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\User as DbUser;
@@ -15,10 +16,10 @@ class UsersService extends AbstractService
     public function getById(
         UuidInterface $uuid
     ): ?UserEntity {
+    
         $qb = $this->getQueryBuilder(DbUser::class)
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
+            ->setParameter('id', $uuid->getBytes());
 
         $results = $qb->getQuery()->getArrayResult();
         if (empty($results)) {
@@ -33,8 +34,7 @@ class UsersService extends AbstractService
     {
         $qb = $this->getQueryBuilder(DbUser::class)
             ->where('tbl.email = :email')
-            ->setParameter('email', $email)
-        ;
+            ->setParameter('email', $email);
 
         $results = $qb->getQuery()->getArrayResult();
         if (empty($results)) {

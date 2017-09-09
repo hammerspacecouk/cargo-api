@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject\Token\Action;
 
 use App\Domain\Exception\InvalidTokenException;
@@ -8,10 +9,20 @@ use Ramsey\Uuid\UuidInterface;
 
 class RenameShipToken extends AbstractActionToken
 {
-    protected const TYPE = 'rename-ship';
+    public const TYPE = 'rename-ship';
 
-    private const KEY_SHIP_NAME = 'sn';
-    private const KEY_SHIP_ID = 'si';
+    public const KEY_SHIP_NAME = 'sn';
+    public const KEY_SHIP_ID = 'si';
+
+    public static function makeClaims(
+        UuidInterface $shipId,
+        string $shipName
+    ): array {
+        return parent::createClaims([
+            self::KEY_SHIP_NAME => $shipName,
+            self::KEY_SHIP_ID => (string)$shipId,
+        ]);
+    }
 
     public function getShipId(): UuidInterface
     {
@@ -27,15 +38,5 @@ class RenameShipToken extends AbstractActionToken
             return $this->token->getClaim(self::KEY_SHIP_NAME);
         }
         throw new InvalidTokenException('No Ship Name found');
-    }
-
-    public static function makeClaims(
-        UuidInterface $shipId,
-        string $shipName
-    ): array {
-        return parent::createClaims([
-            self::KEY_SHIP_NAME => $shipName,
-            self::KEY_SHIP_ID => (string) $shipId
-        ]);
     }
 }

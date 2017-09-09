@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Command\Action;
 
 use App\Service\ShipsService;
@@ -38,8 +39,7 @@ class MoveShipCommand extends Command
                 'destinationID',
                 InputArgument::REQUIRED,
                 'The ID of the destination'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -51,7 +51,7 @@ class MoveShipCommand extends Command
         $shipId = Uuid::fromString($input->getArgument('shipId'));
         $destinationId = Uuid::fromString($input->getArgument('destinationID'));
 
-        $output->writeln('Will be moving ship ' . (string) $shipId . ' to ' . (string) $destinationId);
+        $output->writeln('Will be moving ship ' . (string)$shipId . ' to ' . (string)$destinationId);
 
         $this->shipsService->moveShipToLocation($shipId, $destinationId);
     }

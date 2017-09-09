@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Security;
 
 use App\Service\TokensService;
@@ -17,7 +18,7 @@ class CheckLoginAction
 
         $userId = $this->getUserId($request, $tokensService);
 
-        $response = new JsonResponse('Hello uuid: ' . (string) $userId);
+        $response = new JsonResponse('Hello uuid: ' . (string)$userId);
 
         return $response;
     }

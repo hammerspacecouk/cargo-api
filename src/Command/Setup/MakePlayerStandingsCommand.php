@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -34,8 +35,7 @@ class MakePlayerStandingsCommand extends Command
                 'inputList',
                 InputArgument::REQUIRED,
                 'File path of data source (.csv)'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -58,8 +58,8 @@ class MakePlayerStandingsCommand extends Command
 
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
-            $orderNumber = (int) $data['orderNumber'];
-            $threshold = (int) $data['threshold'];
+            $orderNumber = (int)$data['orderNumber'];
+            $threshold = (int)$data['threshold'];
 
             /** @var PlayerStanding $entity */
             $entity = $this->entityManager->getPlayerStandingRepo()->getByID($id, Query::HYDRATE_OBJECT);

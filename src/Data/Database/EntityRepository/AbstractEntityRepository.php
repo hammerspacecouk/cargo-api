@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\EntityRepository;
 
 use DateTimeImmutable;
@@ -49,8 +50,7 @@ abstract class AbstractEntityRepository extends EntityRepository
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
+            ->setParameter('id', $uuid->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 }

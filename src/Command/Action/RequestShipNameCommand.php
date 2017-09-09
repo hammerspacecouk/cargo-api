@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Command\Action;
 
 use App\Controller\Actions\RequestShipNameAction;
@@ -46,8 +47,7 @@ class RequestShipNameCommand extends Command
                 'shipID',
                 InputArgument::REQUIRED,
                 'Ship this name is intended for'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -66,9 +66,7 @@ class RequestShipNameCommand extends Command
 
         $action = new RequestShipNameAction();
 
-        $request = new Request([
-            'shipId' => $shipId
-        ]);
+        $request = new Request(['shipId' => $shipId]);
         $request->headers->set('Authorization', 'Bearer ' . $userToken);
 
         $response = $action($request, $this->tokensService, $this->shipsService, $this->logger);

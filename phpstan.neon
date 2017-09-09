@@ -1,0 +1,5 @@
+parameters:
+    ignoreErrors:
+        # PHPStan does not recognise PHPUnit MockObjects as being a child of the object it mocked
+        # Therefore, we'll tell PHPStan to ignore errors that say something other than a PHPUnit Mock was expected
+        - '#PHPUnit_Framework_MockObject_MockObject given.#'

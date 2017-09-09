@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\Channel;
@@ -45,7 +46,7 @@ class PortsService extends AbstractService
             ->select('count(1)');
         ;
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function findAll(
@@ -54,8 +55,7 @@ class PortsService extends AbstractService
     ): array {
         $qb = $this->getQueryBuilder(Port::class)
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-        ;
+            ->setFirstResult($this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createPortMapper();
 
@@ -68,10 +68,10 @@ class PortsService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?PortEntity {
+    
         $qb = $this->getQueryBuilder(Port::class)
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
+            ->setParameter('id', $uuid->getBytes());
 
         $results = $qb->getQuery()->getArrayResult();
         if (empty($results)) {

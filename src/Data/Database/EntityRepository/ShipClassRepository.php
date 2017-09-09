@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\EntityRepository;
 
 use Doctrine\ORM\Query;
@@ -11,8 +12,7 @@ class ShipClassRepository extends AbstractEntityRepository
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.isStarterShip = true')
-            ->setMaxResults(1)
-        ;
+            ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 }

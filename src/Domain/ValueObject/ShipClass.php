@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject;
 
 class ShipClass implements \JsonSerializable
@@ -15,6 +16,15 @@ class ShipClass implements \JsonSerializable
         $this->capacity = $capacity;
     }
 
+    public function jsonSerialize(): array
+    {
+        return [
+            'type' => 'ShipClass',
+            'name' => $this->getName(),
+            'capacity' => $this->getCapacity(),
+        ];
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -23,14 +33,5 @@ class ShipClass implements \JsonSerializable
     public function getCapacity(): int
     {
         return $this->capacity;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'type' => 'ShipClass',
-            'name' => $this->getName(),
-            'capacity' => $this->getCapacity(),
-        ];
     }
 }

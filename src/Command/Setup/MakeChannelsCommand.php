@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -37,8 +38,7 @@ class MakeChannelsCommand extends Command
                 'inputList',
                 InputArgument::REQUIRED,
                 'File path of data source (.csv)'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -63,13 +63,13 @@ class MakeChannelsCommand extends Command
             $fromPort = $this->getPort($data['fromPortId']);
             $toPort = $this->getPort($data['toPortId']);
 
-            if ((string) $fromPort->id === (string) $toPort->id) {
+            if ((string)$fromPort->id === (string)$toPort->id) {
                 throw new \InvalidArgumentException('To and From cannot be the same');
             }
 
             $bearing = Bearing::validate($data['bearing']);
 
-            $distance = (int) $data['distance'];
+            $distance = (int)$data['distance'];
             $minimumEntryRank = $this->getPlayerRank($data['minimumEntryRankId']);
 
             /** @var Channel $entity */

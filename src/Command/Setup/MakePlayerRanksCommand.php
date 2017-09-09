@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -34,8 +35,7 @@ class MakePlayerRanksCommand extends Command
                 'inputList',
                 InputArgument::REQUIRED,
                 'File path of data source (.csv)'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -69,8 +69,8 @@ class MakePlayerRanksCommand extends Command
                 $entity = new PlayerRank(
                     $id,
                     $data['name'],
-                    (int) $data['orderNumber'],
-                    (int) $data['threshold']
+                    (int)$data['orderNumber'],
+                    (int)$data['threshold']
                 );
             }
 

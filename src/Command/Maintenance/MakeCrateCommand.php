@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Maintenance;
 
 use App\Service\CratesService;
@@ -21,8 +22,7 @@ class MakeCrateCommand extends Command
     {
         $this
             ->setName('game:maintenance:make-crate')
-            ->setDescription('Creates a new inactive crate')
-        ;
+            ->setDescription('Creates a new inactive crate');
     }
 
     protected function execute(

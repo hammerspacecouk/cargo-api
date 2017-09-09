@@ -1,11 +1,11 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject;
 
 class Bearing implements \JsonSerializable
 {
-    public const BEARINGS_COUNT = 6;
-
+    // key -> value = opposite
     private const BEARINGS = [
         'NW' => 'SE',
         'NE' => 'SW',
@@ -22,6 +22,15 @@ class Bearing implements \JsonSerializable
     ) {
         $bearing = self::validate($bearing);
         $this->bearing = $bearing;
+    }
+
+    public static function validate(string $bearing): string
+    {
+        $bearing = strtoupper($bearing);
+        if (!in_array($bearing, self::BEARINGS)) {
+            throw new \InvalidArgumentException('Not a valid bearing (' . $bearing . ')');
+        }
+        return $bearing;
     }
 
     public static function getInitialRandomStepNumber(): int
@@ -42,34 +51,7 @@ class Bearing implements \JsonSerializable
         $newKey = $key + $steps;
         $indexCount = count($bearings);
 
-        while ($newKey < 0) {
-            $newKey = $indexCount + $newKey;
-        }
-
         return $bearings[$newKey % $indexCount];
-    }
-
-    public static function rotateIndexedArray(array $array, int $steps): array
-    {
-        // an array exists with indices nw, ne, e etc. Move the values around
-        $newArray = $array;
-        foreach ($array as $bearing => $data) {
-            $newBearing = self::getRotatedBearing($bearing, $steps);
-            $newArray[$newBearing] = $data;
-            if (isset($newArray[$newBearing]['bearing'])) {
-                $newArray[$newBearing]['bearing'] = $newBearing;
-            };
-        }
-        return $newArray;
-    }
-
-    public static function validate(string $bearing): string
-    {
-        $bearing = strtoupper($bearing);
-        if (!in_array($bearing, self::BEARINGS)) {
-            throw new \InvalidArgumentException('Not a valid bearing (' . $bearing . ')');
-        }
-        return $bearing;
     }
 
     public function getOpposite(): Bearing
@@ -77,9 +59,9 @@ class Bearing implements \JsonSerializable
         return new Bearing(self::BEARINGS[$this->bearing]);
     }
 
-    public function getValue(): string
+    public function jsonSerialize(): string
     {
-        return $this->bearing;
+        return $this->__toString();
     }
 
     public function __toString(): string
@@ -87,8 +69,8 @@ class Bearing implements \JsonSerializable
         return $this->getValue();
     }
 
-    public function jsonSerialize(): string
+    public function getValue(): string
     {
-        return $this->__toString();
+        return $this->bearing;
     }
 }

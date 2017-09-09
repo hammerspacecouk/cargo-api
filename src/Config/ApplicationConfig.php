@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Config;
 
 class ApplicationConfig
@@ -11,7 +12,7 @@ class ApplicationConfig
 
     public function __construct(
         string $hostname,
-        int $distanceMultiplier,
+        float $distanceMultiplier,
         string $emailFromName,
         string $emailFromAddress
     ) {

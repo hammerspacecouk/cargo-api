@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Security\Traits;
 
 use App\Domain\Exception\InvalidTokenException;
@@ -19,7 +20,7 @@ trait UserTokenTrait
         Request $request,
         TokensService $tokensService
     ): UuidInterface {
-    
+
         try {
             // try and get back a userId
             $token = $tokensService->getAccessTokenFromRequest($request);

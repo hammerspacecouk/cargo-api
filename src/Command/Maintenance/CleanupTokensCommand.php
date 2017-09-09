@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Maintenance;
 
 use App\Data\Database\Entity\Token;
@@ -27,8 +28,7 @@ class CleanupTokensCommand extends Command
     {
         $this
             ->setName('game:maintenance:cleanup-tokens')
-            ->setDescription('Cleans up the invalid tokens list to remove those we no longer need to check')
-        ;
+            ->setDescription('Cleans up the invalid tokens list to remove those we no longer need to check');
     }
 
     protected function execute(

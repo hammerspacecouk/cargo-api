@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
@@ -35,19 +36,6 @@ class EntityManager extends DoctrineEntityManager
         $this->logger = $logger;
     }
 
-    public function getRepository($entityName)
-    {
-        /** @var AbstractEntityRepository $repo */
-        $repo = parent::getRepository($entityName);
-
-        // set dependencies (which could not be injected via construct)
-        $repo->setCurrentTime($this->currentTime);
-        $repo->setCache($this->cache);
-        $repo->setLogger($this->logger);
-
-        return $repo;
-    }
-
     public function persist($entity)
     {
         /** @var AbstractEntity $entity */
@@ -63,6 +51,19 @@ class EntityManager extends DoctrineEntityManager
     public function getChannelRepo(): EntityRepository\ChannelRepository
     {
         return $this->getRepository(Entity\Channel::class);
+    }
+
+    public function getRepository($entityName)
+    {
+        /** @var AbstractEntityRepository $repo */
+        $repo = parent::getRepository($entityName);
+
+        // set dependencies (which could not be injected via construct)
+        $repo->setCurrentTime($this->currentTime);
+        $repo->setCache($this->cache);
+        $repo->setLogger($this->logger);
+
+        return $repo;
     }
 
     public function getCrateRepo(): EntityRepository\CrateRepository

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\Channel as DbChannel;
@@ -17,8 +18,7 @@ class ChannelsService extends AbstractService
             ->join('tbl.toPort', 'toPort')
             ->where('IDENTITY(tbl.fromPort) = :id')
             ->orWhere('IDENTITY(tbl.toPort) = :id')
-            ->setParameter('id', $port->getId()->getBytes())
-        ;
+            ->setParameter('id', $port->getId()->getBytes());
 
         $results = $qb->getQuery()->getArrayResult();
 

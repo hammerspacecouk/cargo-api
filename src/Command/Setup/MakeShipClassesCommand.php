@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -35,8 +36,7 @@ class MakeShipClassesCommand extends Command
                 'inputList',
                 InputArgument::REQUIRED,
                 'File path of data source (.csv)'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -59,11 +59,11 @@ class MakeShipClassesCommand extends Command
 
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
-            $orderNumber = (int) $data['orderNumber'];
+            $orderNumber = (int)$data['orderNumber'];
             $minimumRank = $this->getPlayerRank($data['minimumRankId']);
-            $capacity = (int) $data['capacity'];
-            $purchaseCost = (int) $data['purchaseCost'];
-            $isStarterShip = (bool) $data['isStarterShip'];
+            $capacity = (int)$data['capacity'];
+            $purchaseCost = (int)$data['purchaseCost'];
+            $isStarterShip = (bool)$data['isStarterShip'];
             /** @var ShipClass $entity */
             $entity = $this->entityManager->getShipClassRepo()->getByID($id, Query::HYDRATE_OBJECT);
 

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\Channel;
@@ -24,8 +25,7 @@ class ShipLocationRepository extends AbstractEntityRepository
             ->andWhere('tbl.isCurrent = true')
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1)
-            ->setParameter('ship', $shipId->getBytes())
-        ;
+            ->setParameter('ship', $shipId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -40,8 +40,7 @@ class ShipLocationRepository extends AbstractEntityRepository
             ->leftJoin('tbl.channel', 'channel')
             ->where('IDENTITY(tbl.ship) IN (:ships)')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ships', $shipIds)
-        ;
+            ->setParameter('ships', $shipIds);
         return $qb->getQuery()->getResult($resultType);
     }
 
@@ -60,8 +59,7 @@ class ShipLocationRepository extends AbstractEntityRepository
             ->where('tbl.isCurrent = true')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('tbl.entryTime', 'DESC')
-        ;
+            ->orderBy('tbl.entryTime', 'DESC');
         return $qb->getQuery()->getResult($resultType);
     }
 

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
@@ -9,9 +10,9 @@ use Ramsey\Uuid\UuidInterface;
 
 class AccessToken extends AbstractToken
 {
-    protected const TYPE = 'ui';
+    public const TYPE = 'a';
 
-    private const KEY_USER_ID = 'u';
+    public const KEY_USER_ID = 'u';
 
     private $cookies = [];
 
@@ -19,6 +20,13 @@ class AccessToken extends AbstractToken
     {
         parent::__construct($token);
         $this->cookies = $cookies;
+    }
+
+    public static function makeClaims(UuidInterface $userID): array
+    {
+        return parent::createClaims([
+            self::KEY_USER_ID => (string)$userID,
+        ]);
     }
 
     public function getUserId(): UuidInterface
@@ -32,12 +40,5 @@ class AccessToken extends AbstractToken
     public function getCookies(): array
     {
         return $this->cookies;
-    }
-
-    public static function makeClaims(UuidInterface $userID): array
-    {
-        return parent::createClaims([
-            self::KEY_USER_ID => (string) $userID,
-        ]);
     }
 }

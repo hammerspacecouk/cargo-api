@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
@@ -43,6 +44,24 @@ class LoginEmailAction
         throw new BadRequestHttpException('Expecting an e-mail address or token');
     }
 
+    private function processLogin(
+        Request $request,
+        string $token,
+        TokensService $tokensService
+    ) {
+        $description = $request->headers->get('User-Agent', 'Unknown');
+
+        $token = $tokensService->parseEmailLoginToken($token);
+
+        // todo - figure out a new user, to assign them ships and locations
+        $cookie = $tokensService->makeNewRefreshTokenCookie($token->getEmailAddress(), $description);
+
+        $response = new JsonResponse(['status' => 'ok']);
+        $response->headers->setCookie($cookie);
+
+        return $response;
+    }
+
     private function sendEmail(
         string $emailAddress,
         TokensService $tokensService,
@@ -57,7 +76,7 @@ class LoginEmailAction
 
 
         // todo - move this to an e-mail service or something
-        $url = $applicationConfig->getHostname() . '/login/email?token=' . (string) $token;
+        $url = $applicationConfig->getHostname() . '/login/email?token=' . (string)$token;
         $body = <<<EMAIL
 <p>This link will work for 1 hour and will log you in</p>
 <p><a href="$url">$url</a></p>
@@ -73,28 +92,6 @@ EMAIL;
 
         $mailer->send($message);
 
-        return new JsonResponse([
-            'status' => 'ok'
-        ]);
-    }
-
-    private function processLogin(
-        Request $request,
-        string $token,
-        TokensService $tokensService
-    ) {
-        $description = $request->headers->get('User-Agent', 'Unknown');
-
-        $token = $tokensService->parseEmailLoginToken($token);
-
-        // todo - figure out a new user, to assign them ships and locations
-        $cookie = $tokensService->makeNewRefreshTokenCookie($token->getEmailAddress(), $description);
-
-        $response = new JsonResponse([
-            'status' => 'ok'
-        ]);
-        $response->headers->setCookie($cookie);
-
-        return $response;
+        return new JsonResponse(['status' => 'ok']);
     }
 }

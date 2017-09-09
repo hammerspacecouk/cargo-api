@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Command\Maintenance;
 
 use App\Config\ApplicationConfig;
@@ -41,8 +42,7 @@ class TestEmailCommand extends Command
                 'recipient',
                 InputArgument::REQUIRED,
                 'Email address to send to'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -51,7 +51,7 @@ class TestEmailCommand extends Command
     ) {
         $this->logger->debug(__CLASS__);
 
-        $emailAddress =  $input->getArgument('recipient');
+        $emailAddress = $input->getArgument('recipient');
         $output->writeln('Sending to ' . $emailAddress);
 
         $message = new Swift_Message(

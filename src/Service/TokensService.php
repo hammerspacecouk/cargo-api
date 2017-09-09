@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\Token as DbToken;
@@ -48,6 +49,14 @@ class TokensService extends AbstractService
         return new MoveShipToken($token);
     }
 
+    private function makeActionToken(array $claims)
+    {
+        return $this->tokenHandler->makeToken(
+            $claims,
+            ID::makeNewID(DbToken::class)
+        );
+    }
+
     public function getRenameShipToken(
         UuidInterface $shipId,
         string $newName
@@ -60,6 +69,9 @@ class TokensService extends AbstractService
         );
         return new RenameShipToken($token);
     }
+
+
+    // Parse tokens
 
     public function getEmailLoginToken(
         string $emailAddress
@@ -74,12 +86,16 @@ class TokensService extends AbstractService
         return new EmailLoginToken($token);
     }
 
-
-    // Parse tokens
     public function parseEmailLoginToken(
         string $tokenString
     ): EmailLoginToken {
         return $this->parseToken($tokenString, EmailLoginToken::class, false);
+    }
+
+    private function parseToken(string $tokenString, string $class, $checkIfInvalidated = true)
+    {
+        $token = $this->tokenHandler->parseTokenFromString($tokenString, $checkIfInvalidated);
+        return new $class($token);
     }
 
     public function parseRenameShipToken(
@@ -87,11 +103,6 @@ class TokensService extends AbstractService
     ): RenameShipToken {
         return $this->parseToken($tokenString, RenameShipToken::class);
     }
-
-
-
-
-
 
     public function useMoveShipToken(
         string $token
@@ -137,9 +148,9 @@ class TokensService extends AbstractService
             $this->entityManager->getConnection()->commit();
             $this->logger->notice(sprintf(
                 '[MOVE SHIP] Ship: %s, Channel: %s, Reversed: %s',
-                (string) $shipId,
-                (string) $channelId,
-                (string) $reversed
+                (string)$shipId,
+                (string)$channelId,
+                (string)$reversed
             ));
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
@@ -147,19 +158,5 @@ class TokensService extends AbstractService
             throw $e;
         }
         // todo - this return should contain the arrival time
-    }
-
-    private function makeActionToken(array $claims)
-    {
-        return $this->tokenHandler->makeToken(
-            $claims,
-            ID::makeNewID(DbToken::class)
-        );
-    }
-
-    private function parseToken(string $tokenString, string $class, $checkIfInvalidated = true)
-    {
-        $token = $this->tokenHandler->parseTokenFromString($tokenString, $checkIfInvalidated);
-        return new $class($token);
     }
 }

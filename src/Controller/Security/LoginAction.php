@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Security;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,11 +13,11 @@ class LoginAction
     private const TEMP_USERS = [
         'david' => [
             'name' => 'DJM',
-            'uuid' => '12345678-ca4e-4672-985c-bd4af53e8e93'
+            'uuid' => '12345678-ca4e-4672-985c-bd4af53e8e93',
         ],
-        'bob'=> [
+        'bob' => [
             'name' => 'Bobertson',
-            'uuid' => '98765432-ca4e-4672-985c-bd4af53e8e93'
+            'uuid' => '98765432-ca4e-4672-985c-bd4af53e8e93',
         ],
     ];
 
@@ -27,9 +28,7 @@ class LoginAction
         // receive a response back from google
 
 
-        return new JsonResponse([
-            'google' => '/login/google'
-        ]);
+        return new JsonResponse(['google' => '/login/google']);
 
 
 //        $username = $request->get('username');

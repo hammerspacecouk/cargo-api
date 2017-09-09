@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Port;
@@ -54,12 +55,12 @@ class ShipLocationMapper extends Mapper
         return $this->getChannelOrigin($item);
     }
 
-    private function getDestination(array $item): ?Port
+    private function getChannelDestination(array $item): ?Port
     {
-        if ($item['reverseDirection']) {
-            return $this->getChannelOrigin($item);
+        if (isset($item['channel']['toPort'])) {
+            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['toPort']);
         }
-        return $this->getChannelDestination($item);
+        return null;
     }
 
     private function getChannelOrigin(array $item): ?Port
@@ -70,11 +71,11 @@ class ShipLocationMapper extends Mapper
         return null;
     }
 
-    private function getChannelDestination(array $item): ?Port
+    private function getDestination(array $item): ?Port
     {
-        if (isset($item['channel']['toPort'])) {
-            return $this->mapperFactory->createPortMapper()->getPort($item['channel']['toPort']);
+        if ($item['reverseDirection']) {
+            return $this->getChannelOrigin($item);
         }
-        return null;
+        return $this->getChannelDestination($item);
     }
 }

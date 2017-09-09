@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -44,8 +45,7 @@ class UpdateDictionary extends Command
                 'context',
                 InputArgument::REQUIRED,
                 'Context to add the words to'
-            )
-        ;
+            );
     }
 
     protected function execute(

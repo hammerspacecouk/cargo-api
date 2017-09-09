@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
 <ruleset name="AppRuleset" >
+    <!-- include the whole of PSR2 first of all (don't disable any of this, just add to it) -->
     <rule ref="PSR2" />
+
+    <!-- use trailing commas on multi-line arrays -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration.NoComma" />
 </ruleset>

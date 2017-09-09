@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\Channel as DbChannel;
@@ -56,7 +57,7 @@ class ShipsService extends AbstractService
             ->select('count(1)');
         ;
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function findAll(
@@ -69,8 +70,7 @@ class ShipsService extends AbstractService
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-        ;
+            ->setFirstResult($this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createShipMapper();
 
@@ -83,34 +83,12 @@ class ShipsService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?ShipEntity {
+    
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
-
-        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
-        if (!$result) {
-            return null;
-        }
-
-        $mapper = $this->mapperFactory->createShipMapper();
-        return $mapper->getShip($result);
-    }
-
-    public function getByIDForOwnerId(
-        UuidInterface $shipId,
-        UuidInterface $ownerId
-    ): ?ShipEntity {
-        $qb = $this->getQueryBuilder(DbShip::class)
-            ->select('tbl', 'c')
-            ->join('tbl.shipClass', 'c')
-            ->where('tbl.id = :id')
-            ->andWhere('IDENTITY(tbl.owner) = :ownerId')
-            ->setParameter('id', $shipId->getBytes())
-            ->setParameter('ownerId', $ownerId->getBytes())
-        ;
+            ->setParameter('id', $uuid->getBytes());
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
         if (!$result) {
@@ -128,15 +106,37 @@ class ShipsService extends AbstractService
         return !!$this->getByIDForOwnerId($shipId, $ownerId);
     }
 
-    public function getByIDWithLocation(
-        UuidInterface $uuid
+    public function getByIDForOwnerId(
+        UuidInterface $shipId,
+        UuidInterface $ownerId
     ): ?ShipEntity {
+    
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes())
-        ;
+            ->andWhere('IDENTITY(tbl.owner) = :ownerId')
+            ->setParameter('id', $shipId->getBytes())
+            ->setParameter('ownerId', $ownerId->getBytes());
+
+        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+        if (!$result) {
+            return null;
+        }
+
+        $mapper = $this->mapperFactory->createShipMapper();
+        return $mapper->getShip($result);
+    }
+
+    public function getByIDWithLocation(
+        UuidInterface $uuid
+    ): ?ShipEntity {
+    
+        $qb = $this->getQueryBuilder(DbShip::class)
+            ->select('tbl', 'c')
+            ->join('tbl.shipClass', 'c')
+            ->where('tbl.id = :id')
+            ->setParameter('id', $uuid->getBytes());
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
         if (!$result) {
@@ -156,9 +156,8 @@ class ShipsService extends AbstractService
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('count(1)')
             ->where('IDENTITY(tbl.owner) = :id')
-            ->setParameter('id', $userId->getBytes())
-        ;
-        return (int) $qb->getQuery()->getSingleScalarResult();
+            ->setParameter('id', $userId->getBytes());
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function getForOwnerIDWithLocation(
@@ -172,8 +171,7 @@ class ShipsService extends AbstractService
             ->where('IDENTITY(tbl.owner) = :id')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
-            ->setParameter('id', $userId->getBytes())
-        ;
+            ->setParameter('id', $userId->getBytes());
 
         $results = $qb->getQuery()->getArrayResult();
         $results = $this->attachLocationToShips($results);
@@ -183,6 +181,32 @@ class ShipsService extends AbstractService
         return array_map(function ($result) use ($mapper) {
             return $mapper->getShip($result);
         }, $results);
+    }
+
+    private function attachLocationToShips(array $ships): array
+    {
+        if (empty($ships)) {
+            return $ships;
+        }
+
+        // get all the IDs
+        $ids = array_map(function ($ship) {
+            return $ship['id']->getBytes();
+        }, $ships);
+
+        // do a batch query to find all the location and key them by ship
+        $locations = [];
+        foreach ($this->entityManager->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
+            $locations[$location['ship']['uuid']] = $location;
+        }
+
+        $shipsWithLocations = [];
+        foreach ($ships as $ship) {
+            $ship['location'] = $locations[$ship['uuid']] ?? null;
+            $shipsWithLocations[] = $ship;
+        }
+
+        return $shipsWithLocations;
     }
 
     public function moveShipToLocation(
@@ -224,48 +248,6 @@ class ShipsService extends AbstractService
 
         throw new \InvalidArgumentException('Invalid destination ID');
     }
-
-    public function requestShipName(
-        UuidInterface $userId,
-        UuidInterface $shipId
-    ): string {
-
-        // check the ship exists and belongs to the user
-        if (!$this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
-            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
-        }
-
-        // todo - check the user has enough credits
-
-        // todo -deduct the user credits
-
-        // todo - should it check to see if it already exists?
-
-        return $this->entityManager->getDictionaryRepo()->getRandomShipName();
-    }
-
-    public function useRenameShipToken(
-        RenameShipToken $tokenDetail
-    ): void {
-        $name = $tokenDetail->getShipName();
-        $shipId = $tokenDetail->getShipId();
-
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
-            $this->logger->info('Renaming ship');
-            $this->entityManager->getShipRepo()->renameShip($shipId, $name);
-            $this->logger->info('Marking token as used');
-            $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
-            $this->logger->info('Committing transaction');
-            $this->entityManager->getConnection()->commit();
-            $this->logger->notice('[SHIP RENAME] Ship ' . (string) $shipId . ' renamed to ' . $name);
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Rolled back "useRenameShipToken" transaction');
-            throw $e;
-        }
-    }
-
 
     private function moveShipToPortId(
         DbShip $ship,
@@ -316,29 +298,44 @@ class ShipsService extends AbstractService
         // calculate the user's new rank and cache it
     }
 
-    private function attachLocationToShips(array $ships): array
-    {
-        if (empty($ships)) {
-            return $ships;
+    public function requestShipName(
+        UuidInterface $userId,
+        UuidInterface $shipId
+    ): string {
+
+        // check the ship exists and belongs to the user
+        if (!$this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
+            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
         }
 
-        // get all the IDs
-        $ids = array_map(function ($ship) {
-            return $ship['id']->getBytes();
-        }, $ships);
+        // todo - check the user has enough credits
 
-        // do a batch query to find all the location and key them by ship
-        $locations = [];
-        foreach ($this->entityManager->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
-            $locations[$location['ship']['uuid']] = $location;
+        // todo -deduct the user credits
+
+        // todo - should it check to see if it already exists?
+
+        return $this->entityManager->getDictionaryRepo()->getRandomShipName();
+    }
+
+    public function useRenameShipToken(
+        RenameShipToken $tokenDetail
+    ): void {
+        $name = $tokenDetail->getShipName();
+        $shipId = $tokenDetail->getShipId();
+
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            $this->logger->info('Renaming ship');
+            $this->entityManager->getShipRepo()->renameShip($shipId, $name);
+            $this->logger->info('Marking token as used');
+            $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
+            $this->logger->info('Committing transaction');
+            $this->entityManager->getConnection()->commit();
+            $this->logger->notice('[SHIP RENAME] Ship ' . (string)$shipId . ' renamed to ' . $name);
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Rolled back "useRenameShipToken" transaction');
+            throw $e;
         }
-
-        $shipsWithLocations = [];
-        foreach ($ships as $ship) {
-            $ship['location'] = $locations[$ship['uuid']] ?? null;
-            $shipsWithLocations[] = $ship;
-        }
-
-        return $shipsWithLocations;
     }
 }

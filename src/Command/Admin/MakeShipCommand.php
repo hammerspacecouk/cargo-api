@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Admin;
 
 use App\Service\ShipsService;
@@ -31,8 +32,7 @@ class MakeShipCommand extends Command
                 'userId',
                 InputArgument::REQUIRED,
                 'The user the ship will belong to'
-            )
-        ;
+            );
     }
 
     protected function execute(

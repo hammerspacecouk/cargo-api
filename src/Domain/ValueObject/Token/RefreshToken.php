@@ -1,21 +1,25 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
 
 class RefreshToken extends AbstractToken
 {
-    protected const TYPE = 'rf';
+    public const TYPE = 'rf';
 
-    private const KEY_ACCESS_KEY = 'ak';
+    public const KEY_ACCESS_KEY = 'ak';
 
-    public function getAccessKey(): string
+    public static function makeClaims(
+        string $accessKey
+    ): array {
+        return parent::createClaims([self::KEY_ACCESS_KEY => $accessKey]);
+    }
+
+    public static function secureAccessKey(string $accessKey): string
     {
-        if ($this->token->hasClaim(self::KEY_ACCESS_KEY)) {
-            return $this->token->getClaim(self::KEY_ACCESS_KEY);
-        }
-        throw new InvalidTokenException('No Access Key found');
+        return password_hash($accessKey, PASSWORD_DEFAULT);
     }
 
     public function validateAccessKey(string $digest): bool
@@ -26,16 +30,11 @@ class RefreshToken extends AbstractToken
         throw new InvalidTokenException('Invalid Access Key');
     }
 
-    public static function makeClaims(
-        string $accessKey
-    ): array {
-        return parent::createClaims([
-            self::KEY_ACCESS_KEY => $accessKey
-        ]);
-    }
-
-    public static function secureAccessKey(string $accessKey): string
+    public function getAccessKey(): string
     {
-        return password_hash($accessKey, PASSWORD_DEFAULT);
+        if ($this->token->hasClaim(self::KEY_ACCESS_KEY)) {
+            return $this->token->getClaim(self::KEY_ACCESS_KEY);
+        }
+        throw new InvalidTokenException('No Access Key found');
     }
 }

@@ -34,8 +34,7 @@ class TokenRepository extends AbstractEntityRepository
             ->where('tbl.id = :id')
             ->andWhere('tbl.type IN (:validTypes)')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('validTypes', TokenEntity::INVALID_TYPES)
-        ;
+            ->setParameter('validTypes', TokenEntity::INVALID_TYPES);
         return !$qb->getQuery()->getSingleScalarResult();
     }
 

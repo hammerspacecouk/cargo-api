@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
+
 use App\Controller;
+use App\Domain\ValueObject\Token\Action;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
@@ -70,15 +72,15 @@ $collection->add('play_positions_ship', new Route('/play/ships/{uuid}', [
 ]));
 
 // actions
-$collection->add('actions_list', new Route('/actions', [
+$collection->add('actions_list', new Route(Action\AbstractActionToken::PATH_PREFIX, [
     '_controller' => Controller\Actions\ListAction::class,
 ]));
 
-$collection->add('actions_move_ship', new Route('/actions/move-ship', [
+$collection->add('actions_move_ship', new Route(Action\MoveShipToken::getPath(), [
     '_controller' => Controller\Actions\MoveShipAction::class,
 ]));
 
-$collection->add('actions_rename_ship', new Route('/actions/rename-ship', [
+$collection->add('actions_rename_ship', new Route(Action\RenameShipToken::getPath(), [
     '_controller' => Controller\Actions\RenameShipAction::class,
 ]));
 

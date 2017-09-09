@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\Ship;
@@ -19,8 +20,7 @@ class ShipRepository extends AbstractEntityRepository
             ->where('tbl.id = :id')
             ->andWhere('IDENTITY(tbl.owner) = :ownerId')
             ->setParameter('id', $shipId->getBytes())
-            ->setParameter('ownerId', $ownerId->getBytes())
-        ;
+            ->setParameter('ownerId', $ownerId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 

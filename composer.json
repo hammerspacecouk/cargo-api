@@ -41,6 +41,6 @@
         "test": "phpunit",
         "cbf": "phpcbf app src tests",
         "cs": "phpcs app src tests",
-        "stan": "phpstan analyse src tests --level 7"
+        "stan": "phpstan analyse src tests --level 7 -c phpstan.neon"
     }
 }

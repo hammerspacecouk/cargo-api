@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -32,6 +33,6 @@ abstract class AbstractEntity
         UuidInterface $id
     ) {
         $this->id = $id;
-        $this->uuid = (string) $this->id;
+        $this->uuid = (string)$this->id;
     }
 }

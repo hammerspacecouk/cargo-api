@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data;
 
 use App\Data\Database\Entity\Channel;
@@ -44,14 +45,14 @@ class ID
         }
 
         $id = Uuid::uuid4();
-        $str = (string) $id;
+        $str = (string)$id;
         $str = substr_replace($str, self::ENTITY_MAPPINGS[$entityClass], 9, 4);
         return Uuid::fromString($str);
     }
 
     public static function getIDType(UuidInterface $id)
     {
-        $part = (string) substr((string) $id, 9, 4);
+        $part = (string)substr((string)$id, 9, 4);
         $map = array_flip(self::ENTITY_MAPPINGS);
         if ($map[$part]) {
             return $map[$part];

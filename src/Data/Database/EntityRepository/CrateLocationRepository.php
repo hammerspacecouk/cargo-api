@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\CrateLocation;
@@ -19,8 +20,7 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->where('IDENTITY(tbl.crate) = :crate')
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1)
-            ->setParameter('crate', $crateId->getBytes())
-        ;
+            ->setParameter('crate', $crateId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -31,8 +31,7 @@ class CrateLocationRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.id = :id')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('id', $crateId->getBytes())
-        ;
+            ->setParameter('id', $crateId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }
 
@@ -45,8 +44,7 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->leftJoin('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ship', $crateId->getBytes())
-        ;
+            ->setParameter('ship', $crateId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }
 

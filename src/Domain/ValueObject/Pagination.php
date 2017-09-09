@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Domain\ValueObject;
 
 class Pagination implements \JsonSerializable
@@ -25,12 +26,12 @@ class Pagination implements \JsonSerializable
         $this->perPage = $perPage;
         $this->baseUrl = $baseUrl;
 
-        $this->totalPages = max(ceil($totalCount / $perPage), 1);
+        $this->totalPages = (int)max(ceil($totalCount / $perPage), 1);
     }
 
     public function isOutOfBounds(): bool
     {
-        return ($this->currentPage < 0 || $this->currentPage > $this->totalPages);
+        return ($this->currentPage <= 0 || $this->currentPage > $this->totalPages);
     }
 
     public function jsonSerialize(): array
@@ -50,7 +51,7 @@ class Pagination implements \JsonSerializable
     private function getPreviousPage(): ?int
     {
         if ($this->currentPage > 1) {
-            return $this->currentPage -1;
+            return $this->currentPage - 1;
         }
         return null;
     }
@@ -72,6 +73,14 @@ class Pagination implements \JsonSerializable
         return null;
     }
 
+    private function getPath(int $page): string
+    {
+        if ($page === 1) {
+            return $this->baseUrl;
+        }
+        return $this->baseUrl . '?' . http_build_query(['page' => $page]);
+    }
+
     private function getNextPagePath(): ?string
     {
         $page = $this->getNextPage();
@@ -79,15 +88,5 @@ class Pagination implements \JsonSerializable
             return $this->getPath($page);
         }
         return null;
-    }
-
-    private function getPath(int $page): string
-    {
-        if ($page === 1) {
-            return $this->baseUrl;
-        }
-        return $this->baseUrl . '?' . http_build_query([
-            'page' => $page
-        ]);
     }
 }

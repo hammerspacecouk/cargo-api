@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Command\Action;
 
 use App\Controller\Actions\RenameShipAction;
@@ -38,8 +39,7 @@ class RenameShipCommand extends Command
                 'actionToken',
                 InputArgument::REQUIRED,
                 'Action token'
-            )
-        ;
+            );
     }
 
     protected function execute(

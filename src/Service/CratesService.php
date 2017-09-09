@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
@@ -48,9 +49,8 @@ class CratesService extends AbstractService
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->select('count(1)')
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('location.isCurrent = true')
-        ;
-        return (int) $qb->getQuery()->getSingleScalarResult();
+            ->where('location.isCurrent = true');
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function findActive(
@@ -61,8 +61,7 @@ class CratesService extends AbstractService
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
             ->where('location.isCurrent = true')
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-        ;
+            ->setFirstResult($this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createCrateMapper();
 
@@ -75,6 +74,7 @@ class CratesService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?Crate {
+    
         $result = $this->entityManager->getCrateRepo()->getByID($uuid);
 
         if (!$result) {
@@ -88,6 +88,7 @@ class CratesService extends AbstractService
     public function getByIDWithLocation(
         UuidInterface $uuid
     ): ?Crate {
+    
         $result = $this->entityManager->getCrateRepo()->getByID($uuid);
 
         if (!$result) {
@@ -107,9 +108,8 @@ class CratesService extends AbstractService
             ->select('count(1)')
             ->where('IDENTITY(tbl.port) = :portID')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('portID', $port->getId()->getBytes())
-        ;
-        return (int) $qb->getQuery()->getSingleScalarResult();
+            ->setParameter('portID', $port->getId()->getBytes());
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function findActiveForPort(
@@ -125,8 +125,7 @@ class CratesService extends AbstractService
             ->setParameter('portID', $port->getId()->getBytes())
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-        ;
+            ->setFirstResult($this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createCrateMapper();
 

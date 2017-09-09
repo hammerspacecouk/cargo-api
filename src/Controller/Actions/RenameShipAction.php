@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Actions;
 
 use App\Service\ShipsService;
@@ -27,7 +28,7 @@ class RenameShipAction extends AbstractAction
         $newName = $renameShipToken->getShipName();
 
         $shipsService->useRenameShipToken($renameShipToken);
-        $logger->info('[SHIP RENAMED] ' . (string) $shipId . ' to ' . $newName);
+        $logger->info('[SHIP RENAMED] ' . (string)$shipId . ' to ' . $newName);
 
         return $this->actionResponse(new JsonResponse([
             'status' => 'ok',

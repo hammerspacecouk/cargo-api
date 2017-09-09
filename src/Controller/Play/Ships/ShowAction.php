@@ -48,7 +48,7 @@ class ShowAction
     ): JsonResponse {
 
         $logger->debug(__CLASS__);
-    
+
         $this->tokensService = $tokensService;
         $this->channelsService = $channelsService;
 
@@ -95,7 +95,7 @@ class ShowAction
         Ship $ship,
         User $user
     ): array {
-    
+
         // find all channels for a port, with their bearing and distance
         $channels = $this->channelsService->getAllLinkedToPort($port);
 

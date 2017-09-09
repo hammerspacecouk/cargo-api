@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -19,7 +20,7 @@ class User extends AbstractEntity
     public $email;
 
     /** @ORM\Column(type="boolean") */
-    public $emailBlocked;
+    public $emailBlocked = false;
 
     /** @ORM\Column(type="integer") */
     public $rotationSteps;

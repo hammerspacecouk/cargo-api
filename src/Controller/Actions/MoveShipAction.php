@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Actions;
 
 use App\Service\TokensService;
@@ -20,8 +21,6 @@ class MoveShipAction extends AbstractAction
         $tokenString = $this->getTokenDataFromRequest($request);
         $tokensService->useMoveShipToken($tokenString);
 
-        return $this->actionResponse(new JsonResponse([
-            'status' => 'ok',
-        ]));
+        return $this->actionResponse(new JsonResponse(['status' => 'ok']));
     }
 }

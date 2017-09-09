@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Command\Action;
 
 use App\Service\CratesService;
@@ -38,8 +39,7 @@ class MoveCrateCommand extends Command
                 'destinationID',
                 InputArgument::REQUIRED,
                 'The ID of the destination'
-            )
-        ;
+            );
     }
 
     protected function execute(

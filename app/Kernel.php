@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
@@ -30,7 +31,7 @@ class Kernel extends SymfonyKernel
 
         if ($environment === self::ENV_DEV) {
             $dotenv = new Dotenv();
-            $dotenv->load(__DIR__.'/../.env');
+            $dotenv->load(__DIR__ . '/../.env');
         }
     }
 
@@ -54,19 +55,14 @@ class Kernel extends SymfonyKernel
         return $bundles;
     }
 
-    public function getRootDir(): string
-    {
-        return __DIR__;
-    }
-
     public function getCacheDir(): string
     {
-        return dirname(__DIR__).'/tmp/cache/'.$this->getEnvironment();
+        return dirname(__DIR__) . '/tmp/cache/' . $this->getEnvironment();
     }
 
     public function getLogDir(): string
     {
-        return dirname(__DIR__).'/tmp/logs';
+        return dirname(__DIR__) . '/tmp/logs';
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
@@ -78,5 +74,10 @@ class Kernel extends SymfonyKernel
         }
 
         $loader->load($this->getRootDir() . '/config/' . $dir . 'config.yml');
+    }
+
+    public function getRootDir(): string
+    {
+        return __DIR__;
     }
 }

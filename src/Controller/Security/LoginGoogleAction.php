@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
@@ -56,9 +57,7 @@ class LoginGoogleAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($user->email, $description);
 
-        $response = new JsonResponse([
-            'status' => 'ok'
-        ]);
+        $response = new JsonResponse(['status' => 'ok']);
         $response->headers->setCookie($cookie);
 
         return $response;

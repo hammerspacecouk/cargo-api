@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
@@ -34,8 +35,7 @@ class MakePortsCommand extends Command
                 'inputList',
                 InputArgument::REQUIRED,
                 'File path of data source (.csv)'
-            )
-        ;
+            );
     }
 
     protected function execute(
@@ -53,8 +53,8 @@ class MakePortsCommand extends Command
         foreach ($sourceData as $data) {
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
-            $isSafeHaven = (bool) $data['isSafeHaven'];
-            $isOpen = (bool) $data['isOpen'];
+            $isSafeHaven = (bool)$data['isSafeHaven'];
+            $isOpen = (bool)$data['isOpen'];
 
             /** @var Port $entity */
             $entity = $this->entityManager->getPortRepo()->getByID($id, Query::HYDRATE_OBJECT);
