@@ -2,7 +2,9 @@ imports:
     - { resource: services.yml }
 
 parameters:
-    hostname: https://www.planetcargo.live
+    hostname_api: https://api.www.planetcargo.live
+    hostname_web: https://www.planetcargo.live
+    cookie_scope: .www.planetcargo.live
     distance_multiplier: 3600
 
 framework:

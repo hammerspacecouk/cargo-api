@@ -144,13 +144,13 @@ class TokenHandler
         if (!$expire) {
             $expire = 0; // session cookie
         }
-
+        
         return new Cookie(
             $name,
             $content,
             $expire,
             '/',
-            null, // todo - limit domain scope
+            $this->tokenConfig->getCookieScope(),
             false, // secureCookie - todo - be true as often as possible
             true // httpOnly
         );

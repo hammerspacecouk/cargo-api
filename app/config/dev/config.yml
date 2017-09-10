@@ -2,7 +2,9 @@ imports:
     - { resource: ../config.yml }
 
 parameters:
-    hostname: http://127.0.0.1:8090
+    hostname_api: http://api.dev.planetcargo.live
+    hostname_web: http://dev.planetcargo.live
+    cookie_scope: .dev.planetcargo.live
     distance_multiplier: 60
 
 framework:

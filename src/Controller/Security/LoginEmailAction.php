@@ -76,7 +76,7 @@ class LoginEmailAction
 
 
         // todo - move this to an e-mail service or something
-        $url = $applicationConfig->getHostname() . '/login/email?token=' . (string)$token;
+        $url = $applicationConfig->getApiHostname() . '/login/email?token=' . (string)$token;
         $body = <<<EMAIL
 <p>This link will work for 1 hour and will log you in</p>
 <p><a href="$url">$url</a></p>

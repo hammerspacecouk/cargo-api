@@ -11,10 +11,12 @@ class TokenConfigTest extends \PHPUnit\Framework\TestCase
     {
         $config = new TokenConfig(
             $privateKey = 'aaaabbbbb',
-            $issuer = 'https://example.com'
+            $issuer = 'https://example.com',
+            $cookieScope = '*.www.example.com'
         );
 
         $this->assertSame($privateKey, $config->getPrivateKey());
         $this->assertSame($issuer, $config->getIssuer());
+        $this->assertSame($cookieScope, $config->getCookieScope());
     }
 }

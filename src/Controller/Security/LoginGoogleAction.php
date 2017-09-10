@@ -36,7 +36,7 @@ class LoginGoogleAction
             throw new AccessDeniedHttpException('Correct credentials not supplied');
         }
 
-        $client->setRedirectUri($applicationConfig->getHostname() . '/login/google');
+        $client->setRedirectUri($applicationConfig->getApiHostname() . '/login/google');
         $client->setAccessType('offline');
         $client->setIncludeGrantedScopes(true);
         $client->addScope(Google_Service_Oauth2::USERINFO_EMAIL);
