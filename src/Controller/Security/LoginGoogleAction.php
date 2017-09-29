@@ -6,7 +6,6 @@ namespace App\Controller\Security;
 use App\Config\ApplicationConfig;
 use App\Service\TokensService;
 use App\Service\UsersService;
-use DateTimeImmutable;
 use Google_Client;
 use Google_Service_Oauth2;
 use Psr\Log\LoggerInterface;
@@ -57,7 +56,7 @@ class LoginGoogleAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($user->email, $description);
 
-        $response = new JsonResponse(['status' => 'ok']);
+        $response = new RedirectResponse($applicationConfig->getWebHostname());
         $response->headers->setCookie($cookie);
 
         return $response;

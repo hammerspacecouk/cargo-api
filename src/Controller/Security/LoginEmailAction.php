@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Swift_Message;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -34,11 +35,11 @@ class LoginEmailAction
 
         if ($token) {
             $logger->notice('[LOGIN] [EMAIL]');
-            return $this->processLogin($request, $token, $tokensService);
+            return $this->processLogin($request, $token, $tokensService, $applicationConfig);
         }
         if ($target) {
             $logger->notice('[LOGIN] [EMAIL_REQUEST]');
-            return $this->sendEmail($target, $tokensService, $mailer, $applicationConfig);
+            return $this->sendEmail($request, $target, $tokensService, $mailer, $applicationConfig);
         }
 
         throw new BadRequestHttpException('Expecting an e-mail address or token');
@@ -47,7 +48,8 @@ class LoginEmailAction
     private function processLogin(
         Request $request,
         string $token,
-        TokensService $tokensService
+        TokensService $tokensService,
+        ApplicationConfig $applicationConfig
     ) {
         $description = $request->headers->get('User-Agent', 'Unknown');
 
@@ -56,13 +58,14 @@ class LoginEmailAction
         // todo - figure out a new user, to assign them ships and locations
         $cookie = $tokensService->makeNewRefreshTokenCookie($token->getEmailAddress(), $description);
 
-        $response = new JsonResponse(['status' => 'ok']);
+        $response = new RedirectResponse($applicationConfig->getWebHostname());
         $response->headers->setCookie($cookie);
 
         return $response;
     }
 
     private function sendEmail(
+        Request $request,
         string $emailAddress,
         TokensService $tokensService,
         Swift_Mailer $mailer,
@@ -92,6 +95,11 @@ EMAIL;
 
         $mailer->send($message);
 
-        return new JsonResponse(['status' => 'ok']);
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['status' => 'ok']);
+        }
+
+        // redirect to the application homepage, now that you're logged in
+        return new RedirectResponse($applicationConfig->getWebHostname() . '?mailsent');
     }
 }
