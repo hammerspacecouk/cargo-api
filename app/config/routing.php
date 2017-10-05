@@ -17,17 +17,20 @@ $collection->add('home', new Route('/', [
 $collection->add('login', new Route('/login', [
     '_controller' => Controller\Security\LoginAction::class,
 ]));
+$collection->add('login_check', new Route('/login/check', [
+    '_controller' => Controller\Security\CheckLoginAction::class,
+]));
 $collection->add('login_email', new Route('/login/email', [
     '_controller' => Controller\Security\LoginEmailAction::class,
-]));
-$collection->add('login_google', new Route('/login/google', [
-    '_controller' => Controller\Security\LoginGoogleAction::class,
 ]));
 $collection->add('login_facebook', new Route('/login/facebook', [
     '_controller' => Controller\Security\LoginFacebookAction::class,
 ]));
-$collection->add('login_check', new Route('/login/check', [
-    '_controller' => Controller\Security\CheckLoginAction::class,
+$collection->add('login_google', new Route('/login/google', [
+    '_controller' => Controller\Security\LoginGoogleAction::class,
+]));
+$collection->add('login_twitter', new Route('/login/twitter', [
+    '_controller' => Controller\Security\LoginTwitterAction::class,
 ]));
 
 // Crates

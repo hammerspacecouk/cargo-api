@@ -43,6 +43,12 @@ services:
               persistent_data_handler: '@App\Data\Facebook\PersistentDataHandler'
               http_client_handler: '@App\Data\Facebook\HttpClient'
 
+    Abraham\TwitterOAuth\TwitterOAuth:
+        class: Abraham\TwitterOAuth\TwitterOAuth
+        arguments:
+            - '%env(OAUTH_TWITTER_API_KEY)%'
+            - '%env(OAUTH_TWITTER_API_SECRET)%'
+
     GuzzleHttp\Client:
         class: GuzzleHttp\Client
 
