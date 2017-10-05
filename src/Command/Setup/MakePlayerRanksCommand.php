@@ -29,7 +29,7 @@ class MakePlayerRanksCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-player-ranks')
+            ->setName('game:init:make-player-ranks')
             ->setDescription('One off command for populating player ranks table')
             ->addArgument(
                 'inputList',

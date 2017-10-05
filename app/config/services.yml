@@ -35,6 +35,17 @@ services:
             - client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
               client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
 
+    Facebook\Facebook:
+        class: Facebook\Facebook
+        arguments:
+            - app_id: '%env(OAUTH_FACEBOOK_APP_ID)%'
+              app_secret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
+              persistent_data_handler: '@App\Data\Facebook\PersistentDataHandler'
+              http_client_handler: '@App\Data\Facebook\HttpClient'
+
+    GuzzleHttp\Client:
+        class: GuzzleHttp\Client
+
     DateTimeZone:
         class: DateTimeZone
         arguments:

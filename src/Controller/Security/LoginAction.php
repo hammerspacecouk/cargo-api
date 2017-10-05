@@ -13,6 +13,10 @@ class LoginAction
     public function __invoke(
         Request $request
     ): JsonResponse {
-        return new JsonResponse(['google' => '/login/google']);
+        return new JsonResponse([
+            'email' => '/login/email',
+            'google' => '/login/google',
+            'facebook' => '/login/facebook',
+        ]);
     }
 }

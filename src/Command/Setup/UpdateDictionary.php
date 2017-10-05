@@ -34,7 +34,7 @@ class UpdateDictionary extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:update-dictionary')
+            ->setName('game:init:update-dictionary')
             ->setDescription('One off command for populating enum table')
             ->addArgument(
                 'inputList',

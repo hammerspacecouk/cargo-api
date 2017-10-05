@@ -29,7 +29,7 @@ class MakePlayerStandingsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-player-standings')
+            ->setName('game:init:make-player-standings')
             ->setDescription('One off command for populating player ranks table')
             ->addArgument(
                 'inputList',

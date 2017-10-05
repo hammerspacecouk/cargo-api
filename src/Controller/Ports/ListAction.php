@@ -31,9 +31,12 @@ class ListAction
             $items = $portsService->findAll(self::PER_PAGE, $page);
         }
 
-        return new JsonResponse([
+        $r = new JsonResponse([
             'pagination' => $pagination,
             'items' => $items,
         ]);
+        $r->setMaxAge(20);
+        $r->setPublic();
+        return $r;
     }
 }

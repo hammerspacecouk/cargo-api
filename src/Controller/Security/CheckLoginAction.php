@@ -18,7 +18,9 @@ class CheckLoginAction
 
         $userId = $this->getUserId($request, $tokensService);
 
-        $response = new JsonResponse('Hello uuid: ' . (string)$userId);
+        $response = new JsonResponse([
+            'id' => (string) $userId,
+        ]);
 
         return $response;
     }

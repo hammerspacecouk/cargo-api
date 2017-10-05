@@ -30,7 +30,7 @@ class MakeShipClassesCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-ship-classes')
+            ->setName('game:init:make-ship-classes')
             ->setDescription('One off command for populating ship classes table')
             ->addArgument(
                 'inputList',

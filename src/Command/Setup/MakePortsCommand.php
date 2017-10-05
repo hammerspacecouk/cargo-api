@@ -29,7 +29,7 @@ class MakePortsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-ports')
+            ->setName('game:init:make-ports')
             ->setDescription('Creates a new port and places it on the map')
             ->addArgument(
                 'inputList',

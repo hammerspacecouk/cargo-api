@@ -14,7 +14,7 @@ class GenerateIds extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-ids')
+            ->setName('game:init:make-ids')
             ->setDescription('Generates a list of IDs for the Entity required and stores in a file')
             ->addArgument(
                 'entityName',

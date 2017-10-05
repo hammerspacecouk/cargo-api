@@ -32,7 +32,7 @@ class MakeChannelsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:setup:make-channels')
+            ->setName('game:init:make-channels')
             ->setDescription('One off command for populating channel data')
             ->addArgument(
                 'inputList',
