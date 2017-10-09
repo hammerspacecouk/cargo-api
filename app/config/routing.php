@@ -17,6 +17,9 @@ $collection->add('home', new Route('/', [
 $collection->add('login', new Route('/login', [
     '_controller' => Controller\Security\LoginAction::class,
 ]));
+$collection->add('logout', new Route('/logout', [
+    '_controller' => Controller\Security\LogoutAction::class,
+]));
 $collection->add('login_check', new Route('/login/check', [
     '_controller' => Controller\Security\CheckLoginAction::class,
 ]));

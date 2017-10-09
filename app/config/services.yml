@@ -4,6 +4,11 @@ services:
         autowire: true
         public: false
 
+    # Register the service as an event listener
+    App\FlashDataListener:
+        tags:
+            - { name: 'kernel.event_subscriber' }
+
     App\:
         resource: '../../src/*'
         exclude: '../../src/Data/Database/Entity/*'

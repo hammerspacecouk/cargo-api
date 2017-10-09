@@ -5,10 +5,7 @@ namespace App\Data;
 
 use App\Config\TokenConfig;
 use App\Data\Database\Entity\Token as DbToken;
-use App\Data\Database\Entity\User;
 use App\Data\Database\EntityManager;
-use App\Data\Database\EntityRepository\TokenRepository;
-use App\Data\Database\EntityRepository\UserRepository;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\Exception\MissingTokenException;
 use App\Domain\ValueObject\Token\AccessToken;
@@ -26,6 +23,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TokenHandler
 {
@@ -52,6 +50,7 @@ class TokenHandler
         TokenConfig $tokenConfig,
         LoggerInterface $logger
     ) {
+    
         $this->tokenConfig = $tokenConfig;
         $this->entityManager = $entityManager;
         $this->currentTime = $currentTime;
@@ -105,6 +104,7 @@ class TokenHandler
         UuidInterface $id = null,
         string $expiry = self::EXPIRY_DEFAULT
     ): Token {
+    
         if (!$id) {
             $id = ID::makeNewID(DbToken::class);
         }
@@ -123,37 +123,6 @@ class TokenHandler
         $builder->sign($signer, $this->tokenConfig->getPrivateKey());
 
         return $builder->getToken();
-    }
-
-    private function getExpiryInterval(string $expiry = self::EXPIRY_DEFAULT)
-    {
-        return new DateInterval($expiry);
-    }
-
-    private function makeRefreshCookie(Token $token): Cookie
-    {
-        return $this->makeCookie(
-            (string)$token,
-            self::COOKIE_REFRESH_NAME,
-            $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN))
-        );
-    }
-
-    private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire)
-    {
-        if (!$expire) {
-            $expire = 0; // session cookie
-        }
-        
-        return new Cookie(
-            $name,
-            $content,
-            $expire,
-            '/',
-            $this->tokenConfig->getCookieScope(),
-            false, // secureCookie - todo - be true as often as possible
-            true // httpOnly
-        );
     }
 
     public function getAccessTokenFromRequest(Request $request): AccessToken
@@ -225,6 +194,7 @@ class TokenHandler
         string $tokenString,
         $checkIfInvalidated = true
     ): Token {
+    
         $token = (new Parser())->parse($tokenString);
         return $this->parseToken($token, $checkIfInvalidated);
     }
@@ -233,6 +203,7 @@ class TokenHandler
         Token $token,
         $checkIfInvalidated = true
     ): Token {
+    
         $data = new ValidationData();
         $data->setCurrentTime($this->currentTime->getTimestamp());
 
@@ -251,6 +222,44 @@ class TokenHandler
         return $token;
     }
 
+    public function clearCookiesFromResponse(Response $response): Response
+    {
+        $response->headers->clearCookie(self::COOKIE_ACCESS_NAME, '/', $this->tokenConfig->getCookieScope());
+        $response->headers->clearCookie(self::COOKIE_REFRESH_NAME, '/', $this->tokenConfig->getCookieScope());
+        return $response;
+    }
+
+    private function getExpiryInterval(string $expiry = self::EXPIRY_DEFAULT)
+    {
+        return new DateInterval($expiry);
+    }
+
+    private function makeRefreshCookie(Token $token): Cookie
+    {
+        return $this->makeCookie(
+            (string)$token,
+            self::COOKIE_REFRESH_NAME,
+            $this->currentTime->add(new DateInterval(self::EXPIRY_REFRESH_TOKEN))
+        );
+    }
+
+    private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire)
+    {
+        if (!$expire) {
+            $expire = 0; // session cookie
+        }
+
+        return new Cookie(
+            $name,
+            $content,
+            $expire,
+            '/',
+            $this->tokenConfig->getCookieScope(),
+            false, // secureCookie - todo - be true as often as possible
+            true // httpOnly
+        );
+    }
+
     private function getBearerToken(Request $request): ?string
     {
         $authHeader = $request->headers->get('Authorization');
@@ -266,6 +275,7 @@ class TokenHandler
     private function uuidFromToken(
         Token $token
     ): UuidInterface {
+    
         return Uuid::fromString($token->getClaim('jti'));
     }
 
@@ -308,16 +318,7 @@ class TokenHandler
     private function expiryFromToken(
         Token $token
     ): DateTimeImmutable {
+    
         return DateTimeImmutable::createFromFormat('U', (string)$token->getClaim('exp'));
-    }
-
-    private function getTokenRepo(): TokenRepository
-    {
-        return $this->entityManager->getRepository(DbToken::class);
-    }
-
-    private function getUserRepo(): UserRepository
-    {
-        return $this->entityManager->getRepository(User::class);
     }
 }

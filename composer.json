@@ -4,7 +4,7 @@
     "type": "project",
     "autoload": {
         "psr-4": { "App\\": "src" },
-        "classmap": [ "app/Kernel.php" ]
+        "classmap": [ "app/Kernel.php", "app/FlashDataListener.php" ]
     },
     "autoload-dev": {
         "psr-4": { "Tests\\App\\": "tests/" }

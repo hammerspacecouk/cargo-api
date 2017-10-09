@@ -58,7 +58,9 @@ class LoginEmailAction
         // todo - figure out a new user, to assign them ships and locations
         $cookie = $tokensService->makeNewRefreshTokenCookie($token->getEmailAddress(), $description);
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
+        $redirectAddress = $token->getReturnAddress() ?? $applicationConfig->getWebHostname();
+
+        $response = new RedirectResponse($redirectAddress);
         $response->headers->setCookie($cookie);
 
         return $response;
@@ -71,11 +73,14 @@ class LoginEmailAction
         Swift_Mailer $mailer,
         ApplicationConfig $applicationConfig
     ) {
+        $referrer = $request->headers->get('Referer');
+
+        // todo - handle it differently it's an XHR request
         if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
             throw new BadRequestHttpException('Not a valid e-mail address');
         }
 
-        $token = $tokensService->getEmailLoginToken($emailAddress);
+        $token = $tokensService->getEmailLoginToken($emailAddress, $referrer);
 
 
         // todo - move this to an e-mail service or something
@@ -99,7 +104,7 @@ EMAIL;
             return new JsonResponse(['status' => 'ok']);
         }
 
-        // redirect to the application homepage, now that you're logged in
-        return new RedirectResponse($applicationConfig->getWebHostname() . '?mailsent');
+        // todo - differing response for XHR
+        return new RedirectResponse($applicationConfig->getWebHostname() . '/login?mailsent');
     }
 }

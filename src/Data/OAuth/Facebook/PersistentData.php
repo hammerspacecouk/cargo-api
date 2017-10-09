@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace App\Data\OAuth\Facebook;
 
-use App\Data\OAuth\SessionDataHandler;
+use App\Data\FlashDataStore;
 use Facebook\PersistentData\PersistentDataInterface;
 
 class PersistentData implements PersistentDataInterface
 {
     private $dataHandler;
 
-    public function __construct(SessionDataHandler $dataHandler)
+    public function __construct(FlashDataStore $dataHandler)
     {
         $this->dataHandler = $dataHandler;
     }

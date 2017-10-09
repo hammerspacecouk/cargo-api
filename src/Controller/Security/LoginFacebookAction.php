@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
-use App\Data\OAuth\SessionDataHandler;
+use App\Data\FlashDataStore;
 use App\Service\TokensService;
 use App\Service\UsersService;
 use Facebook\Exceptions\FacebookResponseException;
@@ -22,12 +22,14 @@ class LoginFacebookAction
 {
     use Traits\UserTokenTrait;
 
+    private const RETURN_ADDRESS_KEY = 'ra';
+
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
         Facebook $client,
-        SessionDataHandler $dataHandler,
+        FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
     ): Response {
@@ -44,16 +46,14 @@ class LoginFacebookAction
             );
             $logger->notice('[LOGIN] [FACEBOOK REQUEST]');
 
+            $referrer = $request->headers->get('Referer');
+            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
+
             $response = new RedirectResponse($loginUrl);
-            $response->headers->setCookie($dataHandler->makeCookie());
             return $response;
         }
 
         $logger->notice('[LOGIN] [FACEBOOK]');
-
-        // we got a response, let's repopulate the cookie stuffs
-        $dataHandler->setFromRequest($request);
-
         try {
             $accessToken = $helper->getAccessToken();
         } catch (FacebookResponseException | FacebookSDKException $e) {
@@ -88,7 +88,9 @@ class LoginFacebookAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($email, $description);
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
+        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
+
+        $response = new RedirectResponse($returnUrl);
         $response->headers->setCookie($cookie);
 
         return $response;

@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class LoginAction
 {
-    use Traits\UserTokenTrait;
-
     public function __invoke(
         Request $request
     ): JsonResponse {

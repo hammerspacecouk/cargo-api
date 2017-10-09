@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
+use App\Data\FlashDataStore;
 use App\Service\TokensService;
 use App\Service\UsersService;
 use Google_Client;
@@ -18,11 +19,14 @@ class LoginGoogleAction
 {
     use Traits\UserTokenTrait;
 
+    private const RETURN_ADDRESS_KEY = 'ra';
+
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
         Google_Client $client,
+        FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
     ): Response {
@@ -41,6 +45,8 @@ class LoginGoogleAction
 
         if (!$code) {
             $logger->notice('[LOGIN] [GOOGLE REQUEST]');
+            $referrer = $request->headers->get('Referer');
+            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
             return new RedirectResponse($client->createAuthUrl());
         }
 
@@ -55,7 +61,9 @@ class LoginGoogleAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($user->email, $description);
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
+        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
+
+        $response = new RedirectResponse($returnUrl);
         $response->headers->setCookie($cookie);
 
         return $response;

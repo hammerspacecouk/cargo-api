@@ -5,6 +5,7 @@ namespace App\Controller\Security;
 
 use Abraham\TwitterOAuth\TwitterOAuth;
 use App\Config\ApplicationConfig;
+use App\Data\FlashDataStore;
 use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -17,11 +18,14 @@ class LoginTwitterAction
 {
     use Traits\UserTokenTrait;
 
+    private const RETURN_ADDRESS_KEY = 'ra';
+
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
         TwitterOAuth $client,
+        FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
     ): Response {
@@ -39,6 +43,8 @@ class LoginTwitterAction
             );
 
             $url = $client->url('oauth/authorize', array('oauth_token' => $requestToken['oauth_token']));
+            $referrer = $request->headers->get('Referer');
+            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
             return new RedirectResponse($url);
         }
 
@@ -64,7 +70,9 @@ class LoginTwitterAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($userDetails->email, $description);
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
+        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
+
+        $response = new RedirectResponse($returnUrl);
         $response->headers->setCookie($cookie);
 
         return $response;

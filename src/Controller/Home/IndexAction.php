@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Home;
 
+use App\Data\FlashDataStore;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Service\ShipLocationsService;
@@ -14,6 +15,7 @@ class IndexAction
     // general status and stats of the game as a whole
     public function __invoke(
         ShipLocationsService $shipsLocationsService,
+        FlashDataStore $flashDataStore,
         LoggerInterface $logger
     ): JsonResponse {
 
@@ -34,6 +36,7 @@ class IndexAction
 
         return new JsonResponse([
             'status' => 'ok',
+            'messages' => $flashDataStore->readMessages(),
             'updates' => $shipsStatuses,
         ]);
     }

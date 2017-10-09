@@ -4,18 +4,15 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Config\ApplicationConfig;
-use App\Data\OAuth\SessionDataHandler;
+use App\Data\FlashDataStore;
 use App\Service\TokensService;
 use App\Service\UsersService;
-use Exception;
-use Facebook\Exceptions\FacebookResponseException;
-use Facebook\Exceptions\FacebookSDKException;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
+use Stevenmaguire\OAuth2\Client\Provider\MicrosoftResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -23,12 +20,14 @@ class LoginMicrosoftAction
 {
     use Traits\UserTokenTrait;
 
+    private const RETURN_ADDRESS_KEY = 'ra';
+
     public function __invoke(
         Request $request,
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
         Microsoft $client,
-        SessionDataHandler $dataHandler,
+        FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
     ): Response {
@@ -38,21 +37,19 @@ class LoginMicrosoftAction
 
         if (!$code) {
             $loginUrl = $client->getAuthorizationUrl();
-            $dataHandler->set('state', $client->getState());
+            $flashData->set('state', $client->getState());
             $logger->notice('[LOGIN] [MICROSOFT REQUEST]');
 
+            $referrer = $request->headers->get('Referer');
+            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
             $response = new RedirectResponse($loginUrl);
-            $response->headers->setCookie($dataHandler->makeCookie());
             return $response;
         }
 
         $logger->notice('[LOGIN] [MICROSOFT]');
 
-        // we got a response, let's repopulate the cookie stuffs
-        $dataHandler->setFromRequest($request);
-
         $state = $request->get('state');
-        if (!$state || $state !== $dataHandler->get('state')) {
+        if (!$state || $state !== $flashData->getOnce('state')) {
             throw new BadRequestHttpException('No state');
         }
 
@@ -60,6 +57,7 @@ class LoginMicrosoftAction
             'code' => $code,
         ]);
 
+        /** @var MicrosoftResourceOwner $user */
         $user = $client->getResourceOwner($token);
         $email = $user->getEmail();
 
@@ -71,7 +69,9 @@ class LoginMicrosoftAction
 
         $cookie = $tokensService->makeNewRefreshTokenCookie($email, $description);
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
+        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
+
+        $response = new RedirectResponse($returnUrl);
         $response->headers->setCookie($cookie);
 
         return $response;
