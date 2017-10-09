@@ -9,6 +9,7 @@ use App\Data\TokenHandler;
 use App\Domain\ValueObject\Message\Info;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class LogoutAction
 {
@@ -17,7 +18,7 @@ class LogoutAction
         FlashDataStore $flashData,
         TokenHandler $tokenHandler,
         ApplicationConfig $applicationConfig
-    ): RedirectResponse {
+    ): Response {
         // destroy all flash cookies
         $flashData->destroy();
 
