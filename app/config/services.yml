@@ -40,8 +40,8 @@ services:
         arguments:
             - app_id: '%env(OAUTH_FACEBOOK_APP_ID)%'
               app_secret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
-              persistent_data_handler: '@App\Data\Facebook\PersistentDataHandler'
-              http_client_handler: '@App\Data\Facebook\HttpClient'
+              persistent_data_handler: '@App\Data\Oauth\Facebook\PersistentData'
+              http_client_handler: '@App\Data\Oauth\Facebook\HttpClient'
 
     Abraham\TwitterOAuth\TwitterOAuth:
         class: Abraham\TwitterOAuth\TwitterOAuth
@@ -49,13 +49,20 @@ services:
             - '%env(OAUTH_TWITTER_API_KEY)%'
             - '%env(OAUTH_TWITTER_API_SECRET)%'
 
+    Stevenmaguire\OAuth2\Client\Provider\Microsoft:
+        class: Stevenmaguire\OAuth2\Client\Provider\Microsoft
+        arguments:
+            - clientId: '%env(OAUTH_MICROSOFT_APP_ID)%'
+              clientSecret: '%env(OAUTH_MICROSOFT_APP_SECRET)%'
+              redirectUri: '%env(OAUTH_MICROSOFT_APP_REDIRECT)%'
+
     GuzzleHttp\Client:
         class: GuzzleHttp\Client
 
     DateTimeZone:
         class: DateTimeZone
         arguments:
-            - "UTC" # Always UTC. Only do conversion at the very edge with the user
+            - 'UTC' # Always UTC. Only do conversion at the very edge with the user
 
     # Ensure that injected times are all the same instance
     DateTimeImmutable:

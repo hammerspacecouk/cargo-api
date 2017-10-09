@@ -7,10 +7,11 @@ use App\Config\ApplicationConfig;
 use App\Data\OAuth\SessionDataHandler;
 use App\Service\TokensService;
 use App\Service\UsersService;
+use Exception;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
-use Facebook\Facebook;
 use Psr\Log\LoggerInterface;
+use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class LoginFacebookAction
+class LoginMicrosoftAction
 {
     use Traits\UserTokenTrait;
 
@@ -26,7 +27,7 @@ class LoginFacebookAction
         Request $request,
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
-        Facebook $client,
+        Microsoft $client,
         SessionDataHandler $dataHandler,
         UsersService $usersService,
         LoggerInterface $logger
@@ -35,50 +36,32 @@ class LoginFacebookAction
 
         $code = $request->get('code');
 
-        $helper = $client->getRedirectLoginHelper();
-
         if (!$code) {
-            $loginUrl = $helper->getLoginUrl(
-                $applicationConfig->getApiHostname() . '/login/facebook',
-                ['email']
-            );
-            $logger->notice('[LOGIN] [FACEBOOK REQUEST]');
+            $loginUrl = $client->getAuthorizationUrl();
+            $dataHandler->set('state', $client->getState());
+            $logger->notice('[LOGIN] [MICROSOFT REQUEST]');
 
             $response = new RedirectResponse($loginUrl);
             $response->headers->setCookie($dataHandler->makeCookie());
             return $response;
         }
 
-        $logger->notice('[LOGIN] [FACEBOOK]');
+        $logger->notice('[LOGIN] [MICROSOFT]');
 
         // we got a response, let's repopulate the cookie stuffs
         $dataHandler->setFromRequest($request);
 
-        try {
-            $accessToken = $helper->getAccessToken();
-        } catch (FacebookResponseException | FacebookSDKException $e) {
-            $logger->error($e->getMessage());
-            throw new AccessDeniedHttpException('Error validating login');
+        $state = $request->get('state');
+        if (!$state || $state !== $dataHandler->get('state')) {
+            throw new BadRequestHttpException('No state');
         }
 
-        if (!isset($accessToken)) {
-            if ($helper->getError()) {
-                $logger->error($helper->getErrorReason() . $helper->getErrorDescription());
-                throw new UnauthorizedHttpException($helper->getError());
-            } else {
-                throw new BadRequestHttpException();
-            }
-        }
+        $token = $client->getAccessToken('authorization_code', [
+            'code' => $code,
+        ]);
 
-        // OAuth 2.0 client handler
-        $oAuth2Client = $client->getOAuth2Client();
-
-        $longLivedAccessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
-        $client->setDefaultAccessToken($longLivedAccessToken);
-
-        $response = $client->get('/me?fields=email');
-        $graphObject = $response->getGraphNode();
-        $email = $graphObject->getField('email');
+        $user = $client->getResourceOwner($token);
+        $email = $user->getEmail();
 
         if (empty($email)) {
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');

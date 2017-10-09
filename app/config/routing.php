@@ -29,6 +29,9 @@ $collection->add('login_facebook', new Route('/login/facebook', [
 $collection->add('login_google', new Route('/login/google', [
     '_controller' => Controller\Security\LoginGoogleAction::class,
 ]));
+$collection->add('login_microsoft', new Route('/login/microsoft', [
+    '_controller' => Controller\Security\LoginMicrosoftAction::class,
+]));
 $collection->add('login_twitter', new Route('/login/twitter', [
     '_controller' => Controller\Security\LoginTwitterAction::class,
 ]));

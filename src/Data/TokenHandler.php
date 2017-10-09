@@ -221,18 +221,6 @@ class TokenHandler
         ]);
     }
 
-    private function getBearerToken(Request $request): ?string
-    {
-        $authHeader = $request->headers->get('Authorization');
-        if ($authHeader) {
-            $parts = explode(' ', trim($authHeader));
-            if ($parts[0] === 'Bearer' && isset($parts[1])) {
-                return $parts[1];
-            }
-        }
-        return null;
-    }
-
     public function parseTokenFromString(
         string $tokenString,
         $checkIfInvalidated = true
@@ -261,6 +249,18 @@ class TokenHandler
             throw new InvalidTokenException('Token was tampered with or expired');
         }
         return $token;
+    }
+
+    private function getBearerToken(Request $request): ?string
+    {
+        $authHeader = $request->headers->get('Authorization');
+        if ($authHeader) {
+            $parts = explode(' ', trim($authHeader));
+            if ($parts[0] === 'Bearer' && isset($parts[1])) {
+                return $parts[1];
+            }
+        }
+        return null;
     }
 
     private function uuidFromToken(

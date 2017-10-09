@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Data\Facebook;
+namespace App\Data\OAuth\Facebook;
 
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Http\GraphRawResponse;

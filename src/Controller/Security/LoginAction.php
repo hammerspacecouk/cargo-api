@@ -15,8 +15,10 @@ class LoginAction
     ): JsonResponse {
         return new JsonResponse([
             'email' => '/login/email',
-            'google' => '/login/google',
             'facebook' => '/login/facebook',
+            'google' => '/login/google',
+            'microsoft' => '/login/microsoft',
+            'twitter' => '/login/twitter',
         ]);
     }
 }
