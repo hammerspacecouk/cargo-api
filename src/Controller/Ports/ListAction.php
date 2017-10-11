@@ -35,7 +35,7 @@ class ListAction
             'pagination' => $pagination,
             'items' => $items,
         ]);
-        $r->setMaxAge(20);
+        $r->setMaxAge(30);
         $r->setPublic();
         return $r;
     }

@@ -20,6 +20,11 @@ class ShowAction
 
         $logger->debug(__CLASS__);
         $port = $this->getPort($request, $portsService);
-        return new JsonResponse($port);
+        $r = new JsonResponse($port);
+
+        // todo - abstract PublicResponse
+        $r->setMaxAge(600);
+        $r->setPublic();
+        return $r;
     }
 }

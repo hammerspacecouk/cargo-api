@@ -27,8 +27,6 @@ trait UserTokenTrait
 
             // store updated cookie values
             $this->cookies = $token->getCookies();
-
-            // todo - catch no refresh token (and bounce to login)
         } catch (MissingTokenException $e) {
             throw new AccessDeniedHttpException('No valid credentials provided. Token may have expired');
         } catch (InvalidTokenException | InvalidUuidStringException $e) {
