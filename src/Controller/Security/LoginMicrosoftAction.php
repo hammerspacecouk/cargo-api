@@ -3,11 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Config\ApplicationConfig;
-use App\Data\FlashDataStore;
-use App\Service\TokensService;
-use App\Service\UsersService;
-use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
 use Stevenmaguire\OAuth2\Client\Provider\MicrosoftResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,40 +11,28 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class LoginMicrosoftAction
+class LoginMicrosoftAction extends AbstractLoginAction
 {
-    use Traits\UserTokenTrait;
-
-    private const RETURN_ADDRESS_KEY = 'ra';
-
     public function __invoke(
         Request $request,
-        ApplicationConfig $applicationConfig,
-        TokensService $tokensService,
-        Microsoft $client,
-        FlashDataStore $flashData,
-        UsersService $usersService,
-        LoggerInterface $logger
+        Microsoft $client
     ): Response {
-        $logger->debug(__CLASS__);
+        $this->logger->debug(__CLASS__);
 
         $code = $request->get('code');
 
         if (!$code) {
             $loginUrl = $client->getAuthorizationUrl();
-            $flashData->set('state', $client->getState());
-            $logger->notice('[LOGIN] [MICROSOFT REQUEST]');
-
-            $referrer = $request->headers->get('Referer');
-            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
-            $response = new RedirectResponse($loginUrl);
-            return $response;
+            $this->flashData->set('state', $client->getState());
+            $this->logger->notice('[LOGIN] [MICROSOFT REQUEST]');
+            $this->setReturnAddress($request);
+            return new RedirectResponse($loginUrl);
         }
 
-        $logger->notice('[LOGIN] [MICROSOFT]');
+        $this->logger->notice('[LOGIN] [MICROSOFT]');
 
         $state = $request->get('state');
-        if (!$state || $state !== $flashData->getOnce('state')) {
+        if (!$state || $state !== $this->flashData->getOnce('state')) {
             throw new BadRequestHttpException('No state');
         }
 
@@ -65,15 +48,6 @@ class LoginMicrosoftAction
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
         }
 
-        $description = $request->headers->get('User-Agent', 'Unknown');
-
-        $cookie = $tokensService->makeNewRefreshTokenCookie($email, $description);
-
-        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
-
-        $response = new RedirectResponse($returnUrl);
-        $response->headers->setCookie($cookie);
-
-        return $response;
+        return $this->getLoginResponse($request, $email);
     }
 }

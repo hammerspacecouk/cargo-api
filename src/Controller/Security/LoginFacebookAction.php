@@ -3,14 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Config\ApplicationConfig;
-use App\Data\FlashDataStore;
-use App\Service\TokensService;
-use App\Service\UsersService;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,22 +13,13 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class LoginFacebookAction
+class LoginFacebookAction extends AbstractLoginAction
 {
-    use Traits\UserTokenTrait;
-
-    private const RETURN_ADDRESS_KEY = 'ra';
-
     public function __invoke(
         Request $request,
-        ApplicationConfig $applicationConfig,
-        TokensService $tokensService,
-        Facebook $client,
-        FlashDataStore $flashData,
-        UsersService $usersService,
-        LoggerInterface $logger
+        Facebook $client
     ): Response {
-        $logger->debug(__CLASS__);
+        $this->logger->debug(__CLASS__);
 
         $code = $request->get('code');
 
@@ -41,29 +27,25 @@ class LoginFacebookAction
 
         if (!$code) {
             $loginUrl = $helper->getLoginUrl(
-                $applicationConfig->getApiHostname() . '/login/facebook',
+                $this->applicationConfig->getApiHostname() . '/login/facebook',
                 ['email']
             );
-            $logger->notice('[LOGIN] [FACEBOOK REQUEST]');
-
-            $referrer = $request->headers->get('Referer');
-            $flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
-
-            $response = new RedirectResponse($loginUrl);
-            return $response;
+            $this->logger->notice('[LOGIN] [FACEBOOK REQUEST]');
+            $this->setReturnAddress($request);
+            return new RedirectResponse($loginUrl);
         }
 
-        $logger->notice('[LOGIN] [FACEBOOK]');
+        $this->logger->notice('[LOGIN] [FACEBOOK]');
         try {
             $accessToken = $helper->getAccessToken();
         } catch (FacebookResponseException | FacebookSDKException $e) {
-            $logger->error($e->getMessage());
+            $this->logger->error($e->getMessage());
             throw new AccessDeniedHttpException('Error validating login');
         }
 
         if (!isset($accessToken)) {
             if ($helper->getError()) {
-                $logger->error($helper->getErrorReason() . $helper->getErrorDescription());
+                $this->logger->error($helper->getErrorReason() . $helper->getErrorDescription());
                 throw new UnauthorizedHttpException($helper->getError());
             } else {
                 throw new BadRequestHttpException();
@@ -84,15 +66,6 @@ class LoginFacebookAction
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
         }
 
-        $description = $request->headers->get('User-Agent', 'Unknown');
-
-        $cookie = $tokensService->makeNewRefreshTokenCookie($email, $description);
-
-        $returnUrl = $flashData->getOnce(self::RETURN_ADDRESS_KEY) ?? $applicationConfig->getWebHostname();
-
-        $response = new RedirectResponse($returnUrl);
-        $response->headers->setCookie($cookie);
-
-        return $response;
+        return $this->getLoginResponse($request, $email);
     }
 }

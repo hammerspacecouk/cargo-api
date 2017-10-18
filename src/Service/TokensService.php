@@ -74,13 +74,11 @@ class TokensService extends AbstractService
     // Parse tokens
 
     public function getEmailLoginToken(
-        string $emailAddress,
-        string $returnAddress = null
+        string $emailAddress
     ): EmailLoginToken {
         $token = $this->tokenHandler->makeToken(
             EmailLoginToken::makeClaims(
-                $emailAddress,
-                $returnAddress
+                $emailAddress
             ),
             null,
             TokenHandler::EXPIRY_EMAIL_LOGIN
