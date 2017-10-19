@@ -21,6 +21,12 @@ class CheckLoginAction
 
         $response = new JsonResponse([
             'id' => (string) $userId,
+            'score' => [
+                // todo - real values with a real Score object
+                'value' => rand(0,1000),
+                'rate' => round(rand(0,500)/9.8, 2),
+                'time' => (new \DateTimeImmutable())->format('c'),
+            ],
             'cookies' => array_map(function (Cookie $cookie) {
                 $opts = [
                     'domain' => $cookie->getDomain(),
