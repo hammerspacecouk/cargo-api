@@ -6,6 +6,7 @@ namespace App\Controller\Security;
 use App\Config\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Data\TokenHandler;
+use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Message\Info;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,14 @@ class LogoutAction
         TokenHandler $tokenHandler,
         ApplicationConfig $applicationConfig
     ): Response {
+        try {
+            // remove the refresh token
+            $refreshToken = $tokenHandler->getRefreshTokenFromRequest($request);
+            $tokenHandler->expireToken($refreshToken->getOriginalToken());
+        } catch (TokenException $e) {
+            // if the token was invalid or expired, then just carry on clearing the session
+        }
+
         // destroy all flash cookies
         $flashData->destroy();
 

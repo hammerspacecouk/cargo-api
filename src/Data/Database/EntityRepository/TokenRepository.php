@@ -11,6 +11,19 @@ use Ramsey\Uuid\UuidInterface;
 
 class TokenRepository extends AbstractEntityRepository
 {
+    public function findUnexpiredById(
+        UuidInterface $tokenId,
+        $resultType = Query::HYDRATE_ARRAY) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.id = :id')
+            ->andWhere('tbl.expiry > :now')
+            ->setParameter('id', $tokenId->getBytes())
+            ->setParameter('now', $this->currentTime)
+        ;
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
     public function findRefreshTokenWithUser(
         UuidInterface $tokenId,
         $resultType = Query::HYDRATE_ARRAY
@@ -20,8 +33,11 @@ class TokenRepository extends AbstractEntityRepository
             ->join('tbl.user', 'u')
             ->where('tbl.id = :id')
             ->andWhere('tbl.type = :type')
+            ->andWhere('tbl.expiry > :now')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('type', TokenEntity::TYPE_REFRESH);
+            ->setParameter('type', TokenEntity::TYPE_REFRESH)
+            ->setParameter('now', $this->currentTime)
+        ;
 
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }

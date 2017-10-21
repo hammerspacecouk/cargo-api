@@ -6,6 +6,7 @@ namespace App\Data;
 use App\Config\TokenConfig;
 use App\Data\Database\Entity\Token as DbToken;
 use App\Data\Database\EntityManager;
+use App\Domain\Exception\ExpiredTokenException;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\Exception\MissingTokenException;
 use App\Domain\ValueObject\Token\AccessToken;
@@ -125,6 +126,18 @@ class TokenHandler
         return $builder->getToken();
     }
 
+    public function getRefreshTokenFromRequest(Request $request): RefreshToken
+    {
+        // check to see if it has a valid refresh token
+        $refreshToken = $request->cookies->get(self::COOKIE_REFRESH_NAME);
+        if (!$refreshToken) {
+            throw new MissingTokenException('No access or refresh token found');
+        }
+
+        // fetch the token from the DB to check it exists (and the user exists)
+        return new RefreshToken($this->parseTokenFromString($refreshToken, false));
+    }
+
     public function getAccessTokenFromRequest(Request $request): AccessToken
     {
         // check to see if the request already has an access token
@@ -149,14 +162,7 @@ class TokenHandler
             }
         }
 
-        // check to see if it has a valid refresh token
-        $refreshToken = $request->cookies->get(self::COOKIE_REFRESH_NAME);
-        if (!$refreshToken) {
-            throw new MissingTokenException('No access or refresh token found');
-        }
-
-        // fetch the token from the DB to check it exists (and the user exists)
-        $refreshToken = new RefreshToken($this->parseTokenFromString($refreshToken, false));
+        $refreshToken = $this->getRefreshTokenFromRequest($request);
 
         /** @var DbToken $tokenEntity */
         $tokenEntity = $this->entityManager->getTokenRepo()->findRefreshTokenWithUser(
@@ -217,7 +223,7 @@ class TokenHandler
         if (!$token->verify($signer, $this->tokenConfig->getPrivateKey()) ||
             !$token->validate($data)
         ) {
-            throw new InvalidTokenException('Token was tampered with or expired');
+            throw new ExpiredTokenException('Token was tampered with or expired');
         }
         return $token;
     }
@@ -313,6 +319,23 @@ class TokenHandler
             $this->uuidFromToken($token),
             $this->expiryFromToken($token)
         );
+    }
+
+    public function expireToken(Token $token): void
+    {
+        $tokenEntity = $this->entityManager->getTokenRepo()->findUnexpiredById(
+            $this->uuidFromToken($token),
+            Query::HYDRATE_OBJECT
+        );
+        if (!$tokenEntity) {
+            // a token that doesn't exist has already expired. nothing to do
+            return;
+        }
+
+        $tokenEntity->lastUpdate = $this->currentTime;
+        $tokenEntity->expiry = $this->currentTime;
+        $this->entityManager->persist($tokenEntity);
+        $this->entityManager->flush();
     }
 
     private function expiryFromToken(

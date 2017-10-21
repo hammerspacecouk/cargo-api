@@ -3,6 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Exception;
 
-class MissingTokenException extends \Exception
+class MissingTokenException extends TokenException
 {
 }

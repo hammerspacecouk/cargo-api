@@ -4,13 +4,10 @@ declare(strict_types=1);
 namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
-use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager as DoctrineEntityManager;
 use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityRepository as DoctrineEntityRepository;
-use Doctrine\ORM\ORMException;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
@@ -48,11 +45,6 @@ class EntityManager extends DoctrineEntityManager
         parent::persist($entity);
     }
 
-    public function getChannelRepo(): EntityRepository\ChannelRepository
-    {
-        return $this->getRepository(Entity\Channel::class);
-    }
-
     public function getRepository($entityName)
     {
         /** @var AbstractEntityRepository $repo */
@@ -64,6 +56,11 @@ class EntityManager extends DoctrineEntityManager
         $repo->setLogger($this->logger);
 
         return $repo;
+    }
+
+    public function getChannelRepo(): EntityRepository\ChannelRepository
+    {
+        return $this->getRepository(Entity\Channel::class);
     }
 
     public function getCrateRepo(): EntityRepository\CrateRepository
