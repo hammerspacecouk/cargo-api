@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Data\TokenHandler;
 use App\Domain\Exception\TokenException;

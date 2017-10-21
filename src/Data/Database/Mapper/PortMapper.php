@@ -11,7 +11,8 @@ class PortMapper extends Mapper
     {
         $domainEntity = new Port(
             $item['id'],
-            $item['name']
+            $item['name'],
+            $item['isSafeHaven']
         );
         return $domainEntity;
     }

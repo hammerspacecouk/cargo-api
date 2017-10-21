@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Maintenance;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;

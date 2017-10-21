@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Config;
+namespace App\Infrastructure;
 
 class ApplicationConfig
 {
@@ -11,6 +11,8 @@ class ApplicationConfig
     private $distanceMultiplier;
     private $emailFromName;
     private $emailFromAddress;
+    private $tokenPrivateKey;
+    private $tokenIssuer;
 
     public function __construct(
         string $hostnameApi,
@@ -18,7 +20,9 @@ class ApplicationConfig
         string $cookieScope,
         float $distanceMultiplier,
         string $emailFromName,
-        string $emailFromAddress
+        string $emailFromAddress,
+        string $tokenPrivateKey,
+        string $tokenIssuer
     ) {
         $this->hostnameApi = $hostnameApi;
         $this->hostnameWeb = $hostnameWeb;
@@ -26,6 +30,8 @@ class ApplicationConfig
         $this->distanceMultiplier = $distanceMultiplier;
         $this->emailFromName = $emailFromName;
         $this->emailFromAddress = $emailFromAddress;
+        $this->tokenPrivateKey = $tokenPrivateKey;
+        $this->tokenIssuer = $tokenIssuer;
     }
 
     public function getApiHostname(): string
@@ -56,5 +62,15 @@ class ApplicationConfig
     public function getEmailFromAddress(): string
     {
         return $this->emailFromAddress;
+    }
+
+    public function getTokenPrivateKey(): string
+    {
+        return $this->tokenPrivateKey;
+    }
+
+    public function getTokenIssuer(): string
+    {
+        return $this->tokenIssuer;
     }
 }

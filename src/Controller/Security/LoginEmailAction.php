@@ -26,7 +26,7 @@ class LoginEmailAction extends AbstractLoginAction
             return $this->processLogin($request, $token);
         }
         if ($target) {
-            $this->logger->notice('[LOGIN] [EMAIL_REQUEST]');
+            $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
             return $this->sendEmail($request, $target, $mailer);
         }
 

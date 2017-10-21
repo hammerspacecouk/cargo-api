@@ -75,12 +75,8 @@ $collection->add('play_status', new Route('/play', [
     '_controller' => Controller\Play\IndexAction::class,
 ]));
 
-$collection->add('play_positions', new Route('/play/ships', [
-    '_controller' => Controller\Play\Ships\ListAction::class,
-]));
-
-$collection->add('play_positions_ship', new Route('/play/ships/{uuid}', [
-    '_controller' => Controller\Play\Ships\ShowAction::class,
+$collection->add('play_positions_ship', new Route('/play/{uuid}', [
+    '_controller' => Controller\Play\ShipAction::class,
 ]));
 
 // actions

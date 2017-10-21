@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 use App\Domain\ValueObject\Message\Message;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\App\Config;
+namespace Tests\App\Infrastructure;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 
 class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
 {
@@ -15,7 +15,9 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
             $cookieScope = '*.www.example.com',
             $distanceMultiplier = 10.0,
             $fromName = 'From',
-            $fromAddress = 'from@example.com'
+            $fromAddress = 'from@example.com',
+            $tokenPrivateKey = 'aaaabbbbb',
+            $tokenIssuer = 'https://example.com'
         );
 
         $this->assertSame($hostnameApi, $config->getApiHostname());
@@ -24,5 +26,7 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($distanceMultiplier, $config->getDistanceMultiplier());
         $this->assertSame($fromName, $config->getEmailFromName());
         $this->assertSame($fromAddress, $config->getEmailFromAddress());
+        $this->assertSame($tokenPrivateKey, $config->getTokenPrivateKey());
+        $this->assertSame($tokenIssuer, $config->getTokenIssuer());
     }
 }

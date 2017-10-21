@@ -24,7 +24,7 @@ class LoginMicrosoftAction extends AbstractLoginAction
         if (!$code) {
             $loginUrl = $client->getAuthorizationUrl();
             $this->flashData->set('state', $client->getState());
-            $this->logger->notice('[LOGIN] [MICROSOFT REQUEST]');
+            $this->logger->notice('[LOGIN REQUEST] [MICROSOFT]');
             $this->setReturnAddress($request);
             return new RedirectResponse($loginUrl);
         }

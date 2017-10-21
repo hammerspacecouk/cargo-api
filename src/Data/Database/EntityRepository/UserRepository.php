@@ -6,12 +6,19 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\User;
 use App\Data\ID;
 use App\Domain\ValueObject\Bearing;
+use Doctrine\ORM\Query;
 
 class UserRepository extends AbstractEntityRepository
 {
-    public function getByEmail(string $email): ?User
-    {
-        return $this->findOneBy(['email' => $email]);
+    public function getByEmail(
+        string $email,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.email = :email')
+            ->setParameter('email', $email);
+        return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
     public function createByEmail(string $email): User

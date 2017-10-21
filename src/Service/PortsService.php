@@ -3,16 +3,48 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\Channel;
-use App\Data\Database\Entity\Port;
-use App\Data\ID;
-use App\Domain\Entity\Port as PortEntity;
-use App\Domain\ValueObject\Bearing;
+use App\Data\Database\Entity\Port as DbPort;
+use App\Data\Database\Entity\User as DbUser;
+use App\Data\Database\Mapper\PortMapper;
+use App\Domain\Entity\Port;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class PortsService extends AbstractService
 {
+    private $portMapper;
+
+    public function getByID(
+        UuidInterface $uuid
+    ): ?Port {
+
+        return $this->mapSingle(
+            $this->entityManager->getPortRepo()->getByID($uuid)
+        );
+    }
+
+    public function countAll()
+    {
+        $qb = $this->getQueryBuilder(DbPort::class)
+            ->where(self::TBL . '.isOpen = true')
+            ->select('count(1)');
+        ;
+
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findAll(
+        int $limit,
+        int $page = 1
+    ): array {
+        $qb = $this->getQueryBuilder(DbPort::class)
+            ->where(self::TBL . '.isOpen = true')
+            ->setMaxResults($limit)
+            ->setFirstResult($this->getOffset($limit, $page));
+
+        return $this->mapMany($qb->getQuery()->getArrayResult());
+    }
+
 //    public function makeChannelBetween(
 //        UuidInterface $fromId,
 //        UuidInterface $toId,
@@ -40,45 +72,42 @@ class PortsService extends AbstractService
 //        $this->entityManager->flush();
 //    }
 
-    public function countAll()
-    {
-        $qb = $this->getQueryBuilder(Port::class)
-            ->select('count(1)');
-        ;
 
-        return (int)$qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function findAll(
-        int $limit,
-        int $page = 1
-    ): array {
-        $qb = $this->getQueryBuilder(Port::class)
-            ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page));
-
-        $mapper = $this->mapperFactory->createPortMapper();
-
-        $results = $qb->getQuery()->getArrayResult();
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getPort($result);
-        }, $results);
-    }
-
-    public function getByID(
-        UuidInterface $uuid
-    ): ?PortEntity {
-    
-        $qb = $this->getQueryBuilder(Port::class)
+    public function findHomePortForUserId(
+        UuidInterface $userId
+    ): ?Port {
+        $qb = $this->getQueryBuilder(DbUser::class)
+            ->select('tbl', 'p')
+            ->innerJoin('tbl.homePort', 'p')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes());
+            ->setParameter('id', $userId->getBytes());
 
-        $results = $qb->getQuery()->getArrayResult();
-        if (empty($results)) {
+        $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+
+        return $this->mapSingle($result['homePort']);
+    }
+
+    private function getMapper(): PortMapper
+    {
+        if (!$this->portMapper) {
+            $this->portMapper = $this->mapperFactory->createPortMapper();
+        }
+        return $this->portMapper;
+    }
+
+    private function mapSingle(?array $result): ?Port
+    {
+        if (!$result) {
             return null;
         }
+        return $this->getMapper()->getPort($result);
+    }
 
-        $mapper = $this->mapperFactory->createPortMapper();
-        return $mapper->getPort($results[0]);
+    /**
+     * @return Port[]
+     */
+    private function mapMany(array $results): array
+    {
+        return array_map(['self', 'mapSingle'], $results);
     }
 }

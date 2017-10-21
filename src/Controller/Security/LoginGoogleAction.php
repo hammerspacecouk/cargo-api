@@ -30,7 +30,7 @@ class LoginGoogleAction extends AbstractLoginAction
         $client->addScope(Google_Service_Oauth2::USERINFO_EMAIL);
 
         if (!$code) {
-            $this->logger->notice('[LOGIN] [GOOGLE REQUEST]');
+            $this->logger->notice('[LOGIN REQUEST] [GOOGLE]');
             $this->setReturnAddress($request);
             return new RedirectResponse($client->createAuthUrl());
         }

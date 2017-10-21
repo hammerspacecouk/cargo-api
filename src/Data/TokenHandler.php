@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Config\TokenConfig;
+use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\Entity\Token as DbToken;
 use App\Data\Database\EntityManager;
 use App\Domain\Exception\ExpiredTokenException;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\Exception\MissingTokenException;
+use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\RefreshToken;
 use DateInterval;
@@ -40,7 +41,7 @@ class TokenHandler
     private const COOKIE_REFRESH_NAME = 'refresh_token';
     private const COOKIE_ACCESS_NAME = 'access_token';
 
-    private $tokenConfig;
+    private $applicationConfig;
     private $currentTime;
     private $entityManager;
     private $logger;
@@ -48,11 +49,11 @@ class TokenHandler
     public function __construct(
         EntityManager $entityManager,
         DateTimeImmutable $currentTime,
-        TokenConfig $tokenConfig,
+        ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
     
-        $this->tokenConfig = $tokenConfig;
+        $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
         $this->currentTime = $currentTime;
         $this->logger = $logger;
@@ -71,7 +72,7 @@ class TokenHandler
         $this->entityManager->getConnection()->beginTransaction();
         try {
             $userRepo = $this->entityManager->getUserRepo();
-            $user = $userRepo->getByEmail($emailAddress);
+            $user = $userRepo->getByEmail($emailAddress, Query::HYDRATE_OBJECT);
             if (!$user) {
                 $this->logger->notice('[NEW PLAYER] Creating a new player');
                 $user = $userRepo->createByEmail($emailAddress);
@@ -121,7 +122,7 @@ class TokenHandler
         }
 
         // Now that all the data is present we can sign it
-        $builder->sign($signer, $this->tokenConfig->getPrivateKey());
+        $builder->sign($signer, $this->applicationConfig->getTokenPrivateKey());
 
         return $builder->getToken();
     }
@@ -157,7 +158,7 @@ class TokenHandler
                 // generate an access cookie
                 $accessCookie = $this->makeAccessCookie($accessToken);
                 return new AccessToken($accessToken, [$accessCookie]);
-            } catch (InvalidTokenException $e) {
+            } catch (TokenException $e) {
                 // ignore this token and carry on to try the refresh token
             }
         }
@@ -220,7 +221,7 @@ class TokenHandler
         }
 
         $signer = new Sha256();
-        if (!$token->verify($signer, $this->tokenConfig->getPrivateKey()) ||
+        if (!$token->verify($signer, $this->applicationConfig->getTokenPrivateKey()) ||
             !$token->validate($data)
         ) {
             throw new ExpiredTokenException('Token was tampered with or expired');
@@ -230,8 +231,8 @@ class TokenHandler
 
     public function clearCookiesFromResponse(Response $response): Response
     {
-        $response->headers->clearCookie(self::COOKIE_ACCESS_NAME, '/', $this->tokenConfig->getCookieScope());
-        $response->headers->clearCookie(self::COOKIE_REFRESH_NAME, '/', $this->tokenConfig->getCookieScope());
+        $response->headers->clearCookie(self::COOKIE_ACCESS_NAME, '/', $this->applicationConfig->getCookieScope());
+        $response->headers->clearCookie(self::COOKIE_REFRESH_NAME, '/', $this->applicationConfig->getCookieScope());
         return $response;
     }
 
@@ -260,7 +261,7 @@ class TokenHandler
             $content,
             $expire,
             '/',
-            $this->tokenConfig->getCookieScope(),
+            $this->applicationConfig->getCookieScope(),
             false, // secureCookie - todo - be true as often as possible
             true // httpOnly
         );

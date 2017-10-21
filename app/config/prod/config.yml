@@ -10,7 +10,7 @@ parameters:
 framework:
     secret: 'ToDOSetARealSecret'
     router:
-        resource: '%kernel.project_dir%/config/routing.php'
+        resource: "%kernel.project_dir%/app/config/routing.php"
         strict_requirements: true
 
 # Doctrine Configuration

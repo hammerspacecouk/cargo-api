@@ -30,7 +30,7 @@ class LoginFacebookAction extends AbstractLoginAction
                 $this->applicationConfig->getApiHostname() . '/login/facebook',
                 ['email']
             );
-            $this->logger->notice('[LOGIN] [FACEBOOK REQUEST]');
+            $this->logger->notice('[LOGIN REQUEST] [FACEBOOK]');
             $this->setReturnAddress($request);
             return new RedirectResponse($loginUrl);
         }

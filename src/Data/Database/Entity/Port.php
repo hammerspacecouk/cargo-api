@@ -22,17 +22,30 @@ class Port extends AbstractEntity
     public $isSafeHaven = false;
 
     /** @ORM\Column(type="boolean") */
+    public $isDestination = false;
+
+    /** @ORM\Column(type="boolean") */
     public $isOpen = true;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Cluster")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    public $cluster;
 
     public function __construct(
         UuidInterface $id,
         string $name,
+        ?Cluster $cluster,
         bool $isSafeHaven,
+        bool $isDestination,
         bool $isOpen
     ) {
         parent::__construct($id);
         $this->name = $name;
+        $this->cluster = $cluster;
         $this->isSafeHaven = $isSafeHaven;
+        $this->isDestination = $isDestination;
         $this->isOpen = $isOpen;
     }
 }

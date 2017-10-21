@@ -10,11 +10,10 @@ services:
             - { name: 'kernel.event_subscriber' }
 
     App\:
-        resource: '../../src/*'
-        exclude: '../../src/Data/Database/Entity/*'
-        exclude: '../../src/Domain/*'
+        resource: '../../../src/*'
+        exclude:  '../../../src/{Data/Database/Entity/*,Domain/*}'
 
-    App\Config\ApplicationConfig:
+    App\Infrastructure\ApplicationConfig:
         arguments:
             - '%hostname_api%'
             - '%hostname_web%'
@@ -22,15 +21,11 @@ services:
             - '%distance_multiplier%'
             - "%env(MAILER_FROM_NAME)%"
             - "%env(MAILER_FROM_ADDRESS)%"
-
-    App\Config\TokenConfig:
-        arguments:
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(TOKEN_ISSUER)%'
-            - '%cookie_scope%'
 
     App\Controller\:
-        resource: '../../src/Controller/'
+        resource: '../../../src/Controller/'
         public: true
         tags: ['controller.service_arguments']
 
@@ -45,8 +40,8 @@ services:
         arguments:
             - app_id: '%env(OAUTH_FACEBOOK_APP_ID)%'
               app_secret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
-              persistent_data_handler: '@App\Data\Oauth\Facebook\PersistentData'
-              http_client_handler: '@App\Data\Oauth\Facebook\HttpClient'
+              persistent_data_handler: '@App\Data\OAuth\Facebook\PersistentData'
+              http_client_handler: '@App\Data\OAuth\Facebook\HttpClient'
 
     Abraham\TwitterOAuth\TwitterOAuth:
         class: Abraham\TwitterOAuth\TwitterOAuth
@@ -74,9 +69,12 @@ services:
         class: DateTimeImmutable
         arguments:
             - "now"
-            - '@DateTimeZone'
+            - "@DateTimeZone"
 
-    Psr\SimpleCache\CacheInterface:
+    Roave\DoctrineSimpleCache\SimpleCacheAdapter:
         class: Roave\DoctrineSimpleCache\SimpleCacheAdapter
         arguments:
             - "@doctrine_cache.providers.data_cache"
+
+    Psr\SimpleCache\CacheInterface:
+        class: App\Infrastructure\Cache

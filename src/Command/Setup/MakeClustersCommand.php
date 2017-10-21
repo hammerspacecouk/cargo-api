@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Command\ParseCSVTrait;
+use App\Data\Database\Entity\Cluster;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MakePortsCommand extends Command
+class MakeClustersCommand extends Command
 {
     use ParseCSVTrait;
 
@@ -29,8 +30,8 @@ class MakePortsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:init:make-ports')
-            ->setDescription('Creates all the ports from the source data')
+            ->setName('game:init:make-clusters')
+            ->setDescription('Creates the clusters from the source data')
             ->addArgument(
                 'inputList',
                 InputArgument::REQUIRED,
@@ -42,7 +43,7 @@ class MakePortsCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $output->writeln('Making or updating the ports');
+        $output->writeln('Making or updating the clusters');
 
         $filePath = $input->getArgument('inputList');
         $sourceData = $this->csvToArray($filePath);
@@ -53,33 +54,21 @@ class MakePortsCommand extends Command
         foreach ($sourceData as $data) {
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
-            $isSafeHaven = (bool)$data['isSafeHaven'];
-            $isOpen = (bool)$data['isOpen'];
-            $isDestination = (bool)$data['isDestination'];
 
-            $cluster = null;
-            if ($data['cluster']) {
-                $clusterId = Uuid::fromString($data['cluster']);
-                $cluster = $this->entityManager->getClusterRepo()->getByID($clusterId, Query::HYDRATE_OBJECT);
+            if (empty($name)) {
+                $progress->advance();
+                continue;
             }
 
             /** @var Port $entity */
-            $entity = $this->entityManager->getPortRepo()->getByID($id, Query::HYDRATE_OBJECT);
+            $entity = $this->entityManager->getClusterRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
             if ($entity) {
                 $entity->name = $name;
-                $entity->cluster = $cluster;
-                $entity->isSafeHaven = $isSafeHaven;
-                $entity->isOpen = $isOpen;
-                $entity->isDestination = $isDestination;
             } else {
-                $entity = new Port(
+                $entity = new Cluster(
                     $id,
-                    $name,
-                    $cluster,
-                    $isSafeHaven,
-                    $isOpen,
-                    $isDestination
+                    $name
                 );
             }
 

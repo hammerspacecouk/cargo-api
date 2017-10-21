@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Data\Database\Entity\Channel;
+use App\Data\Database\Entity\Cluster;
 use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Dictionary;
@@ -24,6 +25,7 @@ class ID
 {
     private const ENTITY_MAPPINGS = [
         Channel::class => 'bd99',
+        Cluster::class => 'c1c1',
         Crate::class => 'ca4e',
         CrateLocation::class => 'dd57',
         Dictionary::class => 'dddd',

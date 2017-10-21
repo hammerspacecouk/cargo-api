@@ -21,18 +21,21 @@ class Kernel extends SymfonyKernel
     public const ENV_DEV = 'dev';
     public const ENV_ALPHA = 'alpha';
     public const ENV_BETA = 'beta';
-    public const ENV_PROD = '';
+    public const ENV_PROD = 'prod';
 
     public function __construct(string $environment, bool $debug)
     {
+        if (empty($environment)) {
+            $environment = self::ENV_PROD;
+        }
         parent::__construct($environment, $debug);
 
         date_default_timezone_set('UTC'); // servers should always be UTC
 
-        if ($environment === self::ENV_DEV) {
+//        if ($environment === self::ENV_DEV) {
             $dotenv = new Dotenv();
             $dotenv->load(__DIR__ . '/../.env');
-        }
+//        }
     }
 
     public function registerBundles(): array

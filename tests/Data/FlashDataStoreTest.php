@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Data;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Data\TokenHandler;
 use App\Domain\ValueObject\Message\Error;

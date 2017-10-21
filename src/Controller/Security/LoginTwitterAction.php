@@ -28,7 +28,7 @@ class LoginTwitterAction extends AbstractLoginAction
             );
 
             $loginUrl = $client->url('oauth/authorize', array('oauth_token' => $requestToken['oauth_token']));
-            $this->logger->notice('[LOGIN] [TWITTER REQUEST]');
+            $this->logger->notice('[LOGIN REQUEST] [TWITTER]');
             $this->setReturnAddress($request);
             return new RedirectResponse($loginUrl);
         }

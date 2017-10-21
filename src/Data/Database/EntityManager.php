@@ -63,6 +63,11 @@ class EntityManager extends DoctrineEntityManager
         return $this->getRepository(Entity\Channel::class);
     }
 
+    public function getClusterRepo(): EntityRepository\ClusterRepository
+    {
+        return $this->getRepository(Entity\Cluster::class);
+    }
+
     public function getCrateRepo(): EntityRepository\CrateRepository
     {
         return $this->getRepository(Entity\Crate::class);

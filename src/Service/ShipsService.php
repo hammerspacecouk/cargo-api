@@ -9,7 +9,7 @@ use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
-use App\Domain\Entity\Ship as ShipEntity;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
@@ -82,7 +82,7 @@ class ShipsService extends AbstractService
 
     public function getByID(
         UuidInterface $uuid
-    ): ?ShipEntity {
+    ): ?Ship {
     
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
@@ -109,7 +109,7 @@ class ShipsService extends AbstractService
     public function getByIDForOwnerId(
         UuidInterface $shipId,
         UuidInterface $ownerId
-    ): ?ShipEntity {
+    ): ?Ship {
     
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
@@ -130,7 +130,7 @@ class ShipsService extends AbstractService
 
     public function getByIDWithLocation(
         UuidInterface $uuid
-    ): ?ShipEntity {
+    ): ?Ship {
     
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')

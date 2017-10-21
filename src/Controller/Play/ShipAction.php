@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Play\Ships;
+namespace App\Controller\Play;
 
-use App\Config\ApplicationConfig;
+use App\Infrastructure\ApplicationConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
 use App\Domain\Entity\Port;
@@ -24,12 +24,10 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 /**
  * The 'My' Section reads from your cookie, so is custom and un-cacheable
  */
-class ShowAction
+class ShipAction
 {
     use UserTokenTrait;
     use GetShipTrait;
-
-    private const PER_PAGE = 100;
 
     /** @var TokensService */
     private $tokensService;
