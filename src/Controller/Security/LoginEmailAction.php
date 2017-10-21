@@ -65,7 +65,10 @@ EMAIL;
             $body,
             'text/html'
         );
-        $message->addFrom($this->applicationConfig->getEmailFromAddress(), $this->applicationConfig->getEmailFromName());
+        $message->addFrom(
+            $this->applicationConfig->getEmailFromAddress(),
+            $this->applicationConfig->getEmailFromName()
+        );
         $message->addTo($emailAddress);
 
         $mailer->send($message);

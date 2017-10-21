@@ -13,7 +13,8 @@ class TokenRepository extends AbstractEntityRepository
 {
     public function findUnexpiredById(
         UuidInterface $tokenId,
-        $resultType = Query::HYDRATE_ARRAY) {
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
             ->where('tbl.id = :id')

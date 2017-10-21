@@ -23,8 +23,8 @@ class CheckLoginAction
             'id' => (string) $userId,
             'score' => [
                 // todo - real values with a real Score object
-                'value' => rand(0,1000),
-                'rate' => round(rand(0,50)/9.8, 2),
+                'value' => rand(0, 1000),
+                'rate' => round(rand(0, 50)/9.8, 2),
                 'datetime' => (new \DateTimeImmutable())->format('c'),
             ],
             'cookies' => array_map(function (Cookie $cookie) {
