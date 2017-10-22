@@ -15,6 +15,7 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_SHIP = 'shp';
     public const KEY_CHANNEL = 'cnl';
     public const KEY_REVERSED = 'rvsd';
+    public const KEY_JOURNEY_TIME = 'jt';
 
     public function __construct(Token $token)
     {
@@ -24,12 +25,14 @@ class MoveShipToken extends AbstractActionToken
     public static function makeClaims(
         UuidInterface $shipId,
         UuidInterface $channelId,
-        bool $isReversed
+        bool $isReversed,
+        int $journeyTime
     ): array {
         return parent::createClaims([
             self::KEY_SHIP => (string)$shipId,
             self::KEY_CHANNEL => (string)$channelId,
             self::KEY_REVERSED => $isReversed,
+            self::KEY_JOURNEY_TIME => $journeyTime,
         ]);
     }
 
@@ -54,6 +57,14 @@ class MoveShipToken extends AbstractActionToken
         if ($this->token->hasClaim(self::KEY_REVERSED)) {
             return $this->token->getClaim(self::KEY_REVERSED);
         }
-        throw new InvalidTokenException('No Channel ID found');
+        throw new InvalidTokenException('No Reverse value found');
+    }
+
+    public function getJourneyTime(): int
+    {
+        if ($this->token->hasClaim(self::KEY_JOURNEY_TIME)) {
+            return $this->token->getClaim(self::KEY_JOURNEY_TIME);
+        }
+        throw new InvalidTokenException('No Journey time found');
     }
 }

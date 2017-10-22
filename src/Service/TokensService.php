@@ -38,22 +38,31 @@ class TokensService extends AbstractService
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
-        bool $reverseDirection
+        bool $reverseDirection,
+        int $journeyTime,
+        string $tokenKey
     ): MoveShipToken {
         $token = $this->makeActionToken(MoveShipToken::makeClaims(
             $ship->getId(),
             $channel->getId(),
-            $reverseDirection
-        ));
+            $reverseDirection,
+            $journeyTime
+        ), $tokenKey);
 
         return new MoveShipToken($token);
     }
 
-    private function makeActionToken(array $claims)
+    private function makeActionToken(array $claims, ?string $tokenKey = null)
     {
+        if ($tokenKey) {
+            $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
+        } else {
+            $id = ID::makeNewID(DbToken::class);
+        }
+
         return $this->tokenHandler->makeToken(
             $claims,
-            ID::makeNewID(DbToken::class)
+            $id
         );
     }
 
@@ -124,8 +133,10 @@ class TokensService extends AbstractService
             throw new \InvalidArgumentException('No such channel');
         }
 
-        // todo - calculate a real exit time, taking into account any active abilities
-        $exitTime = $this->currentTime->add(new \DateInterval('PT1H'));
+        // todo - adjust exit time if any abilities were applied
+        $exitTime = $this->currentTime->add(
+            new \DateInterval('PT' . $tokenDetail->getJourneyTime() . 'M')
+        );
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
