@@ -52,6 +52,7 @@ class MoveShipTokenTest extends TokenTestCase
         $token = $this->getMockToken(MoveShipToken::TYPE, [
             MoveShipToken::KEY_CHANNEL => self::UUID_EXAMPLE_CHANNEL,
             MoveShipToken::KEY_SHIP => self::UUID_EXAMPLE_SHIP,
+            MoveShipToken::KEY_JOURNEY_TIME => $time = 120,
             MoveShipToken::KEY_REVERSED => true,
         ]);
 
@@ -66,6 +67,7 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertSame(self::UUID_EXAMPLE_SHIP, (string) $tokenObject->getShipId());
 
         $this->assertTrue($tokenObject->isReversed());
+        $this->assertSame($time, $tokenObject->getJourneyTime());
 
         $serial = $tokenObject->jsonSerialize();
         $this->assertTrue(is_array($serial));
@@ -79,7 +81,8 @@ class MoveShipTokenTest extends TokenTestCase
         $claims = MoveShipToken::makeClaims(
             Uuid::fromString(self::UUID_EXAMPLE_SHIP),
             Uuid::fromString(self::UUID_EXAMPLE_CHANNEL),
-            true
+            true,
+            120
         );
 
         $this->assertTrue(is_array($claims));
@@ -87,6 +90,7 @@ class MoveShipTokenTest extends TokenTestCase
 
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[MoveShipToken::KEY_SHIP]);
         $this->assertSame(self::UUID_EXAMPLE_CHANNEL, $claims[MoveShipToken::KEY_CHANNEL]);
+        $this->assertSame(120, $claims[MoveShipToken::KEY_JOURNEY_TIME]);
         $this->assertTrue($claims[MoveShipToken::KEY_REVERSED]);
     }
 }

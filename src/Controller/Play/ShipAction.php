@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
+use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Infrastructure\ApplicationConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
@@ -21,9 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-/**
- * The 'My' Section reads from your cookie, so is custom and un-cacheable
- */
 class ShipAction
 {
     use UserTokenTrait;
@@ -79,7 +77,8 @@ class ShipAction
                 $applicationConfig,
                 $location->getPort(),
                 $ship,
-                $user
+                $user,
+                $location
             );
         }
 
@@ -91,13 +90,17 @@ class ShipAction
         ApplicationConfig $applicationConfig,
         Port $port,
         Ship $ship,
-        User $user
+        User $user,
+        ShipInPort $location
     ): array {
 
         // find all channels for a port, with their bearing and distance
         $channels = $this->channelsService->getAllLinkedToPort($port);
 
         $directions = Bearing::getEmptyBearingsList();
+
+        // the token key is based on the ship location, as this becomes invalid after use
+        $groupTokenKey = (string) $location->getId();
 
         foreach ($channels as $channel) {
             $bearing = $channel->getBearing()->getValue();
@@ -111,19 +114,30 @@ class ShipAction
 
             // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
+            $journeyTimeMinutes = (int)round(
+                ($applicationConfig->getDistanceMultiplier() *  $channel->getDistance() / 60)
+            ) ;
+            //* 60 * 60 todo - algorithm
+
+            $token = $this->tokensService->getMoveShipToken(
+                $ship,
+                $channel,
+                $reverseDirection,
+                $journeyTimeMinutes,
+                $groupTokenKey
+            );
+
             $directions[$bearing] = [
                 'destination' => $destination,
-                'distance' => $applicationConfig->getDistanceMultiplier() * $channel->getDistance(),
-                'action' => $this->tokensService->getMoveShipToken(
-                    $ship,
-                    $channel,
-                    $reverseDirection
-                ),
+                'distanceUnit' => $channel->getDistance(),
+                'journeyTimeMinutes' => $journeyTimeMinutes,
+                'action' => $token
             ];
         }
 
         return [
             'type' => "Port",
+            'actionPath' => MoveShipToken::getPath(),
             'directions' => $directions,
         ];
     }
