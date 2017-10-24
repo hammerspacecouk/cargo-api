@@ -56,7 +56,7 @@ class TestEmailCommand extends Command
 
         $message = new Swift_Message(
             'This is a test',
-            'Sent at <i>' . $this->currentTime->format(\DateTime::ISO8601) . '</i>',
+            'Sent at <i>' . $this->currentTime->format('c') . '</i>',
             'text/html'
         );
         $message->addFrom(

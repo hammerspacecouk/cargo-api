@@ -18,9 +18,11 @@ class ShipLocationRepository extends AbstractEntityRepository
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'port', 'channel')
+            ->select('tbl', 'port', 'channel', 'fromPort', 'toPort')
             ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.channel', 'channel')
+            ->leftJoin('channel.toPort', 'toPort')
+            ->leftJoin('channel.fromPort', 'fromPort')
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
             ->orderBy('tbl.createdAt', 'DESC')

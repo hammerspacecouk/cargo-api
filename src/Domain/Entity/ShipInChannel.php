@@ -27,9 +27,16 @@ class ShipInChannel extends AbstractShipLocation
         $this->exitTime = $exitTime;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        return 'TRAVELLING';
+        $data = [
+            'type' => 'Channel',
+            'arrival' => $this->exitTime->format('c'),
+        ];
+        if ($this->destination) {
+            $data['destination'] = $this->getDestination();
+        }
+        return $data;
     }
 
     public function getOrigin(): Port
