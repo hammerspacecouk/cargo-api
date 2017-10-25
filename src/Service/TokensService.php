@@ -158,7 +158,7 @@ class TokensService extends AbstractService
             $this->logger->info('Committing transaction');
             $this->entityManager->getConnection()->commit();
             $this->logger->notice(sprintf(
-                '[MOVE SHIP] Ship: %s, Channel: %s, Reversed: %s',
+                '[DEPARTURE] Ship: %s, Channel: %s, Reversed: %s',
                 (string)$shipId,
                 (string)$channelId,
                 (string)$reversed

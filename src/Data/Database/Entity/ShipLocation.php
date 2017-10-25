@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use App\Domain\Exception\DataNotFetchedException;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
@@ -59,5 +60,28 @@ class ShipLocation extends AbstractEntity
         $this->port = $port;
         $this->channel = $channel;
         $this->entryTime = $entryTime;
+    }
+
+    public function getDestination(): Port
+    {
+        if (!$this->channel) {
+            throw new DataNotFetchedException('Tried to getDestination on an object with no channel data');
+        }
+
+        if ($this->reverseDirection) {
+            return $this->channel->fromPort;
+        }
+        return $this->channel->toPort;
+    }
+
+    public function getOrigin(): Port
+    {
+        if (!$this->channel) {
+            throw new DataNotFetchedException('Tried to getDestination on an object with no channel data');
+        }
+        if ($this->reverseDirection) {
+            return $this->channel->toPort;
+        }
+        return $this->channel->fromPort;
     }
 }
