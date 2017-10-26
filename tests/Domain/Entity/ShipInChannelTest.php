@@ -59,7 +59,16 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($ship, $entity->getShip());
         $this->assertSame($origin, $entity->getOrigin());
         $this->assertSame($destination, $entity->getDestination());
-        $this->assertSame('TRAVELLING', $entity->jsonSerialize());
+        $this->assertSame(
+            [
+                'type' => 'Channel',
+                'startTime' => $entry->format('c'),
+                'arrival' => $exit->format('c'),
+                'travelTime' => 3600,
+                'destination' => $destination,
+            ],
+            $entity->jsonSerialize()
+        );
     }
 
     private function getUnfetched(): ShipInChannel

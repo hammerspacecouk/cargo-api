@@ -6,22 +6,22 @@ namespace App\Command\Worker;
 use App\Data\Database\EntityManager;
 use App\Service\ShipLocationsService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ArrivalCommand extends AbstractWorkerCommand
+class ArrivalCommand extends Command
 {
-    protected const SLEEP_TIME = 15;
-
     private $locationsService;
+    private $logger;
 
     public function __construct(
         ShipLocationsService $shipLocationsService,
-        EntityManager $entityManager,
         LoggerInterface $logger
     ) {
-        parent::__construct($entityManager, $logger);
+        parent::__construct();
         $this->locationsService = $shipLocationsService;
+        $this->logger = $logger;
     }
 
     protected function configure(): void
@@ -32,11 +32,14 @@ class ArrivalCommand extends AbstractWorkerCommand
             ->setDescription('Process all arrivals');
     }
 
-    protected function processSingle(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $process = $this->locationsService->processOldestExpired();
-        if (!$process) {
-            throw new NothingToProcessException('Nothing to process');
-        }
+        $this->logger->info(
+            '[WORKER] [ARRIVAL] [START]'
+        );
+        $this->locationsService->processOldestExpired(50);
+        $this->logger->notice(
+            '[WORKER] [ARRIVAL] [COMPLETE]'
+        );
     }
 }

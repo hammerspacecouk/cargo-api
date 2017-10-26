@@ -23,14 +23,15 @@ class ShipLocationsService extends AbstractService
     }
 
 
-    public function processOldestExpired(): bool
+    public function processOldestExpired($limit): void
     {
-        $location = $this->entityManager->getShipLocationRepo()->getOldestExpired(Query::HYDRATE_OBJECT);
-        if ($location) {
-            $this->moveShipFromChannelToPort($location);
-            return true;
+        $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired($limit, Query::HYDRATE_OBJECT);
+        $this->logger->info('Processing ' . count($locations) . ' arrivals in this batch');
+        if (!empty($locations)) {
+            foreach ($locations as $location) {
+                $this->moveShipFromChannelToPort($location);
+            }
         }
-        return false;
     }
 
     private function moveShipFromChannelToPort(DbShipLocation $currentLocation): void

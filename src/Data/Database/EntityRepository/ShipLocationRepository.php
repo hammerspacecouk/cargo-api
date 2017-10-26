@@ -66,6 +66,7 @@ class ShipLocationRepository extends AbstractEntityRepository
     }
 
     public function getOldestExpired(
+        int $limit = 1,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
@@ -77,9 +78,9 @@ class ShipLocationRepository extends AbstractEntityRepository
             ->where('tbl.isCurrent = true')
             ->andWhere('tbl.exitTime <= :now')
             ->orderBy('tbl.exitTime', 'ASC')
-            ->setMaxResults(1)
+            ->setMaxResults($limit)
             ->setParameter('now', $this->currentTime);
-        return $qb->getQuery()->getOneOrNullResult($resultType);
+        return $qb->getQuery()->getResult($resultType);
     }
 
     public function disableAllActiveForShipID(UuidInterface $uuid): void
