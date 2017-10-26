@@ -31,7 +31,9 @@ class ShipInChannel extends AbstractShipLocation
     {
         $data = [
             'type' => 'Channel',
-            'arrival' => $this->exitTime->format('c'),
+            'startTime' => $this->getEntryTime()->format('c'),
+            'arrival' => $this->getExitTime()->format('c'),
+            'travelTime' => $this->getTravelTime(),
         ];
         if ($this->destination) {
             $data['destination'] = $this->getDestination();
@@ -58,5 +60,10 @@ class ShipInChannel extends AbstractShipLocation
     public function getExitTime(): DateTimeImmutable
     {
         return $this->exitTime;
+    }
+
+    private function getTravelTime(): int
+    {
+        return $this->getExitTime()->getTimestamp() - $this->getEntryTime()->getTimestamp();
     }
 }

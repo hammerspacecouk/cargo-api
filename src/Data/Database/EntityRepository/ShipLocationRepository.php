@@ -65,6 +65,24 @@ class ShipLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
+    public function getOldestExpired(
+        int $limit = 1,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'channel', 'fromPort', 'toPort')
+            ->leftJoin('tbl.ship', 'ship')
+            ->leftJoin('tbl.channel', 'channel')
+            ->leftJoin('channel.fromPort', 'fromPort')
+            ->leftJoin('channel.toPort', 'toPort')
+            ->where('tbl.isCurrent = true')
+            ->andWhere('tbl.exitTime <= :now')
+            ->orderBy('tbl.exitTime', 'ASC')
+            ->setMaxResults($limit)
+            ->setParameter('now', $this->currentTime);
+        return $qb->getQuery()->getResult($resultType);
+    }
+
     public function disableAllActiveForShipID(UuidInterface $uuid): void
     {
         $q = $this->getEntityManager()->createQuery(
