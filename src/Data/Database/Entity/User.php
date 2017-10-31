@@ -25,6 +25,15 @@ class User extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
+    /** @ORM\Column(type="integer") */
+    public $score = 0;
+
+    /** @ORM\Column(type="integer") */
+    public $scoreRate = 0;
+
+    /** @ORM\Column(type="datetime", nullable=true) */
+    public $scoreCalculationTime;
+
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      */

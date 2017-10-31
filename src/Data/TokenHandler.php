@@ -94,7 +94,7 @@ class TokenHandler
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Failed to created refresh token. Rollback transaction');
+            $this->logger->error('Failed to create refresh token. Rollback transaction');
             throw $e;
         }
 

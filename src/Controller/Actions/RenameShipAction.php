@@ -7,7 +7,9 @@ use App\Service\ShipsService;
 use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RenameShipAction extends AbstractAction
 {
@@ -17,7 +19,7 @@ class RenameShipAction extends AbstractAction
         TokensService $tokensService,
         ShipsService $shipsService,
         LoggerInterface $logger
-    ): JsonResponse {
+    ): Response {
         $logger->debug(__CLASS__);
         $logger->notice('[ACTION] [RENAME SHIP]');
 
@@ -29,6 +31,20 @@ class RenameShipAction extends AbstractAction
 
         $shipsService->useRenameShipToken($renameShipToken);
         $logger->info('[SHIP RENAMED] ' . (string)$shipId . ' to ' . $newName);
+
+        // todo - different response if it is XHR vs Referer
+        $referrer = $request->headers->get('Referer', null);
+        $query = strpos($referrer, '?');
+        if ($query) {
+            $referrer = substr($referrer, 0, strpos($referrer, '?'));
+        }
+
+        if ($referrer) {
+            // todo - abstract
+            $response = new RedirectResponse($referrer);
+            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+            return $response;
+        }
 
         return $this->actionResponse(new JsonResponse([
             'status' => 'ok',

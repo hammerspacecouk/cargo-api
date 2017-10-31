@@ -34,4 +34,26 @@ class UserRepository extends AbstractEntityRepository
 
         return $user;
     }
+
+    public function updateScore(User $user, int $rateDelta = null): void
+    {
+        $currentScore = $user->score;
+        $rate = $user->scoreRate;
+        $previousTime = $user->scoreCalculationTime ?? $this->currentTime;
+
+        $secondsDifference = $this->currentTime->getTimestamp() - $previousTime->getTimestamp();
+
+        $newScore = max(0, $currentScore + ($secondsDifference * $rate));
+
+        if (!is_null($rateDelta)) {
+            $rate = $rate + $rateDelta;
+        }
+
+        $user->score = $newScore;
+        $user->scoreRate = $rate;
+        $user->scoreCalculationTime = $this->currentTime;
+
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
 }

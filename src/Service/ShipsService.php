@@ -254,48 +254,65 @@ class ShipsService extends AbstractService
         DbShipLocation $currentShipLocation,
         UuidInterface $portId
     ) {
+        // todo - remove this method?!
+        throw new \InvalidArgumentException('Check this');
+
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         if (!$port) {
             throw new \InvalidArgumentException('No such port');
         }
 
-        // remove the old ship location
-        $currentShipLocation->isCurrent = false;
-        $currentShipLocation->exitTime = $this->currentTime;
-        $this->entityManager->persist($currentShipLocation);
+        $userRepo =  $this->entityManager->getUserRepo();
+        $user = $userRepo->getByID($ship->owner);
 
-        // make a new ship location
-        $newLocation = new DbShipLocation(
-            ID::makeNewID(DbShipLocation::class),
-            $ship,
-            $port,
-            null,
-            $this->currentTime
-        );
-        $this->entityManager->persist($newLocation);
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            // remove the old ship location
+            $currentShipLocation->isCurrent = false;
+            $currentShipLocation->exitTime = $this->currentTime;
+            $this->entityManager->persist($currentShipLocation);
 
-        // move all crates on the ship into the port
-        // get the crates
-        $crateLocations = $this->entityManager->getCrateLocationRepo()
-            ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
-        if (!empty($crateLocations)) {
-            foreach ($crateLocations as $crateLocation) {
-                $crateLocation->isCurrent = false;
-                $this->entityManager->persist($crateLocation);
+            // make a new ship location
+            $newLocation = new DbShipLocation(
+                ID::makeNewID(DbShipLocation::class),
+                $ship,
+                $port,
+                null,
+                $this->currentTime
+            );
+            $this->entityManager->persist($newLocation);
 
-                $newLocation = new DbCrateLocation(
-                    ID::makeNewID(DbCrateLocation::class),
-                    $crateLocation->crate,
-                    $port,
-                    null
-                );
-                $this->entityManager->persist($newLocation);
+            // update the users score
+
+
+            // todo - add this port to the list of visited ports for this user
+            // calculate the user's new rank and cache it
+
+            // move all crates on the ship into the port
+            // get the crates
+            $crateLocations = $this->entityManager->getCrateLocationRepo()
+                ->findCurrentForShipID($ship->id, Query::HYDRATE_OBJECT);
+            if (!empty($crateLocations)) {
+                foreach ($crateLocations as $crateLocation) {
+                    $crateLocation->isCurrent = false;
+                    $this->entityManager->persist($crateLocation);
+
+                    $newLocation = new DbCrateLocation(
+                        ID::makeNewID(DbCrateLocation::class),
+                        $crateLocation->crate,
+                        $port,
+                        null
+                    );
+                    $this->entityManager->persist($newLocation);
+                }
             }
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->error('Failed to move ship into channel. Rollback transaction');
+            throw $e;
         }
-        $this->entityManager->flush();
-
-        // todo - add this port to the list of visited ports for this user
-        // calculate the user's new rank and cache it
     }
 
     public function requestShipName(

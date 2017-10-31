@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Service\TokensService;
+use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,19 +15,15 @@ class CheckLoginAction
 
     public function __invoke(
         Request $request,
-        TokensService $tokensService
+        TokensService $tokensService,
+        UsersService $usersService
     ): JsonResponse {
 
-        $userId = $this->getUserId($request, $tokensService);
+        $user = $this->getUser($request, $tokensService, $usersService);
 
         $response = new JsonResponse([
-            'id' => (string) $userId,
-            'score' => [
-                // todo - real values with a real Score object
-                'value' => rand(0, 1000),
-                'rate' => round(rand(0, 50)/9.8, 2),
-                'datetime' => (new \DateTimeImmutable())->format('c'),
-            ],
+            'id' => $user->getId(),
+            'score' => $user->getScore(),
             'cookies' => array_map(function (Cookie $cookie) {
                 $opts = [
                     'domain' => $cookie->getDomain(),

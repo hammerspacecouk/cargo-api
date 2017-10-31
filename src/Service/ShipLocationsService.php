@@ -39,6 +39,9 @@ class ShipLocationsService extends AbstractService
         $ship = $currentLocation->ship;
         $destinationPort = $currentLocation->getDestination();
 
+        $usersRepo = $this->entityManager->getUserRepo();
+        $owner = $usersRepo->getByID($ship->owner->id, Query::HYDRATE_OBJECT);
+
         $this->entityManager->getConnection()->beginTransaction();
         try {
             // remove the old ship location
@@ -58,7 +61,10 @@ class ShipLocationsService extends AbstractService
 
             // todo - add this port to the list of visited ports for this user
             // todo - move all the crates to the port
-            // calculate the user's new rank and cache it
+            // todo - calculate the user's new rank and cache it
+
+            // update the users score - todo - calculate how much the rate delta should be
+            $this->entityManager->getUserRepo()->updateScore($owner, -1);
 
             $this->entityManager->flush();
             $this->logger->info('Committing all changes');

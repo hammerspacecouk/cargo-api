@@ -151,6 +151,9 @@ class TokensService extends AbstractService
                 $reversed
             );
 
+            // update the users score - todo - calculate how much the rate delta should be
+            $this->entityManager->getUserRepo()->updateScore($ship->owner, 1);
+
             // todo - mark any abilities as used
 
             $this->logger->info('Marking token as used');

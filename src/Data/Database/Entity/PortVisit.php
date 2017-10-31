@@ -13,6 +13,7 @@ use Ramsey\Uuid\UuidInterface;
  *     name="port_visits",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
  * )})
+ * todo - add a composite key, support a INSERT IF NOT EXISTS query
  */
 class PortVisit extends AbstractEntity
 {

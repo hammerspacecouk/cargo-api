@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Security\Traits;
 
+use App\Domain\Entity\User;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\Exception\MissingTokenException;
 use App\Service\TokensService;
+use App\Service\UsersService;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,6 +36,20 @@ trait UserTokenTrait
         }
 
         return $token->getUserId();
+    }
+
+    protected function getUser(
+        Request $request,
+        TokensService $tokensService,
+        UsersService $usersService
+    ): User {
+
+        $userId = $this->getUserId($request, $tokensService);
+        $user = $usersService->getById($userId);
+        if ($user) {
+            return $user;
+        }
+        throw new AccessDeniedHttpException('Invalid user');
     }
 
     protected function userResponse(JsonResponse $response): JsonResponse
