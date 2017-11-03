@@ -12,6 +12,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 const ONE_SECOND = 1000000;
 
 while (true) {
+    gc_collect_cycles();
     $input = new ArgvInput();
     $env = $input->getParameterOption(['--env', '-e'], getenv('SYMFONY_ENV') ?: Kernel::ENV_PROD);
     $loopRest = (int) $input->getParameterOption(['--rest', '-r'], ONE_SECOND);
