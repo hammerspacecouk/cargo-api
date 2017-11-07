@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Domain\Exception\TokenException;
 use App\Infrastructure\ApplicationConfig;
 use App\Domain\ValueObject\Message\Message;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -98,9 +99,14 @@ class FlashDataStore
             return;
         }
 
-        $token = $this->tokenHandler->parseTokenFromString($cookie, null);
+        try {
+            $token = $this->tokenHandler->parseTokenFromString($cookie, null);
 
-        $this->data = unserialize($token->getClaim('data'));
-        $this->messages = unserialize($token->getClaim('messages'));
+            $this->data = unserialize($token->getClaim('data'));
+            $this->messages = unserialize($token->getClaim('messages'));
+        } catch (TokenException $exception) {
+            // if there any kind of exceptions with the token,
+            // just ignore it as though there was no token
+        }
     }
 }
