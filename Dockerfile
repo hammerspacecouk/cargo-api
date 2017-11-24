@@ -54,7 +54,6 @@ RUN docker-php-ext-install \
     intl
 
 # Setup the application
-VOLUME ["/var/www"]
 COPY . /var/www
 WORKDIR /var/www
 
@@ -67,4 +66,5 @@ RUN rm composer.phar
 
 # Warm cache todo - once we can set up environment variables (and talk to database etc)
 
-
+# Allow to volume to share
+VOLUME /var/www
