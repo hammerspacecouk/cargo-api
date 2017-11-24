@@ -68,3 +68,7 @@ RUN rm composer.phar
 
 # Allow to volume to share
 VOLUME /var/www
+
+CMD ["php-fpm"]
+
+EXPOSE 9000
