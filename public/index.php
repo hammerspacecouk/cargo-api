@@ -7,6 +7,13 @@ use Symfony\Component\Debug\Debug;
 
 require __DIR__.'/../vendor/autoload.php';
 
+
+echo "YES " . time() . "\n";
+
+var_dump($_SERVER);
+exit;
+
+/** REAL APP BELOW HERE */
 $env = getenv('APP_ENV') ?: Kernel::ENV_DEV;
 $debug = ($env === Kernel::ENV_DEV);
 
