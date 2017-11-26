@@ -68,8 +68,7 @@ RUN rm composer.phar
 # Warm cache todo - once we can set up environment variables (and talk to database etc)
 
 # Allow to volume to share
-VOLUME /var/www
-VOLUME /var/conf
+VOLUME ["/var/www", "/var/conf"]
 
 CMD ["php-fpm"]
 
