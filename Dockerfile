@@ -55,6 +55,7 @@ RUN docker-php-ext-install \
 
 # Setup the application
 COPY . /var/www
+COPY ./nginx /var/conf
 WORKDIR /var/www
 
 # Get composer
@@ -68,6 +69,7 @@ RUN rm composer.phar
 
 # Allow to volume to share
 VOLUME /var/www
+VOLUME /var/conf
 
 CMD ["php-fpm"]
 
