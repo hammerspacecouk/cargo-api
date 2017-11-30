@@ -54,7 +54,7 @@ RUN docker-php-ext-install \
     intl
 
 # Setup the application
-COPY ./nginx /etc/nginx/conf.d
+COPY ./nginx/* /etc/nginx/conf.d/
 COPY . /var/www
 WORKDIR /var/www
 
