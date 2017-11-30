@@ -54,8 +54,8 @@ RUN docker-php-ext-install \
     intl
 
 # Setup the application
+COPY ./nginx /etc/nginx/conf.d
 COPY . /var/www
-COPY ./nginx /var/conf
 WORKDIR /var/www
 
 # Get composer
@@ -68,7 +68,7 @@ RUN rm composer.phar
 # Warm cache todo - once we can set up environment variables (and talk to database etc)
 
 # Allow to volume to share
-VOLUME ["/var/www", "/var/conf"]
+VOLUME ["/var/www", "/etc/nginx/conf.d"]
 
 CMD ["php-fpm"]
 
