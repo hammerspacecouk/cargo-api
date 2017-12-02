@@ -58,18 +58,12 @@ class Kernel extends SymfonyKernel
 
     public function getCacheDir(): string
     {
-        if ($this->getEnvironment() === self::ENV_DEV) {
-            return dirname(__DIR__) . '/tmp/cache';
-        }
-        return '/tmp/app/cache';
+        return $this->getTempPath('cache');
     }
 
     public function getLogDir(): string
     {
-        if ($this->getEnvironment() === self::ENV_DEV) {
-            return dirname(__DIR__) . '/tmp/logs';
-        }
-        return '/tmp/app/logs';
+        return $this->getTempPath('logs');
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
@@ -86,5 +80,13 @@ class Kernel extends SymfonyKernel
     public function getRootDir(): string
     {
         return __DIR__;
+    }
+
+    private function getTempPath($target)
+    {
+        if ($this->getEnvironment() === self::ENV_DEV) {
+            return dirname(__DIR__) . '/tmp/' . $target;
+        }
+        return '/tmp/' . $target;
     }
 }
