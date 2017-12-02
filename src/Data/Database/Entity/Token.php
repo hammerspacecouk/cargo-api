@@ -34,7 +34,7 @@ class Token extends AbstractEntity
     /** @ORM\Column(type="datetime", nullable=true) */
     public $expiry;
 
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="string", length=191) */
     public $type;
 
     /**

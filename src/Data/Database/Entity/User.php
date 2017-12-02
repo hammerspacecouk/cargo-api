@@ -16,7 +16,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class User extends AbstractEntity
 {
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="string", length=191) */
     public $email;
 
     /** @ORM\Column(type="boolean") */

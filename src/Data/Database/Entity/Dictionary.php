@@ -20,10 +20,10 @@ class Dictionary extends AbstractEntity
     public const CONTEXT_SHIP_NAME_1 = 'SHIP_NAME_1';
     public const CONTEXT_SHIP_NAME_2 = 'SHIP_NAME_2';
 
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="string", length=191) */
     public $word;
 
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="string", length=191) */
     public $context;
 
     public function __construct(

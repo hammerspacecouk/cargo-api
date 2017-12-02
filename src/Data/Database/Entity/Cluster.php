@@ -15,7 +15,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Cluster extends AbstractEntity
 {
-    /** @ORM\Column(type="string", unique=true) */
+    /** @ORM\Column(type="string", unique=true, length=191) */
     public $name;
 
     public function __construct(

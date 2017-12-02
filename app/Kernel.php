@@ -23,19 +23,17 @@ class Kernel extends SymfonyKernel
     public const ENV_BETA = 'beta';
     public const ENV_PROD = 'prod';
 
-    public function __construct(string $environment, bool $debug)
+    public function __construct(string $environment, bool $debug = false)
     {
+        date_default_timezone_set('UTC'); // servers should always be UTC
+
         if (empty($environment)) {
             $environment = self::ENV_PROD;
         }
         parent::__construct($environment, $debug);
 
-        date_default_timezone_set('UTC'); // servers should always be UTC
-
-//        if ($environment === self::ENV_DEV) {
-            $dotenv = new Dotenv();
-            $dotenv->load(__DIR__ . '/../.env');
-//        }
+        $dotenv = new Dotenv();
+        $dotenv->load(__DIR__ . '/../.env');
     }
 
     public function registerBundles(): array
@@ -60,12 +58,18 @@ class Kernel extends SymfonyKernel
 
     public function getCacheDir(): string
     {
-        return dirname(__DIR__) . '/tmp/cache/' . $this->getEnvironment();
+        if ($this->getEnvironment() === self::ENV_DEV) {
+            return dirname(__DIR__) . '/tmp/cache';
+        }
+        return '/tmp/app/cache';
     }
 
     public function getLogDir(): string
     {
-        return dirname(__DIR__) . '/tmp/logs';
+        if ($this->getEnvironment() === self::ENV_DEV) {
+            return dirname(__DIR__) . '/tmp/logs';
+        }
+        return '/tmp/app/logs';
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader): void
