@@ -4,7 +4,7 @@
     "type": "project",
     "autoload": {
         "psr-4": { "App\\": "src" },
-        "classmap": [ "app/Kernel.php", "app/FlashDataListener.php" ]
+        "classmap": [ "app/Kernel.php", "app/FlashDataListener.php", "app/ParameterFetcher.php" ]
     },
     "autoload-dev": {
         "psr-4": { "Tests\\App\\": "tests/" }
@@ -48,6 +48,6 @@
         "test": "phpunit",
         "cbf": "phpcbf app src tests",
         "cs": "phpcs app src tests",
-        "stan": "phpstan analyse src tests --level 7 -c phpstan.neon"
+        "stan": "phpstan analyse app src tests --level 7 -c phpstan.neon"
     }
 }

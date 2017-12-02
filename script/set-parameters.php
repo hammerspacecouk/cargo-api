@@ -7,7 +7,6 @@ use Aws\Credentials\CredentialProvider;
 use Aws\Ssm\SsmClient;
 
 require __DIR__.'/../vendor/autoload.php';
-require __DIR__.'/../app/ParameterFetcher.php';
 
 $provider = CredentialProvider::ecsCredentials();
 $ssmClient = new SsmClient([
