@@ -10,7 +10,6 @@ require __DIR__.'/../vendor/autoload.php';
 
 echo "YES " . time() . "\n";
 
-var_dump($_SERVER);
 exit;
 
 /** REAL APP BELOW HERE */
