@@ -12,6 +12,9 @@ $collection = new RouteCollection();
 $collection->add('home', new Route('/', [
     '_controller' => Controller\Home\IndexAction::class,
 ]));
+$collection->add('app_status', new Route('/status', [
+    '_controller' => Controller\Home\StatusAction::class,
+]));
 
 // login
 $collection->add('login', new Route('/login', [
