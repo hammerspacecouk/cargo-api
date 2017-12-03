@@ -1,16 +1,16 @@
 FROM php:7.1-fpm
 
 # Setup the OS for PHP
-RUN docker-php-source extract
-RUN apt-get update
-RUN apt-get install -y \
+RUN docker-php-source extract \
+    && apt-get update \
+    && apt-get install -y \
     libxml2-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libmcrypt-dev \
     libpng-dev \
-    libicu-dev
-RUN rm -rf /tmp/*
+    libicu-dev \
+    && rm -rf /tmp/*
 
 # Setup PHP extensions
 RUN docker-php-ext-configure opcache \
@@ -29,12 +29,9 @@ RUN docker-php-ext-configure opcache \
     && docker-php-ext-configure mbstring \
     && docker-php-ext-configure zip \
     && docker-php-ext-configure xml \
-    && docker-php-ext-configure intl
-
-RUN docker-php-source delete
-
-# Install PHP extensions
-RUN docker-php-ext-install \
+    && docker-php-ext-configure intl \
+    && docker-php-source delete \\
+    && docker-php-ext-install \
     opcache \
     calendar \
     exif \
@@ -58,6 +55,9 @@ COPY ./nginx /etc/nginx/conf.d/
 COPY . /var/www
 
 WORKDIR /var/www
+
+# Ensure executables
+RUN chmod +x bin/*
 
 # Get composer
 RUN curl -sS https://getcomposer.org/installer | php
