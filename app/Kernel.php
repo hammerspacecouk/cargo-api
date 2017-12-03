@@ -61,6 +61,11 @@ class Kernel extends SymfonyKernel
         return '/tmp/cache';
     }
 
+    public function getLogDir(): string
+    {
+        return '/tmp/logs';
+    }
+
     public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $dir = '';
