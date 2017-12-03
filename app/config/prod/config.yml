@@ -67,8 +67,7 @@ monolog:
             passthru_level: NOTICE
             handler:      nested
         nested:
-            type:  stream
-            path:  "%kernel.logs_dir%/%kernel.environment%.log"
+            type:  error_log
             level: debug
         console:
             type:  console
