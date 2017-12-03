@@ -1,3 +1,5 @@
 #!/bin/sh
 
-php /var/www/script/parameters.php > /var/www/.env
+echo "Fetching parameters"
+php /var/www/bin/parameters.php > /var/www/.env
+echo "Parameters fetched"
