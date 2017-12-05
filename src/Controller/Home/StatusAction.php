@@ -23,9 +23,10 @@ class StatusAction
 
         return new JsonResponse([
             'status' => 'ok',
+            'release' => 'Arctan',
+            'version' => $tag,
             'latestMigration' => 'TODO', // todo
             'appTime' => $applicationTime->format('c'),
-            'version' => $tag,
         ]);
     }
 }
