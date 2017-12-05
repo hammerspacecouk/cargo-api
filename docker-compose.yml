@@ -1,0 +1,41 @@
+# docker-compose file for local dev only
+version: "3"
+
+
+services:
+  cargo-api-php:
+    image: 323441517494.dkr.ecr.eu-west-2.amazonaws.com/plane-repos-1fn67259r5f10:latest
+    links:
+      - cargo-db
+    volumes:
+      - .:/var/www
+    environment:
+      - APP_ENV=dev
+    working_dir: /var/www
+
+  cargo-api-nginx:
+    image: nginx:latest
+    links:
+      - cargo-api-php
+    ports:
+      - 80:80
+    volumes:
+      - .:/var/www
+      - ./nginx:/etc/nginx/conf.d
+    environment:
+      - APP_ENV=dev
+
+  cargo-db:
+    restart: always
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+
+

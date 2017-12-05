@@ -11,21 +11,60 @@ Parameters:
   GitHubUser:
     Type: String
 
-  TargetGroup:
+  AlphaStackName:
     Type: String
 
-  Cluster:
+  BetaStackName:
     Type: String
+
+  ProdStackName:
+    Type: String
+
+  TemplateBucket:
+    Type: String
+
+  AlphaALBStack:
+    Type: String
+
+  AlphaClusterStack:
+    Type: String
+
+  AlphaDesiredTaskCount:
+    Type: Number
+    Default: 1
+
+  NginxImageTag:
+    Type: String
+    Default: latest
 
 
 Resources:
   Repository:
     Type: AWS::ECR::Repository
-    DeletionPolicy: Retain
+    Properties:
+      RepositoryName: planet-cargo-api
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+                {
+                    "rulePriority": 1,
+                    "description": "Expire images older than 14 days",
+                    "selection": {
+                        "tagStatus": "untagged",
+                        "countType": "sinceImagePushed",
+                        "countUnit": "days",
+                        "countNumber": 14
+                    },
+                    "action": {
+                        "type": "expire"
+                    }
+                }
+            ]
+          }
 
   CloudFormationExecutionRole:
     Type: AWS::IAM::Role
-    DeletionPolicy: Retain
     Properties:
       Path: /
       AssumeRolePolicyDocument: |
@@ -108,6 +147,8 @@ Resources:
             Statement:
               - Resource:
                   - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                  - !Sub arn:aws:s3:::${TemplateBucket}
+                  - !Sub arn:aws:s3:::${TemplateBucket}/*
                 Effect: Allow
                 Action:
                   - s3:PutObject
@@ -124,8 +165,11 @@ Resources:
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    # Todo - lifecycle for these artifacts to be deleted
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 21
+            Status: Enabled
 
   CodeBuildProjectTest:
     Type: AWS::CodeBuild::Project
@@ -142,7 +186,7 @@ Resources:
             pre_build:
               commands:
                 - echo Installing composer dependencies...
-                - composer install --prefer-dist
+                - composer install --prefer-dist --ignore-platform-reqs # todo - get updated to PHP 7.2
             build:
               commands:
                 - composer cs
@@ -176,10 +220,12 @@ Resources:
                 - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
             build:
               commands:
-                - docker build --tag "${REPOSITORY_URI}:${TAG}" .
+                - docker build -t ${REPOSITORY_URI} .
+                - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
             post_build:
               commands:
-                - docker push "${REPOSITORY_URI}:${TAG}"
+                - docker push ${REPOSITORY_URI}:latest
+                - docker push ${REPOSITORY_URI}:${TAG}
                 - printf '{"tag":"%s"}' $TAG > build.json
           artifacts:
             files: build.json
@@ -198,6 +244,7 @@ Resources:
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
+      Name: planet-cargo-api
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
@@ -219,6 +266,18 @@ Resources:
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
+            - Name: ECSServiceTemplate
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: S3
+              OutputArtifacts:
+                - Name: Template
+              RunOrder: 1
+              Configuration:
+                S3Bucket: !Ref TemplateBucket
+                S3ObjectKey: api/templates.zip
         - Name: Test
           Actions:
             - Name: Test
@@ -245,35 +304,38 @@ Resources:
                 ProjectName: !Ref CodeBuildProjectImage
               InputArtifacts:
                 - Name: App
-              OutputArtifacts: []
+              OutputArtifacts:
+                - Name: BuildOutput
               RunOrder: 2
-#        - Name: Deploy
-#          Actions:
-#            - Name: Deploy
-#              ActionTypeId:
-#                Category: Deploy
-#                Owner: AWS
-#                Version: 1
-#                Provider: CloudFormation
-#              Configuration:
-#                ChangeSetName: Deploy
-#                ActionMode: CREATE_UPDATE
-#                StackName: !Sub "${AWS::StackName}-Service"
-#                Capabilities: CAPABILITY_NAMED_IAM
-#                TemplatePath: Template::templates/service.yaml
-#                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
-#                ParameterOverrides: !Sub |
-#                  {
-#                    "Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
-#                    "DesiredCount": "1",
-#                    "Cluster": "${Cluster}",
-#                    "TargetGroup": "${TargetGroup}",
-#                    "Repository": "${Repository}"
-#                  }
-#              InputArtifacts:
-#                - Name: Template
-#                - Name: BuildOutput
-#              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: DeployAlpha
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: Deploy
+                ActionMode: CREATE_UPDATE
+                StackName: !Ref AlphaStackName
+                Capabilities: CAPABILITY_NAMED_IAM
+                TemplatePath: Template::03-ecs-service.yml
+                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
+                ParameterOverrides: !Sub |
+                  {
+                    "ImageTag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
+                    "ALBStack": "${AlphaALBStack}",
+                    "ClusterStack": "${AlphaClusterStack}",
+                    "DesiredTaskCount": "${AlphaDesiredTaskCount}",
+                    "ECSRepository": "${Repository}",
+                    "Environment": "alpha",
+                    "NginxImageTag": "${NginxImageTag}"
+                  }
+              InputArtifacts:
+                - Name: Template
+                - Name: BuildOutput
+              RunOrder: 3
 
 
 Outputs:

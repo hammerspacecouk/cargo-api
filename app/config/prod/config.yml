@@ -17,6 +17,7 @@ framework:
 doctrine:
     dbal:
         driver:   pdo_mysql
+        server_version: 5.6
         host:     "%env(DB_WRITE_HOST)%"
         port:     "%env(DB_PORT)%"
         dbname:   "%env(DB_NAME)%"

@@ -1,0 +1,148 @@
+Parameters:
+  ALBStack:
+    Type: String
+
+  ClusterStack:
+    Type: String
+
+  DesiredTaskCount:
+    Type: Number
+    Default: 1
+
+  ECSRepository:
+    Type: String
+
+  Environment:
+    Type: String
+    Default: prod
+
+  ImageTag:
+    Type: String
+    Default: latest
+
+  NginxImageTag:
+    Type: String
+    Default: latest
+
+Resources:
+  ECSServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
+
+  TaskDefinitionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+  TaskDefinitionRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "planet-cargo-ssm-${Environment}"
+      Roles:
+        - !Ref TaskDefinitionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameterHistory
+              - ssm:GetParameter
+              - ssm:GetParameters
+              - ssm:GetParametersByPath
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
+
+  CloudFormationNginx:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: alpha-planet-cargo-api-nginx
+      RetentionInDays: 30
+
+  CloudFormationPHP:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: alpha-planet-cargo-api-php
+      RetentionInDays: 30
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        Fn::ImportValue: !Sub "${ClusterStack}::ClusterName"
+      Role: !Ref ECSServiceRole
+      DesiredCount: !Ref DesiredTaskCount
+      TaskDefinition: !Ref TaskDefinition
+      LoadBalancers:
+        - ContainerName: cargo-api-nginx
+          ContainerPort: 80
+          TargetGroupArn:
+            Fn::ImportValue: !Sub "${ALBStack}::TargetGroup"
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      Family: planet-cargo-api
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:${ImageTag}
+          Cpu: 64
+          Memory: 256
+          Essential: false
+          Environment:
+            - Name: Tag
+              Value: !Ref ImageTag
+            - Name: APP_ENV
+              Value: !Ref Environment
+          PortMappings:
+            - ContainerPort: 9000
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudFormationPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: cargo-ecs-php
+          Command:
+            - "sh"
+            - "-c"
+            - "/var/www/bin/init-ecs.sh && php-fpm"
+        - Name: cargo-api-nginx
+          Image: !Ref NginxImageTag
+          Cpu: 64
+          Memory: 128
+          Essential: true
+          Environment:
+            - Name: APP_ENV
+              Value: !Ref Environment
+          Links:
+            - cargo-api-php
+          PortMappings:
+            - ContainerPort: 80
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudFormationNginx}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: cargo-ecs-nginx
+          VolumesFrom:
+            - SourceContainer: cargo-api-php
+              ReadOnly: true
