@@ -52,7 +52,7 @@ class TokenHandler
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
-    
+
         $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
         $this->currentTime = $currentTime;

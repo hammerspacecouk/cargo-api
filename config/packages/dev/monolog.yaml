@@ -1,22 +1,3 @@
-imports:
-    - { resource: ../prod/config.yml }
-
-parameters:
-    hostname_api: http://api.dev.planetcargo.live
-    hostname_web: http://dev.planetcargo.live
-    cookie_scope: .dev.planetcargo.live
-    distance_multiplier: 60
-
-framework:
-    router:
-        resource: "%kernel.project_dir%/app/config/dev/routing.yml"
-        strict_requirements: true
-    profiler: { only_exceptions: false }
-
-web_profiler:
-    toolbar: true
-    intercept_redirects: false
-
 monolog:
     handlers:
         main:

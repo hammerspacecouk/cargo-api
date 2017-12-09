@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Command\Worker;
 
-use App\Data\Database\EntityManager;
 use App\Service\ShipLocationsService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;

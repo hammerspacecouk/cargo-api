@@ -1,0 +1,4 @@
+doctrine_cache:
+    providers:
+        data_cache:
+            type: php_file

@@ -1,33 +1,53 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+  # todo - power by environment variables
+    hostname_api: http://api.dev.planetcargo.live
+    hostname_web: http://dev.planetcargo.live
+    cookie_scope: .dev.planetcargo.live
+    distance_multiplier: 60
+    cache_provider_type: php_file
+
 services:
+    # default configuration for services in *this* file
     _defaults:
-        autoconfigure: true
-        autowire: true
-        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{Migrations,Data/Database/Entity/*,Domain/*}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
 
     # Register the service as an event listener
-    App\FlashDataListener:
+    App\Infrastructure\Subscriber\FlashDataSubscriber:
         tags:
             - { name: 'kernel.event_subscriber' }
 
-    App\:
-        resource: '../../../src/*'
-        exclude:  '../../../src/{Data/Database/Entity/*,Domain/*}'
-
     App\Infrastructure\ApplicationConfig:
         arguments:
-            - '%hostname_api%'
-            - '%hostname_web%'
-            - '%cookie_scope%'
+            - '%env(CONFIG_HOSTNAME_API)%'
+            - '%env(CONFIG_HOSTNAME_WEB)%'
+            - '%env(CONFIG_COOKIE_SCOPE)%'
             - '%distance_multiplier%'
             - "%env(MAILER_FROM_NAME)%"
             - "%env(MAILER_FROM_ADDRESS)%"
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(TOKEN_ISSUER)%'
-
-    App\Controller\:
-        resource: '../../../src/Controller/'
-        public: true
-        tags: ['controller.service_arguments']
+            - '%env(APP_VERSION)%'
 
     Google_Client:
         class: Google_Client

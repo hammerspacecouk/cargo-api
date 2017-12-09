@@ -6,7 +6,7 @@ namespace Tests\App\Controller\Crates;
 use App\Controller\Crates\ShowAction;
 use App\Domain\Entity\Crate;
 use App\Service\CratesService;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,10 +18,10 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
 {
     private const EXAMPLE_UUID = '00000000-0000-4000-0000-000000000000';
 
-    /** @var PHPUnit_Framework_MockObject_MockObject|CratesService */
+    /** @var CratesService|MockObject */
     private $mockCratesService;
 
-    /** @var PHPUnit_Framework_MockObject_MockObject|LoggerInterface */
+    /** @var LoggerInterface|MockObject */
     private $mockLogger;
 
     public function setup()
@@ -32,8 +32,6 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
 
     public function testNoSuchCrate()
     {
-        $this->expectException(NotFoundHttpException::class);
-
         $request = new Request([
             'uuid' => self::EXAMPLE_UUID
         ]);
@@ -45,6 +43,9 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
             ->willReturn(null);
 
         $controller = new ShowAction;
+
+        // go
+        $this->expectException(NotFoundHttpException::class);
         $controller($request, $this->mockCratesService, $this->mockLogger);
     }
 

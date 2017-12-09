@@ -27,7 +27,7 @@ class MoveShipAction extends AbstractAction
         $referrer = $request->headers->get('Referer', null);
         if ($referrer) {
             // todo - abstract
-            $response = new RedirectResponse($referrer);
+            $response = new RedirectResponse((string) $referrer);
             $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
             return $response;
         }
