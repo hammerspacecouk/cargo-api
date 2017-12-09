@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App;
+namespace App\Infrastructure\Subscriber;
 
 use App\Data\FlashDataStore;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class FlashDataListener implements EventSubscriberInterface
+class FlashDataSubscriber implements EventSubscriberInterface
 {
     private $dataStore;
 

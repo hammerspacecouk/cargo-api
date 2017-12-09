@@ -6,28 +6,24 @@ namespace App\Data\Database;
 use App\Data\Database\Entity\AbstractEntity;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManager as DoctrineEntityManager;
-use Doctrine\ORM\Configuration;
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\Decorator\EntityManagerDecorator;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
-class EntityManager extends DoctrineEntityManager
+class EntityManager extends EntityManagerDecorator
 {
     private $currentTime;
     private $cache;
     private $logger;
 
     public function __construct(
-        Connection $conn,
-        Configuration $config,
-        EventManager $eventManager,
+        EntityManagerInterface $entityManager,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
-        parent::__construct($conn, $config, $eventManager);
+        parent::__construct($entityManager);
         $this->currentTime = $currentTime;
         $this->cache = $cache;
         $this->logger = $logger;

@@ -13,6 +13,7 @@ class ApplicationConfig
     private $emailFromAddress;
     private $tokenPrivateKey;
     private $tokenIssuer;
+    private $version;
 
     public function __construct(
         string $hostnameApi,
@@ -22,7 +23,8 @@ class ApplicationConfig
         string $emailFromName,
         string $emailFromAddress,
         string $tokenPrivateKey,
-        string $tokenIssuer
+        string $tokenIssuer,
+        ?string $version
     ) {
         $this->hostnameApi = $hostnameApi;
         $this->hostnameWeb = $hostnameWeb;
@@ -32,6 +34,7 @@ class ApplicationConfig
         $this->emailFromAddress = $emailFromAddress;
         $this->tokenPrivateKey = $tokenPrivateKey;
         $this->tokenIssuer = $tokenIssuer;
+        $this->version = $version;
     }
 
     public function getApiHostname(): string
@@ -72,5 +75,14 @@ class ApplicationConfig
     public function getTokenIssuer(): string
     {
         return $this->tokenIssuer;
+    }
+
+    public function getVersion(): string
+    {
+        $v = getenv('APP_VERSION');
+        if ($v) {
+            return $v;
+        }
+        return 'DEV';
     }
 }

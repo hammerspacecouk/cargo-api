@@ -109,7 +109,7 @@ Resources:
           Memory: 256
           Essential: false
           Environment:
-            - Name: Tag
+            - Name: APP_VERSION
               Value: !Ref ImageTag
             - Name: APP_ENV
               Value: !Ref Environment

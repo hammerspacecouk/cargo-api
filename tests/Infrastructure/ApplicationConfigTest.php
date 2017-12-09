@@ -17,7 +17,8 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
             $fromName = 'From',
             $fromAddress = 'from@example.com',
             $tokenPrivateKey = 'aaaabbbbb',
-            $tokenIssuer = 'https://example.com'
+            $tokenIssuer = 'https://example.com',
+            $version = 'vvvvv'
         );
 
         $this->assertSame($hostnameApi, $config->getApiHostname());

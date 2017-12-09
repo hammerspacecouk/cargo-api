@@ -4,13 +4,11 @@ version: "3"
 
 services:
   cargo-api-php:
-    image: 323441517494.dkr.ecr.eu-west-2.amazonaws.com/plane-repos-1fn67259r5f10:latest
+    image: 323441517494.dkr.ecr.eu-west-2.amazonaws.com/planet-cargo-api:latest
     links:
       - cargo-db
     volumes:
       - .:/var/www
-    environment:
-      - APP_ENV=dev
     working_dir: /var/www
 
   cargo-api-nginx:
@@ -22,8 +20,6 @@ services:
     volumes:
       - .:/var/www
       - ./nginx:/etc/nginx/conf.d
-    environment:
-      - APP_ENV=dev
 
   cargo-db:
     restart: always

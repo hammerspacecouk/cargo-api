@@ -9,6 +9,9 @@ use Symfony\Component\Debug\Debug;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+// todo - match the format of console (or perhaps call console directly)
+date_default_timezone_set('UTC'); // servers should always be UTC
+
 const ONE_SECOND = 1000000;
 
 while (true) {

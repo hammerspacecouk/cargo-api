@@ -5,13 +5,12 @@ namespace Tests\App\Controller;
 
 use App\Controller\PaginationRequestTrait;
 use App\Domain\ValueObject\Pagination;
-use PHPUnit_Framework_MockObject_MockObject;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PaginationRequestTraitTest extends \PHPUnit\Framework\TestCase
 {
-    /** @var  PaginationRequestTrait|PHPUnit_Framework_MockObject_MockObject */
+    /** @var  PaginationRequestTrait */
     private $trait;
 
     public function setup()
