@@ -39,7 +39,7 @@ class ParameterFetcher
         if (file_exists($cacheFile)) {
             $data = json_decode(file_get_contents($cacheFile));
             if ($data->expires > $now->getTimestamp()) {
-                $this->populate($data->vars);
+                $this->populate((array) $data->vars);
                 return;
             }
         }
