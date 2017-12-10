@@ -1,5 +1,8 @@
 FROM php:7.1-fpm
 
+ARG env=prod
+ENV APP_ENV=$env
+
 # Setup the OS for PHP
 RUN docker-php-source extract \
     && apt-get update \
