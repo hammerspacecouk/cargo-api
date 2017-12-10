@@ -69,9 +69,6 @@ RUN curl -sS https://getcomposer.org/installer | php
 RUN php composer.phar install --optimize-autoloader --no-dev --prefer-dist
 RUN rm composer.phar
 
-# The webapp needs to own the var file
-RUN chown -R www-data:www-data var
-
 # Allow to volume to share
 VOLUME /var/www /etc/nginx/conf.d
 
