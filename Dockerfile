@@ -60,7 +60,7 @@ COPY . /var/www
 WORKDIR /var/www
 
 # Ensure executables and permissions
-RUN chmod +x bin/* && mkdir var && chown -R www-data:www-data var
+RUN chmod +x bin/*
 
 # Get composer
 RUN curl -sS https://getcomposer.org/installer | php
@@ -69,7 +69,8 @@ RUN curl -sS https://getcomposer.org/installer | php
 RUN php composer.phar install --optimize-autoloader --no-dev --prefer-dist
 RUN rm composer.phar
 
-# Warm cache todo - once we can set up environment variables (and talk to database etc)
+# The webapp needs to own the var file
+RUN chown -R www-data:www-data var
 
 # Allow to volume to share
 VOLUME /var/www /etc/nginx/conf.d
