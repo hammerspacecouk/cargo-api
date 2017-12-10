@@ -1,6 +1,8 @@
-ARG REPO
-ARG TAG=latest
-FROM ${REPO}:${TAG}
+#ARG REPO
+#ARG TAG=latest
+#FROM ${REPO}:${TAG}
+# ARG BASED REPO won't work until the docker version is updated. Use explict repo for now
+FROM 323441517494.dkr.ecr.eu-west-2.amazonaws.com/php-base-image:latest
 
 ARG ENV=prod
 ENV APP_ENV=$ENV

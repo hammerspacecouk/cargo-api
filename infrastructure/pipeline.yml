@@ -228,8 +228,7 @@ Resources:
                 - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
             build:
               commands:
-                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO}
-                TAG=latest .
+                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO} --build-arg TAG=latest .
                 - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
             post_build:
               commands:
