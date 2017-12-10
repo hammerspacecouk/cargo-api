@@ -199,6 +199,8 @@ Resources:
         EnvironmentVariables:
           - Name: AWS_DEFAULT_REGION
             Value: !Ref AWS::Region
+          - Name: APP_ENV
+            Value: prod
       Name: "planet-cargo-api-test"
       ServiceRole: !Ref CodeBuildServiceRole
 

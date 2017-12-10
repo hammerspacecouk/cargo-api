@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Infrastructure;
 
 use Aws\Credentials\CredentialProvider;
+use Aws\Credentials\EcsCredentialProvider;
 use Aws\Ssm\SsmClient;
 use Generator;
 use RuntimeException;
@@ -17,15 +18,16 @@ class ParameterFetcher
 
     public function __construct(string $env)
     {
-        $this->ssmClient = '';
         $this->env = $env;
 
-        $provider = CredentialProvider::ecsCredentials();
-        $this->ssmClient = new SsmClient([
-            'region'      => 'eu-west-2',
-            'version'     => '2014-11-06',
-            'credentials' => $provider,
-        ]);
+        if (getenv(EcsCredentialProvider::ENV_URI)) {
+            $provider = CredentialProvider::ecsCredentials();
+            $this->ssmClient = new SsmClient([
+                'region' => 'eu-west-2',
+                'version' => '2014-11-06',
+                'credentials' => $provider,
+            ]);
+        }
     }
 
     public function load(string $path, string $cacheDir): void
@@ -38,28 +40,32 @@ class ParameterFetcher
             $data = json_decode(file_get_contents($cacheFile));
             if ($data->expires > $now->getTimestamp()) {
                 $this->populate($data->vars);
+                return;
             }
-            return;
         }
 
         if (!is_readable($path) || is_dir($path)) {
             throw new RuntimeException($path);
         }
+
         $vars = $this->parse($path);
+        if ($this->ssmClient) {
+            $results = $this->fetchAll($vars);
 
-        file_put_contents($cacheFile, json_encode([
-            'expires' => $now->add(new \DateInterval('PT1H30M'))->getTimestamp(),
-            'vars' => $vars,
-        ]));
+            file_put_contents($cacheFile, json_encode([
+                'expires' => $now->add(new \DateInterval('PT1H30M'))->getTimestamp(),
+                'vars' => $results,
+            ]));
+        } else {
+            $results = array_fill_keys($vars, '');
+        }
 
-        $this->populate($vars);
+        $this->populate($results);
     }
 
-    private function populate($vars): void
+    private function populate(array $vars): void
     {
-        $results = $this->fetchAll($vars);
-
-        foreach ($results as $name => $value) {
+        foreach ($vars as $name => $value) {
             $notHttpName = 0 !== strpos($name, 'HTTP_');
             // don't check existence with getenv() because of thread safety issues
             if (isset($_ENV[$name]) || (isset($_SERVER[$name]) && $notHttpName)) {

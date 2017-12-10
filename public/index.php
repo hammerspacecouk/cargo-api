@@ -19,7 +19,7 @@ if (!isset($_SERVER['APP_ENV'])) {
     }
     (new Dotenv())->load(__DIR__.'/../.env');
 } else {
-    (new ParameterFetcher($_SERVER['APP_ENV']))->load(__DIR__.'/../.env', __DIR__.'/../tmp/cache');
+    (new ParameterFetcher($_SERVER['APP_ENV']))->load(__DIR__.'/../.env', __DIR__.'/../var/cache');
 }
 
 if ($_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev'))) {
