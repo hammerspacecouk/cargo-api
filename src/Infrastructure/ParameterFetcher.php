@@ -52,6 +52,9 @@ class ParameterFetcher
         if ($this->ssmClient) {
             $results = $this->fetchAll($vars);
 
+            if (!file_exists($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
             file_put_contents($cacheFile, json_encode([
                 'expires' => $now->add(new \DateInterval('PT1H30M'))->getTimestamp(),
                 'vars' => $results,

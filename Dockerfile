@@ -59,8 +59,8 @@ COPY . /var/www
 
 WORKDIR /var/www
 
-# Ensure executables
-RUN chmod +x bin/*
+# Ensure executables and permissions
+RUN chmod +x bin/* && mkdir var && chown www-data:www-data var
 
 # Get composer
 RUN curl -sS https://getcomposer.org/installer | php
