@@ -1,3 +1,4 @@
 #!/bin/sh
 
-echo "Placeholder. Nothing to do... yet"
+echo "Warming cache"
+php bin/console cache:warm

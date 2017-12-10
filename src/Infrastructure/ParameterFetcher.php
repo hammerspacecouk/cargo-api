@@ -20,7 +20,7 @@ class ParameterFetcher
     {
         $this->env = $env;
 
-        if (getenv(EcsCredentialProvider::ENV_URI)) {
+        if (getenv(EcsCredentialProvider::ENV_URI) && $env !== 'build') {
             $provider = CredentialProvider::ecsCredentials();
             $this->ssmClient = new SsmClient([
                 'region' => 'eu-west-2',
