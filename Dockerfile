@@ -1,7 +1,9 @@
-FROM 323441517494.dkr.ecr.eu-west-2.amazonaws.com/planet-cargo-base-php:latest
+ARG REPO
+ARG TAG=latest
+FROM ${REPO}:${TAG}
 
-ARG env=prod
-ENV APP_ENV=$env
+ARG ENV=prod
+ENV APP_ENV=$ENV
 
 # Setup the application
 COPY ./nginx /etc/nginx/conf.d/
