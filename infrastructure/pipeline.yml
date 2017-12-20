@@ -181,18 +181,16 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        Location: !Ref ArtifactBucket
-        Type: "S3"
+        Type: CODEPIPELINE
       Source:
-        Location: !Sub ${ArtifactBucket}/source.zip
-        Type: "S3"
+        Type: CODEPIPELINE
         BuildSpec: |
           version: 0.2
           phases:
             pre_build:
               commands:
                 - echo Installing composer dependencies...
-                - composer install --prefer-dist --ignore-platform-reqs # todo - get updated to PHP 7.2
+                - composer install --prefer-dist
             build:
               commands:
                 - composer cs
@@ -214,18 +212,16 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        Location: !Ref ArtifactBucket
-        Type: "S3"
+        Type: CODEPIPELINE
       Source:
-        Location: !Sub ${ArtifactBucket}/source.zip
-        Type: "S3"
+        Type: CODEPIPELINE
         BuildSpec: |
           version: 0.2
           phases:
             pre_build:
               commands:
                 - $(aws ecr get-login)
-                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+                - TAG=r$(date +%F-%H%M%S-%N)
             build:
               commands:
                 - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO} --build-arg TAG=latest .

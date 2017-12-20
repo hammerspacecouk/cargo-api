@@ -38,13 +38,17 @@ class StatusAction
         // todo - check the latest migration (checks database connection is ok)
 
         return new JsonResponse([
-            'status' => 'OK',
-            'release' => 'Arctan',
-            'appVersion' => $applicationConfig->getVersion(),
-            'latestMigration' => 'TODO-Soon', // todo
-            'appTime' => $applicationTime->format('c'),
-            'distanceMutipler' => $applicationConfig->getDistanceMultiplier(),
-            'cache' => $cacheStatus,
+            'app' => [
+                'runtime' => 'OK',
+                'cache' => $cacheStatus,
+                'release' => 'Arctan',
+                'version' => $applicationConfig->getVersion(),
+                'schema' => 'TODO-Soon', // todo,
+            ],
+            'request' => [
+                'time' => $applicationTime->format('c'),
+                'host' => getenv('HOSTNAME') ?? 'dev'
+            ],
         ]);
     }
 }

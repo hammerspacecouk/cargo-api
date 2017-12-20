@@ -2,6 +2,12 @@ Parameters:
   ClusterStack:
     Type: String
 
+  HostnameAPI:
+    Type: String
+
+  HostnameWeb:
+    Type: String
+
 Resources:
 
   SecurityGroupALB:
@@ -53,11 +59,29 @@ Resources:
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 5
 
+  TargetGroupWeb:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LoadBalancer
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub "${ClusterStack}::VPC"
+      Port: 80
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /health-alb
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 5
+
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     DependsOn:
       - LoadBalancer
       - TargetGroup
+      - TargetGroupWeb
     Properties:
       LoadBalancerArn: !Ref LoadBalancer
       Port: 80
@@ -66,17 +90,30 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
 
-  ListenerRule:
+  ListenerRuleAPI:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       ListenerArn: !Ref LoadBalancerListener
-      Priority: 1
+      Priority: 2
       Conditions:
-        - Field: path-pattern
+        - Field: host-header
           Values:
-            - /
+            - !Ref HostnameAPI
       Actions:
         - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+
+  ListenerRuleWeb:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref LoadBalancerListener
+      Priority: 3
+      Conditions:
+        - Field: host-header
+          Values:
+            - !Ref HostnameWeb
+      Actions:
+        - TargetGroupArn: !Ref TargetGroupWeb
           Type: forward
 
 Outputs:
@@ -85,3 +122,8 @@ Outputs:
     Value: !Ref TargetGroup
     Export:
       Name: !Sub "${AWS::StackName}::TargetGroup"
+  TargetGroupWeb:
+      Description: The ALB TargetGroupWeb for the service
+      Value: !Ref TargetGroupWeb
+      Export:
+        Name: !Sub "${AWS::StackName}::TargetGroupWeb"

@@ -71,16 +71,16 @@ Resources:
             Resource:
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
 
-  CloudFormationNginx:
+  CloudWatchNginx:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: alpha-planet-cargo-api-nginx
+      LogGroupName: !Sub ${Environment}-planet-cargo-api-nginx
       RetentionInDays: 30
 
-  CloudFormationPHP:
+  CloudWatchPHP:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: alpha-planet-cargo-api-php
+      LogGroupName: !Sub ${Environment}-planet-cargo-api-php
       RetentionInDays: 30
 
   Service:
@@ -91,6 +91,9 @@ Resources:
       Role: !Ref ECSServiceRole
       DesiredCount: !Ref DesiredTaskCount
       TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
       LoadBalancers:
         - ContainerName: cargo-api-nginx
           ContainerPort: 80
@@ -106,7 +109,7 @@ Resources:
         - Name: cargo-api-php
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:${ImageTag}
           Cpu: 64
-          Memory: 256
+          Memory: 128
           Essential: false
           Environment:
             - Name: APP_VERSION
@@ -118,7 +121,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub ${CloudFormationPHP}
+              awslogs-group: !Sub ${CloudWatchPHP}
               awslogs-region: !Sub ${AWS::Region}
               awslogs-stream-prefix: cargo-ecs-php
           Command:
@@ -140,7 +143,7 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub ${CloudFormationNginx}
+              awslogs-group: !Sub ${CloudWatchNginx}
               awslogs-region: !Sub ${AWS::Region}
               awslogs-stream-prefix: cargo-ecs-nginx
           VolumesFrom:
