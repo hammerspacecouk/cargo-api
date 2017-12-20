@@ -41,7 +41,7 @@ class StatusAction
             'status' => 'OK',
             'release' => 'Arctan',
             'appVersion' => $applicationConfig->getVersion(),
-            'latestMigration' => 'TODO', // todo
+            'latestMigration' => 'TODO-Soon', // todo
             'appTime' => $applicationTime->format('c'),
             'distanceMutipler' => $applicationConfig->getDistanceMultiplier(),
             'cache' => $cacheStatus,
