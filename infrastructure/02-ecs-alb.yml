@@ -58,6 +58,9 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 5
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 30
 
   TargetGroupWeb:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -75,6 +78,9 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 5
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 30
 
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener

@@ -78,8 +78,8 @@ class MakePortsCommand extends Command
                     $name,
                     $cluster,
                     $isSafeHaven,
-                    $isOpen,
-                    $isDestination
+                    $isDestination,
+                    $isOpen
                 );
             }
 

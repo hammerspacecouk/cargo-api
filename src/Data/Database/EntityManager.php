@@ -47,6 +47,7 @@ class EntityManager extends EntityManagerDecorator
         $repo = parent::getRepository($entityName);
 
         // set dependencies (which could not be injected via construct)
+        $repo->setEntityManager($this);
         $repo->setCurrentTime($this->currentTime);
         $repo->setCache($this->cache);
         $repo->setLogger($this->logger);

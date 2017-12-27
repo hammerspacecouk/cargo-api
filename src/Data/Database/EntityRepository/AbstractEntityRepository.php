@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Psr\Log\LoggerInterface;
@@ -40,6 +41,11 @@ abstract class AbstractEntityRepository extends EntityRepository
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    public function setEntityManager(EntityManagerInterface $em): void
+    {
+        $this->_em = $em;
     }
 
     /** Shared methods begin from here */

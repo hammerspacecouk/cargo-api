@@ -16,6 +16,7 @@ class PortRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.isSafeHaven = true')
             ->andWhere('tbl.isOpen = true')
+            ->andWhere('tbl.isDestination = false')
             ->setFirstResult($randomOffset)
             ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult($resultType);
@@ -33,6 +34,7 @@ class PortRepository extends AbstractEntityRepository
             ->select('count(1)')
             ->where('tbl.isSafeHaven = true')
             ->andWhere('tbl.isOpen = true')
+            ->andWhere('tbl.isDestination = false')
             ->getQuery()
             ->getSingleScalarResult();
 

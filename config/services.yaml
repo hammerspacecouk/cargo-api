@@ -1,12 +1,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-  # todo - power by environment variables
-    hostname_api: http://api.dev.planetcargo.live
-    hostname_web: http://dev.planetcargo.live
-    cookie_scope: .dev.planetcargo.live
     distance_multiplier: 60
-    cache_provider_type: php_file
 
 services:
     # default configuration for services in *this* file
