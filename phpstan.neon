@@ -3,3 +3,6 @@ parameters:
         # PHPStan does not recognise PHPUnit MockObjects as being a child of the object it mocked
         # Therefore, we'll tell PHPStan to ignore errors that say something other than a PHPUnit Mock was expected
         - '# PHPUnit\\Framework\\MockObject\\MockObject#'
+        # We can't use proper dependency injection for the EntityRepository so
+        # there is a workaround, which doesn't exactly match the docblock
+        - '# Doctrine\\ORM\\EntityRepository::\$_em#'
