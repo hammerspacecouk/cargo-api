@@ -147,17 +147,7 @@ class TokenHandler
         if ($accessToken) {
             try {
                 $accessToken = $this->parseTokenFromString($accessToken, false);
-                $accessToken = new AccessToken($accessToken);
-
-                // update access token
-                $tokenId = $accessToken->getId();
-                $claims = AccessToken::makeClaims($accessToken->getUserId());
-
-                $accessToken = $this->makeToken($claims, $tokenId, self::EXPIRY_ACCESS_TOKEN);
-
-                // generate an access cookie
-                $accessCookie = $this->makeAccessCookie($accessToken);
-                return new AccessToken($accessToken, [$accessCookie]);
+                return new AccessToken($accessToken);
             } catch (TokenException $e) {
                 // ignore this token and carry on to try the refresh token
             }
