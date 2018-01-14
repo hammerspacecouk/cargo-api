@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\ValueObject\EmailAddress;
 use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
 use Stevenmaguire\OAuth2\Client\Provider\MicrosoftResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -48,6 +49,6 @@ class LoginMicrosoftAction extends AbstractLoginAction
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
         }
 
-        return $this->getLoginResponse($request, $email);
+        return $this->getLoginResponse($request, new EmailAddress($email));
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\ValueObject\EmailAddress;
 use Facebook\Exceptions\FacebookResponseException;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
@@ -66,6 +67,6 @@ class LoginFacebookAction extends AbstractLoginAction
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
         }
 
-        return $this->getLoginResponse($request, $email);
+        return $this->getLoginResponse($request, new EmailAddress($email));
     }
 }

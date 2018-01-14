@@ -5,9 +5,10 @@ namespace App\Controller\Security;
 
 use App\Service\TokensService;
 use App\Service\UsersService;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CheckLoginAction
 {
@@ -17,33 +18,28 @@ class CheckLoginAction
         Request $request,
         TokensService $tokensService,
         UsersService $usersService
-    ): JsonResponse {
+    ): Response {
 
-        $user = $this->getUser($request, $tokensService, $usersService);
+        $player = null;
+        $loginToken = null;
+        $loggedIn = false;
 
-        $response = new JsonResponse([
-            'id' => $user->getId(),
-            'score' => $user->getScore(),
-            'cookies' => array_map(function (Cookie $cookie) {
-                $opts = [
-                    'domain' => $cookie->getDomain(),
-                    'httpOnly' => $cookie->isHttpOnly(),
-                    'path' => $cookie->getPath(),
-                    'secure' => $cookie->isSecure(),
-                ];
+        try {
+            $user = $this->getUser($request, $tokensService, $usersService);
+            $loggedIn = true;
+            $player = [
+                'id' => $user->getId(),
+                'score' => $user->getScore(),
+            ];
+        } catch (AccessDeniedHttpException $exception) {
+            // On this controller alone, don't throw a 403. Catch and return the token needed to login
+            $loginToken = (string) $tokensService->makeCsrfToken(LoginEmailAction::CRSF_CONTEXT_KEY);
+        }
 
-                if ($cookie->getMaxAge() !== 0) {
-                    $opts['maxAge'] = $cookie->getMaxAge() * 1000; // front end js expects milliseconds;
-                }
-
-                return [
-                    'name' => $cookie->getName(),
-                    'value' => $cookie->getValue(),
-                    'opts' => $opts,
-                ];
-            }, $this->cookies),
-        ]);
-
-        return $this->userResponse($response);
+        return $this->userResponse(new JsonResponse([
+            'loggedIn' => $loggedIn,
+            'loginToken' => $loginToken,
+            'player' => $player,
+        ]));
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\ValueObject\EmailAddress;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Service\TokensService;
@@ -47,7 +48,7 @@ class AbstractLoginAction
 
     protected function getLoginResponse(
         Request $request,
-        string $emailAddress
+        EmailAddress $emailAddress
     ) {
         $description = $request->headers->get('User-Agent', 'Unknown');
 

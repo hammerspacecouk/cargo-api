@@ -8,9 +8,11 @@ use App\Data\ID;
 use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
+use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use App\Domain\ValueObject\Token\CsrfToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -19,7 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TokensService extends AbstractService
 {
-    public function makeNewRefreshTokenCookie(string $email, string $description): Cookie
+    public function makeCsrfToken($contextKey): CsrfToken
+    {
+        return $this->tokenHandler->makeNewCsrfToken($contextKey);
+    }
+
+    public function makeNewRefreshTokenCookie(EmailAddress $email, string $description): Cookie
     {
         return $this->tokenHandler->makeNewRefreshTokenCookie($email, $description);
     }
@@ -27,6 +34,11 @@ class TokensService extends AbstractService
     public function getAccessTokenFromRequest(Request $request): AccessToken
     {
         return $this->tokenHandler->getAccessTokenFromRequest($request);
+    }
+
+    public function getCsrfTokenFromRequest(Request $request): CsrfToken
+    {
+        return $this->tokenHandler->getCsrfTokenFromRequest($request);
     }
 
     public function getUserIdFromAccessTokenString(string $tokenString): UuidInterface
@@ -83,7 +95,7 @@ class TokensService extends AbstractService
     // Parse tokens
 
     public function getEmailLoginToken(
-        string $emailAddress
+        EmailAddress $emailAddress
     ): EmailLoginToken {
         $token = $this->tokenHandler->makeToken(
             EmailLoginToken::makeClaims(

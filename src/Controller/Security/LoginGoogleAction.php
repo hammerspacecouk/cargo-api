@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\ValueObject\EmailAddress;
 use Google_Client;
 use Google_Service_Oauth2;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -42,6 +43,6 @@ class LoginGoogleAction extends AbstractLoginAction
         $oauthClient = new Google_Service_Oauth2($client);
         $user = $oauthClient->userinfo_v2_me->get();
 
-        return $this->getLoginResponse($request, $user->email);
+        return $this->getLoginResponse($request, new EmailAddress($user->email));
     }
 }

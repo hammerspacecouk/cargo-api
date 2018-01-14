@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use Abraham\TwitterOAuth\TwitterOAuth;
+use App\Domain\ValueObject\EmailAddress;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +52,6 @@ class LoginTwitterAction extends AbstractLoginAction
             throw new UnauthorizedHttpException('Could not find an e-mail address from your Twitter details');
         }
 
-        return $this->getLoginResponse($request, $userDetails['email']);
+        return $this->getLoginResponse($request, new EmailAddress($userDetails['email']));
     }
 }

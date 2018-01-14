@@ -10,8 +10,8 @@ use App\Service\TokensService;
 use App\Service\UsersService;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait UserTokenTrait
@@ -43,7 +43,6 @@ trait UserTokenTrait
         TokensService $tokensService,
         UsersService $usersService
     ): User {
-
         $userId = $this->getUserId($request, $tokensService);
         $user = $usersService->getById($userId);
         if ($user) {
@@ -52,7 +51,7 @@ trait UserTokenTrait
         throw new AccessDeniedHttpException('Invalid user');
     }
 
-    protected function userResponse(JsonResponse $response): JsonResponse
+    protected function userResponse(Response $response): Response
     {
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
 

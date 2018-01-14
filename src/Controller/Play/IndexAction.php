@@ -4,19 +4,15 @@ declare(strict_types=1);
 namespace App\Controller\Play;
 
 use App\Controller\Security\Traits\UserTokenTrait;
-use App\Domain\Entity\Port;
 use App\Service\PortsService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * The 'My' Section reads from your cookie, so is custom and un-cacheable
- */
 class IndexAction
 {
     use UserTokenTrait;
@@ -43,7 +39,7 @@ class IndexAction
 
     public function __invoke(
         Request $request
-    ): JsonResponse {
+    ): Response {
 
         $this->logger->debug(__CLASS__);
         $userId = $this->getUserId($request, $this->tokensService);

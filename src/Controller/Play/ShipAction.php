@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Domain\Entity\ShipInChannel;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Infrastructure\ApplicationConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
@@ -20,6 +19,7 @@ use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -42,7 +42,7 @@ class ShipAction
         ShipsService $shipsService,
         ChannelsService $channelsService,
         LoggerInterface $logger
-    ): JsonResponse {
+    ): Response {
 
         $logger->debug(__CLASS__);
 

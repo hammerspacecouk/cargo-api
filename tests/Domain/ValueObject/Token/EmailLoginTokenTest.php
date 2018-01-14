@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
+use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 
 class EmailLoginTokenTest extends TokenTestCase
@@ -34,12 +35,12 @@ class EmailLoginTokenTest extends TokenTestCase
         $tokenObject = new EmailLoginToken($token);
 
         $this->assertStandardTokenValues($token, $tokenObject);
-        $this->assertSame(self::EMAIL_ADDRESS_EXAMPLE, $tokenObject->getEmailAddress());
+        $this->assertEquals(new EmailAddress(self::EMAIL_ADDRESS_EXAMPLE), $tokenObject->getEmailAddress());
     }
 
     public function testMakeClaims()
     {
-        $claims = EmailLoginToken::makeClaims(self::EMAIL_ADDRESS_EXAMPLE);
+        $claims = EmailLoginToken::makeClaims(new EmailAddress(self::EMAIL_ADDRESS_EXAMPLE));
 
         $this->assertTrue(is_array($claims));
         $this->assertSame(EmailLoginToken::TYPE, $claims[EmailLoginToken::KEY_TOKEN_TYPE]);

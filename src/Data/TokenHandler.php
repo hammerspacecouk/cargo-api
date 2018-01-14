@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\CsrfToken;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\Entity\Token as DbToken;
 use App\Data\Database\EntityManager;
@@ -33,6 +35,7 @@ class TokenHandler
     public const EXPIRY_ACCESS_TOKEN = self::EXPIRY_ONE_HOUR;
     public const EXPIRY_EMAIL_LOGIN = self::EXPIRY_ONE_HOUR;
     public const EXPIRY_DEFAULT = self::EXPIRY_ONE_DAY;
+    public const EXPIRY_CSRF = self::EXPIRY_ONE_HOUR;
 
     private const EXPIRY_TWO_MONTHS = 'P2M';
     private const EXPIRY_ONE_DAY = 'P1D';
@@ -59,8 +62,19 @@ class TokenHandler
         $this->logger = $logger;
     }
 
-    public function makeNewRefreshTokenCookie(string $emailAddress, string $description)
+    public function makeNewCsrfToken($context): CsrfToken
     {
+        return new CsrfToken($this->makeToken(
+            CsrfToken::makeClaims($context),
+            ID::makeNewID(DbToken::class),
+            self::EXPIRY_CSRF
+        ));
+    }
+
+    public function makeNewRefreshTokenCookie(EmailAddress $emailAddress, string $description)
+    {
+        $emailAddress = (string) $emailAddress;
+
         $accessKey = bin2hex(random_bytes(32)); // random key to be the password
         $digest = RefreshToken::secureAccessKey($accessKey); // digest to be stored (accessKey must not be stored)
 
@@ -111,7 +125,6 @@ class TokenHandler
             $id = ID::makeNewID(DbToken::class);
         }
 
-        $signer = new Sha256();
         $builder = (new Builder())
             ->setIssuedAt($this->currentTime->getTimestamp())
             ->setId((string)$id)
@@ -122,9 +135,19 @@ class TokenHandler
         }
 
         // Now that all the data is present we can sign it
-        $builder->sign($signer, $this->applicationConfig->getTokenPrivateKey());
+        $builder->sign($this->getSigner(), $this->applicationConfig->getTokenPrivateKey());
 
         return $builder->getToken();
+    }
+
+    public function getCsrfTokenFromRequest(Request $request): CsrfToken
+    {
+        // check to see if it has a valid refresh token
+        $csrfToken = $request->get('csrfToken');
+        if (!$csrfToken) {
+            throw new MissingTokenException('No CSRF token was found');
+        }
+        return new CsrfToken($this->parseTokenFromString($csrfToken, false));
     }
 
     public function getRefreshTokenFromRequest(Request $request): RefreshToken
@@ -134,8 +157,6 @@ class TokenHandler
         if (!$refreshToken) {
             throw new MissingTokenException('No access or refresh token found');
         }
-
-        // fetch the token from the DB to check it exists (and the user exists)
         return new RefreshToken($this->parseTokenFromString($refreshToken, false));
     }
 
@@ -191,32 +212,16 @@ class TokenHandler
         string $tokenString,
         $checkIfInvalidated = true
     ): Token {
-    
-        $token = (new Parser())->parse($tokenString);
-        return $this->parseToken($token, $checkIfInvalidated);
-    }
-
-    public function parseToken(
-        Token $token,
-        $checkIfInvalidated = true
-    ): Token {
-    
-        $data = new ValidationData();
-        $data->setCurrentTime($this->currentTime->getTimestamp());
-
-        if ($checkIfInvalidated &&
-            !$this->entityManager->getTokenRepo()->isValid($this->uuidFromToken($token))
-        ) {
-            throw new InvalidTokenException('Token has been invalidated');
+        try {
+            $token = (new Parser())->parse($tokenString);
+            return $this->parseToken($token, $checkIfInvalidated);
+        } catch (\Exception $e) {
+            // turn all types of unrecognised paring errors into InvalidToken errors
+            if (!$e instanceof TokenException) {
+                $e = new InvalidTokenException($e->getMessage());
+            }
+            throw $e;
         }
-
-        $signer = new Sha256();
-        if (!$token->verify($signer, $this->applicationConfig->getTokenPrivateKey()) ||
-            !$token->validate($data)
-        ) {
-            throw new ExpiredTokenException('Token was tampered with or expired');
-        }
-        return $token;
     }
 
     public function clearCookiesFromResponse(Response $response): Response
@@ -224,6 +229,37 @@ class TokenHandler
         $response->headers->clearCookie(self::COOKIE_ACCESS_NAME, '/', $this->applicationConfig->getCookieScope());
         $response->headers->clearCookie(self::COOKIE_REFRESH_NAME, '/', $this->applicationConfig->getCookieScope());
         return $response;
+    }
+
+    private function parseToken(
+        Token $token,
+        $checkIfInvalidated = true
+    ): Token {
+
+        if ($token->isExpired($this->currentTime)) {
+            throw new ExpiredTokenException('Token has expired');
+        }
+
+            $data = new ValidationData($this->currentTime->getTimestamp());
+        if (!$token->verify($this->getSigner(), $this->applicationConfig->getTokenPrivateKey()) ||
+                !$token->validate($data)
+            ) {
+            throw new InvalidTokenException('Token was tampered with or otherwise invalid');
+        }
+
+        if ($checkIfInvalidated &&
+                !$this->entityManager->getTokenRepo()->isValid($this->uuidFromToken($token))
+            ) {
+            throw new InvalidTokenException('Token has been invalidated');
+        }
+
+
+        return $token;
+    }
+
+    private function getSigner(): Sha256
+    {
+        return new Sha256();
     }
 
     private function getExpiryInterval(string $expiry = self::EXPIRY_DEFAULT)
