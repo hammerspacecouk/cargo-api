@@ -28,54 +28,65 @@ class ShipAction
     use UserTokenTrait;
     use GetShipTrait;
 
-    /** @var TokensService */
+    private $applicationConfig;
     private $tokensService;
-
-    /** @var ChannelsService */
+    private $shipsService;
     private $channelsService;
+    private $usersService;
+    private $logger;
 
-    public function __invoke(
-        Request $request,
+    public function __construct(
         ApplicationConfig $applicationConfig,
         TokensService $tokensService,
-        UsersService $usersService,
         ShipsService $shipsService,
+        UsersService $usersService,
         ChannelsService $channelsService,
         LoggerInterface $logger
+    ) {
+        $this->applicationConfig = $applicationConfig;
+        $this->tokensService = $tokensService;
+        $this->shipsService = $shipsService;
+        $this->channelsService = $channelsService;
+        $this->usersService = $usersService;
+        $this->logger = $logger;
+    }
+
+    public function __invoke(
+        Request $request
     ): Response {
 
-        $logger->debug(__CLASS__);
-
-        $this->tokensService = $tokensService;
-        $this->channelsService = $channelsService;
+        $this->logger->debug(__CLASS__);
 
         $userId = $this->getUserId($request, $this->tokensService);
-        $user = $usersService->getById($userId);
+        $user = $this->usersService->getById($userId);
         if (!$user) {
             throw new UnauthorizedHttpException('No user found');
         }
 
         // get the ship. is it yours
-        $ship = $this->getShipForOwnerId($request, $shipsService, $userId);
+        $ship = $this->getShipForOwnerId($request, $this->shipsService, $userId);
         if (!$ship) {
             throw new NotFoundHttpException('No such ship');
         }
 
         // get the ships location, and connecting routes (handled for the player)
-        $shipWithLocation = $shipsService->getByIDWithLocation($ship->getId());
+        $shipWithLocation = $this->shipsService->getByIDWithLocation($ship->getId());
         if (!$shipWithLocation) {
             throw new NotFoundHttpException('No such ship');
         }
         $location = $shipWithLocation->getLocation();
 
+        // get a ship "request-rename" token
+        $requestShipNameToken = $this->tokensService->getRequestShipNameToken($user->getId(), $ship->getId());
+
         $data = [
             'ship' => $ship,
+            'requestShipNameToken' => $requestShipNameToken,
             'location' => $location,
         ];
 
         if ($location instanceof ShipInPort) {
             $data['directions'] = $this->getDirectionsFromPort(
-                $applicationConfig,
                 $location->getPort(),
                 $ship,
                 $user,
@@ -86,9 +97,7 @@ class ShipAction
         return $this->userResponse(new JsonResponse($data));
     }
 
-    // todo - be less messy - share some properties
     private function getDirectionsFromPort(
-        ApplicationConfig $applicationConfig,
         Port $port,
         Ship $ship,
         User $user,
@@ -116,7 +125,7 @@ class ShipAction
             // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
             $journeyTimeMinutes = (int)round(
-                ($applicationConfig->getDistanceMultiplier() *  $channel->getDistance() / 60)
+                ($this->applicationConfig->getDistanceMultiplier() *  $channel->getDistance() / 60)
             ) ;
             //* 60 * 60 todo - algorithm
 

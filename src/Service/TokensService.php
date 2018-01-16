@@ -12,6 +12,7 @@ use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\CsrfToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 use Doctrine\ORM\Query;
@@ -78,6 +79,19 @@ class TokensService extends AbstractService
         );
     }
 
+    public function getRequestShipNameToken(
+        UuidInterface $userId,
+        UuidInterface $shipId
+    ): RequestShipNameToken {
+        $token = $this->tokenHandler->makeToken(
+            RequestShipNameToken::makeClaims(
+                $shipId,
+                $userId
+            )
+        );
+        return new RequestShipNameToken($token);
+    }
+
     public function getRenameShipToken(
         UuidInterface $shipId,
         string $newName
@@ -123,6 +137,12 @@ class TokensService extends AbstractService
         string $tokenString
     ): RenameShipToken {
         return $this->parseToken($tokenString, RenameShipToken::class);
+    }
+
+    public function parseRequestShipNameToken(
+        string $tokenString
+    ): RequestShipNameToken {
+        return $this->parseToken($tokenString, RequestShipNameToken::class);
     }
 
     public function useMoveShipToken(

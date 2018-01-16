@@ -16,20 +16,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RequestShipNameCommand extends Command
 {
-    use UserTokenTrait;
-
-    private $shipsService;
-    private $tokensService;
+    private $action;
     private $logger;
 
     public function __construct(
-        ShipsService $shipsService,
-        TokensService $tokensService,
+        RequestShipNameAction $action,
         LoggerInterface $logger
     ) {
         parent::__construct();
-        $this->shipsService = $shipsService;
-        $this->tokensService = $tokensService;
+        $this->action = $action;
         $this->logger = $logger;
     }
 
@@ -64,12 +59,10 @@ class RequestShipNameCommand extends Command
 
         $this->logger->info('Building Request');
 
-        $action = new RequestShipNameAction();
-
         $request = new Request(['shipId' => $shipId]);
         $request->headers->set('Authorization', 'Bearer ' . $userToken);
 
-        $response = $action($request, $this->tokensService, $this->shipsService, $this->logger);
+        $response = $this->action->__invoke($request);
 
         $this->logger->info('Parsing response');
         $data = json_decode($response->getContent());

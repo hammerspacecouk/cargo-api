@@ -16,9 +16,9 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait UserTokenTrait
 {
-    protected $cookies = [];
+    private $cookies = [];
 
-    protected function getUserId(
+    private function getUserId(
         Request $request,
         TokensService $tokensService
     ): UuidInterface {
@@ -38,20 +38,18 @@ trait UserTokenTrait
         return $token->getUserId();
     }
 
-    protected function getUser(
-        Request $request,
-        TokensService $tokensService,
-        UsersService $usersService
+    private function getUser(
+        Request $request
     ): User {
-        $userId = $this->getUserId($request, $tokensService);
-        $user = $usersService->getById($userId);
+        $userId = $this->getUserId($request, $this->tokensService);
+        $user = $this->usersService->getById($userId);
         if ($user) {
             return $user;
         }
         throw new AccessDeniedHttpException('Invalid user');
     }
 
-    protected function userResponse(Response $response): Response
+    private function userResponse(Response $response): Response
     {
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
 
