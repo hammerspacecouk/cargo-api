@@ -9,13 +9,16 @@ use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\AbstractToken;
 use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\CsrfToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
+use App\Domain\ValueObject\Token\TokenInterface;
 use Doctrine\ORM\Query;
+use Lcobucci\JWT\Token;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,6 +66,11 @@ class TokensService extends AbstractService
         ), $tokenKey);
 
         return new MoveShipToken($token);
+    }
+
+    public function useToken(Token $token)
+    {
+        $this->tokenHandler->markAsUsed($token);
     }
 
     private function makeActionToken(array $claims, ?string $tokenKey = null)
@@ -124,25 +132,23 @@ class TokensService extends AbstractService
     public function parseEmailLoginToken(
         string $tokenString
     ): EmailLoginToken {
-        return $this->parseToken($tokenString, EmailLoginToken::class, false);
+        return new EmailLoginToken($this->tokenHandler->parseTokenFromString($tokenString, false));
     }
 
-    private function parseToken(string $tokenString, string $class, $checkIfInvalidated = true)
-    {
-        $token = $this->tokenHandler->parseTokenFromString($tokenString, $checkIfInvalidated);
-        return new $class($token);
-    }
-
-    public function parseRenameShipToken(
+    public function useRenameShipToken(
         string $tokenString
     ): RenameShipToken {
-        return $this->parseToken($tokenString, RenameShipToken::class);
+        $token = $this->tokenHandler->parseTokenFromString($tokenString);
+        $this->tokenHandler->markAsUsed($token);
+        return new RenameShipToken($token);
     }
 
-    public function parseRequestShipNameToken(
+    public function useRequestShipNameToken(
         string $tokenString
     ): RequestShipNameToken {
-        return $this->parseToken($tokenString, RequestShipNameToken::class);
+        $token = $this->tokenHandler->parseTokenFromString($tokenString);
+        $this->tokenHandler->markAsUsed($token);
+        return new RequestShipNameToken($token);
     }
 
     public function useMoveShipToken(

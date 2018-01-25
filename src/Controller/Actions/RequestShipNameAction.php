@@ -3,15 +3,12 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Controller\Security\Traits\UserTokenTrait;
+use App\Domain\Exception\TokenException;
+use App\Domain\ValueObject\Score;
 use App\Service\ShipsService;
 use App\Service\TokensService;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -39,18 +36,15 @@ class RequestShipNameAction extends AbstractAction
         $this->logger->debug(__CLASS__);
         $this->logger->notice('[ACTION] [REQUEST SHIP NAME]');
 
-        $tokenString = $request->get('token');
-        if (!$tokenString) {
-            throw new BadRequestHttpException('Missing Token');
-        }
-        // todo - add the token to the USED list, so it can't be used again.
         try {
-            $token = $this->tokensService->parseRequestShipNameToken($tokenString);
-            $shipId = $token->getShipId();
-            $shipName = $this->shipsService->requestShipName($token->getUserId(), $shipId);
-        } catch (InvalidUuidStringException | InvalidArgumentException $e) {
-            throw new BadRequestHttpException('Expected Valid ShipId for this user');
+            $token = $this->tokensService->useRequestShipNameToken($request->get('token'));
+        } catch (TokenException $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
+
+        $shipId = $token->getShipId();
+        $userId = $token->getUserId();
+        $shipName = $this->shipsService->requestShipName($userId, $shipId);
 
         $actionToken = $this->tokensService->getRenameShipToken(
             $shipId,
@@ -71,10 +65,18 @@ class RequestShipNameAction extends AbstractAction
 //            return $response;
 //        }
 
+        // the previous token should not be reusable, so we need to send a new one
+        $requestShipNameToken = $this->tokensService->getRequestShipNameToken($userId, $shipId);
+
         return new JsonResponse([
             'nameOffered' => $shipName,
             'action' => $actionToken,
-            'newScore' => rand(0, 10000), // todo - real user credits
+            'requestShipNameToken' => $requestShipNameToken,
+            'newScore' => new Score(  // todo - real values
+                rand(0, 10000),
+                rand(-10, 100),
+                new \DateTimeImmutable()
+            )
         ]);
     }
 }

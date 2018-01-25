@@ -25,7 +25,7 @@ class RenameShipAction extends AbstractAction
 
         $tokenString = $this->getTokenDataFromRequest($request);
 
-        $renameShipToken = $tokensService->parseRenameShipToken($tokenString);
+        $renameShipToken = $tokensService->useRenameShipToken($tokenString);
         $shipId = $renameShipToken->getShipId();
         $newName = $renameShipToken->getShipName();
 

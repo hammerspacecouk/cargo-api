@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
+use App\Domain\Entity\ShipInChannel;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Infrastructure\ApplicationConfig;
 use App\Controller\Security\Traits\UserTokenTrait;
@@ -82,16 +83,23 @@ class ShipAction
         $data = [
             'ship' => $ship,
             'requestShipNameToken' => $requestShipNameToken,
-            'location' => $location,
+            'status' => $shipWithLocation->getLocation()->getStatus(),
+            'port' => null,
+            'channel' => null,
+            'directions' => null,
         ];
 
         if ($location instanceof ShipInPort) {
+            $data['port'] = $location->getPort();
             $data['directions'] = $this->getDirectionsFromPort(
                 $location->getPort(),
                 $ship,
                 $user,
                 $location
             );
+        }
+        if ($location instanceof ShipInChannel) {
+            $data['channel'] = $location;
         }
 
         return $this->userResponse(new JsonResponse($data));
@@ -109,7 +117,7 @@ class ShipAction
 
         $directions = Bearing::getEmptyBearingsList();
 
-        // the token key is based on the ship location, as this becomes invalid after use
+        // the token key is based on the ship location, so that all directions become invalid after use
         $groupTokenKey = (string) $location->getId();
 
         foreach ($channels as $channel) {

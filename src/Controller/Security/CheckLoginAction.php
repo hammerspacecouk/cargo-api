@@ -40,6 +40,7 @@ class CheckLoginAction
         $player = null;
         $loginToken = null;
         $loggedIn = false;
+        $ships = null;
 
         try {
             $user = $this->getUser($request);
@@ -49,7 +50,6 @@ class CheckLoginAction
             $player = [
                 'id' => $user->getId(),
                 'score' => $user->getScore(),
-                'ships' => $ships,
             ];
         } catch (AccessDeniedHttpException $exception) {
             // On this controller alone, don't throw a 403. Catch and return the token needed to login
@@ -60,6 +60,7 @@ class CheckLoginAction
             'loggedIn' => $loggedIn,
             'loginToken' => $loginToken,
             'player' => $player,
+            'ships' => $ships,
         ]));
     }
 }

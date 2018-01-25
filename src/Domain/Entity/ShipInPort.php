@@ -26,6 +26,11 @@ class ShipInPort extends AbstractShipLocation
         return $this->port;
     }
 
+    public function getStatus(): string
+    {
+        return self::STATUS_DOCKED;
+    }
+
     public function getPort(): Port
     {
         if ($this->port === null) {

@@ -25,6 +25,11 @@ class NullEntity implements
         throw new DataNotFetchedException('Cannot call ' . __METHOD__ . ' for a Null Object');
     }
 
+    public function getStatus(): string
+    {
+        throw new DataNotFetchedException('Cannot call ' . __METHOD__ . ' for a Null Object');
+    }
+
     public function jsonSerialize()
     {
         return null;

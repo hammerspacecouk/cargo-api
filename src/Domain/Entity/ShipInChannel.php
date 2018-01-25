@@ -27,6 +27,11 @@ class ShipInChannel extends AbstractShipLocation
         $this->exitTime = $exitTime;
     }
 
+    public function getStatus(): string
+    {
+        return self::STATUS_SAILING;
+    }
+
     public function jsonSerialize(): array
     {
         $data = [

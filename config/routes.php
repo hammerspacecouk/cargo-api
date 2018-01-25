@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use App\Controller;
 use App\Domain\ValueObject\Token\Action;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 
@@ -49,6 +50,8 @@ $collection->add('crates_list', new Route('/crates', [
 
 $collection->add('crates_show', new Route('/crates/{uuid}', [
     '_controller' => Controller\Crates\ShowAction::class,
+], [
+    'uuid' => Uuid::VALID_PATTERN,
 ]));
 
 // Ports
@@ -58,10 +61,14 @@ $collection->add('ports_list', new Route('/ports', [
 
 $collection->add('ports_show', new Route('/ports/{uuid}', [
     '_controller' => Controller\Ports\ShowAction::class,
+], [
+    'uuid' => Uuid::VALID_PATTERN,
 ]));
 
 $collection->add('ports_crates', new Route('/ports/{uuid}/crates', [
     '_controller' => Controller\Ports\CratesAction::class,
+], [
+    'uuid' => Uuid::VALID_PATTERN,
 ]));
 
 // ships
@@ -71,6 +78,8 @@ $collection->add('ships_list', new Route('/ships', [
 
 $collection->add('ships_show', new Route('/ships/{uuid}', [
     '_controller' => Controller\Ships\ShowAction::class,
+], [
+    'uuid' => Uuid::VALID_PATTERN,
 ]));
 
 // Play - requires cookie
@@ -80,6 +89,8 @@ $collection->add('play_status', new Route('/play', [
 
 $collection->add('play_positions_ship', new Route('/play/{uuid}', [
     '_controller' => Controller\Play\ShipAction::class,
+], [
+    'uuid' => Uuid::VALID_PATTERN,
 ]));
 
 // actions
