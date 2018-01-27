@@ -68,25 +68,6 @@ class TokensService extends AbstractService
         return new MoveShipToken($token);
     }
 
-    public function useToken(Token $token)
-    {
-        $this->tokenHandler->markAsUsed($token);
-    }
-
-    private function makeActionToken(array $claims, ?string $tokenKey = null)
-    {
-        if ($tokenKey) {
-            $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
-        } else {
-            $id = ID::makeNewID(DbToken::class);
-        }
-
-        return $this->tokenHandler->makeToken(
-            $claims,
-            $id
-        );
-    }
-
     public function getRequestShipNameToken(
         UuidInterface $userId,
         UuidInterface $shipId
@@ -113,9 +94,6 @@ class TokensService extends AbstractService
         return new RenameShipToken($token);
     }
 
-
-    // Parse tokens
-
     public function getEmailLoginToken(
         EmailAddress $emailAddress
     ): EmailLoginToken {
@@ -129,18 +107,19 @@ class TokensService extends AbstractService
         return new EmailLoginToken($token);
     }
 
+
+    // Parse tokens
+
     public function parseEmailLoginToken(
         string $tokenString
     ): EmailLoginToken {
         return new EmailLoginToken($this->tokenHandler->parseTokenFromString($tokenString, false));
     }
 
-    public function useRenameShipToken(
+    public function parseRenameShipToken(
         string $tokenString
     ): RenameShipToken {
-        $token = $this->tokenHandler->parseTokenFromString($tokenString);
-        $this->tokenHandler->markAsUsed($token);
-        return new RenameShipToken($token);
+        return new RenameShipToken($this->tokenHandler->parseTokenFromString($tokenString));
     }
 
     public function useRequestShipNameToken(
@@ -151,6 +130,27 @@ class TokensService extends AbstractService
         return new RequestShipNameToken($token);
     }
 
+    private function makeActionToken(array $claims, ?string $tokenKey = null)
+    {
+        if ($tokenKey) {
+            $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
+        } else {
+            $id = ID::makeNewID(DbToken::class);
+        }
+
+        return $this->tokenHandler->makeToken(
+            $claims,
+            $id
+        );
+    }
+
+
+
+
+
+
+
+    // todo - move to shipsService
     public function useMoveShipToken(
         string $token
     ): void {

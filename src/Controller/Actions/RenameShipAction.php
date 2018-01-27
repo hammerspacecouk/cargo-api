@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Domain\Exception\TokenException;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
@@ -13,43 +14,53 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RenameShipAction extends AbstractAction
 {
-    // general status and stats of the game as a whole
-    public function __invoke(
-        Request $request,
+    private $tokensService;
+    private $shipsService;
+    private $logger;
+
+    public function __construct(
         TokensService $tokensService,
         ShipsService $shipsService,
         LoggerInterface $logger
-    ): Response {
-        $logger->debug(__CLASS__);
-        $logger->notice('[ACTION] [RENAME SHIP]');
+    ) {
+        $this->tokensService = $tokensService;
+        $this->shipsService = $shipsService;
+        $this->logger = $logger;
+    }
 
+    // general status and stats of the game as a whole
+    public function __invoke(
+        Request $request
+    ): Response {
         $tokenString = $this->getTokenDataFromRequest($request);
 
-        $renameShipToken = $tokensService->useRenameShipToken($tokenString);
-        $shipId = $renameShipToken->getShipId();
-        $newName = $renameShipToken->getShipName();
+        try {
+            $renameShipToken = $this->tokensService->parseRenameShipToken($tokenString);
+        } catch (TokenException $exception) {
+            return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
 
-        $shipsService->useRenameShipToken($renameShipToken);
-        $logger->info('[SHIP RENAMED] ' . (string)$shipId . ' to ' . $newName);
+        $this->shipsService->useRenameShipToken($renameShipToken);
+
+        // fetch the updated ship
+        $ship = $this->shipsService->getByID($renameShipToken->getShipId());
 
         // todo - different response if it is XHR vs Referer
-        $referrer = $request->headers->get('Referer', null);
-        $query = strpos($referrer, '?');
-        if ($query) {
-            $referrer = substr($referrer, 0, strpos($referrer, '?'));
-        }
+//        $referrer = $request->headers->get('Referer', null);
+//        $query = strpos($referrer, '?');
+//        if ($query) {
+//            $referrer = substr($referrer, 0, strpos($referrer, '?'));
+//        }
 
-        if ($referrer) {
-            // todo - abstract
-            $response = new RedirectResponse($referrer);
-            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
-            return $response;
-        }
+//        if ($referrer) {
+//            // todo - abstract
+//            $response = new RedirectResponse($referrer);
+//            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+//            return $response;
+//        }
 
         return $this->actionResponse(new JsonResponse([
-            'status' => 'ok',
-            'shipId' => $shipId,
-            'newName' => $newName,
+            'ship' => $ship
         ]));
     }
 }
