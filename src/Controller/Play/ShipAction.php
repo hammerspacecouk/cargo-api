@@ -153,10 +153,6 @@ class ShipAction
             ];
         }
 
-        return [
-            'type' => "Port",
-            'actionPath' => MoveShipToken::getPath(),
-            'directions' => $directions,
-        ];
+        return $directions;
     }
 }

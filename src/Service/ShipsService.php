@@ -13,6 +13,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
+use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -332,6 +333,14 @@ class ShipsService extends AbstractService
         // todo - should it check to see if it already exists?
 
         return $this->entityManager->getDictionaryRepo()->getRandomShipName();
+    }
+
+    public function useRequestShipNameToken(
+        RequestShipNameToken $token
+    ) {
+        $name = $this->requestShipName($token->getUserId(), $token->getShipId());
+        $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        return $name;
     }
 
     public function useRenameShipToken(

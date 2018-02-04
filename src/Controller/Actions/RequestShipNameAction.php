@@ -37,17 +37,15 @@ class RequestShipNameAction extends AbstractAction
         $this->logger->notice('[ACTION] [REQUEST SHIP NAME]');
 
         try {
-            $token = $this->tokensService->useRequestShipNameToken($request->get('token'));
+            $token = $this->tokensService->parseRequestShipNameToken($request->get('token'));
         } catch (TokenException $e) {
             return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        $shipId = $token->getShipId();
-        $userId = $token->getUserId();
-        $shipName = $this->shipsService->requestShipName($userId, $shipId);
+        $shipName = $this->shipsService->useRequestShipNameToken($token);
 
         $actionToken = $this->tokensService->getRenameShipToken(
-            $shipId,
+            $token->getShipId(),
             $shipName
         );
 
@@ -66,7 +64,10 @@ class RequestShipNameAction extends AbstractAction
 //        }
 
         // the previous token should not be reusable, so we need to send a new one
-        $requestShipNameToken = $this->tokensService->getRequestShipNameToken($userId, $shipId);
+        $requestShipNameToken = $this->tokensService->getRequestShipNameToken(
+            $token->getUserId(),
+            $token->getShipId()
+        );
 
         return new JsonResponse([
             'nameOffered' => $shipName,

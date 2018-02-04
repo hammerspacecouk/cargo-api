@@ -122,12 +122,10 @@ class TokensService extends AbstractService
         return new RenameShipToken($this->tokenHandler->parseTokenFromString($tokenString));
     }
 
-    public function useRequestShipNameToken(
+    public function parseRequestShipNameToken(
         string $tokenString
     ): RequestShipNameToken {
-        $token = $this->tokenHandler->parseTokenFromString($tokenString);
-        $this->tokenHandler->markAsUsed($token);
-        return new RequestShipNameToken($token);
+        return new RequestShipNameToken($this->tokenHandler->parseTokenFromString($tokenString));
     }
 
     private function makeActionToken(array $claims, ?string $tokenKey = null)
