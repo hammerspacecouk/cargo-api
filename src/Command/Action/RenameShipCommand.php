@@ -15,19 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RenameShipCommand extends Command
 {
+    private $renameShipAction;
     private $logger;
-    private $tokensService;
-    private $shipsService;
 
     public function __construct(
-        TokensService $tokensService,
-        ShipsService $shipsService,
+        RenameShipAction $renameShipAction,
         LoggerInterface $logger
     ) {
         parent::__construct();
+        $this->renameShipAction = $renameShipAction;
         $this->logger = $logger;
-        $this->tokensService = $tokensService;
-        $this->shipsService = $shipsService;
     }
 
     protected function configure()
@@ -50,10 +47,8 @@ class RenameShipCommand extends Command
         $tokenString = $input->getArgument('actionToken');
         $this->logger->info('Building Request');
 
-        $action = new RenameShipAction($this->tokensService, $this->shipsService, $this->logger);
-
         $request = new Request(['token' => $tokenString]);
-        $response = $action($request);
+        $response = $this->renameShipAction->__invoke($request);
 
         $this->logger->info('Parsing response');
         $data = json_decode($response->getContent());
