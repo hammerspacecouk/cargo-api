@@ -50,10 +50,10 @@ class RenameShipCommand extends Command
         $tokenString = $input->getArgument('actionToken');
         $this->logger->info('Building Request');
 
-        $action = new RenameShipAction;
+        $action = new RenameShipAction($this->tokensService, $this->shipsService, $this->logger);
 
         $request = new Request(['token' => $tokenString]);
-        $response = $action($request, $this->tokensService, $this->shipsService, $this->logger);
+        $response = $action($request);
 
         $this->logger->info('Parsing response');
         $data = json_decode($response->getContent());
