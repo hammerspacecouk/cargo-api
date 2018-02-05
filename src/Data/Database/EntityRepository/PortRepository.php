@@ -11,7 +11,7 @@ class PortRepository extends AbstractEntityRepository
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $safeCount = $this->countSafe();
-        $randomOffset = rand(0, $safeCount - 1);
+        $randomOffset = random_int(0, $safeCount - 1);
 
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.isSafeHaven = true')

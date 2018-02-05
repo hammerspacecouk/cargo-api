@@ -6,7 +6,7 @@ namespace App\Controller\Play;
 use App\Controller\Security\Traits\UserTokenTrait;
 use App\Service\PortsService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
+use App\Service\AuthenticationService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,20 +17,20 @@ class IndexAction
 {
     use UserTokenTrait;
 
-    private $tokensService;
+    private $authenticationService;
     private $shipsService;
     private $portsService;
     private $usersService;
     private $logger;
 
     public function __construct(
-        TokensService $tokensService,
+        AuthenticationService $authenticationService,
         ShipsService $shipsService,
         PortsService $portsService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
-        $this->tokensService = $tokensService;
+        $this->authenticationService = $authenticationService;
         $this->shipsService = $shipsService;
         $this->portsService = $portsService;
         $this->usersService = $usersService;
@@ -42,7 +42,8 @@ class IndexAction
     ): Response {
 
         $this->logger->debug(__CLASS__);
-        $userId = $this->getUserId($request, $this->tokensService);
+        $user = $this->getUser($request);
+        $userId = $user->getId();
 
         $homePort = $this->portsService->findHomePortForUserId($userId);
 

@@ -9,6 +9,7 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
 use App\Data\ID;
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\EmailAddress;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -24,11 +25,16 @@ class UsersService extends AbstractService
         );
     }
 
-    public function getByEmailAddress(string $email): ?User
+    public function getOrCreateByEmailAddress(EmailAddress $email): ?User
     {
-        return $this->mapSingle(
-            $this->entityManager->getUserRepo()->getByEmail($email)
-        );
+        $userRepo = $this->entityManager->getUserRepo();
+        $emailAddress = (string) $email;
+        $userEntity = $userRepo->getByEmail($emailAddress);
+        if (!$userEntity) {
+            $this->logger->notice('[NEW PLAYER] Creating a new player');
+            $userEntity = $userRepo->createByEmail($emailAddress);
+        }
+        return $this->mapSingle($userEntity);
     }
 
     public function startPlayer(UuidInterface $userId): void

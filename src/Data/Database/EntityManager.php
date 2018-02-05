@@ -55,6 +55,11 @@ class EntityManager extends EntityManagerDecorator
         return $repo;
     }
 
+    public function getAuthenticationTokenRepo(): EntityRepository\AuthenticationTokenRepository
+    {
+        return $this->getRepository(Entity\AuthenticationToken::class);
+    }
+
     public function getChannelRepo(): EntityRepository\ChannelRepository
     {
         return $this->getRepository(Entity\Channel::class);

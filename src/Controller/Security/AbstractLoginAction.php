@@ -6,6 +6,7 @@ namespace App\Controller\Security;
 use App\Domain\ValueObject\EmailAddress;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
+use App\Service\AuthenticationService;
 use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -19,24 +20,26 @@ class AbstractLoginAction
     protected const RETURN_ADDRESS_KEY = 'ra';
 
     protected $applicationConfig;
-    protected $tokensService;
+    protected $authenticationService;
     protected $flashData;
     protected $usersService;
     protected $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
-        TokensService $tokensService,
+        AuthenticationService $authenticationService,
         FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
         $this->applicationConfig = $applicationConfig;
-        $this->tokensService = $tokensService;
+        $this->authenticationService = $authenticationService;
         $this->flashData = $flashData;
         $this->usersService = $usersService;
         $this->logger = $logger;
     }
+
+    // todo - method to remove any previously set authentication_tokens if you try to login again
 
     protected function setReturnAddress(
         Request $request
@@ -52,7 +55,9 @@ class AbstractLoginAction
     ) {
         $description = $request->headers->get('User-Agent', 'Unknown');
 
-        $cookie = $this->tokensService->makeNewRefreshTokenCookie($emailAddress, $description);
+        $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
+
+        $cookie = $this->authenticationService->makeNewAuthenticationCookie($user, $description);
 
         $response = new RedirectResponse($this->getRedirectUrl());
         $response->headers->setCookie($cookie);

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Service\AuthenticationService;
 use App\Service\ShipsService;
 use App\Service\TokensService;
 use App\Service\UsersService;
@@ -16,17 +17,20 @@ class CheckLoginAction
 {
     use Traits\UserTokenTrait;
 
+    private $authenticationService;
     private $tokensService;
     private $shipsService;
     private $usersService;
     private $logger;
 
     public function __construct(
+        AuthenticationService $authenticationService,
         TokensService $tokensService,
         ShipsService $shipsService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
+        $this->authenticationService = $authenticationService;
         $this->tokensService = $tokensService;
         $this->shipsService = $shipsService;
         $this->usersService = $usersService;

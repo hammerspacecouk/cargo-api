@@ -24,7 +24,7 @@ while (true) {
         Debug::enable();
     }
 
-    usleep(rand(0, $loopRest)); // prevent loop overload
+    usleep(random_int(0, $loopRest)); // prevent loop overload
 
     // todo - loggggggging
 

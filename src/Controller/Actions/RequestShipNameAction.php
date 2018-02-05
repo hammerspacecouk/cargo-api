@@ -74,8 +74,8 @@ class RequestShipNameAction extends AbstractAction
             'action' => $actionToken,
             'requestShipNameToken' => $requestShipNameToken,
             'newScore' => new Score(  // todo - real values
-                rand(0, 10000),
-                rand(-10, 100),
+                random_int(0, 10000),
+                random_int(-10, 100),
                 new \DateTimeImmutable()
             )
         ]);

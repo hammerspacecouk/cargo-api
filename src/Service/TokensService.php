@@ -9,18 +9,13 @@ use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\EmailAddress;
-use App\Domain\ValueObject\Token\AbstractToken;
-use App\Domain\ValueObject\Token\AccessToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\CsrfToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
-use App\Domain\ValueObject\Token\TokenInterface;
 use Doctrine\ORM\Query;
-use Lcobucci\JWT\Token;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 class TokensService extends AbstractService
@@ -30,25 +25,9 @@ class TokensService extends AbstractService
         return $this->tokenHandler->makeNewCsrfToken($contextKey);
     }
 
-    public function makeNewRefreshTokenCookie(EmailAddress $email, string $description): Cookie
-    {
-        return $this->tokenHandler->makeNewRefreshTokenCookie($email, $description);
-    }
-
-    public function getAccessTokenFromRequest(Request $request): AccessToken
-    {
-        return $this->tokenHandler->getAccessTokenFromRequest($request);
-    }
-
     public function getCsrfTokenFromRequest(Request $request): CsrfToken
     {
         return $this->tokenHandler->getCsrfTokenFromRequest($request);
-    }
-
-    public function getUserIdFromAccessTokenString(string $tokenString): UuidInterface
-    {
-        $token = $this->tokenHandler->getAccessTokenFromString($tokenString);
-        return $token->getUserId();
     }
 
     public function getMoveShipToken(

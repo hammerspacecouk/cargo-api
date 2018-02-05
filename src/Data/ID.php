@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Data\Database\Entity\AuthenticationToken;
 use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Cluster;
 use App\Data\Database\Entity\Crate;
@@ -24,6 +25,7 @@ use Ramsey\Uuid\UuidInterface;
 class ID
 {
     private const ENTITY_MAPPINGS = [
+        AuthenticationToken::class => 'aaaa',
         Channel::class => 'bd99',
         Cluster::class => 'c1c1',
         Crate::class => 'ca4e',
