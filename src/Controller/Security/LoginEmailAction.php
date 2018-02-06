@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Controller\Security\Traits\CsrfTokenTrait;
 use App\Domain\Exception\InvalidEmailAddressException;
 use App\Domain\ValueObject\EmailAddress;
 use App\Service\EmailsService;
@@ -15,10 +14,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class LoginEmailAction extends AbstractLoginAction
 {
-    use CsrfTokenTrait;
-
-    public const CRSF_CONTEXT_KEY = 'login';
-
     public function __invoke(
         Request $request,
         EmailsService $emailsService
@@ -43,8 +38,9 @@ class LoginEmailAction extends AbstractLoginAction
         Request $request,
         string $token
     ) {
-        $token = $this->tokensService->parseEmailLoginToken($token);
-        return $this->getLoginResponse($request, $token->getEmailAddress());
+        // todo - new e-mail login system. link should go to a form, which then posts
+//        $token = $this->tokensService->parseEmailLoginToken($token);
+//        return $this->getLoginResponse($request, $token->getEmailAddress());
     }
 
     private function sendEmail(
@@ -54,8 +50,6 @@ class LoginEmailAction extends AbstractLoginAction
     ) {
         $this->setReturnAddress($request);
         try {
-            $this->checkCsrfToken($request, self::CRSF_CONTEXT_KEY, $this->tokensService, $this->logger);
-
             $emailAddress = new EmailAddress($emailAddress);
             $emailsService->sendLoginEmail($emailAddress);
         } catch (InvalidEmailAddressException | BadRequestHttpException $e) {

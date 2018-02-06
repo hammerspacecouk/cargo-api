@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Controller\UserAuthenticationTrait;
 use App\Domain\ValueObject\EmailAddress;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Service\AuthenticationService;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AbstractLoginAction
 {
-    use Traits\UserTokenTrait;
+    use UserAuthenticationTrait;
 
     protected const RETURN_ADDRESS_KEY = 'ra';
 

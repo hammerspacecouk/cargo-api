@@ -12,23 +12,13 @@ use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
-use App\Domain\ValueObject\Token\CsrfToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class TokensService extends AbstractService
 {
-    public function makeCsrfToken($contextKey): CsrfToken
-    {
-        return $this->tokenHandler->makeNewCsrfToken($contextKey);
-    }
 
-    public function getCsrfTokenFromRequest(Request $request): CsrfToken
-    {
-        return $this->tokenHandler->getCsrfTokenFromRequest($request);
-    }
 
     public function getMoveShipToken(
         Ship $ship,

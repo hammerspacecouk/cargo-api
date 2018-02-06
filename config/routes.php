@@ -42,6 +42,9 @@ $collection->add('login_microsoft', new Route('/login/microsoft', [
 $collection->add('login_twitter', new Route('/login/twitter', [
     '_controller' => Controller\Security\LoginTwitterAction::class,
 ]));
+$collection->add('login_twitter', new Route('/profile/sessions', [
+    '_controller' => Controller\Security\SessionsAction::class,
+]));
 
 // Crates
 $collection->add('crates_list', new Route('/crates', [

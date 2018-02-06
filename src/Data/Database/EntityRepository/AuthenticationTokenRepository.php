@@ -20,9 +20,21 @@ class AuthenticationTokenRepository extends AbstractEntityRepository
             ->where('tbl.id = :id')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('now', $this->currentTime)
-        ;
+            ->setParameter('now', $this->currentTime);
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function findAllForUserId(
+        UuidInterface $userId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('IDENTITY(tbl.user) = (:userId)')
+            ->andWhere('tbl.expiry > :now')
+            ->setParameter('userId', $userId->getBytes())
+            ->setParameter('now', $this->currentTime);
+        return $qb->getQuery()->getResult($resultType);
     }
 
     public function removeExpired(DateTimeImmutable $now): void
@@ -32,5 +44,10 @@ class AuthenticationTokenRepository extends AbstractEntityRepository
             ->createQuery($sql)
             ->setParameter('now', $now);
         $query->execute();
+    }
+
+    public function deleteById(UuidInterface $uuid, string $className = AuthenticationToken::class): void
+    {
+        parent::deleteById($uuid, $className);
     }
 }

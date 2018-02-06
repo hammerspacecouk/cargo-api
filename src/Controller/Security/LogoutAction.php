@@ -3,45 +3,51 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Controller\UserAuthenticationTrait;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
-use App\Data\TokenHandler;
-use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Message\Info;
 use App\Service\AuthenticationService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class LogoutAction
 {
-    public function __invoke(
-        Request $request,
-        FlashDataStore $flashData,
-        AuthenticationService $authenticationService,
-        TokenHandler $tokenHandler,
-        ApplicationConfig $applicationConfig
-    ): Response {
-        try {
-            // todo - remove the authentication token
-            $authenticationService->removeFromRequest($request);
+    use UserAuthenticationTrait;
 
-        } catch (TokenException $e) {
-            // if the token was invalid or expired, then just carry on clearing the session
-        }
+    private $authenticationService;
+    private $applicationConfig;
+    private $flashData;
+    private $logger;
+
+    public function __construct(
+        AuthenticationService $authenticationService,
+        ApplicationConfig $applicationConfig,
+        FlashDataStore $flashData,
+        LoggerInterface $logger
+    ) {
+        $this->authenticationService = $authenticationService;
+        $this->applicationConfig = $applicationConfig;
+        $this->flashData = $flashData;
+        $this->logger = $logger;
+    }
+
+    public function __invoke(
+        Request $request
+    ): Response {
+        $this->clearAuthentication($request, $this->authenticationService, $this->logger);
 
         // destroy all flash cookies
-        $flashData->destroy();
+        $this->flashData->destroy();
 
         // set an ok message
-        $flashData->addMessage(new Info('Logged out'));
+        $this->flashData->addMessage(new Info('Logged out'));
 
-        $response = new RedirectResponse($applicationConfig->getWebHostname());
-
-        // remove previous refresh and access cookies
-        $response = $tokenHandler->clearCookiesFromResponse($response);
+        $response = new RedirectResponse($this->applicationConfig->getWebHostname());
 
         // redirect to the application homepage, now that you're logged out
-        return $response;
+        return $this->userResponse($response, $this->authenticationService);
     }
 }

@@ -16,10 +16,13 @@ use Ramsey\Uuid\UuidInterface;
  */
 class AuthenticationToken extends AbstractEntity
 {
-    /** @ORM\Column(type="datetime", nullable=false) */
-    public $lastUpdate;
+    /** @ORM\Column(type="datetime") */
+    public $originalCreationTime;
 
-    /** @ORM\Column(type="datetime", nullable=true) */
+    /** @ORM\Column(type="datetime") */
+    public $lastUsed;
+
+    /** @ORM\Column(type="datetime") */
     public $expiry;
 
     /**
@@ -28,25 +31,27 @@ class AuthenticationToken extends AbstractEntity
      */
     public $user;
 
-    /** @ORM\Column(type="text", nullable=true) */
+    /** @ORM\Column(type="text") */
     public $digest;
 
-    /** @ORM\Column(type="text", nullable=true) */
+    /** @ORM\Column(type="text") */
     public $description;
 
     public function __construct(
         UuidInterface $id,
-        DateTimeImmutable $lastUpdate,
-        ?DateTimeImmutable $expiry,
-        ?User $user = null,
-        ?string $digest = null,
-        ?string $description = null
+        DateTimeImmutable $originalCreationTime,
+        DateTimeImmutable $lastUsed,
+        DateTimeImmutable $expiry,
+        string $digest,
+        string $description,
+        User $user
     ) {
         parent::__construct($id);
-        $this->lastUpdate = $lastUpdate;
+        $this->originalCreationTime = $originalCreationTime;
+        $this->lastUsed = $lastUsed;
         $this->expiry = $expiry;
-        $this->user = $user;
         $this->digest = $digest;
         $this->description = $description;
+        $this->user = $user;
     }
 }

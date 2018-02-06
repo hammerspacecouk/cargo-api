@@ -5,7 +5,7 @@ namespace App\Controller\Play;
 
 use App\Domain\Entity\ShipInChannel;
 use App\Infrastructure\ApplicationConfig;
-use App\Controller\Security\Traits\UserTokenTrait;
+use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class ShipAction
 {
-    use UserTokenTrait;
+    use UserAuthenticationTrait;
     use GetShipTrait;
 
     private $applicationConfig;
@@ -61,7 +61,7 @@ class ShipAction
 
         $this->logger->debug(__CLASS__);
 
-        $user = $this->getUser($request);
+        $user = $this->getUser($request, $this->authenticationService);
         if (!$user) {
             throw new UnauthorizedHttpException('No user found');
         }
@@ -104,7 +104,7 @@ class ShipAction
             $data['channel'] = $location;
         }
 
-        return $this->userResponse(new JsonResponse($data));
+        return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }
 
     private function getDirectionsFromPort(
