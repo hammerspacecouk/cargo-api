@@ -33,9 +33,11 @@ class SessionsAction
         $tokens = $this->authenticationService->findAllForUser($authentication->getUser());
 
         $sessions = array_map(function (UserAuthentication $token) use ($authentication) {
+            $isCurrent = $token->getId()->equals($authentication->getId());
+
             return [
-                'isCurrent' => $token->getId()->equals($authentication->getId()),
-                'removeToken' => 'todo', // make an action token based on the ID
+                'isCurrent' => $isCurrent,
+                'removeToken' => $isCurrent? null : 'todo', // todo - make an action token based on the ID
                 'state' => $token,
             ];
         }, $tokens);

@@ -5,7 +5,7 @@ namespace App\Service;
 
 use App\Data\Database\EntityManager;
 use App\Data\Database\Mapper\MapperFactory;
-use App\Data\TokenHandler;
+use App\Data\TokenProvider;
 use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Doctrine\ORM\QueryBuilder;
@@ -31,7 +31,7 @@ abstract class AbstractService
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
         ApplicationConfig $applicationConfig,
-        TokenHandler $tokenHandler,
+        TokenProvider $tokenHandler,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger

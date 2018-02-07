@@ -68,6 +68,7 @@ trait UserAuthenticationTrait
             $cookie = $authenticationService->makeNewAuthenticationCookie(
                 $this->userAuthentication->getUser(),
                 $this->userAuthentication->getDescription(),
+                $_SERVER['REMOTE_ADDR'] ?? '',
                 $this->userAuthentication->getCreationTime(),
                 $this->userAuthentication
             );

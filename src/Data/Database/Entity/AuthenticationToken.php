@@ -11,7 +11,11 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\AuthenticationTokenRepository")
  * @ORM\Table(
  *     name="authentication_tokens",
- *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
+ *     indexes={
+ *      @ORM\Index(name="auth_token_expiry", columns={"expiry"}),
+ *      @ORM\Index(name="auth_token_last_used", columns={"last_used"}),
+ *     }
  * )
  */
 class AuthenticationToken extends AbstractEntity
@@ -37,6 +41,9 @@ class AuthenticationToken extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $description;
 
+    /** @ORM\Column(type="text") */
+    public $ipAddress;
+
     public function __construct(
         UuidInterface $id,
         DateTimeImmutable $originalCreationTime,
@@ -44,6 +51,7 @@ class AuthenticationToken extends AbstractEntity
         DateTimeImmutable $expiry,
         string $digest,
         string $description,
+        string $ipAddress,
         User $user
     ) {
         parent::__construct($id);
@@ -52,6 +60,7 @@ class AuthenticationToken extends AbstractEntity
         $this->expiry = $expiry;
         $this->digest = $digest;
         $this->description = $description;
+        $this->ipAddress = $ipAddress;
         $this->user = $user;
     }
 }

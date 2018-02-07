@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Maintenance;
 
-use App\Data\Database\Entity\Token;
+use App\Data\Database\Entity\UsedActionToken;
 use App\Data\Database\EntityManager;
 use DateTimeImmutable;
 use Symfony\Component\Console\Command\Command;
@@ -37,7 +37,7 @@ class CleanupTokensCommand extends Command
     ) {
         $output->writeln('Cleaning');
 
-        $this->entityManager->getRepository(Token::class)
+        $this->entityManager->getRepository(UsedActionToken::class)
             ->removeExpired($this->now);
 
         $output->writeln('Done');

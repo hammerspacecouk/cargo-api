@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FlashDataStore
 {
+    // todo. this should be different
     private const COOKIE_NAME = 'FLASH_DATA_STORE';
 
     private $tokenHandler;
@@ -18,7 +19,7 @@ class FlashDataStore
     private $data = [];
     private $messages = [];
 
-    public function __construct(TokenHandler $tokenHandler, ApplicationConfig $applicationConfig)
+    public function __construct(TokenProvider $tokenHandler, ApplicationConfig $applicationConfig)
     {
         $this->tokenHandler = $tokenHandler;
         $this->applicationConfig = $applicationConfig;
@@ -83,7 +84,7 @@ class FlashDataStore
 
         return new Cookie(
             self::COOKIE_NAME,
-            (string)$this->tokenHandler->makeToken($claims),
+            (string)$this->tokenHandler->makeToken($claims, 'PT1H'),
             0,
             '/',
             $this->applicationConfig->getCookieScope(),
@@ -100,7 +101,7 @@ class FlashDataStore
         }
 
         try {
-            $token = $this->tokenHandler->parseTokenFromString($cookie, null);
+            $token = $this->tokenHandler->parseTokenFromString($cookie);
 
             $this->data = unserialize($token->getClaim('data'));
             $this->messages = unserialize($token->getClaim('messages'));

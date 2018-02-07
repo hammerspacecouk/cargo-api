@@ -3,19 +3,19 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\Token as DbToken;
+use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\ID;
-use App\Data\TokenHandler;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
-use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
-use App\Domain\ValueObject\Token\EmailLoginToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
+/**
+ * @deprecated - move all the things into their respective services
+ */
 class TokensService extends AbstractService
 {
 
@@ -63,27 +63,8 @@ class TokensService extends AbstractService
         return new RenameShipToken($token);
     }
 
-    public function getEmailLoginToken(
-        EmailAddress $emailAddress
-    ): EmailLoginToken {
-        $token = $this->tokenHandler->makeToken(
-            EmailLoginToken::makeClaims(
-                $emailAddress
-            ),
-            null,
-            TokenHandler::EXPIRY_EMAIL_LOGIN
-        );
-        return new EmailLoginToken($token);
-    }
-
 
     // Parse tokens
-
-    public function parseEmailLoginToken(
-        string $tokenString
-    ): EmailLoginToken {
-        return new EmailLoginToken($this->tokenHandler->parseTokenFromString($tokenString, false));
-    }
 
     public function parseRenameShipToken(
         string $tokenString

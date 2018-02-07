@@ -57,7 +57,11 @@ class AbstractLoginAction
 
         $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
 
-        $cookie = $this->authenticationService->makeNewAuthenticationCookie($user, $description);
+        $cookie = $this->authenticationService->makeNewAuthenticationCookie(
+            $user,
+            $description,
+            $_SERVER['REMOTE_ADDR'] ?? ''
+        );
 
         $response = new RedirectResponse($this->getRedirectUrl());
         $response->headers->setCookie($cookie);

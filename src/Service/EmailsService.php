@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\EmailLoginToken;
 use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -38,15 +39,13 @@ class EmailsService
         $this->logger = $logger;
     }
 
-    public function sendLoginEmail(EmailAddress $emailAddress)
+    public function sendLoginEmail(EmailAddress $emailAddress, EmailLoginToken $token)
     {
-        $token = $this->tokensService->getEmailLoginToken($emailAddress);
-
-        $url = $this->applicationConfig->getApiHostname() . '/login/email?token=' . (string)$token;
+        $url = $this->applicationConfig->getWebHostname() . '/login/email?token=' . (string)$token;
 
         // todo - use twig
         $body = <<<EMAIL
-<p>This link will work for 1 hour and will log you in</p>
+<p>This link will work for 1 hour and will log you in once</p>
 <p><a href="$url">$url</a></p>
 EMAIL;
 

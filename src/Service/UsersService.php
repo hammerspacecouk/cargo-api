@@ -25,16 +25,27 @@ class UsersService extends AbstractService
         );
     }
 
-    public function getOrCreateByEmailAddress(EmailAddress $email): ?User
+    public function getByEmailAddress(EmailAddress $email): ?User
     {
         $userRepo = $this->entityManager->getUserRepo();
         $emailAddress = (string) $email;
         $userEntity = $userRepo->getByEmail($emailAddress);
-        if (!$userEntity) {
-            $this->logger->notice('[NEW PLAYER] Creating a new player');
-            $userEntity = $userRepo->createByEmail($emailAddress);
+        if ($userEntity) {
+            return $this->mapSingle($userEntity);
         }
-        return $this->mapSingle($userEntity);
+        return null;
+    }
+
+    public function getOrCreateByEmailAddress(EmailAddress $email): ?User
+    {
+        $user = $this->getByEmailAddress($email);
+        if ($user) {
+            return $user;
+        }
+
+        $this->logger->notice('[NEW PLAYER] Creating a new player');
+        $this->entityManager->getUserRepo()->createByEmail((string) $email);
+        return $this->getByEmailAddress($email);
     }
 
     public function startPlayer(UuidInterface $userId): void

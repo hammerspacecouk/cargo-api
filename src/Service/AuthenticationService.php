@@ -7,6 +7,8 @@ use App\Data\Database\Entity\AuthenticationToken;
 use App\Data\ID;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
+use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\EmailLoginToken;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -21,10 +23,12 @@ class AuthenticationService extends AbstractService
 
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
     private const COOKIE_EXPIRY = 'P3M';
+    private const EXPIRY_EMAIL_LOGIN = 'PT1H';
 
     public function makeNewAuthenticationCookie(
         User $user,
         string $deviceDescription,
+        string $ipAddress,
         ?DateTimeImmutable $creationTime = null,
         ?UserAuthentication $previousToken = null
     ): Cookie {
@@ -34,6 +38,8 @@ class AuthenticationService extends AbstractService
         if (!$creationTime) {
             $creationTime = $this->currentTime;
         }
+
+        $ipAddress = (string) filter_var($ipAddress, FILTER_VALIDATE_IP);
 
         $digest = $this->getDigest($user->getId(), $expiry, $secret);
 
@@ -46,6 +52,7 @@ class AuthenticationService extends AbstractService
             $expiry,
             $digest,
             $deviceDescription,
+            $ipAddress,
             $userEntity
         );
 
@@ -116,19 +123,6 @@ class AuthenticationService extends AbstractService
         return $authentication;
     }
 
-    private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret)
-    {
-        return \hash_hmac(
-            'sha256',
-            \json_encode([
-                $secret,
-                (string) $userId,
-                $expiry->getTimestamp(),
-            ]),
-            $this->applicationConfig->getTokenPrivateKey()
-        );
-    }
-
     public function remove(UserAuthentication $userAuthentication): void
     {
         $this->entityManager->getAuthenticationTokenRepo()->deleteById($userAuthentication->getId());
@@ -142,5 +136,38 @@ class AuthenticationService extends AbstractService
         return array_map(function ($result) use ($mapper) {
             return $mapper->getUserAuthentication($result);
         }, $results);
+    }
+
+    public function makeEmailLoginToken(
+        EmailAddress $emailAddress
+    ): EmailLoginToken {
+        $token = $this->tokenHandler->makeToken(
+            EmailLoginToken::makeClaims(
+                $emailAddress
+            ),
+            self::EXPIRY_EMAIL_LOGIN
+        );
+        return new EmailLoginToken($token);
+    }
+
+    public function useEmailLoginToken(
+        string $tokenString
+    ): EmailLoginToken {
+        $token = $this->tokenHandler->parseTokenFromString($tokenString);
+        $this->tokenHandler->markAsUsed($token);
+        return new EmailLoginToken($token);
+    }
+
+    private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret)
+    {
+        return \hash_hmac(
+            'sha256',
+            \json_encode([
+                $secret,
+                (string)$userId,
+                $expiry->getTimestamp(),
+            ]),
+            $this->applicationConfig->getTokenPrivateKey()
+        );
     }
 }

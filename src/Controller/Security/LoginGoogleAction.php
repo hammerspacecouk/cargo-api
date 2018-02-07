@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LoginGoogleAction extends AbstractLoginAction
 {
@@ -38,10 +40,14 @@ class LoginGoogleAction extends AbstractLoginAction
 
         // check the code
         $this->logger->notice('[LOGIN] [GOOGLE]');
-        $client->fetchAccessTokenWithAuthCode($code);
+        try {
+            $client->fetchAccessTokenWithAuthCode($code);
 
-        $oauthClient = new Google_Service_Oauth2($client);
-        $user = $oauthClient->userinfo_v2_me->get();
+            $oauthClient = new Google_Service_Oauth2($client);
+            $user = $oauthClient->userinfo_v2_me->get();
+        } catch (\Google_Service_Exception $e) {
+            throw new BadRequestHttpException($e->getMessage());
+        }
 
         return $this->getLoginResponse($request, new EmailAddress($user->email));
     }
