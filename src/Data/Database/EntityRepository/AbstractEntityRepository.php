@@ -48,8 +48,6 @@ abstract class AbstractEntityRepository extends EntityRepository
         $this->_em = $em;
     }
 
-    /** Shared methods begin from here */
-
     public function getByID(
         UuidInterface $uuid,
         $resultType = Query::HYDRATE_ARRAY

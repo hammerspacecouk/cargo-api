@@ -17,7 +17,6 @@ class EmailsService
     private const EMAIL_MIME_TYPE = 'text/html';
 
     private $mailer;
-    private $tokensService;
     private $applicationConfig;
     private $currentTime;
     private $cache;
@@ -25,14 +24,12 @@ class EmailsService
 
     public function __construct(
         Swift_Mailer $mailer,
-        TokensService $tokensService,
         ApplicationConfig $applicationConfig,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
         $this->mailer = $mailer;
-        $this->tokensService = $tokensService;
         $this->applicationConfig = $applicationConfig;
         $this->currentTime = $currentTime;
         $this->cache = $cache;

@@ -5,26 +5,25 @@ namespace App\Controller\Actions;
 
 use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Score;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class RequestShipNameAction extends AbstractAction
 {
-    private $tokensService;
     private $shipsService;
+    private $shipNameService;
     private $logger;
 
     public function __construct(
-        TokensService $tokensService,
         ShipsService $shipsService,
+        ShipNameService $shipNameService,
         LoggerInterface $logger
     ) {
-        $this->tokensService = $tokensService;
+        $this->shipNameService = $shipNameService;
         $this->shipsService = $shipsService;
         $this->logger = $logger;
     }
@@ -37,14 +36,14 @@ class RequestShipNameAction extends AbstractAction
         $this->logger->notice('[ACTION] [REQUEST SHIP NAME]');
 
         try {
-            $token = $this->tokensService->parseRequestShipNameToken($request->get('token'));
+            $token = $this->shipNameService->parseRequestShipNameToken($request->get('token'));
         } catch (TokenException $e) {
             return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        $shipName = $this->shipsService->useRequestShipNameToken($token);
+        $shipName = $this->shipNameService->useRequestShipNameToken($token);
 
-        $actionToken = $this->tokensService->getRenameShipToken(
+        $actionToken = $this->shipNameService->getRenameShipToken(
             $token->getShipId(),
             $shipName
         );
@@ -64,7 +63,7 @@ class RequestShipNameAction extends AbstractAction
 //        }
 
         // the previous token should not be reusable, so we need to send a new one
-        $requestShipNameToken = $this->tokensService->getRequestShipNameToken(
+        $requestShipNameToken = $this->shipNameService->getRequestShipNameToken(
             $token->getUserId(),
             $token->getShipId()
         );

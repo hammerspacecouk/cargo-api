@@ -6,7 +6,6 @@ namespace App\Controller\Security;
 use App\Controller\UserAuthenticationTrait;
 use App\Service\AuthenticationService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,20 +18,17 @@ class CheckLoginAction
     use UserAuthenticationTrait;
 
     private $authenticationService;
-    private $tokensService;
     private $shipsService;
     private $usersService;
     private $logger;
 
     public function __construct(
         AuthenticationService $authenticationService,
-        TokensService $tokensService,
         ShipsService $shipsService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
         $this->authenticationService = $authenticationService;
-        $this->tokensService = $tokensService;
         $this->shipsService = $shipsService;
         $this->usersService = $usersService;
         $this->logger = $logger;

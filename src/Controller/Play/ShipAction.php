@@ -14,8 +14,9 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\Ships\ShipMovementService;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,8 +32,9 @@ class ShipAction
 
     private $applicationConfig;
     private $authenticationService;
-    private $tokensService;
     private $shipsService;
+    private $shipMovementService;
+    private $shipNameService;
     private $channelsService;
     private $usersService;
     private $logger;
@@ -40,16 +42,18 @@ class ShipAction
     public function __construct(
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
-        TokensService $tokensService,
         ShipsService $shipsService,
+        ShipMovementService $shipMovementService,
+        ShipNameService $shipNameService,
         UsersService $usersService,
         ChannelsService $channelsService,
         LoggerInterface $logger
     ) {
         $this->applicationConfig = $applicationConfig;
         $this->authenticationService = $authenticationService;
-        $this->tokensService = $tokensService;
         $this->shipsService = $shipsService;
+        $this->shipMovementService = $shipMovementService;
+        $this->shipNameService = $shipNameService;
         $this->channelsService = $channelsService;
         $this->usersService = $usersService;
         $this->logger = $logger;
@@ -80,7 +84,7 @@ class ShipAction
         $location = $shipWithLocation->getLocation();
 
         // get a ship "request-rename" token
-        $requestShipNameToken = $this->tokensService->getRequestShipNameToken($user->getId(), $ship->getId());
+        $requestShipNameToken = $this->shipNameService->getRequestShipNameToken($user->getId(), $ship->getId());
 
         $data = [
             'ship' => $ship,
@@ -139,7 +143,7 @@ class ShipAction
             ) ;
             //* 60 * 60 todo - algorithm
 
-            $token = $this->tokensService->getMoveShipToken(
+            $token = $this->shipMovementService->getMoveShipToken(
                 $ship,
                 $channel,
                 $reverseDirection,
