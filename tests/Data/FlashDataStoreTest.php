@@ -5,7 +5,7 @@ namespace Tests\App\Data;
 
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
-use App\Data\TokenHandler;
+use App\Data\TokenProvider;
 use App\Domain\ValueObject\Message\Error;
 use App\Domain\ValueObject\Message\Info;
 use App\Domain\ValueObject\Message\Ok;
@@ -16,7 +16,7 @@ class FlashDataStoreTest extends \PHPUnit\Framework\TestCase
     public function testMessages()
     {
         $store = new FlashDataStore(
-            $this->createMock(TokenHandler::class),
+            $this->createMock(TokenProvider::class),
             $this->createMock(ApplicationConfig::class)
         );
         // expecting the output to put most important at top, so we'll add them in a different order

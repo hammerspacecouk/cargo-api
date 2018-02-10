@@ -21,7 +21,7 @@ class StatusAction
 
         $logger->debug(__CLASS__);
 
-        $cacheValue = rand(0, 5000);
+        $cacheValue = random_int(0, 5000);
         try {
             $key = __CLASS__ . __METHOD__;
             $cache->set($key, $cacheValue, 60);

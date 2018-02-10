@@ -6,5 +6,5 @@ namespace App\Domain\ValueObject\Message;
 class Error extends Message
 {
     public const WEIGHTING = 100;
-    protected const TYPE = 'Error';
+    protected const TYPE = 'error';
 }

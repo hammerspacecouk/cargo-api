@@ -35,7 +35,7 @@ class Bearing implements \JsonSerializable
 
     public static function getInitialRandomStepNumber(): int
     {
-        return 0; // rand(0, 5); - 0 for beta. todo - randomise on going live
+        return 0; // random_int(0, 5); - 0 for beta. todo - randomise on going live
     }
 
     public static function getEmptyBearingsList(): array

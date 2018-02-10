@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Data\Database\Entity\AuthenticationToken;
 use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Cluster;
 use App\Data\Database\Entity\Crate;
@@ -11,7 +12,7 @@ use App\Data\Database\Entity\Dictionary;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\PlayerStanding;
 use App\Data\Database\Entity\PortVisit;
-use App\Data\Database\Entity\Token;
+use App\Data\Database\Entity\UsedActionToken;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
@@ -24,12 +25,13 @@ use Ramsey\Uuid\UuidInterface;
 class ID
 {
     private const ENTITY_MAPPINGS = [
+        AuthenticationToken::class => 'aaaa',
         Channel::class => 'bd99',
         Cluster::class => 'c1c1',
         Crate::class => 'ca4e',
         CrateLocation::class => 'dd57',
         Dictionary::class => 'dddd',
-        Token::class => 'ffff',
+        UsedActionToken::class => 'ffff',
         PlayerRank::class => 'abcd',
         PlayerStanding::class => 'fedc',
         Port::class => '03fe',

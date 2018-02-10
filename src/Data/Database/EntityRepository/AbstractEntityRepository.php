@@ -48,8 +48,6 @@ abstract class AbstractEntityRepository extends EntityRepository
         $this->_em = $em;
     }
 
-    /** Shared methods begin from here */
-
     public function getByID(
         UuidInterface $uuid,
         $resultType = Query::HYDRATE_ARRAY
@@ -58,5 +56,14 @@ abstract class AbstractEntityRepository extends EntityRepository
             ->where('tbl.id = :id')
             ->setParameter('id', $uuid->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function deleteById(UuidInterface $uuid, string $className): void
+    {
+        $sql = 'DELETE FROM ' . $className . ' t WHERE t.id = :id';
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('id', $uuid->getBytes());
+        $query->execute();
     }
 }

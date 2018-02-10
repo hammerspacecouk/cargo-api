@@ -4,26 +4,25 @@ declare(strict_types=1);
 namespace App\Controller\Actions;
 
 use App\Domain\Exception\TokenException;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RenameShipAction extends AbstractAction
 {
-    private $tokensService;
     private $shipsService;
+    private $shipNameService;
     private $logger;
 
     public function __construct(
-        TokensService $tokensService,
         ShipsService $shipsService,
+        ShipNameService $shipNameService,
         LoggerInterface $logger
     ) {
-        $this->tokensService = $tokensService;
+        $this->shipNameService = $shipNameService;
         $this->shipsService = $shipsService;
         $this->logger = $logger;
     }
@@ -35,12 +34,12 @@ class RenameShipAction extends AbstractAction
         $tokenString = $this->getTokenDataFromRequest($request);
 
         try {
-            $renameShipToken = $this->tokensService->parseRenameShipToken($tokenString);
+            $renameShipToken = $this->shipNameService->parseRenameShipToken($tokenString);
         } catch (TokenException $exception) {
             return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        $this->shipsService->useRenameShipToken($renameShipToken);
+        $this->shipNameService->useRenameShipToken($renameShipToken);
 
         // fetch the updated ship
         $ship = $this->shipsService->getByID($renameShipToken->getShipId());

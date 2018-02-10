@@ -4,18 +4,19 @@ declare(strict_types=1);
 namespace App\Controller\Play;
 
 use App\Domain\Entity\ShipInChannel;
-use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Infrastructure\ApplicationConfig;
-use App\Controller\Security\Traits\UserTokenTrait;
+use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
+use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\Ships\ShipMovementService;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use App\Service\TokensService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,27 +27,33 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class ShipAction
 {
-    use UserTokenTrait;
+    use UserAuthenticationTrait;
     use GetShipTrait;
 
     private $applicationConfig;
-    private $tokensService;
+    private $authenticationService;
     private $shipsService;
+    private $shipMovementService;
+    private $shipNameService;
     private $channelsService;
     private $usersService;
     private $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
-        TokensService $tokensService,
+        AuthenticationService $authenticationService,
         ShipsService $shipsService,
+        ShipMovementService $shipMovementService,
+        ShipNameService $shipNameService,
         UsersService $usersService,
         ChannelsService $channelsService,
         LoggerInterface $logger
     ) {
         $this->applicationConfig = $applicationConfig;
-        $this->tokensService = $tokensService;
+        $this->authenticationService = $authenticationService;
         $this->shipsService = $shipsService;
+        $this->shipMovementService = $shipMovementService;
+        $this->shipNameService = $shipNameService;
         $this->channelsService = $channelsService;
         $this->usersService = $usersService;
         $this->logger = $logger;
@@ -58,14 +65,13 @@ class ShipAction
 
         $this->logger->debug(__CLASS__);
 
-        $userId = $this->getUserId($request, $this->tokensService);
-        $user = $this->usersService->getById($userId);
+        $user = $this->getUser($request, $this->authenticationService);
         if (!$user) {
             throw new UnauthorizedHttpException('No user found');
         }
 
         // get the ship. is it yours
-        $ship = $this->getShipForOwnerId($request, $this->shipsService, $userId);
+        $ship = $this->getShipForOwnerId($request, $this->shipsService, $user->getId());
         if (!$ship) {
             throw new NotFoundHttpException('No such ship');
         }
@@ -78,7 +84,7 @@ class ShipAction
         $location = $shipWithLocation->getLocation();
 
         // get a ship "request-rename" token
-        $requestShipNameToken = $this->tokensService->getRequestShipNameToken($user->getId(), $ship->getId());
+        $requestShipNameToken = $this->shipNameService->getRequestShipNameToken($user->getId(), $ship->getId());
 
         $data = [
             'ship' => $ship,
@@ -102,7 +108,7 @@ class ShipAction
             $data['channel'] = $location;
         }
 
-        return $this->userResponse(new JsonResponse($data));
+        return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }
 
     private function getDirectionsFromPort(
@@ -137,7 +143,7 @@ class ShipAction
             ) ;
             //* 60 * 60 todo - algorithm
 
-            $token = $this->tokensService->getMoveShipToken(
+            $token = $this->shipMovementService->getMoveShipToken(
                 $ship,
                 $channel,
                 $reverseDirection,

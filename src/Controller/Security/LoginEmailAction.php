@@ -3,10 +3,18 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Controller\Security\Traits\CsrfTokenTrait;
+use App\Data\FlashDataStore;
 use App\Domain\Exception\InvalidEmailAddressException;
+use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Message\Error;
+use App\Domain\ValueObject\Message\Messages;
+use App\Domain\ValueObject\Message\Ok;
+use App\Infrastructure\ApplicationConfig;
+use App\Service\AuthenticationService;
 use App\Service\EmailsService;
+use App\Service\UsersService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +23,28 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class LoginEmailAction extends AbstractLoginAction
 {
-    use CsrfTokenTrait;
+    private $emailsService;
 
-    public const CRSF_CONTEXT_KEY = 'login';
+    public function __construct(
+        EmailsService $emailsService,
+        ApplicationConfig $applicationConfig,
+        AuthenticationService $authenticationService,
+        FlashDataStore $flashData,
+        UsersService $usersService,
+        LoggerInterface $logger
+    ) {
+        parent::__construct(
+            $applicationConfig,
+            $authenticationService,
+            $flashData,
+            $usersService,
+            $logger
+        );
+        $this->emailsService = $emailsService;
+    }
 
     public function __invoke(
-        Request $request,
-        EmailsService $emailsService
+        Request $request
     ): Response {
         $this->logger->debug(__CLASS__);
         $token = $request->get('token');
@@ -33,41 +56,49 @@ class LoginEmailAction extends AbstractLoginAction
         }
         if ($target) {
             $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
-            return $this->sendEmail($request, $emailsService, $target);
+            return $this->sendEmail($request, $target);
         }
-
         throw new BadRequestHttpException('Expecting an e-mail address or token');
     }
 
     private function processLogin(
         Request $request,
         string $token
-    ) {
-        $token = $this->tokensService->parseEmailLoginToken($token);
+    ): Response {
+        try {
+            $token = $this->authenticationService->useEmailLoginToken($token);
+        } catch (TokenException $exception) {
+            $query = '?messages=' . (new Messages([new Error($exception->getMessage())]));
+            return new RedirectResponse(
+                $this->applicationConfig->getWebHostname() . '/login' . $query
+            );
+        }
         return $this->getLoginResponse($request, $token->getEmailAddress());
     }
 
     private function sendEmail(
         Request $request,
-        EmailsService $emailsService,
         string $emailAddress
     ) {
         $this->setReturnAddress($request);
         try {
-            $this->checkCsrfToken($request, self::CRSF_CONTEXT_KEY, $this->tokensService, $this->logger);
-
             $emailAddress = new EmailAddress($emailAddress);
-            $emailsService->sendLoginEmail($emailAddress);
-        } catch (InvalidEmailAddressException | BadRequestHttpException $e) {
-            // todo - set the error to the flash message. Setup a Messages object
-            return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login?mailfail');
-        }
+            $token = $this->authenticationService->makeEmailLoginToken($emailAddress);
 
+            $this->emailsService->sendLoginEmail($emailAddress, $token);
+        } catch (InvalidEmailAddressException | BadRequestHttpException $e) {
+            $query = '?messages=' . (new Messages([new Error($e->getMessage())]));
+            return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);
+        }
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(['status' => 'ok']);
         }
         // todo - differing response for XHR
-        return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login?mailsent');
+
+        $query = '?messages=' . (new Messages([new Ok(
+            'Sent. Please check your e-mail for the login link'
+        )]));
+        return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);
     }
 }

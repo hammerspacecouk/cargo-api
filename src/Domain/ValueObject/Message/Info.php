@@ -6,5 +6,5 @@ namespace App\Domain\ValueObject\Message;
 class Info extends Message
 {
     public const WEIGHTING = 10;
-    protected const TYPE = 'Info';
+    protected const TYPE = 'info';
 }

@@ -5,7 +5,8 @@ namespace App\Service;
 
 use App\Data\Database\EntityManager;
 use App\Data\Database\Mapper\MapperFactory;
-use App\Data\TokenHandler;
+use App\Data\TokenProvider;
+use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
@@ -20,6 +21,7 @@ abstract class AbstractService
 
     protected $entityManager;
     protected $mapperFactory;
+    protected $applicationConfig;
     protected $tokenHandler;
     protected $currentTime;
     protected $cache;
@@ -28,13 +30,15 @@ abstract class AbstractService
     public function __construct(
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
-        TokenHandler $tokenHandler,
+        ApplicationConfig $applicationConfig,
+        TokenProvider $tokenHandler,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
         $this->entityManager = $entityManager;
         $this->mapperFactory = $mapperFactory;
+        $this->applicationConfig = $applicationConfig;
         $this->tokenHandler = $tokenHandler;
         $this->currentTime = $currentTime;
         $this->cache = $cache;

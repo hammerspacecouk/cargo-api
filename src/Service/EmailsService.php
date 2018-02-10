@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\EmailLoginToken;
 use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -16,7 +17,6 @@ class EmailsService
     private const EMAIL_MIME_TYPE = 'text/html';
 
     private $mailer;
-    private $tokensService;
     private $applicationConfig;
     private $currentTime;
     private $cache;
@@ -24,29 +24,25 @@ class EmailsService
 
     public function __construct(
         Swift_Mailer $mailer,
-        TokensService $tokensService,
         ApplicationConfig $applicationConfig,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
         $this->mailer = $mailer;
-        $this->tokensService = $tokensService;
         $this->applicationConfig = $applicationConfig;
         $this->currentTime = $currentTime;
         $this->cache = $cache;
         $this->logger = $logger;
     }
 
-    public function sendLoginEmail(EmailAddress $emailAddress)
+    public function sendLoginEmail(EmailAddress $emailAddress, EmailLoginToken $token)
     {
-        $token = $this->tokensService->getEmailLoginToken($emailAddress);
-
-        $url = $this->applicationConfig->getApiHostname() . '/login/email?token=' . (string)$token;
+        $url = $this->applicationConfig->getWebHostname() . '/login/email?token=' . (string)$token;
 
         // todo - use twig
         $body = <<<EMAIL
-<p>This link will work for 1 hour and will log you in</p>
+<p>This link will work for 1 hour and will log you in once</p>
 <p><a href="$url">$url</a></p>
 EMAIL;
 

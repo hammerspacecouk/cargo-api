@@ -4,9 +4,6 @@ declare(strict_types=1);
 namespace App\Command\Action;
 
 use App\Controller\Actions\RequestShipNameAction;
-use App\Controller\Security\Traits\UserTokenTrait;
-use App\Service\ShipsService;
-use App\Service\TokensService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

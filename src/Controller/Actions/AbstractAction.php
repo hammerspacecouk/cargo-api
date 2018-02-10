@@ -23,11 +23,6 @@ class AbstractAction
         return $data;
     }
 
-    protected function getAdditionalDataFromRequest(Request $request): array
-    {
-        return []; // todo - will this be used?
-    }
-
     protected function actionResponse(JsonResponse $response): JsonResponse
     {
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');

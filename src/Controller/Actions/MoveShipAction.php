@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Service\TokensService;
+use App\Service\Ships\ShipMovementService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -12,22 +12,31 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MoveShipAction extends AbstractAction
 {
+    private $shipMovementService;
+    private $logger;
+
+    public function __construct(
+        ShipMovementService $shipMovementService,
+        LoggerInterface $logger
+    ) {
+        $this->shipMovementService = $shipMovementService;
+        $this->logger = $logger;
+    }
+
     // general status and stats of the game as a whole
     public function __invoke(
-        Request $request,
-        TokensService $tokensService,
-        LoggerInterface $logger
+        Request $request
     ): Response {
-        $logger->debug(__CLASS__);
+        $this->logger->debug(__CLASS__);
 
         $tokenString = $this->getTokenDataFromRequest($request);
-        $tokensService->useMoveShipToken($tokenString);
+        $this->shipMovementService->useMoveShipToken($tokenString);
 
         // todo - different response if it is XHR vs Referer
         $referrer = $request->headers->get('Referer', null);
         if ($referrer) {
             // todo - abstract
-            $response = new RedirectResponse((string) $referrer);
+            $response = new RedirectResponse((string)$referrer);
             $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
             return $response;
         }

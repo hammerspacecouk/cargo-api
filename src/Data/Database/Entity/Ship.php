@@ -20,7 +20,7 @@ class Ship extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $owner;
 
