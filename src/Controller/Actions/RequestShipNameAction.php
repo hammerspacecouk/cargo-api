@@ -32,6 +32,10 @@ class RequestShipNameAction extends AbstractAction
     public function __invoke(
         Request $request
     ): Response {
+        if ($request->getMethod() === Request::METHOD_OPTIONS) {
+            return new Response();
+        }
+
         $this->logger->debug(__CLASS__);
         $this->logger->notice('[ACTION] [REQUEST SHIP NAME]');
 
