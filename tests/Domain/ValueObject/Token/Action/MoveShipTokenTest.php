@@ -13,6 +13,7 @@ class MoveShipTokenTest extends TokenTestCase
 {
     private const UUID_EXAMPLE_SHIP = '00000000-0000-4000-0000-000000000000';
     private const UUID_EXAMPLE_CHANNEL = '00000000-0000-4000-0000-000000000001';
+    private const UUID_EXAMPLE_USER = '00000000-0000-4000-0000-000000000002';
 
     public function testInvalidTokenType()
     {
@@ -52,6 +53,7 @@ class MoveShipTokenTest extends TokenTestCase
         $token = $this->getMockToken(MoveShipToken::TYPE, [
             MoveShipToken::KEY_CHANNEL => self::UUID_EXAMPLE_CHANNEL,
             MoveShipToken::KEY_SHIP => self::UUID_EXAMPLE_SHIP,
+            MoveShipToken::KEY_OWNER => self::UUID_EXAMPLE_USER,
             MoveShipToken::KEY_JOURNEY_TIME => $time = 120,
             MoveShipToken::KEY_REVERSED => true,
         ]);
@@ -65,6 +67,9 @@ class MoveShipTokenTest extends TokenTestCase
 
         $this->assertInstanceOf(UuidInterface::class, $tokenObject->getShipId());
         $this->assertSame(self::UUID_EXAMPLE_SHIP, (string) $tokenObject->getShipId());
+
+        $this->assertInstanceOf(UuidInterface::class, $tokenObject->getOwnerId());
+        $this->assertSame(self::UUID_EXAMPLE_USER, (string) $tokenObject->getOwnerId());
 
         $this->assertTrue($tokenObject->isReversed());
         $this->assertSame($time, $tokenObject->getJourneyTime());
@@ -81,6 +86,7 @@ class MoveShipTokenTest extends TokenTestCase
         $claims = MoveShipToken::makeClaims(
             Uuid::fromString(self::UUID_EXAMPLE_SHIP),
             Uuid::fromString(self::UUID_EXAMPLE_CHANNEL),
+            Uuid::fromString(self::UUID_EXAMPLE_USER),
             true,
             120
         );
@@ -90,6 +96,7 @@ class MoveShipTokenTest extends TokenTestCase
 
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[MoveShipToken::KEY_SHIP]);
         $this->assertSame(self::UUID_EXAMPLE_CHANNEL, $claims[MoveShipToken::KEY_CHANNEL]);
+        $this->assertSame(self::UUID_EXAMPLE_USER, $claims[MoveShipToken::KEY_OWNER]);
         $this->assertSame(120, $claims[MoveShipToken::KEY_JOURNEY_TIME]);
         $this->assertTrue($claims[MoveShipToken::KEY_REVERSED]);
     }

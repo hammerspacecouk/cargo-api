@@ -41,26 +41,6 @@ class ShipNameService extends ShipsService
     }
 
 
-    public function requestShipName(
-        UuidInterface $userId,
-        UuidInterface $shipId
-    ): string {
-
-        // check the ship exists and belongs to the user
-        if (!$this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
-            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
-        }
-
-        // todo - check the user has enough credits
-
-        // todo -deduct the user credits
-
-        // todo - should it check to see if it already exists?
-
-        return $this->entityManager->getDictionaryRepo()->getRandomShipName();
-    }
-
-
     // Parse tokens
 
     public function parseRenameShipToken(
@@ -103,5 +83,26 @@ class ShipNameService extends ShipsService
             $this->logger->error('Rolled back "useRenameShipToken" transaction');
             throw $e;
         }
+    }
+
+
+    private function requestShipName(
+        UuidInterface $userId,
+        UuidInterface $shipId
+    ): string {
+
+        // check the ship exists and belongs to the user
+        if (!$this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId)) {
+            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
+        }
+
+
+        // todo - check the user has enough credits
+
+        // todo -deduct the user credits
+
+        // todo - should it check to see if it already exists?
+
+        return $this->entityManager->getDictionaryRepo()->getRandomShipName();
     }
 }

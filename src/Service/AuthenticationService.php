@@ -24,6 +24,7 @@ class AuthenticationService extends AbstractService
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
     private const COOKIE_EXPIRY = 'P3M';
     private const EXPIRY_EMAIL_LOGIN = 'PT1H';
+    private const WAIT_BEFORE_REFRESH = 'PT1H';
 
     public function makeNewAuthenticationCookie(
         User $user,
@@ -80,6 +81,25 @@ class AuthenticationService extends AbstractService
             '',
             self::COOKIE_NAME,
             $this->currentTime->sub(new DateInterval('P1Y'))
+        );
+    }
+
+    public function getUpdatedCookieForResponse(
+        UserAuthentication $currentAuthentication,
+        string $ipAddress = ''
+    ): ?Cookie {
+        // to lower churn (and thundering herd), we'll only update the token every so often (not every request)
+        $timeToUpdate = $currentAuthentication->getLastUsed()->add(new DateInterval(self::WAIT_BEFORE_REFRESH));
+        if ($timeToUpdate > $this->currentTime) {
+            return null;
+        }
+
+        return $this->makeNewAuthenticationCookie(
+            $currentAuthentication->getUser(),
+            $currentAuthentication->getDescription(),
+            $ipAddress,
+            $currentAuthentication->getCreationTime(),
+            $currentAuthentication
         );
     }
 

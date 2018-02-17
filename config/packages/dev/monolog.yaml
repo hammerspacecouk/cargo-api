@@ -1,8 +1,5 @@
 monolog:
     handlers:
-        main:
-            type:  error_log
-            level:  DEBUG
         console:
             type:   console
             bubble: false
