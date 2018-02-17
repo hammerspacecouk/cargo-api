@@ -3,23 +3,27 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Domain\Exception\TokenException;
 use App\Service\Ships\ShipMovementService;
+use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class MoveShipAction extends AbstractAction
 {
     private $shipMovementService;
+    private $usersService;
     private $logger;
 
     public function __construct(
         ShipMovementService $shipMovementService,
+        UsersService $usersService,
         LoggerInterface $logger
     ) {
         $this->shipMovementService = $shipMovementService;
+        $this->usersService = $usersService;
         $this->logger = $logger;
     }
 
@@ -29,18 +33,35 @@ class MoveShipAction extends AbstractAction
     ): Response {
         $this->logger->debug(__CLASS__);
 
-        $tokenString = $this->getTokenDataFromRequest($request);
-        $this->shipMovementService->useMoveShipToken($tokenString);
-
-        // todo - different response if it is XHR vs Referer
-        $referrer = $request->headers->get('Referer', null);
-        if ($referrer) {
-            // todo - abstract
-            $response = new RedirectResponse((string)$referrer);
-            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
-            return $response;
+        try {
+            $moveShipToken = $this->shipMovementService->parseMoveShipToken(
+                $this->getTokenDataFromRequest($request)
+            );
+        } catch (TokenException $exception) {
+            return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->actionResponse(new JsonResponse(['status' => 'ok']));
+        $newChannelLocation = $this->shipMovementService->useMoveShipToken($moveShipToken);
+
+        // send back the new state of the ship in the channel and the new state of the user
+        $data = [
+            'port' => null,
+            'channel' => $newChannelLocation,
+            'directions' => null
+        ];
+
+        $user = $this->usersService->getById($moveShipToken->getOwnerId());
+        $data['playerScore'] = $user->getScore();
+
+
+        // todo - different response if it is XHR vs Referer
+//        $referrer = $request->headers->get('Referer', null);
+//        if ($referrer) {
+//            // todo - abstract
+//            $response = new RedirectResponse((string)$referrer);
+//            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+//            return $response;
+//        }
+        return $this->actionResponse(new JsonResponse($data));
     }
 }

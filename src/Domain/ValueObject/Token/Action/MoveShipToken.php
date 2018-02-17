@@ -15,6 +15,7 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_SHIP = 'shp';
     public const KEY_CHANNEL = 'cnl';
     public const KEY_REVERSED = 'rvsd';
+    public const KEY_OWNER = 'own';
     public const KEY_JOURNEY_TIME = 'jt';
 
     public function __construct(Token $token)
@@ -25,12 +26,14 @@ class MoveShipToken extends AbstractActionToken
     public static function makeClaims(
         UuidInterface $shipId,
         UuidInterface $channelId,
+        UuidInterface $ownerId,
         bool $isReversed,
         int $journeyTime
     ): array {
         return parent::createClaims([
             self::KEY_SHIP => (string)$shipId,
             self::KEY_CHANNEL => (string)$channelId,
+            self::KEY_OWNER => (string)$ownerId,
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
         ]);
@@ -50,6 +53,14 @@ class MoveShipToken extends AbstractActionToken
             return Uuid::fromString($this->token->getClaim(self::KEY_CHANNEL));
         }
         throw new InvalidTokenException('No Channel ID found');
+    }
+
+    public function getOwnerId(): UuidInterface
+    {
+        if ($this->token->hasClaim(self::KEY_OWNER)) {
+            return Uuid::fromString($this->token->getClaim(self::KEY_OWNER));
+        }
+        throw new InvalidTokenException('No Owner ID found');
     }
 
     public function isReversed(): bool

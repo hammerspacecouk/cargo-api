@@ -63,19 +63,20 @@ trait UserAuthenticationTrait
     ): Response {
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
 
+
         // action is over, let's ensure we handle response cookies correctly
         if ($this->userAuthentication) {
-            $cookie = $authenticationService->makeNewAuthenticationCookie(
-                $this->userAuthentication->getUser(),
-                $this->userAuthentication->getDescription(),
-                $_SERVER['REMOTE_ADDR'] ?? '',
-                $this->userAuthentication->getCreationTime(),
-                $this->userAuthentication
+            $cookie = $authenticationService->getUpdatedCookieForResponse(
+                $this->userAuthentication,
+                $_SERVER['REMOTE_ADDR'] ?? ''
             );
         } else {
             $cookie = $authenticationService->makeRemovalCookie();
         }
-        $response->headers->setCookie($cookie);
+
+        if ($cookie) {
+            $response->headers->setCookie($cookie);
+        }
         return $response;
     }
 }

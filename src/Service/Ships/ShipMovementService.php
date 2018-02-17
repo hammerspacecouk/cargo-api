@@ -12,6 +12,9 @@ use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\ID;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipInChannel;
+use App\Domain\Entity\ShipLocation;
+use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Service\ShipsService;
@@ -25,6 +28,7 @@ class ShipMovementService extends ShipsService
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
+        User $owner,
         bool $reverseDirection,
         int $journeyTime,
         string $tokenKey
@@ -34,6 +38,7 @@ class ShipMovementService extends ShipsService
             MoveShipToken::makeClaims(
                 $ship->getId(),
                 $channel->getId(),
+                $owner->getId(),
                 $reverseDirection,
                 $journeyTime
             ),
@@ -43,16 +48,12 @@ class ShipMovementService extends ShipsService
         return new MoveShipToken($token);
     }
 
-    // todo - move to shipsService
     public function useMoveShipToken(
-        string $token
-    ): void {
-        $token = $this->tokenHandler->parseTokenFromString($token);
-        $tokenDetail = new MoveShipToken($token);
-
-        $shipId = $tokenDetail->getShipId();
-        $channelId = $tokenDetail->getChannelId();
-        $reversed = $tokenDetail->isReversed();
+        MoveShipToken $token
+    ): ShipLocation {
+        $shipId = $token->getShipId();
+        $channelId = $token->getChannelId();
+        $reversed = $token->isReversed();
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
@@ -66,7 +67,7 @@ class ShipMovementService extends ShipsService
 
         // todo - adjust exit time if any abilities were applied
         $exitTime = $this->currentTime->add(
-            new \DateInterval('PT' . $tokenDetail->getJourneyTime() . 'M')
+            new \DateInterval('PT' . $token->getJourneyTime() . 'M')
         );
 
         $this->entityManager->getConnection()->beginTransaction();
@@ -88,7 +89,8 @@ class ShipMovementService extends ShipsService
             // todo - mark any abilities as used
 
             $this->logger->info('Marking token as used');
-            $this->tokenHandler->markAsUsed($token);
+
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
             $this->logger->info('Committing transaction');
             $this->entityManager->getConnection()->commit();
             $this->logger->notice(sprintf(
@@ -102,8 +104,20 @@ class ShipMovementService extends ShipsService
             $this->logger->error('Rolled back "useMoveShipToken" transaction');
             throw $e;
         }
-        // todo - this return should contain the arrival time
+
+        $newLocation = $this->entityManager->getShipLocationRepo()->getCurrentForShipId(
+            $shipId
+        );
+        return $this->mapperFactory->createShipLocationMapper()->getShipLocation($newLocation);
     }
+
+    public function parseMoveShipToken(
+        string $tokenString
+    ): MoveShipToken {
+        return new MoveShipToken($this->tokenHandler->parseTokenFromString($tokenString));
+    }
+
+
 
 
 

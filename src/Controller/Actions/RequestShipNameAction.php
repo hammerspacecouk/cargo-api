@@ -7,6 +7,7 @@ use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Score;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
+use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,15 +17,18 @@ class RequestShipNameAction extends AbstractAction
 {
     private $shipsService;
     private $shipNameService;
+    private $usersService;
     private $logger;
 
     public function __construct(
         ShipsService $shipsService,
         ShipNameService $shipNameService,
+        UsersService $usersService,
         LoggerInterface $logger
     ) {
         $this->shipNameService = $shipNameService;
         $this->shipsService = $shipsService;
+        $this->usersService = $usersService;
         $this->logger = $logger;
     }
 
@@ -36,7 +40,7 @@ class RequestShipNameAction extends AbstractAction
         $this->logger->notice('[ACTION] [REQUEST SHIP NAME]');
 
         try {
-            $token = $this->shipNameService->parseRequestShipNameToken($request->get('token'));
+            $token = $this->shipNameService->parseRequestShipNameToken($this->getTokenDataFromRequest($request));
         } catch (TokenException $e) {
             return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
@@ -68,15 +72,13 @@ class RequestShipNameAction extends AbstractAction
             $token->getShipId()
         );
 
+        $user = $this->usersService->getById($token->getUserId());
+
         return new JsonResponse([
             'nameOffered' => $shipName,
             'action' => $actionToken,
             'requestShipNameToken' => $requestShipNameToken,
-            'newScore' => new Score(  // todo - real values
-                random_int(0, 10000),
-                random_int(-10, 100),
-                new \DateTimeImmutable()
-            )
+            'newScore' => $user->getScore(),
         ]);
     }
 }

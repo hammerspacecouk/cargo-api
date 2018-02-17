@@ -5,7 +5,6 @@ namespace Tests\App\Domain\ValueObject\Token;
 
 use App\Domain\ValueObject\Token\AbstractToken;
 use Lcobucci\JWT\Token;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class TokenTestCase extends \PHPUnit\Framework\TestCase

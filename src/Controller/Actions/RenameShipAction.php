@@ -31,10 +31,8 @@ class RenameShipAction extends AbstractAction
     public function __invoke(
         Request $request
     ): Response {
-        $tokenString = $this->getTokenDataFromRequest($request);
-
         try {
-            $renameShipToken = $this->shipNameService->parseRenameShipToken($tokenString);
+            $renameShipToken = $this->shipNameService->parseRenameShipToken($this->getTokenDataFromRequest($request));
         } catch (TokenException $exception) {
             return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         }

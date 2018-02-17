@@ -108,6 +108,8 @@ class ShipAction
             $data['channel'] = $location;
         }
 
+        $data['playerScore'] = $user->getScore();
+
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }
 
@@ -146,6 +148,7 @@ class ShipAction
             $token = $this->shipMovementService->getMoveShipToken(
                 $ship,
                 $channel,
+                $user,
                 $reverseDirection,
                 $journeyTimeMinutes,
                 $groupTokenKey
