@@ -5,6 +5,7 @@ namespace App\Infrastructure;
 
 class ApplicationConfig
 {
+    private $environment;
     private $hostnameApi;
     private $hostnameWeb;
     private $cookieScope;
@@ -16,6 +17,7 @@ class ApplicationConfig
     private $version;
 
     public function __construct(
+        string $environment,
         string $hostnameApi,
         string $hostnameWeb,
         string $cookieScope,
@@ -26,6 +28,7 @@ class ApplicationConfig
         string $tokenIssuer,
         ?string $version
     ) {
+        $this->environment = $environment;
         $this->hostnameApi = $hostnameApi;
         $this->hostnameWeb = $hostnameWeb;
         $this->cookieScope = $cookieScope;
@@ -35,6 +38,11 @@ class ApplicationConfig
         $this->tokenPrivateKey = $tokenPrivateKey;
         $this->tokenIssuer = $tokenIssuer;
         $this->version = $version;
+    }
+
+    public function getEnvironment(): string
+    {
+        return $this->environment;
     }
 
     public function getApiHostname(): string

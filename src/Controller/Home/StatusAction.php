@@ -40,6 +40,7 @@ class StatusAction
         return new JsonResponse([
             'app' => [
                 'runtime' => 'OK',
+                'environment' => $applicationConfig->getEnvironment(),
                 'cache' => $cacheStatus,
                 'release' => 'Arctan',
                 'version' => $applicationConfig->getVersion(),

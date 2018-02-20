@@ -10,6 +10,7 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
     public function testValues()
     {
         $config = new ApplicationConfig(
+            $environment = 'alpha',
             $hostnameApi = 'api.www.example.com',
             $hostnameWeb = 'www.example.com',
             $cookieScope = '*.www.example.com',
@@ -21,6 +22,7 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
             $version = 'vvvvv'
         );
 
+        $this->assertSame($environment, $config->getEnvironment());
         $this->assertSame($hostnameApi, $config->getApiHostname());
         $this->assertSame($hostnameWeb, $config->getWebHostname());
         $this->assertSame($cookieScope, $config->getCookieScope());

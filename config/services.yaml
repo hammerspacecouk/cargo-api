@@ -34,6 +34,7 @@ services:
 
     App\Infrastructure\ApplicationConfig:
         arguments:
+            - '%env(APP_ENV)%'
             - '%env(CONFIG_HOSTNAME_API)%'
             - '%env(CONFIG_HOSTNAME_WEB)%'
             - '%env(CONFIG_COOKIE_SCOPE)%'
