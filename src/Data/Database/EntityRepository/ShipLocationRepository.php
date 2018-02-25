@@ -134,4 +134,18 @@ class ShipLocationRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($channel);
         $this->getEntityManager()->flush();
     }
+
+    public function getShipsForPortId(UuidInterface $portId)
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'player')
+            ->innerJoin('tbl.ship', 'ship')
+            ->innerJoin('ship.owner', 'player')
+            ->where('IDENTITY(tbl.port) = :portId')
+            ->andWhere('tbl.isCurrent = 1')
+            ->setParameter('portId', $portId->getBytes());
+        return array_map(function (array $result) {
+            return $result['ship'];
+        }, $qb->getQuery()->getArrayResult());
+    }
 }

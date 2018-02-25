@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\Entity\Port;
+use App\Data\Database\Entity\PortVisit;
+use App\Data\Database\Entity\User;
+use App\Data\ID;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -30,5 +34,19 @@ class PortVisitRepository extends AbstractEntityRepository
             ->setParameter('playerId', $playerId->getBytes())
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function recordVisit(
+        User $owner,
+        Port $portId
+    ): void {
+        $portVisit = new PortVisit(
+            ID::makeNewID(PortVisit::class),
+            $owner,
+            $portId,
+            $this->currentTime
+        );
+        $this->getEntityManager()->persist($portVisit);
+        $this->getEntityManager()->flush();
     }
 }

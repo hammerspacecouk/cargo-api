@@ -14,13 +14,13 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $user = new User(
             $id = Uuid::fromString('00000000-0000-4000-0000-000000000000'),
             2,
-            $score = $this->createMock(Score::class)
+            $score = $this->createMock(Score::class),
+            null
         );
 
         $this->assertSame($id, $user->getId());
         $this->assertSame($score, $user->getScore());
         $this->assertSame(2, $user->getRotationSteps());
-        $this->assertNull($user->jsonSerialize());
     }
 
     public function testSame()
@@ -29,17 +29,20 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $entity = new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000000'),
             2,
-            $score
+            $score,
+            null
         );
         $matchingEntity = new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000000'),
             2,
-            $score
+            $score,
+            null
         );
         $secondEntity =  new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000002'),
             3,
-            $score
+            $score,
+            null
         );
 
         $this->assertTrue($entity->equals($matchingEntity));

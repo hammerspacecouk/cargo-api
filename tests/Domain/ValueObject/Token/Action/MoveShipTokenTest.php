@@ -14,6 +14,7 @@ class MoveShipTokenTest extends TokenTestCase
     private const UUID_EXAMPLE_SHIP = '00000000-0000-4000-0000-000000000000';
     private const UUID_EXAMPLE_CHANNEL = '00000000-0000-4000-0000-000000000001';
     private const UUID_EXAMPLE_USER = '00000000-0000-4000-0000-000000000002';
+    private const UUID_EXAMPLE_PORT = '00000000-0000-4000-0000-000000000003';
 
     public function testInvalidTokenType()
     {
@@ -88,7 +89,8 @@ class MoveShipTokenTest extends TokenTestCase
             Uuid::fromString(self::UUID_EXAMPLE_CHANNEL),
             Uuid::fromString(self::UUID_EXAMPLE_USER),
             true,
-            120
+            120,
+            Uuid::fromString(self::UUID_EXAMPLE_PORT)
         );
 
         $this->assertTrue(is_array($claims));
@@ -97,6 +99,7 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[MoveShipToken::KEY_SHIP]);
         $this->assertSame(self::UUID_EXAMPLE_CHANNEL, $claims[MoveShipToken::KEY_CHANNEL]);
         $this->assertSame(self::UUID_EXAMPLE_USER, $claims[MoveShipToken::KEY_OWNER]);
+        $this->assertSame(self::UUID_EXAMPLE_PORT, $claims[MoveShipToken::KEY_FIRST_PORT]);
         $this->assertSame(120, $claims[MoveShipToken::KEY_JOURNEY_TIME]);
         $this->assertTrue($claims[MoveShipToken::KEY_REVERSED]);
     }

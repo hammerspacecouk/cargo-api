@@ -11,8 +11,8 @@ use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\ID;
 use App\Domain\Entity\Channel;
+use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
@@ -31,7 +31,8 @@ class ShipMovementService extends ShipsService
         User $owner,
         bool $reverseDirection,
         int $journeyTime,
-        string $tokenKey
+        string $tokenKey,
+        ?Port $departingPort
     ): MoveShipToken {
         $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
         $token = $this->tokenHandler->makeToken(
@@ -40,7 +41,8 @@ class ShipMovementService extends ShipsService
                 $channel->getId(),
                 $owner->getId(),
                 $reverseDirection,
-                $journeyTime
+                $journeyTime,
+                $departingPort ? $departingPort->getId() : null
             ),
             self::TOKEN_EXPIRY,
             $id
@@ -54,6 +56,12 @@ class ShipMovementService extends ShipsService
         $shipId = $token->getShipId();
         $channelId = $token->getChannelId();
         $reversed = $token->isReversed();
+
+        $firstPort = null;
+        $firstPortId = $token->getFirstPortId(); // was it the first journey?
+        if ($firstPortId) {
+            $firstPort = $this->entityManager->getPortRepo()->getByID($firstPortId, Query::HYDRATE_OBJECT);
+        }
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
@@ -83,6 +91,14 @@ class ShipMovementService extends ShipsService
                 $reversed
             );
 
+            if ($firstPort) {
+                $this->logger->info('Recording users first visit to a port');
+                $this->entityManager->getPortVisitRepo()->recordVisit(
+                    $ship->owner,
+                    $firstPort
+                );
+            }
+
             // update the users score - todo - calculate how much the rate delta should be
             $this->entityManager->getUserRepo()->updateScore($ship->owner, 1);
 
@@ -91,6 +107,7 @@ class ShipMovementService extends ShipsService
             $this->logger->info('Marking token as used');
 
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
+
             $this->logger->info('Committing transaction');
             $this->entityManager->getConnection()->commit();
             $this->logger->notice(sprintf(

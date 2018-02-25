@@ -47,7 +47,8 @@ class MoveShipAction extends AbstractAction
         $data = [
             'port' => null,
             'channel' => $newChannelLocation,
-            'directions' => null
+            'directions' => null,
+            'players' => null, // todo - get the players in the channel
         ];
 
         $user = $this->usersService->getById($moveShipToken->getOwnerId());

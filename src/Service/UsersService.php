@@ -5,9 +5,9 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
 use App\Data\ID;
+use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
 use Doctrine\ORM\Query;
@@ -36,7 +36,7 @@ class UsersService extends AbstractService
         return null;
     }
 
-    public function getOrCreateByEmailAddress(EmailAddress $email): ?User
+    public function getOrCreateByEmailAddress(EmailAddress $email): User
     {
         $user = $this->getByEmailAddress($email);
         if ($user) {
@@ -44,8 +44,12 @@ class UsersService extends AbstractService
         }
 
         $this->logger->notice('[NEW PLAYER] Creating a new player');
-        $this->entityManager->getUserRepo()->createByEmail((string) $email);
-        return $this->getByEmailAddress($email);
+        $this->newPlayer($email);
+        $user = $this->getByEmailAddress($email);
+        if ($user) {
+            return $user;
+        }
+        throw new \RuntimeException('Error creating a new user');
     }
 
     public function fetchEmailAddress(User $user): EmailAddress
@@ -54,14 +58,8 @@ class UsersService extends AbstractService
         return new EmailAddress($email);
     }
 
-    public function startPlayer(UuidInterface $userId): void
+    private function newPlayer(EmailAddress $email): void
     {
-        /** @var DbUser $dbUser */
-        $dbUser = $this->entityManager->getUserRepo()->getByID($userId, Query::HYDRATE_OBJECT);
-        if (!$dbUser) {
-            throw new \InvalidArgumentException('No such player exists');
-        }
-
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
         $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
@@ -70,6 +68,8 @@ class UsersService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
+            $dbUser = $this->entityManager->getUserRepo()->createByEmail((string) $email);
+
             // Set the users original home port
             $dbUser->homePort = $safeHaven;
 

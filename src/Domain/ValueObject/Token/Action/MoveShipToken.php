@@ -17,6 +17,7 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_REVERSED = 'rvsd';
     public const KEY_OWNER = 'own';
     public const KEY_JOURNEY_TIME = 'jt';
+    public const KEY_FIRST_PORT = 'fp';
 
     public function __construct(Token $token)
     {
@@ -28,7 +29,8 @@ class MoveShipToken extends AbstractActionToken
         UuidInterface $channelId,
         UuidInterface $ownerId,
         bool $isReversed,
-        int $journeyTime
+        int $journeyTime,
+        ?UuidInterface $firstPortId
     ): array {
         return parent::createClaims([
             self::KEY_SHIP => (string)$shipId,
@@ -36,6 +38,7 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_OWNER => (string)$ownerId,
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
+            self::KEY_FIRST_PORT => $firstPortId ? (string)$firstPortId : null,
         ]);
     }
 
@@ -61,6 +64,18 @@ class MoveShipToken extends AbstractActionToken
             return Uuid::fromString($this->token->getClaim(self::KEY_OWNER));
         }
         throw new InvalidTokenException('No Owner ID found');
+    }
+
+    public function getFirstPortId(): ?UuidInterface
+    {
+        if ($this->token->hasClaim(self::KEY_FIRST_PORT)) {
+            $claim = $this->token->getClaim(self::KEY_FIRST_PORT);
+            if ($claim) {
+                return Uuid::fromString($claim);
+            }
+            return null;
+        }
+        throw new InvalidTokenException('No Port ID found');
     }
 
     public function isReversed(): bool

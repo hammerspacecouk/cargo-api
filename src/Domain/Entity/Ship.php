@@ -12,10 +12,12 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
     private $name;
     private $shipClass;
     private $location;
+    private $owner;
 
     public function __construct(
         UuidInterface $id,
         string $name,
+        ?User $owner,
         ?ShipClass $shipClass,
         ?ShipLocation $location = null
     ) {
@@ -23,6 +25,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         $this->name = $name;
         $this->shipClass = $shipClass;
         $this->location = $location;
+        $this->owner = $owner;
     }
 
     public function getName(): string
@@ -38,6 +41,16 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
             );
         }
         return $this->location;
+    }
+
+    public function getOwner(): User
+    {
+        if ($this->owner === null) {
+            throw new DataNotFetchedException(
+                'Tried to use the ship owner, but it was not fetched'
+            );
+        }
+        return $this->owner;
     }
 
     public function getShipClass(): ShipClass
@@ -57,6 +70,9 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
             'type' => 'Ship',
             'name' => $this->name,
         ];
+        if ($this->owner) {
+            $data['owner'] = $this->owner;
+        }
         if ($this->shipClass) {
             $data['class'] = $this->shipClass;
         }

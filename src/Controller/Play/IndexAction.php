@@ -52,7 +52,7 @@ class IndexAction
         // if you have no ships, send you to the welcome action
         if (!$homePort) {
             $statusKey = 'WELCOME';
-            $this->usersService->startPlayer($userId);
+            $this->usersService->newPlayer($userId);
             $this->logger->notice('[NEW PLAYER] [' . (string)$userId . ']');
 
             // homePort definitely exists now

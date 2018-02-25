@@ -41,9 +41,11 @@ class ShipLocationsService extends AbstractService
         $destinationPort = $currentLocation->getDestination();
 
         $usersRepo = $this->entityManager->getUserRepo();
+        $portVisitRepo = $this->entityManager->getPortVisitRepo();
+
         $ownerId = $ship->owner->id;
         $owner = $usersRepo->getByID($ownerId, Query::HYDRATE_OBJECT);
-        $alreadyVisited = $this->entityManager->getPortVisitRepo()->existsForPortAndUser(
+        $alreadyVisited = $portVisitRepo->existsForPortAndUser(
             $destinationPort->id,
             $ownerId
         );
@@ -67,13 +69,10 @@ class ShipLocationsService extends AbstractService
 
             // add this port to the list of visited ports for this user
             if (!$alreadyVisited) {
-                $portVisit = new PortVisit(
-                    ID::makeNewID(PortVisit::class),
+                $this->entityManager->getPortVisitRepo()->recordVisit(
                     $owner,
-                    $destinationPort,
-                    $this->currentTime
+                    $destinationPort
                 );
-                $this->entityManager->persist($portVisit);
             }
 
             // todo - move all the crates to the port

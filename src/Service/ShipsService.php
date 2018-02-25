@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
+use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use Doctrine\ORM\Query;
@@ -170,11 +171,13 @@ class ShipsService extends AbstractService
         $results = $qb->getQuery()->getArrayResult();
         $results = $this->attachLocationToShips($results);
 
-        $mapper = $this->mapperFactory->createShipMapper();
+        return $this->mapMany($results);
+    }
 
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getShip($result);
-        }, $results);
+    public function findAllInPort(Port $port): array
+    {
+        $results = $this->entityManager->getShipLocationRepo()->getShipsForPortId($port->getId());
+        return $this->mapMany($results);
     }
 
     private function attachLocationToShips(array $ships): array
@@ -201,5 +204,14 @@ class ShipsService extends AbstractService
         }
 
         return $shipsWithLocations;
+    }
+
+    /** @return Ship[] */
+    private function mapMany(array $results): array
+    {
+        $mapper = $this->mapperFactory->createShipMapper();
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getShip($result);
+        }, $results);
     }
 }

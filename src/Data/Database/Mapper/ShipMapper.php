@@ -5,8 +5,8 @@ namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
+use App\Domain\Entity\User;
 use App\Domain\ValueObject\ShipClass;
-use App\Domain\ValueObject\Travelling;
 
 class ShipMapper extends Mapper
 {
@@ -15,9 +15,18 @@ class ShipMapper extends Mapper
         return new Ship(
             $item['id'],
             $item['name'],
+            $this->getOwner($item),
             $this->getShipClass($item),
             $this->getLocation($item)
         );
+    }
+
+    private function getOwner(?array $item): ?User
+    {
+        if (isset($item['owner'])) {
+            return $this->mapperFactory->createUserMapper()->getUser($item['owner']);
+        }
+        return null;
     }
 
     private function getShipClass(?array $item): ?ShipClass
