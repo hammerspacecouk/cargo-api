@@ -14,6 +14,7 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
@@ -38,10 +39,12 @@ class ShipAction
     private $channelsService;
     private $usersService;
     private $logger;
+    private $playerRanksService;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
+        PlayerRanksService $playerRanksService,
         ShipsService $shipsService,
         ShipMovementService $shipMovementService,
         ShipNameService $shipNameService,
@@ -57,6 +60,7 @@ class ShipAction
         $this->channelsService = $channelsService;
         $this->usersService = $usersService;
         $this->logger = $logger;
+        $this->playerRanksService = $playerRanksService;
     }
 
     public function __invoke(
@@ -109,6 +113,7 @@ class ShipAction
         }
 
         $data['playerScore'] = $user->getScore();
+        $data['playerRankStatus'] = $this->playerRanksService->getForUser($user);
 
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }

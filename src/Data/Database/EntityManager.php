@@ -5,6 +5,7 @@ namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
+use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Doctrine\ORM\Decorator\EntityManagerDecorator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,9 +17,11 @@ class EntityManager extends EntityManagerDecorator
     private $currentTime;
     private $cache;
     private $logger;
+    private $applicationConfig;
 
     public function __construct(
         EntityManagerInterface $entityManager,
+        ApplicationConfig $applicationConfig,
         DateTimeImmutable $currentTime,
         CacheInterface $cache,
         LoggerInterface $logger
@@ -27,6 +30,7 @@ class EntityManager extends EntityManagerDecorator
         $this->currentTime = $currentTime;
         $this->cache = $cache;
         $this->logger = $logger;
+        $this->applicationConfig = $applicationConfig;
     }
 
     public function persist($entity)
@@ -48,6 +52,7 @@ class EntityManager extends EntityManagerDecorator
 
         // set dependencies (which could not be injected via construct)
         $repo->setEntityManager($this);
+        $repo->setApplicationConfig($this->applicationConfig);
         $repo->setCurrentTime($this->currentTime);
         $repo->setCache($this->cache);
         $repo->setLogger($this->logger);
@@ -98,6 +103,11 @@ class EntityManager extends EntityManagerDecorator
     public function getPortRepo(): EntityRepository\PortRepository
     {
         return $this->getRepository(Entity\Port::class);
+    }
+
+    public function getPortVisitRepo(): EntityRepository\PortVisitRepository
+    {
+        return $this->getRepository(Entity\PortVisit::class);
     }
 
     public function getShipRepo(): EntityRepository\ShipRepository

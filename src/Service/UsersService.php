@@ -48,6 +48,12 @@ class UsersService extends AbstractService
         return $this->getByEmailAddress($email);
     }
 
+    public function fetchEmailAddress(User $user): EmailAddress
+    {
+        $email = $this->entityManager->getUserRepo()->fetchEmailAddress($user->getId());
+        return new EmailAddress($email);
+    }
+
     public function startPlayer(UuidInterface $userId): void
     {
         /** @var DbUser $dbUser */

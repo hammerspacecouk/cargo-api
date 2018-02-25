@@ -13,7 +13,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
     {
         $user = new User(
             $id = Uuid::fromString('00000000-0000-4000-0000-000000000000'),
-            'user@example.com',
             2,
             $score = $this->createMock(Score::class)
         );
@@ -29,19 +28,16 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $score = $this->createMock(Score::class);
         $entity = new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000000'),
-            'user@example.com',
             2,
             $score
         );
         $matchingEntity = new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000000'),
-            'user@example.com',
             2,
             $score
         );
         $secondEntity =  new User(
             Uuid::fromString('00000000-0000-4000-0000-000000000002'),
-            'user2@example.com',
             3,
             $score
         );

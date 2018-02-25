@@ -1,7 +1,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    distance_multiplier: 60
+    distance_multiplier: 10
 
 services:
     # default configuration for services in *this* file
@@ -41,6 +41,7 @@ services:
             - '%distance_multiplier%'
             - "%env(MAILER_FROM_NAME)%"
             - "%env(MAILER_FROM_ADDRESS)%"
+            - '%env(APP_SECRET)%'
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(TOKEN_ISSUER)%'
             - '%env(APP_VERSION)%'

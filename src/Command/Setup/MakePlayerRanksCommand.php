@@ -64,12 +64,10 @@ class MakePlayerRanksCommand extends Command
             if ($entity) {
                 $entity->name = $data['name'];
                 $entity->threshold = $data['threshold'];
-                $entity->orderNumber = $data['orderNumber'];
             } else {
                 $entity = new PlayerRank(
                     $id,
                     $data['name'],
-                    (int)$data['orderNumber'],
                     (int)$data['threshold']
                 );
             }

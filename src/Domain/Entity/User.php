@@ -8,18 +8,15 @@ use Ramsey\Uuid\UuidInterface;
 
 class User extends Entity implements \JsonSerializable
 {
-    private $email;
     private $rotationSteps;
     private $score;
 
     public function __construct(
         UuidInterface $id,
-        string $email,
         int $rotationSteps,
         Score $score
     ) {
         parent::__construct($id);
-        $this->email = $email;
         $this->rotationSteps = $rotationSteps;
         $this->score = $score;
     }
@@ -38,5 +35,11 @@ class User extends Entity implements \JsonSerializable
     public function getScore(): Score
     {
         return $this->score;
+    }
+
+    public function getColour(): string
+    {
+        // get the last 6 characters of the UUID (as they are already hex)
+        return '#' . substr((string) $this->id, -6);
     }
 }

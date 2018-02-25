@@ -5,6 +5,7 @@ namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
 use App\Service\AuthenticationService;
+use App\Service\PlayerRanksService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -21,10 +22,12 @@ class CheckLoginAction
     private $shipsService;
     private $usersService;
     private $logger;
+    private $playerRanksService;
 
     public function __construct(
         AuthenticationService $authenticationService,
         ShipsService $shipsService,
+        PlayerRanksService $playerRanksService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
@@ -32,6 +35,7 @@ class CheckLoginAction
         $this->shipsService = $shipsService;
         $this->usersService = $usersService;
         $this->logger = $logger;
+        $this->playerRanksService = $playerRanksService;
     }
 
     public function __invoke(
@@ -49,7 +53,11 @@ class CheckLoginAction
             $loggedIn = true;
             $player = [
                 'id' => $user->getId(),
+                'emailAddress' => $this->usersService->fetchEmailAddress($user),
                 'score' => $user->getScore(),
+                'colour' => $user->getColour(),
+                'rankStatus' => $this->playerRanksService->getForUser($user),
+
             ];
         } catch (AccessDeniedHttpException $exception) {
             // On this controller alone, don't throw a 403. Just return empty data

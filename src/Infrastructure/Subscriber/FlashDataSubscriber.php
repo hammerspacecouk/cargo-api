@@ -27,7 +27,8 @@ class FlashDataSubscriber implements EventSubscriberInterface
     public function onKernelResponse(FilterResponseEvent $event): void
     {
         $headers = $event->getResponse()->headers;
-        // todo - only set this cookie on non-public cacheable pages
+        // todo - only set this cookie on non public-cacheable pages
+        // todo - only set this cookie if there is something to be set
         $headers->setCookie($this->dataStore->makeCookie());
     }
 

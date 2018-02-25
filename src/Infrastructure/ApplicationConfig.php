@@ -15,6 +15,7 @@ class ApplicationConfig
     private $tokenPrivateKey;
     private $tokenIssuer;
     private $version;
+    private $applicationSecret;
 
     public function __construct(
         string $environment,
@@ -24,6 +25,7 @@ class ApplicationConfig
         float $distanceMultiplier,
         string $emailFromName,
         string $emailFromAddress,
+        string $applicationSecret,
         string $tokenPrivateKey,
         string $tokenIssuer,
         ?string $version
@@ -38,6 +40,7 @@ class ApplicationConfig
         $this->tokenPrivateKey = $tokenPrivateKey;
         $this->tokenIssuer = $tokenIssuer;
         $this->version = $version;
+        $this->applicationSecret = $applicationSecret;
     }
 
     public function getEnvironment(): string
@@ -85,12 +88,13 @@ class ApplicationConfig
         return $this->tokenIssuer;
     }
 
+    public function getApplicationSecret(): string
+    {
+        return $this->applicationSecret;
+    }
+
     public function getVersion(): string
     {
-        $v = getenv('APP_VERSION');
-        if ($v) {
-            return $v;
-        }
-        return 'DEV';
+        return $this->version;
     }
 }

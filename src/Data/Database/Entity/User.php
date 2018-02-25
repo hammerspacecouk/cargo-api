@@ -11,13 +11,16 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Table(
  *     name="users",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
- *     indexes={@ORM\Index(name="user_email", columns={"email"})})
+ *     indexes={@ORM\Index(name="user_email", columns={"email_query_hash"})})
  * )})
  */
 class User extends AbstractEntity
 {
-    /** @ORM\Column(type="string", length=191) */
-    public $email;
+    /** @ORM\Column(type="binary") */
+    public $emailQueryHash;
+
+    /** @ORM\Column(type="text") */
+    public $emailAddress;
 
     /** @ORM\Column(type="boolean") */
     public $emailBlocked = false;
@@ -41,11 +44,13 @@ class User extends AbstractEntity
 
     public function __construct(
         UuidInterface $id,
-        string $email,
+        string $emailQueryHash,
+        string $emailAddress,
         int $rotationSteps
     ) {
         parent::__construct($id);
-        $this->email = $email;
+        $this->emailQueryHash = $emailQueryHash;
+        $this->emailAddress = $emailAddress;
         $this->rotationSteps = $rotationSteps;
     }
 }

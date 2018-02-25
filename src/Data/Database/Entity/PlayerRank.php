@@ -10,8 +10,9 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PlayerRankRepository")
  * @ORM\Table(
  *     name="player_ranks",
- *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
- * )})
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
+ *     indexes={@ORM\Index(name="player_ranks_threshold", columns={"threshold"})})
+ * )
  */
 class PlayerRank extends AbstractEntity
 {
@@ -19,20 +20,15 @@ class PlayerRank extends AbstractEntity
     public $name;
 
     /** @ORM\Column(type="integer", unique=true) */
-    public $orderNumber;
-
-    /** @ORM\Column(type="float", unique=true) */
     public $threshold;
 
     public function __construct(
         UuidInterface $id,
         string $name,
-        int $orderNumber,
-        float $threshold
+        int $threshold
     ) {
         parent::__construct($id);
         $this->name = $name;
-        $this->orderNumber = $orderNumber;
         $this->threshold = $threshold;
     }
 }

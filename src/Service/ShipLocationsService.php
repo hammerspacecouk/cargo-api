@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
 use Doctrine\ORM\Query;
@@ -40,7 +41,12 @@ class ShipLocationsService extends AbstractService
         $destinationPort = $currentLocation->getDestination();
 
         $usersRepo = $this->entityManager->getUserRepo();
-        $owner = $usersRepo->getByID($ship->owner->id, Query::HYDRATE_OBJECT);
+        $ownerId = $ship->owner->id;
+        $owner = $usersRepo->getByID($ownerId, Query::HYDRATE_OBJECT);
+        $alreadyVisited = $this->entityManager->getPortVisitRepo()->existsForPortAndUser(
+            $destinationPort->id,
+            $ownerId
+        );
 
         $this->entityManager->getConnection()->beginTransaction();
         try {
@@ -59,7 +65,17 @@ class ShipLocationsService extends AbstractService
             );
             $this->entityManager->persist($newLocation);
 
-            // todo - add this port to the list of visited ports for this user
+            // add this port to the list of visited ports for this user
+            if (!$alreadyVisited) {
+                $portVisit = new PortVisit(
+                    ID::makeNewID(PortVisit::class),
+                    $owner,
+                    $destinationPort,
+                    $this->currentTime
+                );
+                $this->entityManager->persist($portVisit);
+            }
+
             // todo - move all the crates to the port
             // todo - calculate the user's new rank and cache it
 

@@ -11,11 +11,15 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Table(
  *     name="channels",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
- *     indexes={@ORM\Index(name="channel_created", columns={"created_at"})})
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="channels_unique", columns={"from_port_id", "to_port_id"})
+ *     }
  * )
  */
 class Channel extends AbstractEntity
 {
+    private const ALLOWED_BEARINGS = ['NE', 'E', 'SE'];
+
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(onDelete="CASCADE")
@@ -35,6 +39,7 @@ class Channel extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     public $minimumEntryRank;
 
@@ -49,8 +54,13 @@ class Channel extends AbstractEntity
         parent::__construct($id);
         $this->fromPort = $fromPort;
         $this->toPort = $toPort;
-        $this->bearing = $bearing;
         $this->distance = $distance;
         $this->minimumEntryRank = $minimumEntryRank;
+
+        $bearing = \strtoupper(\trim($bearing));
+        if (!\in_array($bearing, self::ALLOWED_BEARINGS)) {
+            throw new \InvalidArgumentException('Invalid Bearing');
+        }
+        $this->bearing = $bearing;
     }
 }

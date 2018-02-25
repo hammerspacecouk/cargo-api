@@ -13,7 +13,6 @@ class UserMapper extends Mapper
     {
         $domainEntity = new User(
             $item['id'],
-            $item['email'],
             $item['rotationSteps'],
             $this->mapScore($item)
         );

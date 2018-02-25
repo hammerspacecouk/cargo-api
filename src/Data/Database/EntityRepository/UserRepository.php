@@ -7,24 +7,39 @@ use App\Data\Database\Entity\User;
 use App\Data\ID;
 use App\Domain\ValueObject\Bearing;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\UuidInterface;
 
 class UserRepository extends AbstractEntityRepository
 {
+    // e-mail addresses need to be obfuscated in the database,
+    // but transparent to the rest of the application
+
     public function getByEmail(
-        string $email,
+        string $emailAddress,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
-            ->where('tbl.email = :email')
-            ->setParameter('email', $email);
+            ->where('tbl.emailQueryHash = :email')
+            ->setParameter('email', $this->makeEmailHash($emailAddress));
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function createByEmail(string $email): User
+    public function createByEmail(string $emailAddress): User
     {
+        // sometimes we need to be able to read the e-mail (to notify), so also encrypt it
+        $emailNonce = \random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+        $cipher = \sodium_crypto_secretbox(
+            $emailAddress,
+            $emailNonce,
+            $this->applicationConfig->getApplicationSecret()
+        );
+
+        $email = bin2hex($emailNonce) . '.' . bin2hex($cipher);
+
         $user = new User(
             ID::makeNewID(User::class),
+            $this->makeEmailHash($emailAddress),
             $email,
             Bearing::getInitialRandomStepNumber()
         );
@@ -55,5 +70,27 @@ class UserRepository extends AbstractEntityRepository
 
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    public function fetchEmailAddress(UuidInterface $userId): string
+    {
+        $result = $this->getByID($userId);
+        $parts = explode('.', $result['emailAddress']);
+
+        return \sodium_crypto_secretbox_open(
+            hex2bin($parts[1]),
+            hex2bin($parts[0]),
+            $this->applicationConfig->getApplicationSecret()
+        );
+    }
+
+    private function makeEmailHash(string $emailAddress): string
+    {
+        // the e-mail address needs to be queryable so store a hash of it
+        return \sodium_hex2bin(\hash_hmac(
+            'sha256',
+            $emailAddress,
+            $this->applicationConfig->getApplicationSecret()
+        ));
     }
 }

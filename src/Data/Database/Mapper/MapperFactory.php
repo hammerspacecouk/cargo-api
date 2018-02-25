@@ -15,6 +15,11 @@ class MapperFactory
         return new CrateMapper($this);
     }
 
+    public function createPlayerRankMapper(): PlayerRankMapper
+    {
+        return new PlayerRankMapper($this);
+    }
+
     public function createPortMapper(): PortMapper
     {
         return new PortMapper($this);

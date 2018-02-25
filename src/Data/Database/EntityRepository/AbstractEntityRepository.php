@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -16,6 +17,9 @@ abstract class AbstractEntityRepository extends EntityRepository
     /** @var DateTimeImmutable */
     protected $currentTime;
 
+    /** @var ApplicationConfig */
+    protected $applicationConfig;
+
     /** @var CacheInterface */
     protected $cache;
 
@@ -27,6 +31,11 @@ abstract class AbstractEntityRepository extends EntityRepository
      * of having setters for these. Everything is safe and predictable as long as repositories are only EVER called
      * via our custom EntityManager and ALL entities have a repository which extends this class
      */
+
+    public function setApplicationConfig(ApplicationConfig $config): void
+    {
+        $this->applicationConfig = $config;
+    }
 
     public function setCurrentTime(DateTimeImmutable $time): void
     {

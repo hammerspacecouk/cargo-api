@@ -67,11 +67,12 @@ class TokenProvider
     }
 
     public function parseTokenFromString(
-        string $tokenString
+        string $tokenString,
+        bool $confirmSingleUse = true
     ): Token {
         try {
             $token = (new Parser())->parse($tokenString);
-            return $this->parseToken($token);
+            return $this->parseToken($token, $confirmSingleUse);
         } catch (\Exception $e) {
             // turn all types of unrecognised paring errors into InvalidToken errors
             if (!$e instanceof TokenException) {
@@ -90,7 +91,8 @@ class TokenProvider
     }
 
     private function parseToken(
-        Token $token
+        Token $token,
+        bool $confirmSingleUse = true
     ): Token {
         if ($token->isExpired($this->currentTime)) {
             throw new ExpiredTokenException('Token has expired');
@@ -103,7 +105,9 @@ class TokenProvider
             throw new InvalidTokenException('Token was tampered with or otherwise invalid');
         }
 
-        if ($this->entityManager->getUsedActionTokenRepo()->hasBeenUsed($this->uuidFromToken($token))) {
+        if ($confirmSingleUse &&
+            $this->entityManager->getUsedActionTokenRepo()->hasBeenUsed($this->uuidFromToken($token))
+        ) {
             throw new InvalidTokenException('Token has been invalidated');
         }
         return $token;

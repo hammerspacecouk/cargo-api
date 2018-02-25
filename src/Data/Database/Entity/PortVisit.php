@@ -11,21 +11,24 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PortVisitRepository")
  * @ORM\Table(
  *     name="port_visits",
- *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
- * )})
- * todo - add a composite key, support a INSERT IF NOT EXISTS query
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="port_visit_unique", columns={"player_id", "port_id"})
+ *     }
+ * )
+ * todo - support a INSERT IF NOT EXISTS query
  */
 class PortVisit extends AbstractEntity
 {
     /**
-     * @ORM\Column(nullable=false)
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $player;
 
     /**
-     * @ORM\Column(nullable=false)
      * @ORM\ManyToOne(targetEntity="Port")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $port;
 

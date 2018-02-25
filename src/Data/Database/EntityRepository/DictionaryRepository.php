@@ -40,13 +40,10 @@ class DictionaryRepository extends AbstractEntityRepository
     private function getAllByContext(string $context): array
     {
         $cacheKey = 'DictionaryRepository-getAll-' . $context;
-        $this->logger->debug('Checking cache for ' . $cacheKey);
         $data = $this->cache->get($cacheKey);
         if ($data) {
-            $this->logger->debug('Cache HIT for ' . $cacheKey);
             return $data;
         }
-        $this->logger->debug('Cache MISS for ' . $cacheKey);
 
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl.word')
@@ -57,7 +54,6 @@ class DictionaryRepository extends AbstractEntityRepository
             return $result['word'];
         }, $qb->getQuery()->getResult(Query::HYDRATE_ARRAY));
 
-        $this->logger->debug('Caching for ' . self::CACHE_LIFETIME . ' seconds');
         $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
 
         return $data;
