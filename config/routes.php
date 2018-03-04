@@ -45,6 +45,9 @@ $collection->add('login_twitter', new Route('/login/twitter', [
 $collection->add('profile_sessions', new Route('/profile/sessions', [
     '_controller' => Controller\Security\SessionsAction::class,
 ]));
+$collection->add('profile_delete', new Route('/profile/delete', [
+    '_controller' => Controller\Security\DeleteAction::class,
+]));
 
 // Crates
 $collection->add('crates_list', new Route('/crates', [
@@ -97,10 +100,6 @@ $collection->add('play_positions_ship', new Route('/play/{uuid}', [
 ]));
 
 // actions
-$collection->add('actions_list', new Route(Action\AbstractActionToken::PATH_PREFIX, [
-    '_controller' => Controller\Actions\ListAction::class,
-]));
-
 $collection->add('actions_move_ship', new Route(Action\MoveShipToken::getPath(), [
     '_controller' => Controller\Actions\MoveShipAction::class,
 ]));

@@ -47,22 +47,9 @@ class IndexAction
 
         $homePort = $this->portsService->findHomePortForUserId($userId);
 
-        $statusKey = 'ACTIVE';
-
-        // if you have no ships, send you to the welcome action
-        if (!$homePort) {
-            $statusKey = 'WELCOME';
-            $this->usersService->newPlayer($userId);
-            $this->logger->notice('[NEW PLAYER] [' . (string)$userId . ']');
-
-            // homePort definitely exists now
-            $homePort = $this->portsService->findHomePortForUserId($userId);
-        }
-
         $ships = $this->shipsService->getForOwnerIDWithLocation($userId, 100);
 
         $status = [
-            'status' => $statusKey,
             'userId' => $userId,
             'ships' => $ships,
             'homePort' => $homePort,

@@ -50,19 +50,10 @@ class UserRepository extends AbstractEntityRepository
         return $user;
     }
 
-    public function updateScore(User $user, int $rateDelta = null): void
+    public function updateScoreRate(User $user, int $rateDelta = 0): void
     {
-        $currentScore = $user->score;
-        $rate = $user->scoreRate;
-        $previousTime = $user->scoreCalculationTime ?? $this->currentTime;
-
-        $secondsDifference = $this->currentTime->getTimestamp() - $previousTime->getTimestamp();
-
-        $newScore = max(0, $currentScore + ($secondsDifference * $rate));
-
-        if (!is_null($rateDelta)) {
-            $rate = $rate + $rateDelta;
-        }
+        $rate = $user->scoreRate + $rateDelta;
+        $newScore = $this->currentScore($user);
 
         $user->score = $newScore;
         $user->scoreRate = $rate;
@@ -70,6 +61,28 @@ class UserRepository extends AbstractEntityRepository
 
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    public function updateScoreValue(User $user, int $scoreDelta = 0): void
+    {
+        $newScore = $this->currentScore($user) + $scoreDelta;
+
+        $user->score = $newScore;
+        $user->scoreCalculationTime = $this->currentTime;
+
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function currentScore(User $user): int
+    {
+        $currentScore = $user->score;
+        $rate = $user->scoreRate;
+        $previousTime = $user->scoreCalculationTime ?? $this->currentTime;
+
+        $secondsDifference = $this->currentTime->getTimestamp() - $previousTime->getTimestamp();
+
+        return max(0, $currentScore + ($secondsDifference * $rate));
     }
 
     public function fetchEmailAddress(UuidInterface $userId): string

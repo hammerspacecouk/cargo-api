@@ -88,11 +88,14 @@ class ShipAction
         $location = $shipWithLocation->getLocation();
 
         // get a ship "request-rename" token
-        $requestShipNameToken = $this->shipNameService->getRequestShipNameToken($user->getId(), $ship->getId());
+        $requestShipNameTransaction = $this->shipNameService->getRequestShipNameTransaction(
+            $user->getId(),
+            $ship->getId()
+        );
 
         $data = [
             'ship' => $ship,
-            'requestShipNameToken' => $requestShipNameToken,
+            'requestShipName' => $requestShipNameTransaction,
             'status' => $shipWithLocation->getLocation()->getStatus(),
             'port' => null,
             'channel' => null,
@@ -156,7 +159,7 @@ class ShipAction
 
             // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
-            $journeyTimeMinutes = (int)round(
+            $journeyTimeMinutes = (int)\round(
                 ($this->applicationConfig->getDistanceMultiplier() * $channel->getDistance() / 60)
             );
             //* 60 * 60 todo - algorithm

@@ -5,11 +5,12 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
 use App\Data\ID;
-use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\DeleteAccountToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -56,6 +57,36 @@ class UsersService extends AbstractService
     {
         $email = $this->entityManager->getUserRepo()->fetchEmailAddress($user->getId());
         return new EmailAddress($email);
+    }
+
+    public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
+    {
+        $token = $this->tokenHandler->makeToken(
+            DeleteAccountToken::makeClaims(
+                $userId,
+                $stage
+            ),
+            DeleteAccountToken::TOKEN_TIME
+        );
+        return new DeleteAccountToken($token);
+    }
+
+    public function parseDeleteAccountToken(
+        string $tokenString
+    ): DeleteAccountToken {
+        return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString));
+    }
+
+    public function useStageTwoDeleteAccountToken(DeleteAccountToken $token): DeleteAccountToken
+    {
+        $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        return $this->makeDeleteAccountToken($token->getUserId(), 3);
+    }
+
+    public function useStageThreeDeleteAccountToken(DeleteAccountToken $token): void
+    {
+        $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        $this->entityManager->getUserRepo()->deleteById($token->getUserId(), DbUser::class);
     }
 
     private function newPlayer(EmailAddress $email): void

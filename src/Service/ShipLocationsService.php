@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
+use App\Domain\ValueObject\Costs;
 use Doctrine\ORM\Query;
 
 class ShipLocationsService extends AbstractService
@@ -79,7 +80,7 @@ class ShipLocationsService extends AbstractService
             // todo - calculate the user's new rank and cache it
 
             // update the users score - todo - calculate how much the rate delta should be
-            $this->entityManager->getUserRepo()->updateScore($owner, -1);
+            $this->entityManager->getUserRepo()->updateScoreRate($owner, Costs::DELTA_SHIP_ARRIVAL);
 
             $this->entityManager->flush();
             $this->logger->info('Committing all changes');

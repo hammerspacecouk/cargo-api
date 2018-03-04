@@ -187,7 +187,7 @@ class AuthenticationService extends AbstractService
                 (string)$userId,
                 $expiry->getTimestamp(),
             ]),
-            $this->applicationConfig->getTokenPrivateKey()
+            (string)$this->applicationConfig->getTokenPrivateKey()
         );
     }
 }

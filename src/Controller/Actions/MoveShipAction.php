@@ -3,44 +3,30 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\Exception\TokenException;
 use App\Service\Ships\ShipMovementService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class MoveShipAction extends AbstractAction
 {
     private $shipMovementService;
     private $usersService;
-    private $logger;
 
     public function __construct(
         ShipMovementService $shipMovementService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
+        parent::__construct($logger);
         $this->shipMovementService = $shipMovementService;
         $this->usersService = $usersService;
-        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole
-    public function __invoke(
-        Request $request
-    ): Response {
-        $this->logger->debug(__CLASS__);
+    public function invoke(string $tokenString): array
+    {
 
-        try {
-            $moveShipToken = $this->shipMovementService->parseMoveShipToken(
-                $this->getTokenDataFromRequest($request)
-            );
-        } catch (TokenException $exception) {
-            return new Response($exception->getMessage(), Response::HTTP_BAD_REQUEST);
-        }
-
+        $moveShipToken = $this->shipMovementService->parseMoveShipToken($tokenString);
         $newChannelLocation = $this->shipMovementService->useMoveShipToken($moveShipToken);
 
         // send back the new state of the ship in the channel and the new state of the user
@@ -53,16 +39,6 @@ class MoveShipAction extends AbstractAction
 
         $user = $this->usersService->getById($moveShipToken->getOwnerId());
         $data['playerScore'] = $user->getScore();
-
-
-        // todo - different response if it is XHR vs Referer
-//        $referrer = $request->headers->get('Referer', null);
-//        if ($referrer) {
-//            // todo - abstract
-//            $response = new RedirectResponse((string)$referrer);
-//            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
-//            return $response;
-//        }
-        return $this->actionResponse(new JsonResponse($data));
+        return $data;
     }
 }

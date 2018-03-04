@@ -16,6 +16,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\Exception\IllegalMoveException;
+use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Service\ShipsService;
 use Doctrine\ORM\Query;
@@ -100,7 +101,7 @@ class ShipMovementService extends ShipsService
             }
 
             // update the users score - todo - calculate how much the rate delta should be
-            $this->entityManager->getUserRepo()->updateScore($ship->owner, 1);
+            $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, Costs::DELTA_SHIP_DEPARTURE);
 
             // todo - mark any abilities as used
 

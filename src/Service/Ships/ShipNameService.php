@@ -3,19 +3,24 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
+use App\Data\Database\Entity\User;
+use App\Domain\Exception\IllegalMoveException;
+use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
+use App\Domain\ValueObject\Transaction;
 use App\Service\ShipsService;
+use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipNameService extends ShipsService
 {
     private const TOKEN_EXPIRY = 'PT1H';
 
-    public function getRequestShipNameToken(
+    public function getRequestShipNameTransaction(
         UuidInterface $userId,
         UuidInterface $shipId
-    ): RequestShipNameToken {
+    ): Transaction {
         $token = $this->tokenHandler->makeToken(
             RequestShipNameToken::makeClaims(
                 $shipId,
@@ -23,7 +28,10 @@ class ShipNameService extends ShipsService
             ),
             self::TOKEN_EXPIRY
         );
-        return new RequestShipNameToken($token);
+        return new Transaction(
+            Costs::ACTION_REQUEST_SHIP_NAME,
+            new RequestShipNameToken($token)
+        );
     }
 
     public function getRenameShipToken(
@@ -96,12 +104,15 @@ class ShipNameService extends ShipsService
             throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
         }
 
+        $userRepo = $this->entityManager->getUserRepo();
 
-        // todo - check the user has enough credits
+        // check the user has enough credits
+        $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT); /** @var User $userEntity **/
+        if ($userRepo->currentScore($userEntity) < Costs::ACTION_REQUEST_SHIP_NAME) {
+            throw new IllegalMoveException(Costs::ACTION_REQUEST_SHIP_NAME . ' required to request a ship name');
+        }
 
-        // todo -deduct the user credits
-
-        // todo - should it check to see if it already exists?
+        $userRepo->updateScoreValue($userEntity, -Costs::ACTION_REQUEST_SHIP_NAME);
 
         return $this->entityManager->getDictionaryRepo()->getRandomShipName();
     }

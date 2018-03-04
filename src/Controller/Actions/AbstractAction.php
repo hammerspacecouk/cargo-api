@@ -3,13 +3,45 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Domain\Exception\IllegalMoveException;
+use App\Domain\Exception\TokenException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
-class AbstractAction
+abstract class AbstractAction
 {
+    private const HEADERS_NO_CACHE = 'no-cache, no-store, must-revalidate';
+
+    protected $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    abstract public function invoke(string $token): array;
+
+    public function __invoke(
+        Request $request
+    ): Response {
+        $this->logger->debug(\get_called_class());
+        $tokenString = $this->getTokenDataFromRequest($request);
+        try {
+            $data = $this->invoke($tokenString);
+            return $this->actionResponse($data);
+        } catch (TokenException $exception) {
+            $this->logger->notice('[ACTION] [INVALID TOKEN] ' . $exception->getMessage());
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
+        } catch (IllegalMoveException $exception) {
+            $this->logger->notice('[ACTION] [ILLEGAL MOVE] ' . $exception->getMessage());
+            return $this->errorResponse('Illegal Move: ' . $exception->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
     protected function getTokenDataFromRequest(Request $request): string
     {
         return $this->getDataFromRequest($request, 'token');
@@ -23,7 +55,7 @@ class AbstractAction
         if ($request->getContentType() !== 'json') {
             throw new BadRequestHttpException('Must be submitted as JSON');
         }
-        $data = json_decode($request->getContent(), true);
+        $data = \json_decode($request->getContent(), true);
         if (!$data) {
             throw new BadRequestHttpException('Must be submitted as valid JSON');
         }
@@ -35,9 +67,34 @@ class AbstractAction
         throw new BadRequestHttpException('Bad data supplied. Could not find ' . $dataKey);
     }
 
-    protected function actionResponse(JsonResponse $response): JsonResponse
+    protected function actionResponse(array $data): JsonResponse
     {
-        $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+        // todo - different response if it is XHR vs Referer
+//        $referrer = $request->headers->get('Referer', null);
+//        $query = strpos($referrer, '?');
+//        if ($query) {
+//            $referrer = substr($referrer, 0, strpos($referrer, '?'));
+//        }
+
+//        if ($referrer) {
+//            // todo - abstract
+//            $response = new RedirectResponse($referrer);
+//            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+//            return $response;
+//        }
+
+        $response = new JsonResponse($data);
+        $response->headers->set('cache-control', self::HEADERS_NO_CACHE);
+        return $response;
+    }
+
+    protected function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
+    {
+        $data = [
+            'error' => $message
+        ];
+        $response = new JsonResponse($data, $code);
+        $response->headers->set('cache-control', self::HEADERS_NO_CACHE);
         return $response;
     }
 }
