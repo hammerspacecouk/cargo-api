@@ -28,10 +28,10 @@ class User extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
-    /** @ORM\Column(type="integer") */
+    /** @ORM\Column(type="bigint") */
     public $score = 0;
 
-    /** @ORM\Column(type="integer") */
+    /** @ORM\Column(type="bigint") */
     public $scoreRate = 0;
 
     /** @ORM\Column(type="datetime", nullable=true) */

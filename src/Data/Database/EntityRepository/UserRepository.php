@@ -56,7 +56,7 @@ class UserRepository extends AbstractEntityRepository
         $newScore = $this->currentScore($user);
 
         $user->score = $newScore;
-        $user->scoreRate = $rate;
+        $user->scoreRate = $this->clampRate($rate);
         $user->scoreCalculationTime = $this->currentTime;
 
         $this->getEntityManager()->persist($user);
@@ -67,7 +67,7 @@ class UserRepository extends AbstractEntityRepository
     {
         $newScore = $this->currentScore($user) + $scoreDelta;
 
-        $user->score = $newScore;
+        $user->score = $this->clampScore($newScore);
         $user->scoreCalculationTime = $this->currentTime;
 
         $this->getEntityManager()->persist($user);
@@ -81,8 +81,9 @@ class UserRepository extends AbstractEntityRepository
         $previousTime = $user->scoreCalculationTime ?? $this->currentTime;
 
         $secondsDifference = $this->currentTime->getTimestamp() - $previousTime->getTimestamp();
+        $delta = ($secondsDifference * $rate);
 
-        return max(0, $currentScore + ($secondsDifference * $rate));
+        return $this->clampScore($currentScore + $delta);
     }
 
     public function fetchEmailAddress(UuidInterface $userId): string
@@ -105,5 +106,17 @@ class UserRepository extends AbstractEntityRepository
             $emailAddress,
             $this->applicationConfig->getApplicationSecret()
         ));
+    }
+
+    private function clampScore($score): int
+    {
+        // ensure that scores are always above zero and capped at the max int value
+        return (int) max(0, min($score, PHP_INT_MAX));
+    }
+
+    private function clampRate($rate): int
+    {
+        $maxDelta = 2 ** 30;
+        return (int) max(-$maxDelta, min($rate, $maxDelta));
     }
 }

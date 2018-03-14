@@ -37,8 +37,8 @@ class UserMapper extends Mapper
         }
 
         return new Score(
-            $item['score'],
-            $item['scoreRate'],
+            (int) $item['score'],
+            (int) $item['scoreRate'],
             $date
         );
     }

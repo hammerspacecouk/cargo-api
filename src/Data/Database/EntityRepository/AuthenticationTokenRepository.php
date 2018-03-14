@@ -38,13 +38,13 @@ class AuthenticationTokenRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function removeExpired(DateTimeImmutable $now): void
+    public function removeExpired(DateTimeImmutable $now): int
     {
         $sql = 'DELETE FROM ' . AuthenticationToken::class . ' t WHERE t.expiry < :now';
         $query = $this->getEntityManager()
             ->createQuery($sql)
             ->setParameter('now', $now);
-        $query->execute();
+        return $query->execute();
     }
 
     public function deleteById(UuidInterface $uuid, string $className = AuthenticationToken::class): void

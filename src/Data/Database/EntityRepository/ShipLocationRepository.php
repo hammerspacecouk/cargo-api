@@ -66,6 +66,7 @@ class ShipLocationRepository extends AbstractEntityRepository
     }
 
     public function getOldestExpired(
+        DateTimeImmutable $since,
         int $limit = 1,
         $resultType = Query::HYDRATE_ARRAY
     ) {
@@ -79,8 +80,18 @@ class ShipLocationRepository extends AbstractEntityRepository
             ->andWhere('tbl.exitTime <= :now')
             ->orderBy('tbl.exitTime', 'ASC')
             ->setMaxResults($limit)
-            ->setParameter('now', $this->currentTime);
+            ->setParameter('now', $since);
         return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function removeInactiveBefore(DateTimeImmutable $before): int
+    {
+        $entity = ShipLocation::class;
+        $sql = "DELETE FROM $entity t WHERE t.isCurrent = 0 AND t.exitTime < :beforeTime";
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('beforeTime', $before);
+        return $query->execute();
     }
 
     public function disableAllActiveForShipID(UuidInterface $uuid): void
@@ -90,8 +101,8 @@ class ShipLocationRepository extends AbstractEntityRepository
             'SET ' .
             'cl.isCurrent = false, ' .
             'cl.updatedAt = :time ' .
-            'WHERE IDENTITY(cl.ship) = :ship ' .
-            'AND cl.isCurrent = true'
+            'WHERE cl.isCurrent = true' .
+            'AND IDENTITY(cl.ship) = :ship '
         );
         $q->setParameter('time', $this->currentTime);
         $q->setParameter('ship', $uuid->getBytes());

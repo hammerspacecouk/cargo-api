@@ -5,8 +5,6 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\UsedActionToken;
 use DateTimeImmutable;
-use Doctrine\ORM\Query;
-use Lcobucci\JWT\Token;
 use Ramsey\Uuid\UuidInterface;
 
 class UsedActionTokenRepository extends AbstractEntityRepository
@@ -34,12 +32,12 @@ class UsedActionTokenRepository extends AbstractEntityRepository
         $em->flush();
     }
 
-    public function removeExpired(DateTimeImmutable $now): void
+    public function removeExpired(DateTimeImmutable $now): int
     {
-        $sql = 'DELETE FROM ' . Token::class . ' t WHERE t.expiry < :now';
+        $sql = 'DELETE FROM ' . UsedActionToken::class . ' t WHERE t.expiry < :now';
         $query = $this->getEntityManager()
             ->createQuery($sql)
             ->setParameter('now', $now);
-        $query->execute();
+        return $query->execute();
     }
 }

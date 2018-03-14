@@ -13,7 +13,12 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Table(
  *     name="ship_locations",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
- *     indexes={@ORM\Index(name="ship_location_entry_time", columns={"entry_time"})})
+ *     indexes={
+ *      @ORM\Index(name="ship_location_entry_time", columns={"entry_time"}),
+ *      @ORM\Index(name="ship_location_exit_time", columns={"exit_time"}),
+ *      @ORM\Index(name="ship_location_current_exit", columns={"is_current", "exit_time"}),
+ *      @ORM\Index(name="ship_location_current_ship", columns={"is_current", "ship_id"}),
+ *     })
  * )})
  */
 class ShipLocation extends AbstractEntity

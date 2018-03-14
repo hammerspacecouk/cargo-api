@@ -7,6 +7,8 @@ use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\ID;
 use App\Domain\ValueObject\Costs;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 
 class ShipLocationsService extends AbstractService
@@ -25,15 +27,32 @@ class ShipLocationsService extends AbstractService
     }
 
 
-    public function processOldestExpired($limit): void
-    {
-        $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired($limit, Query::HYDRATE_OBJECT);
+    public function processOldestExpired(
+        DateTimeImmutable $since,
+        $limit
+    ): int {
+        $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired(
+            $since,
+            $limit,
+            Query::HYDRATE_OBJECT
+        );
+        $total = count($locations);
+
         $this->logger->info('Processing ' . count($locations) . ' arrivals in this batch');
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $this->moveShipFromChannelToPort($location);
             }
         }
+        return $total;
+    }
+
+    public function removeInactive(
+        DateTimeImmutable $now
+    ): int {
+        $daysToConsiderInactive = 14;
+        $before = $now->sub(new DateInterval('P' . $daysToConsiderInactive . 'D'));
+        return $this->entityManager->getShipLocationRepo()->removeInactiveBefore($before);
     }
 
     private function moveShipFromChannelToPort(DbShipLocation $currentLocation): void

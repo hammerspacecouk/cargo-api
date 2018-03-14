@@ -11,6 +11,7 @@ use App\Data\ID;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -87,6 +88,11 @@ class UsersService extends AbstractService
     {
         $this->tokenHandler->markAsUsed($token->getOriginalToken());
         $this->entityManager->getUserRepo()->deleteById($token->getUserId(), DbUser::class);
+    }
+
+    public function cleanupActionTokens(DateTimeImmutable $expiredSince): int
+    {
+        return $this->entityManager->getUsedActionTokenRepo()->removeExpired($expiredSince);
     }
 
     private function newPlayer(EmailAddress $email): void

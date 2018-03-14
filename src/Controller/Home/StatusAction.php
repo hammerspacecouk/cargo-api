@@ -48,6 +48,7 @@ class StatusAction
             'runtime' => true,
             'environment' => $this->applicationConfig->getEnvironment(),
             'cache' => $this->getCacheStatus(),
+            'maxScore' => PHP_INT_MAX,
             'release' => 'Arctan',
             'version' => $this->applicationConfig->getVersion(),
             'distanceMultiplier' => $this->applicationConfig->getDistanceMultiplier(),

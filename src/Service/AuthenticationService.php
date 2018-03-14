@@ -148,6 +148,11 @@ class AuthenticationService extends AbstractService
         $this->entityManager->getAuthenticationTokenRepo()->deleteById($userAuthentication->getId());
     }
 
+    public function cleanupExpired(DateTimeImmutable $now): int
+    {
+        return $this->entityManager->getAuthenticationTokenRepo()->removeExpired($now);
+    }
+
     public function findAllForUser(User $user)
     {
         $results = $this->entityManager->getAuthenticationTokenRepo()->findAllForUserId($user->getId());
