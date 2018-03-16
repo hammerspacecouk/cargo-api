@@ -50,7 +50,7 @@ class RenameShipTokenTest extends TokenTestCase
         $this->assertStandardTokenValues($token, $tokenObject);
 
         $this->assertInstanceOf(UuidInterface::class, $tokenObject->getShipId());
-        $this->assertSame(self::UUID_EXAMPLE_SHIP, (string) $tokenObject->getShipId());
+        $this->assertSame(self::UUID_EXAMPLE_SHIP, (string)$tokenObject->getShipId());
 
         $this->assertSame(self::EXAMPLE_SHIP_NAME, $tokenObject->getShipName());
 
@@ -58,7 +58,7 @@ class RenameShipTokenTest extends TokenTestCase
         $this->assertTrue(is_array($serial));
         $this->assertSame('ActionToken', $serial['type']);
         $this->assertSame('/actions/rename-ship', $serial['path']);
-        $this->assertSame(self::TOKEN_TOSTRING, $serial['token']);
+        $this->assertSame(self::TOKEN_TO_STRING, $serial['token']);
     }
 
     public function testMakeClaims()

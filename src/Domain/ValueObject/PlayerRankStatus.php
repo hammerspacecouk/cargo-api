@@ -49,10 +49,10 @@ class PlayerRankStatus implements \JsonSerializable
 
         $start = $this->currentRank->getThreshold();
         $end = $this->nextRank->getThreshold();
-        $gap = $end - $start;
+        $gap = ($end - $start);
 
-        $distanceThrough  = $this->portsVisited - $start;
-        return ($distanceThrough / $gap) * 100;
+        $distanceThrough = ($this->portsVisited - $start);
+        return (($distanceThrough / $gap) * 100);
     }
 
     public function getPortsVisited(): int

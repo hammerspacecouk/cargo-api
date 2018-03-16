@@ -51,7 +51,7 @@ class Pagination implements \JsonSerializable
     private function getPreviousPage(): ?int
     {
         if ($this->currentPage > 1) {
-            return $this->currentPage - 1;
+            return ($this->currentPage - 1);
         }
         return null;
     }
@@ -59,7 +59,7 @@ class Pagination implements \JsonSerializable
     private function getNextPage(): ?int
     {
         if ($this->currentPage < $this->totalPages) {
-            return $this->currentPage + 1;
+            return ($this->currentPage + 1);
         }
         return null;
     }

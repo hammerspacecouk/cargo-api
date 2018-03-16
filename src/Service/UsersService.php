@@ -30,7 +30,7 @@ class UsersService extends AbstractService
     public function getByEmailAddress(EmailAddress $email): ?User
     {
         $userRepo = $this->entityManager->getUserRepo();
-        $emailAddress = (string) $email;
+        $emailAddress = (string)$email;
         $userEntity = $userRepo->getByEmail($emailAddress);
         if ($userEntity) {
             return $this->mapSingle($userEntity);
@@ -105,7 +105,7 @@ class UsersService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            $dbUser = $this->entityManager->getUserRepo()->createByEmail((string) $email);
+            $dbUser = $this->entityManager->getUserRepo()->createByEmail((string)$email);
 
             // Set the users original home port
             $dbUser->homePort = $safeHaven;

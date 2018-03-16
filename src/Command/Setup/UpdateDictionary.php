@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
-use App\Command\ParseCSVTrait;
 use App\Data\Database\Entity\Dictionary;
 use App\Data\Database\EntityManager;
 use App\Data\ID;
@@ -14,10 +13,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function App\Functions\Classes\csvToArray;
+
 class UpdateDictionary extends Command
 {
-    use ParseCSVTrait;
-
     private const CONTEXT_MAP = [
         'shipName1' => Dictionary::CONTEXT_SHIP_NAME_1,
         'shipName2' => Dictionary::CONTEXT_SHIP_NAME_2,
@@ -57,20 +56,20 @@ class UpdateDictionary extends Command
         $filePath = $input->getArgument('inputList');
         $context = $input->getArgument('context');
 
-        if (!array_key_exists($context, self::CONTEXT_MAP)) {
+        if (!\array_key_exists($context, self::CONTEXT_MAP)) {
             throw new InvalidArgumentException('Not a valid context');
         }
-        if (!file_exists($filePath)) {
+        if (!\file_exists($filePath)) {
             throw new InvalidArgumentException('Not a valid file path');
         }
 
         $context = self::CONTEXT_MAP[$context];
 
-        $inputData = $this->csvToArray($filePath);
+        $inputData = csvToArray($filePath);
 
         $output->writeln('Preparing to update dictionary');
 
-        $total = count($inputData);
+        $total = \count($inputData);
 
         $progress = new ProgressBar($output, $total);
         $progress->start();

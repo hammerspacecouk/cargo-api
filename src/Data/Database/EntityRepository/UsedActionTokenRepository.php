@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\UsedActionToken;
 use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
 
-class UsedActionTokenRepository extends AbstractEntityRepository
+class UsedActionTokenRepository extends AbstractEntityRepository implements CleanableInterface
 {
     public function hasBeenUsed(
         UuidInterface $tokenId
@@ -39,5 +40,10 @@ class UsedActionTokenRepository extends AbstractEntityRepository
             ->createQuery($sql)
             ->setParameter('now', $now);
         return $query->execute();
+    }
+
+    public function clean(\DateTimeImmutable $now): int
+    {
+        return $this->removeExpired($now);
     }
 }

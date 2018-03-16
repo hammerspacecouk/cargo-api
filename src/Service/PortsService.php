@@ -45,34 +45,6 @@ class PortsService extends AbstractService
         return $this->mapMany($qb->getQuery()->getArrayResult());
     }
 
-//    public function makeChannelBetween(
-//        UuidInterface $fromId,
-//        UuidInterface $toId,
-//        Bearing $bearing,
-//        int $distance
-//    ): void {
-//        $portRepo = $this->entityManager->getPortRepo();
-//
-//        $fromPort = $portRepo->getByID($fromId, Query::HYDRATE_OBJECT);
-//        $toPort = $portRepo->getByID($toId, Query::HYDRATE_OBJECT);
-//
-//        if (!$fromPort || !$toPort) {
-//            throw new \InvalidArgumentException('Could not find both ports');
-//        }
-//
-//        $channel = new Channel(
-//            ID::makeNewID(Channel::class),
-//            $fromPort,
-//            $toPort,
-//            (string) $bearing,
-//            $distance
-//        );
-//
-//        $this->entityManager->persist($channel);
-//        $this->entityManager->flush();
-//    }
-
-
     public function findHomePortForUserId(
         UuidInterface $userId
     ): ?Port {

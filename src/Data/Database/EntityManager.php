@@ -19,6 +19,8 @@ class EntityManager extends EntityManagerDecorator
     private $logger;
     private $applicationConfig;
 
+    private $classCache = [];
+
     public function __construct(
         EntityManagerInterface $entityManager,
         ApplicationConfig $applicationConfig,
@@ -47,17 +49,36 @@ class EntityManager extends EntityManagerDecorator
 
     public function getRepository($entityName)
     {
-        /** @var AbstractEntityRepository $repo */
-        $repo = parent::getRepository($entityName);
+        if (!isset($this->classCache[$entityName])) {
+            /** @var AbstractEntityRepository $repo */
+            $repo = parent::getRepository($entityName);
 
-        // set dependencies (which could not be injected via construct)
-        $repo->setEntityManager($this);
-        $repo->setApplicationConfig($this->applicationConfig);
-        $repo->setCurrentTime($this->currentTime);
-        $repo->setCache($this->cache);
-        $repo->setLogger($this->logger);
+            // set dependencies (which could not be injected via construct)
+            $repo->setEntityManager($this);
+            $repo->setApplicationConfig($this->applicationConfig);
+            $repo->setCurrentTime($this->currentTime);
+            $repo->setCache($this->cache);
+            $repo->setLogger($this->logger);
 
-        return $repo;
+            $this->classCache[$entityName] = $repo;
+        }
+
+        return $this->classCache[$entityName];
+    }
+
+    public function getAll()
+    {
+        $entityFiles = \scandir(__DIR__ . '/Entity/');
+        $results = \array_map(function ($className) {
+            $fullEntityName = __NAMESPACE__ . '\\Entity\\' . \str_replace('.php', '', $className);
+            if (\class_exists($fullEntityName) && \is_subclass_of($fullEntityName, AbstractEntity::class)) {
+                return $this->getRepository($fullEntityName);
+            }
+
+            return null;
+        }, $entityFiles);
+
+        return array_filter($results);
     }
 
     public function getAuthenticationTokenRepo(): EntityRepository\AuthenticationTokenRepository

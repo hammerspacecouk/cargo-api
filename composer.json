@@ -3,7 +3,11 @@
     "description": "API for the application",
     "type": "project",
     "autoload": {
-        "psr-4": { "App\\": "src" }
+        "psr-4": { "App\\": "src" },
+        "files": [
+            "src/Functions/Classes.php",
+            "src/Functions/Transforms.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": { "Tests\\App\\": "tests/" }
@@ -37,7 +41,7 @@
         "phploc/phploc": "^4.0",
         "phpstan/phpstan": "^0.9",
         "phpunit/phpunit": "^7.0",
-        "squizlabs/php_codesniffer": "^3.0",
+        "squizlabs/php_codesniffer": "^3.2",
         "symfony/dotenv": "^4.0",
         "symfony/profiler-pack": "^1.0"
     },

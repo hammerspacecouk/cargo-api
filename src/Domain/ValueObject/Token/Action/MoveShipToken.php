@@ -19,11 +19,6 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_JOURNEY_TIME = 'jt';
     public const KEY_FIRST_PORT = 'fp';
 
-    public function __construct(Token $token)
-    {
-        parent::__construct($token);
-    }
-
     public static function makeClaims(
         UuidInterface $shipId,
         UuidInterface $channelId,

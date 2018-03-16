@@ -44,6 +44,6 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
         $uuid = $this->trait->getID($request);
 
         $this->assertInstanceOf(UuidInterface::class, $uuid);
-        $this->assertSame(self::EXAMPLE_UUID, (string) $uuid);
+        $this->assertSame(self::EXAMPLE_UUID, (string)$uuid);
     }
 }

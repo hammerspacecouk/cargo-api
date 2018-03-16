@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
-use App\Command\ParseCSVTrait;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\Database\EntityManager;
@@ -15,10 +14,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function App\Functions\Classes\csvToArray;
+
 class MakeShipClassesCommand extends Command
 {
-    use ParseCSVTrait;
-
     private $entityManager;
 
     public function __construct(EntityManager $entityManager)
@@ -46,7 +45,7 @@ class MakeShipClassesCommand extends Command
         $output->writeln('Making the classes');
 
         $filePath = $input->getArgument('inputList');
-        $sourceData = $this->csvToArray($filePath);
+        $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
         $progress->start();

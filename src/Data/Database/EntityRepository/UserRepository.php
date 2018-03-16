@@ -52,7 +52,7 @@ class UserRepository extends AbstractEntityRepository
 
     public function updateScoreRate(User $user, int $rateDelta = 0): void
     {
-        $rate = $user->scoreRate + $rateDelta;
+        $rate = ($user->scoreRate + $rateDelta);
         $newScore = $this->currentScore($user);
 
         $user->score = $newScore;
@@ -65,7 +65,7 @@ class UserRepository extends AbstractEntityRepository
 
     public function updateScoreValue(User $user, int $scoreDelta = 0): void
     {
-        $newScore = $this->currentScore($user) + $scoreDelta;
+        $newScore = ($this->currentScore($user) + $scoreDelta);
 
         $user->score = $this->clampScore($newScore);
         $user->scoreCalculationTime = $this->currentTime;
@@ -78,9 +78,9 @@ class UserRepository extends AbstractEntityRepository
     {
         $currentScore = $user->score;
         $rate = $user->scoreRate;
-        $previousTime = $user->scoreCalculationTime ?? $this->currentTime;
+        $previousTime = ($user->scoreCalculationTime ?? $this->currentTime);
 
-        $secondsDifference = $this->currentTime->getTimestamp() - $previousTime->getTimestamp();
+        $secondsDifference = ($this->currentTime->getTimestamp() - $previousTime->getTimestamp());
         $delta = ($secondsDifference * $rate);
 
         return $this->clampScore($currentScore + $delta);
@@ -111,12 +111,12 @@ class UserRepository extends AbstractEntityRepository
     private function clampScore($score): int
     {
         // ensure that scores are always above zero and capped at the max int value
-        return (int) max(0, min($score, PHP_INT_MAX));
+        return (int)max(0, min($score, PHP_INT_MAX));
     }
 
     private function clampRate($rate): int
     {
-        $maxDelta = 2 ** 30;
-        return (int) max(-$maxDelta, min($rate, $maxDelta));
+        $maxDelta = (2 ** 30);
+        return (int)max(-$maxDelta, min($rate, $maxDelta));
     }
 }

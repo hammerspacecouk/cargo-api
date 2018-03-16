@@ -14,7 +14,7 @@ class ConstructTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @dataProvider valuesDataProvider */
-    public function testValues($input, $expectedOpposite)
+    public function testValues(string $input, string $expectedOpposite)
     {
         $bearing = new Bearing($input);
 
@@ -28,7 +28,7 @@ class ConstructTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expectedOpposite, (string)$opposite);
     }
 
-    public function valuesDataProvider()
+    public function valuesDataProvider(): array
     {
         return [
             [

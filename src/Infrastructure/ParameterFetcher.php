@@ -39,7 +39,7 @@ class ParameterFetcher
         if (file_exists($cacheFile)) {
             $data = json_decode(file_get_contents($cacheFile));
             if ($data->expires > $now->getTimestamp()) {
-                $this->populate((array) $data->vars);
+                $this->populate((array)$data->vars);
                 return;
             }
         }
@@ -94,7 +94,8 @@ class ParameterFetcher
             throw new RuntimeException('Could not open ' . $path);
         }
         $envs = [];
-        while (($line = fgets($handle)) !== false) {
+        $line = fgets($handle);
+        while ($line !== false) {
             $line = trim($line);
             if (empty($line) || strpos($line, '#') === 0) {
                 // it's a comment. move on
@@ -103,6 +104,8 @@ class ParameterFetcher
 
             $parts = explode('=', $line);
             $envs[] = reset($parts);
+            // next line
+            $line = fgets($handle);
         }
         return $envs;
     }

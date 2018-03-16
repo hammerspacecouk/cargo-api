@@ -28,7 +28,7 @@ class LoginTwitterAction extends AbstractLoginAction
                 ]
             );
 
-            $loginUrl = $client->url('oauth/authorize', array('oauth_token' => $requestToken['oauth_token']));
+            $loginUrl = $client->url('oauth/authorize', ['oauth_token' => $requestToken['oauth_token']]);
             $this->logger->notice('[LOGIN REQUEST] [TWITTER]');
             $this->setReturnAddress($request);
             return new RedirectResponse($loginUrl);
@@ -46,7 +46,7 @@ class LoginTwitterAction extends AbstractLoginAction
 
         $client->setOauthToken($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
 
-        $userDetails = (array) $client->get('account/verify_credentials', ['include_email' => 'true']);
+        $userDetails = (array)$client->get('account/verify_credentials', ['include_email' => 'true']);
 
         if (empty($userDetails['email'])) {
             throw new UnauthorizedHttpException('Could not find an e-mail address from your Twitter details');

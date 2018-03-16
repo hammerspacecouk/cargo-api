@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
@@ -11,7 +12,7 @@ use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
-class ShipLocationRepository extends AbstractEntityRepository
+class ShipLocationRepository extends AbstractEntityRepository implements CleanableInterface
 {
     public function getCurrentForShipId(
         UuidInterface $shipId,
@@ -158,5 +159,10 @@ class ShipLocationRepository extends AbstractEntityRepository
         return array_map(function (array $result) {
             return $result['ship'];
         }, $qb->getQuery()->getArrayResult());
+    }
+
+    public function clean(\DateTimeImmutable $now): int
+    {
+        return $this->removeInactiveBefore($now);
     }
 }

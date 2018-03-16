@@ -21,7 +21,7 @@ class DeleteAccountToken extends AbstractToken
         int $stage
     ): array {
         return parent::createClaims([
-            self::KEY_USER_ID => (string) $userId,
+            self::KEY_USER_ID => (string)$userId,
             self::KEY_STAGE => $stage,
         ]);
     }

@@ -115,7 +115,7 @@ class DeleteAction
     {
         $params = [
             'stage' => $stage,
-            'token' => (string) $token,
+            'token' => (string)$token,
         ];
 
         $response = new RedirectResponse(

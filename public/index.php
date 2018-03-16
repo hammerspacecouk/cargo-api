@@ -7,7 +7,7 @@ use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 header_remove('X-Powered-By');
 
@@ -19,31 +19,32 @@ if (!isset($_SERVER['APP_ENV']) || $_SERVER['APP_ENV'] === 'dev') {
             'configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.'
         );
     }
-    (new Dotenv())->load(__DIR__.'/../.env');
+    (new Dotenv())->load(__DIR__ . '/../.env');
 } else {
-    (new ParameterFetcher($_SERVER['APP_ENV']))->load(__DIR__.'/../.env', __DIR__.'/../var/cache');
+    (new ParameterFetcher($_SERVER['APP_ENV']))->load(__DIR__ . '/../.env', __DIR__ . '/../var/cache');
 }
 
-if ($_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev'))) {
+if (($_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev')))) {
     umask(0000);
 
     Debug::enable();
 }
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false) {
+$trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? false;
+if ($trustedProxies) {
     Request::setTrustedProxies(
         explode(',', $trustedProxies),
-        Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST
+        (Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST)
     );
 }
 
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
+$trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false;
+if ($trustedHosts) {
     Request::setTrustedHosts(explode(',', $trustedHosts));
 }
 
 $kernel = new Kernel(
     $_SERVER['APP_ENV'] ?? 'dev',
-    $_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev'))
+    ($_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev')))
 );
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);

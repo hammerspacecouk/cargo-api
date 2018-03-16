@@ -48,7 +48,6 @@ class ShipNameService extends ShipsService
         return new RenameShipToken($token);
     }
 
-
     // Parse tokens
 
     public function parseRenameShipToken(
@@ -92,7 +91,6 @@ class ShipNameService extends ShipsService
             throw $e;
         }
     }
-
 
     private function requestShipName(
         UuidInterface $userId,

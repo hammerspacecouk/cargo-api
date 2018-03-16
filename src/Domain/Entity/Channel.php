@@ -32,7 +32,6 @@ class Channel extends Entity implements \JsonSerializable
         return $this->origin;
     }
 
-
     public function getDestination(): Port
     {
         return $this->destination;

@@ -48,10 +48,10 @@ class Bearing implements \JsonSerializable
         $bearing = self::validate($bearing);
         $bearings = array_keys(self::BEARINGS);
         $key = array_search($bearing, $bearings);
-        $newKey = $key + $steps;
+        $newKey = ($key + $steps);
         $indexCount = count($bearings);
 
-        return $bearings[$newKey % $indexCount];
+        return $bearings[($newKey % $indexCount)];
     }
 
     public function getOpposite(): Bearing

@@ -16,7 +16,7 @@ class EmailLoginToken extends AbstractToken
         EmailAddress $emailAddress
     ): array {
         return parent::createClaims([
-            self::KEY_EMAIL_ADDRESS => (string) $emailAddress,
+            self::KEY_EMAIL_ADDRESS => (string)$emailAddress,
         ]);
     }
 

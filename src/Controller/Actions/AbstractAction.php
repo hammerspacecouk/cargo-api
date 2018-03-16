@@ -69,19 +69,7 @@ abstract class AbstractAction
 
     protected function actionResponse(array $data): JsonResponse
     {
-        // todo - different response if it is XHR vs Referer
-//        $referrer = $request->headers->get('Referer', null);
-//        $query = strpos($referrer, '?');
-//        if ($query) {
-//            $referrer = substr($referrer, 0, strpos($referrer, '?'));
-//        }
-
-//        if ($referrer) {
-//            // todo - abstract
-//            $response = new RedirectResponse($referrer);
-//            $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
-//            return $response;
-//        }
+        // todo - figure out different response if it is XHR vs Referer (inc cache headers)
 
         $response = new JsonResponse($data);
         $response->headers->set('cache-control', self::HEADERS_NO_CACHE);

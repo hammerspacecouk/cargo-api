@@ -63,7 +63,6 @@ trait UserAuthenticationTrait
     ): Response {
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
 
-
         // action is over, let's ensure we handle response cookies correctly
         if ($this->userAuthentication) {
             $cookie = $authenticationService->getUpdatedCookieForResponse(

@@ -26,7 +26,6 @@ class ShipLocationsService extends AbstractService
         }, $locations);
     }
 
-
     public function processOldestExpired(
         DateTimeImmutable $since,
         $limit

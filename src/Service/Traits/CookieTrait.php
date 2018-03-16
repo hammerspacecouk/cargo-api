@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 trait CookieTrait
 {
-    private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire)
+    private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire): Cookie
     {
         if (!$expire) {
             $expire = 0; // session cookie

@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\AuthenticationToken;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
-class AuthenticationTokenRepository extends AbstractEntityRepository
+class AuthenticationTokenRepository extends AbstractEntityRepository implements CleanableInterface
 {
     public function findUnexpiredById(
         UuidInterface $tokenId,
@@ -50,5 +51,10 @@ class AuthenticationTokenRepository extends AbstractEntityRepository
     public function deleteById(UuidInterface $uuid, string $className = AuthenticationToken::class): void
     {
         parent::deleteById($uuid, $className);
+    }
+
+    public function clean(\DateTimeImmutable $now): int
+    {
+        return $this->removeExpired($now);
     }
 }

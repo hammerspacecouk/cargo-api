@@ -68,7 +68,7 @@ class FlashDataStore
     {
         $messages = $this->messages;
         usort($messages, function (Message $a, Message $b) {
-            return $b->getWeighting() <=> $a->getWeighting(); // https://youtu.be/7TYJyCCO8Dc?t=40s
+            return ($b->getWeighting() <=> $a->getWeighting()); // https://youtu.be/7TYJyCCO8Dc?t=40s
         });
 
         $this->messages = []; // reset so its gone for next request

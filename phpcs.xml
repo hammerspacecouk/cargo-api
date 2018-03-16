@@ -1,8 +1,42 @@
 <?xml version="1.0"?>
-<ruleset name="AppRuleset" >
+<ruleset name="AppRuleset">
     <!-- include the whole of PSR2 first of all (don't disable any of this, just add to it) -->
-    <rule ref="PSR2" />
+    <rule ref="PSR2"/>
 
-    <!-- use trailing commas on multi-line arrays -->
-    <rule ref="Squiz.Arrays.ArrayDeclaration.NoComma" />
+    <!-- some things this project likes -->
+    <rule ref="Squiz.Strings.ConcatenationSpacing">
+        <properties>
+            <property name="spacing" value="1"/>
+            <property name="ignoreNewlines" value="true"/>
+        </properties>
+    </rule>
+    <rule ref="Generic.Metrics.NestingLevel">
+        <properties>
+            <property name="nestingLevel" value="3" />
+        </properties>
+    </rule>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <rule ref="Generic.Arrays.ArrayIndent"/>
+    <rule ref="Generic.CodeAnalysis.AssignmentInCondition"/>
+    <rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop"/>
+    <rule ref="Generic.CodeAnalysis.ForLoopWithTestFunctionCall"/>
+    <rule ref="Generic.CodeAnalysis.JumbledIncrementer"/>
+    <rule ref="Generic.ControlStructures.InlineControlStructure"/>
+    <rule ref="Generic.Formatting.NoSpaceAfterCast"/>
+    <rule ref="Generic.Functions.CallTimePassByReference"/>
+    <rule ref="Generic.Metrics.CyclomaticComplexity"/>
+    <rule ref="Generic.PHP.DeprecatedFunctions"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions"/>
+    <rule ref="Generic.PHP.NoSilencedErrors"/>
+    <rule ref="Generic.PHP.Syntax"/>
+    <!--<rule ref="Generic.PHP.DeclareStrictTypes"/> todo - https://github.com/squizlabs/PHP_CodeSniffer/pull/1771 -->
+
+    <rule ref="Squiz.Arrays.ArrayBracketSpacing"/>
+    <rule ref="Squiz.Arrays.ArrayDeclaration.NoComma"/>
+    <rule ref="Squiz.Functions.FunctionDuplicateArgument"/>
+    <rule ref="Squiz.PHP.CommentedOutCode"/>
+    <rule ref="Squiz.PHP.DiscouragedFunctions"/>
+    <rule ref="Squiz.PHP.NonExecutableCode"/>
+    <!--<rule ref="Squiz.Strings.DoubleQuoteUsage"/> todo - decide about this -->
+
 </ruleset>

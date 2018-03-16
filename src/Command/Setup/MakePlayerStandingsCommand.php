@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
-use App\Command\ParseCSVTrait;
 use App\Data\Database\Entity\PlayerStanding;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
@@ -14,10 +13,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function App\Functions\Classes\csvToArray;
+
 class MakePlayerStandingsCommand extends Command
 {
-    use ParseCSVTrait;
-
     private $entityManager;
 
     public function __construct(EntityManager $entityManager)
@@ -45,7 +44,7 @@ class MakePlayerStandingsCommand extends Command
         $output->writeln('Making the standings');
 
         $filePath = $input->getArgument('inputList');
-        $sourceData = $this->csvToArray($filePath);
+        $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
         $progress->start();

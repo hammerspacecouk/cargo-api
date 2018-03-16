@@ -7,7 +7,7 @@ use Doctrine\ORM\Query;
 
 class PlayerRankRepository extends AbstractEntityRepository
 {
-    private const CACHE_LIFETIME = 60 * 60 * 24 * 2; // 2 days
+    private const CACHE_LIFETIME = (60 * 60 * 24 * 2); // 2 days
 
     public function getList(): array
     {

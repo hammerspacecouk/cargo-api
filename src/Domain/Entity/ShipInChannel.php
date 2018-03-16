@@ -69,6 +69,6 @@ class ShipInChannel extends AbstractShipLocation
 
     private function getTravelTime(): int
     {
-        return $this->getExitTime()->getTimestamp() - $this->getEntryTime()->getTimestamp();
+        return ($this->getExitTime()->getTimestamp() - $this->getEntryTime()->getTimestamp());
     }
 }

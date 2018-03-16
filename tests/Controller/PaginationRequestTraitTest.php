@@ -46,7 +46,6 @@ class PaginationRequestTraitTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(1, $this->trait->getPageNumber(new Request()));
     }
 
-
     /** @dataProvider dataForValidValues */
     public function testValidValues($input, $expectedOutput)
     {

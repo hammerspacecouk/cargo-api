@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractWorkerCommand extends Command
 {
-    protected const MAX_TTL = (3 * 60) - 1;
+    protected const MAX_TTL = ((3 * 60) - 1);
     protected const BATCH_SIZE = 100;
 
     protected $logger;
@@ -44,7 +44,7 @@ abstract class AbstractWorkerCommand extends Command
             if ($processed < static::BATCH_SIZE) {
                 sleep(1);
             }
-            $diff = time() - $calcTimeStart;
+            $diff = (time() - $calcTimeStart);
         }
         $this->logger->notice("[WORKER] [$workerName] [SHUTDOWN]");
     }

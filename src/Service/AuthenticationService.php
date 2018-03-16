@@ -40,7 +40,7 @@ class AuthenticationService extends AbstractService
             $creationTime = $this->currentTime;
         }
 
-        $ipAddress = (string) filter_var($ipAddress, FILTER_VALIDATE_IP);
+        $ipAddress = (string)filter_var($ipAddress, FILTER_VALIDATE_IP);
 
         $digest = $this->getDigest($user->getId(), $expiry, $secret);
 
@@ -121,7 +121,6 @@ class AuthenticationService extends AbstractService
         // get the row out of the database by ID (where not expired)
         $tokenEntity = $this->entityManager->getAuthenticationTokenRepo()->findUnexpiredById($id);
 
-        // if not exist, return null
         if (!$tokenEntity) {
             return null;
         }

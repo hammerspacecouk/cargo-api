@@ -64,13 +64,13 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertStandardTokenValues($token, $tokenObject);
 
         $this->assertInstanceOf(UuidInterface::class, $tokenObject->getChannelId());
-        $this->assertSame(self::UUID_EXAMPLE_CHANNEL, (string) $tokenObject->getChannelId());
+        $this->assertSame(self::UUID_EXAMPLE_CHANNEL, (string)$tokenObject->getChannelId());
 
         $this->assertInstanceOf(UuidInterface::class, $tokenObject->getShipId());
-        $this->assertSame(self::UUID_EXAMPLE_SHIP, (string) $tokenObject->getShipId());
+        $this->assertSame(self::UUID_EXAMPLE_SHIP, (string)$tokenObject->getShipId());
 
         $this->assertInstanceOf(UuidInterface::class, $tokenObject->getOwnerId());
-        $this->assertSame(self::UUID_EXAMPLE_USER, (string) $tokenObject->getOwnerId());
+        $this->assertSame(self::UUID_EXAMPLE_USER, (string)$tokenObject->getOwnerId());
 
         $this->assertTrue($tokenObject->isReversed());
         $this->assertSame($time, $tokenObject->getJourneyTime());
@@ -79,7 +79,7 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertTrue(is_array($serial));
         $this->assertSame('ActionToken', $serial['type']);
         $this->assertSame('/actions/move-ship', $serial['path']);
-        $this->assertSame(self::TOKEN_TOSTRING, $serial['token']);
+        $this->assertSame(self::TOKEN_TO_STRING, $serial['token']);
     }
 
     public function testMakeClaims()

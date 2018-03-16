@@ -96,9 +96,9 @@ class LoginEmailAction extends AbstractLoginAction
         }
         // todo - differing response for XHR
 
-        $query = '?messages=' . (new Messages([new Ok(
-            'Sent. Please check your e-mail for the login link'
-        )]));
+        $query = '?messages=' . (new Messages([
+            new Ok('Sent. Please check your e-mail for the login link')
+        ]));
         return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);
     }
 }
