@@ -7,7 +7,7 @@ use App\Domain\ValueObject\ShipClass;
 
 class ShipClassTest extends \PHPUnit\Framework\TestCase
 {
-    public function testValues()
+    public function testValues(): void
     {
         $shipClass = new ShipClass(
             $name = 'ShipClassName',

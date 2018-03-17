@@ -7,25 +7,25 @@ use App\Domain\ValueObject\Pagination;
 
 class PaginationTest extends \PHPUnit\Framework\TestCase
 {
-    public function testOutOfBoundsZero()
+    public function testOutOfBoundsZero(): void
     {
         $pagination = new Pagination(0, 10, 10);
         $this->assertTrue($pagination->isOutOfBounds());
     }
 
-    public function testOutOfBoundsNegative()
+    public function testOutOfBoundsNegative(): void
     {
         $pagination = new Pagination(-1, 10, 10);
         $this->assertTrue($pagination->isOutOfBounds());
     }
 
-    public function testOutOfBoundsTooHigh()
+    public function testOutOfBoundsTooHigh(): void
     {
         $pagination = new Pagination(2, 10, 10);
         $this->assertTrue($pagination->isOutOfBounds());
     }
 
-    public function testPageData()
+    public function testPageData(): void
     {
         $pagination = new Pagination(2, 10, 100, '/page');
         $this->assertFalse($pagination->isOutOfBounds());
@@ -45,7 +45,7 @@ class PaginationTest extends \PHPUnit\Framework\TestCase
         $this->assertSame('/page?page=3', $output['nextPagePath']);
     }
 
-    public function testFirstPage()
+    public function testFirstPage(): void
     {
         $pagination = new Pagination(1, 10, 100, '/page');
         $output = $pagination->jsonSerialize();
@@ -53,7 +53,7 @@ class PaginationTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($output['previousPagePath']);
     }
 
-    public function testLastPage()
+    public function testLastPage(): void
     {
         $pagination = new Pagination(10, 10, 100, '/page');
         $output = $pagination->jsonSerialize();

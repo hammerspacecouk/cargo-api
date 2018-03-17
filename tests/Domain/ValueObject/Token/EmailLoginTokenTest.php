@@ -11,13 +11,13 @@ class EmailLoginTokenTest extends TokenTestCase
 {
     private const EMAIL_ADDRESS_EXAMPLE = 'test@example.com';
 
-    public function testInvalidTokenType()
+    public function testInvalidTokenType(): void
     {
         $this->expectException(InvalidTokenException::class);
         new EmailLoginToken($this->getMockInvalidTokenType());
     }
 
-    public function testInvalidDueToNoEmailAddress()
+    public function testInvalidDueToNoEmailAddress(): void
     {
         $tokenObject = new EmailLoginToken($this->getMockToken(EmailLoginToken::TYPE));
 
@@ -26,7 +26,7 @@ class EmailLoginTokenTest extends TokenTestCase
         $tokenObject->getEmailAddress();
     }
 
-    public function testTokenData()
+    public function testTokenData(): void
     {
         $token = $this->getMockToken(EmailLoginToken::TYPE, [
             EmailLoginToken::KEY_EMAIL_ADDRESS => self::EMAIL_ADDRESS_EXAMPLE,
@@ -38,7 +38,7 @@ class EmailLoginTokenTest extends TokenTestCase
         $this->assertEquals(new EmailAddress(self::EMAIL_ADDRESS_EXAMPLE), $tokenObject->getEmailAddress());
     }
 
-    public function testMakeClaims()
+    public function testMakeClaims(): void
     {
         $claims = EmailLoginToken::makeClaims(new EmailAddress(self::EMAIL_ADDRESS_EXAMPLE));
 

@@ -11,7 +11,6 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ShowActionTest extends \PHPUnit\Framework\TestCase
@@ -24,13 +23,13 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
     /** @var LoggerInterface|MockObject */
     private $mockLogger;
 
-    public function setup()
+    public function setup(): void
     {
         $this->mockCratesService = $this->createMock(CratesService::class);
         $this->mockLogger = $this->createMock(LoggerInterface::class);
     }
 
-    public function testNoSuchCrate()
+    public function testNoSuchCrate(): void
     {
         $request = new Request([
             'uuid' => self::EXAMPLE_UUID
@@ -49,7 +48,7 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
         $controller($request, $this->mockCratesService, $this->mockLogger);
     }
 
-    public function testValidResponse()
+    public function testValidResponse(): void
     {
         $request = new Request([
             'uuid' => self::EXAMPLE_UUID

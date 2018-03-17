@@ -7,14 +7,14 @@ use App\Domain\ValueObject\Bearing;
 
 class ConstructTest extends \PHPUnit\Framework\TestCase
 {
-    public function testInvalidBearing()
+    public function testInvalidBearing(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         new Bearing('NOT VALID');
     }
 
     /** @dataProvider valuesDataProvider */
-    public function testValues(string $input, string $expectedOpposite)
+    public function testValues(string $input, string $expectedOpposite): void
     {
         $bearing = new Bearing($input);
 
@@ -28,33 +28,13 @@ class ConstructTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($expectedOpposite, (string)$opposite);
     }
 
-    public function valuesDataProvider(): array
+    public function valuesDataProvider(): \Generator
     {
-        return [
-            [
-                'NW',
-                'SE',
-            ],
-            [
-                'NE',
-                'SW',
-            ],
-            [
-                'E',
-                'W',
-            ],
-            [
-                'SE',
-                'NW',
-            ],
-            [
-                'SW',
-                'NE',
-            ],
-            [
-                'W',
-                'E',
-            ],
-        ];
+        yield ['NW', 'SE',];
+        yield ['NE', 'SW',];
+        yield ['E', 'W',];
+        yield ['SE', 'NW',];
+        yield ['SW', 'NE',];
+        yield ['W', 'E',];
     }
 }

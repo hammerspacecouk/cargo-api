@@ -5,6 +5,7 @@ namespace Tests\App\Domain\ValueObject\Token;
 
 use App\Domain\ValueObject\Token\AbstractToken;
 use Lcobucci\JWT\Token;
+use PHPUnit\Framework\MockObject\MockObject;
 use Ramsey\Uuid\UuidInterface;
 
 class TokenTestCase extends \PHPUnit\Framework\TestCase
@@ -15,7 +16,7 @@ class TokenTestCase extends \PHPUnit\Framework\TestCase
     protected const TOKEN_EXPIRY_DATETIME = '2017-09-09T16:24:05+0000';
     protected const TOKEN_UUID = '7d07139a-d9d9-47f8-895d-12d22ecc61d2';
 
-    protected function getMockToken(string $type, array $claims = []): Token
+    protected function getMockToken(string $type, array $claims = []): MockObject
     {
         $claims = array_merge([
             AbstractToken::KEY_TOKEN_TYPE => $type,
@@ -26,7 +27,7 @@ class TokenTestCase extends \PHPUnit\Framework\TestCase
         return $this->getRawMockToken($claims);
     }
 
-    protected function getRawMockToken(array $claims): Token
+    protected function getRawMockToken(array $claims): MockObject
     {
         $token = $this->createMock(Token::class);
 
@@ -47,11 +48,10 @@ class TokenTestCase extends \PHPUnit\Framework\TestCase
             ->method('__toString')
             ->willReturn(self::TOKEN_TO_STRING);
 
-        /** @var $token Token - mocked */
         return $token;
     }
 
-    protected function getMockInvalidTokenType(): Token
+    protected function getMockInvalidTokenType(): MockObject
     {
         return $this->getRawMockToken([AbstractToken::KEY_TOKEN_TYPE => 'nope']);
     }
@@ -65,6 +65,6 @@ class TokenTestCase extends \PHPUnit\Framework\TestCase
         $this->assertSame(self::TOKEN_EXPIRY_DATETIME, $token->getExpiry()->format(\DateTime::ISO8601));
 
         $this->assertInstanceOf(UuidInterface::class, $token->getId());
-        $this->assertSame(self::TOKEN_UUID, (string)$token->getId());
+        $this->assertSame(self::TOKEN_UUID, $token->getId()->toString());
     }
 }

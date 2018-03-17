@@ -13,7 +13,7 @@ use App\Domain\ValueObject\Message\Warning;
 
 class FlashDataStoreTest extends \PHPUnit\Framework\TestCase
 {
-    public function testMessages()
+    public function testMessages(): void
     {
         $store = new FlashDataStore(
             $this->createMock(TokenProvider::class),

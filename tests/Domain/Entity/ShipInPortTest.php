@@ -13,21 +13,21 @@ class ShipInPortTest extends \PHPUnit\Framework\TestCase
 {
     private const EXAMPLE_TIME = '2017-09-09T19:19:19+00:00';
 
-    public function testNoShip()
+    public function testNoShip(): void
     {
         $entity = $this->getUnfetched();
         $this->expectException(DataNotFetchedException::class);
         $entity->getShip();
     }
 
-    public function testNoPort()
+    public function testNoPort(): void
     {
         $entity = $this->getUnfetched();
         $this->expectException(DataNotFetchedException::class);
         $entity->getPort();
     }
 
-    public function testValues()
+    public function testValues(): void
     {
         $ship = $this->createMock(Ship::class);
         $port = $this->createMock(Port::class);

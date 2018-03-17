@@ -14,13 +14,13 @@ class RenameShipTokenTest extends TokenTestCase
     private const UUID_EXAMPLE_SHIP = '00000000-0000-4000-0000-000000000000';
     private const EXAMPLE_SHIP_NAME = 'The Jolly Roger';
 
-    public function testInvalidTokenType()
+    public function testInvalidTokenType(): void
     {
         $this->expectException(InvalidTokenException::class);
         new RenameShipToken($this->getMockInvalidTokenType());
     }
 
-    public function testInvalidDueToNoShipId()
+    public function testInvalidDueToNoShipId(): void
     {
         $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::TYPE));
 
@@ -29,7 +29,7 @@ class RenameShipTokenTest extends TokenTestCase
         $tokenObject->getShipId();
     }
 
-    public function testInvalidDueToNoName()
+    public function testInvalidDueToNoName(): void
     {
         $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::TYPE));
 
@@ -38,7 +38,7 @@ class RenameShipTokenTest extends TokenTestCase
         $tokenObject->getShipName();
     }
 
-    public function testTokenData()
+    public function testTokenData(): void
     {
         $token = $this->getMockToken(RenameShipToken::TYPE, [
             RenameShipToken::KEY_SHIP_ID => self::UUID_EXAMPLE_SHIP,
@@ -61,7 +61,7 @@ class RenameShipTokenTest extends TokenTestCase
         $this->assertSame(self::TOKEN_TO_STRING, $serial['token']);
     }
 
-    public function testMakeClaims()
+    public function testMakeClaims(): void
     {
         $claims = RenameShipToken::makeClaims(
             Uuid::fromString(self::UUID_EXAMPLE_SHIP),

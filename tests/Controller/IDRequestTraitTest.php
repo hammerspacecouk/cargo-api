@@ -15,19 +15,19 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
     /** @var  IDRequestTrait */
     private $trait;
 
-    public function setup()
+    public function setup(): void
     {
         $this->trait = $this->getMockForTrait(IDRequestTrait::class);
     }
 
-    public function testNoUuidInRequest()
+    public function testNoUuidInRequest(): void
     {
         $request = new Request();
         $this->expectException(BadRequestHttpException::class);
         $this->trait->getID($request);
     }
 
-    public function testInvalidUuidInRequest()
+    public function testInvalidUuidInRequest(): void
     {
         $request = new Request([
             'uuid' => '1234'
@@ -36,7 +36,7 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
         $this->trait->getID($request);
     }
 
-    public function testGetId()
+    public function testGetId(): void
     {
         $request = new Request([
             'uuid' => self::EXAMPLE_UUID

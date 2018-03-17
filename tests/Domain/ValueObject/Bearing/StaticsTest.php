@@ -7,7 +7,7 @@ use App\Domain\ValueObject\Bearing;
 
 class StaticsTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetInitialRandomNumber()
+    public function testGetInitialRandomNumber(): void
     {
         $this->markTestSkipped('Randomness comes later');
         $maxAttempts = 1000;
@@ -35,7 +35,7 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
         $this->assertSame([0, 1, 2, 3, 4, 5], array_keys($found));
     }
 
-    public function testGetEmptyBearingList()
+    public function testGetEmptyBearingList(): void
     {
         $bearings = Bearing::getEmptyBearingsList();
         $this->assertSame([
@@ -49,7 +49,7 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @dataProvider dataForRotatedBearing */
-    public function testGetRotatedBearing(string $input, int $steps, string $expectedOutput)
+    public function testGetRotatedBearing(string $input, int $steps, string $expectedOutput): void
     {
         $output = Bearing::getRotatedBearing($input, $steps);
         $this->assertSame($expectedOutput, $output);

@@ -16,13 +16,13 @@ class MoveShipTokenTest extends TokenTestCase
     private const UUID_EXAMPLE_USER = '00000000-0000-4000-0000-000000000002';
     private const UUID_EXAMPLE_PORT = '00000000-0000-4000-0000-000000000003';
 
-    public function testInvalidTokenType()
+    public function testInvalidTokenType(): void
     {
         $this->expectException(InvalidTokenException::class);
         new MoveShipToken($this->getMockInvalidTokenType());
     }
 
-    public function testInvalidDueToNoShipId()
+    public function testInvalidDueToNoShipId(): void
     {
         $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
 
@@ -31,7 +31,7 @@ class MoveShipTokenTest extends TokenTestCase
         $tokenObject->getShipId();
     }
 
-    public function testInvalidDueToNoChannelId()
+    public function testInvalidDueToNoChannelId(): void
     {
         $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
 
@@ -40,7 +40,7 @@ class MoveShipTokenTest extends TokenTestCase
         $tokenObject->getChannelId();
     }
 
-    public function testInvalidDueToNoDirection()
+    public function testInvalidDueToNoDirection(): void
     {
         $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
 
@@ -49,7 +49,7 @@ class MoveShipTokenTest extends TokenTestCase
         $tokenObject->isReversed();
     }
 
-    public function testTokenData()
+    public function testTokenData(): void
     {
         $token = $this->getMockToken(MoveShipToken::TYPE, [
             MoveShipToken::KEY_CHANNEL => self::UUID_EXAMPLE_CHANNEL,
@@ -82,7 +82,7 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertSame(self::TOKEN_TO_STRING, $serial['token']);
     }
 
-    public function testMakeClaims()
+    public function testMakeClaims(): void
     {
         $claims = MoveShipToken::makeClaims(
             Uuid::fromString(self::UUID_EXAMPLE_SHIP),

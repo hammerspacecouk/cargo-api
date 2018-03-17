@@ -7,7 +7,7 @@ use App\Infrastructure\ApplicationConfig;
 
 class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
 {
-    public function testValues()
+    public function testValues(): void
     {
         $config = new ApplicationConfig(
             $environment = 'alpha',

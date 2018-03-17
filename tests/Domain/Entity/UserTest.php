@@ -9,7 +9,7 @@ use Ramsey\Uuid\Uuid;
 
 class UserTest extends \PHPUnit\Framework\TestCase
 {
-    public function testValues()
+    public function testValues(): void
     {
         $user = new User(
             $id = Uuid::fromString('00000000-0000-4000-0000-000000000000'),
@@ -23,7 +23,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(2, $user->getRotationSteps());
     }
 
-    public function testSame()
+    public function testSame(): void
     {
         $score = $this->createMock(Score::class);
         $entity = new User(

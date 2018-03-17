@@ -14,7 +14,7 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
     private const ENTRY_TIME = '2017-09-09T19:19:19+00:00';
     private const EXIT_TIME = '2017-09-09T20:19:19+00:00';
 
-    public function testNoShip()
+    public function testNoShip(): void
     {
         $entity = $this->getUnfetched();
 
@@ -22,7 +22,7 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
         $entity->getShip();
     }
 
-    public function testNoOrigin()
+    public function testNoOrigin(): void
     {
         $entity = $this->getUnfetched();
 
@@ -30,7 +30,7 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
         $entity->getOrigin();
     }
 
-    public function testNoDestination()
+    public function testNoDestination(): void
     {
         $entity = $this->getUnfetched();
 
@@ -38,7 +38,7 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
         $entity->getDestination();
     }
 
-    public function testValues()
+    public function testValues(): void
     {
         $ship = $this->createMock(Ship::class);
         $origin = $this->createMock(Port::class);

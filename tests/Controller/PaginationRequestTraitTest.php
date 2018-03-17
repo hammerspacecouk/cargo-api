@@ -13,58 +13,54 @@ class PaginationRequestTraitTest extends \PHPUnit\Framework\TestCase
     /** @var  PaginationRequestTrait */
     private $trait;
 
-    public function setup()
+    public function setup(): void
     {
         $this->trait = $this->getMockForTrait(PaginationRequestTrait::class);
     }
 
     /** @dataProvider dataForInvalidValues */
-    public function testInvalidValues($input)
+    public function testInvalidValues($input): void
     {
         $request = new Request(['page' => $input]);
         $this->expectException(BadRequestHttpException::class);
         $this->trait->getPageNumber($request);
     }
 
-    public function dataForInvalidValues()
+    public function dataForInvalidValues(): \Generator
     {
-        return [
-            [0],
-            ['0'],
-            [-1],
-            ['-1'],
-            [1.1],
-            ['1.1'],
-            ['one'],
-            [null],
-            [false],
-        ];
+        yield [0];
+        yield ['0'];
+        yield [-1];
+        yield ['-1'];
+        yield [1.1];
+        yield ['1.1'];
+        yield ['one'];
+        yield [null];
+        yield [false];
     }
 
-    public function testUnsetBecomesOne()
+    public function testUnsetBecomesOne(): void
     {
         $this->assertSame(1, $this->trait->getPageNumber(new Request()));
     }
 
     /** @dataProvider dataForValidValues */
-    public function testValidValues($input, $expectedOutput)
+    public function testValidValues($input, $expectedOutput): void
     {
         $request = new Request(['page' => $input]);
         $this->assertSame($expectedOutput, $this->trait->getPageNumber($request));
     }
 
-    public function dataForValidValues()
+    public function dataForValidValues(): \Generator
     {
-        return [
-            [1, 1],
-            ['1', 1],
-            [2, 2],
-            ['2', 2],
-            [PHP_INT_MAX, PHP_INT_MAX],
-        ];
+        yield [1, 1];
+        yield ['1', 1];
+        yield [2, 2];
+        yield ['2', 2];
+        yield [PHP_INT_MAX, PHP_INT_MAX];
     }
 
-    public function testGetPaginationOutOfBounds()
+    public function testGetPaginationOutOfBounds(): void
     {
         $request = new Request();
         $this->expectException(BadRequestHttpException::class);
@@ -76,7 +72,7 @@ class PaginationRequestTraitTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetPagination()
+    public function testGetPagination(): void
     {
         $request = new Request();
         $pagination = $this->trait->getPagination(
