@@ -53,6 +53,8 @@
     ],
     "scripts": {
         "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
@@ -61,10 +63,10 @@
             "@auto-scripts"
         ],
         "test": "phpunit",
-        "loc": "phploc public src tests",
-        "cbf": "phpcbf public src tests",
-        "cs": "phpcs public src tests",
-        "stan": "phpstan analyse public src tests --level 7 -c phpstan.neon"
+        "loc": "phploc public src tests bin",
+        "cbf": "phpcbf public src tests bin",
+        "cs": "phpcs public src tests bin",
+        "stan": "phpstan analyse public src tests bin --level 7 -c phpstan.neon"
     },
     "config": {
         "preferred-install": {

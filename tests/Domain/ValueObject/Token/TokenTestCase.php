@@ -8,7 +8,7 @@ use Lcobucci\JWT\Token;
 use PHPUnit\Framework\MockObject\MockObject;
 use Ramsey\Uuid\UuidInterface;
 
-class TokenTestCase extends \PHPUnit\Framework\TestCase
+abstract class TokenTestCase extends \PHPUnit\Framework\TestCase
 {
     protected const TOKEN_TO_STRING = 'tokenString';
 
