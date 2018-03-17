@@ -20,7 +20,7 @@ WORKDIR /var/www
 RUN chmod +x bin/*
 
 # Install deps production
-RUN composer install --optimize-autoloader --no-dev --prefer-dist
+RUN composer install --optimize-autoloader --no-dev --prefer-dist --no-scripts
 
 # Allow to volume to share
 VOLUME /var/www /etc/nginx/conf.d

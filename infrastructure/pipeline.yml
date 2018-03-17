@@ -190,7 +190,7 @@ Resources:
             pre_build:
               commands:
                 - echo Installing composer dependencies...
-                - composer install --prefer-dist
+                - composer install --prefer-dist --no-scripts
             build:
               commands:
                 - composer cs
