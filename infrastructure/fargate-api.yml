@@ -1,0 +1,204 @@
+Parameters:
+  ECSRepository:
+    Type: String
+
+  Environment:
+    Type: String
+    Default: prod
+
+  ImageTag:
+    Type: String
+    Default: latest
+
+  NginxImageTag:
+    Type: String
+    Default: latest
+
+  VCpu:
+    Type: Number
+    Default: 0.25
+
+  Memory:
+    Type: Number
+    Default: 128
+
+  DesiredCount:
+    Type: Number
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+
+  SourceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  FargateExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Sid: 'ECS'
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+        Path: "/cfn/"
+
+  TaskDefinitionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - ecs-tasks.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: /
+
+  TaskDefinitionRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "ssm-${Environment}"
+      Roles:
+        - !Ref TaskDefinitionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParameterHistory
+              - ssm:GetParameter
+              - ssm:GetParameters
+              - ssm:GetParametersByPath
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
+          - Effect: Allow
+            Action:
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - ecr:BatchCheckLayerAvailability
+              - ecr:PutImage
+              - ecr:InitiateLayerUpload
+              - ecr:UploadLayerPart
+              - ecr:CompleteLayerUpload
+            Resource:
+              - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECSRepository}
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${Environment}-api
+
+  CloudWatchPHP:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${Environment}-api-php
+      RetentionInDays: 30
+
+  CloudWatchNginx:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${Environment}-api-nginx
+      RetentionInDays: 30
+
+  FargateService:
+      Type: AWS::ECS::Service
+      Properties:
+        Cluster: !Ref ECSCluster
+        ServiceName: !Sub ${Environment}-api-service
+        LaunchType: 'FARGATE'
+        DesiredCount: !Ref DesiredCount
+        DeploymentConfiguration:
+          MaximumPercent: 200
+          MinimumHealthyPercent: 0
+        TaskDefinition: !Ref TaskDefinition
+#        LoadBalancers:
+#          - ContainerName: !Sub ${ServiceName}-container
+#            ContainerPort: !Ref ContainerPort
+#            TargetGroupArn: !Ref TargetGroup
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: ENABLED
+            SecurityGroups:
+              - !Ref SourceSecurityGroup
+            Subnets: !Ref Subnets
+
+  TaskDefinition:
+      Type: AWS::ECS::TaskDefinition
+      Properties:
+        Cpu: !Ref VCpu
+        Memory: !Ref Memory
+        RequiresCompatibilities:
+          - "FARGATE"
+        Family: cargo-api
+        NetworkMode: awsvpc
+        ExecutionRoleArn: !GetAtt FargateExecutionRole.Arn
+        TaskRoleArn: !Ref TaskDefinitionRole
+        ContainerDefinitions:
+          - Name: api-php
+            Essential: true
+            Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:${ImageTag}
+            Environment:
+              - Name: APP_VERSION
+                Value: !Ref ImageTag
+              - Name: APP_ENV
+                Value: !Ref Environment
+            PortMappings:
+              - ContainerPort: 9000
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: !Sub ${CloudWatchPHP}
+                awslogs-region: !Sub ${AWS::Region}
+                awslogs-stream-prefix: ecs-api-php
+            Command:
+              - "sh"
+              - "-c"
+              - "/var/www/bin/init-ecs.sh && php-fpm"
+          - Name: api-nginx
+            Image: !Ref NginxImageTag
+            Essential: true
+            Environment:
+              - Name: APP_ENV
+                Value: !Ref Environment
+            PortMappings:
+              - ContainerPort: 80
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: !Sub ${CloudWatchNginx}
+                awslogs-region: !Sub ${AWS::Region}
+                awslogs-stream-prefix: ecs-api-nginx
+            VolumesFrom:
+              - SourceContainer: api-php
+                ReadOnly: true
+
+#  TargetGroup:
+#      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#      Properties:
+#        VpcId: !Ref VPC
+#        Port: 80
+#        Protocol: HTTP
+#        Matcher:
+#          HttpCode: 200-299
+#        HealthCheckIntervalSeconds: 80
+#        HealthCheckPath: !Ref HealthCheckPath
+#        HealthCheckProtocol: HTTP
+#        HealthCheckTimeoutSeconds: 50
+#        HealthyThresholdCount: 2
+#        UnhealthyThresholdCount: 5
+#        Name: !Join [ '-', [ !Ref ServiceName, 'TG' ] ]
+#        TargetGroupAttributes:
+#        - Key: deregistration_delay.timeout_seconds
+#          Value: '60'
+#        TargetType: !Ref TargetType

@@ -272,18 +272,18 @@ Resources:
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
-            - Name: ECSServiceTemplate
-              ActionTypeId:
-                Category: Source
-                Owner: AWS
-                Version: 1
-                Provider: S3
-              OutputArtifacts:
-                - Name: Template
-              RunOrder: 1
-              Configuration:
-                S3Bucket: !Ref TemplateBucket
-                S3ObjectKey: api/templates.zip
+#            - Name: ECSServiceTemplate
+#              ActionTypeId:
+#                Category: Source
+#                Owner: AWS
+#                Version: 1
+#                Provider: S3
+#              OutputArtifacts:
+#                - Name: Template
+#              RunOrder: 1
+#              Configuration:
+#                S3Bucket: !Ref TemplateBucket
+#                S3ObjectKey: api/templates.zip
         - Name: Test
           Actions:
             - Name: Test
@@ -313,35 +313,35 @@ Resources:
               OutputArtifacts:
                 - Name: BuildOutput
               RunOrder: 2
-        - Name: Deploy
-          Actions:
-            - Name: DeployAlpha
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Version: 1
-                Provider: CloudFormation
-              Configuration:
-                ChangeSetName: Deploy
-                ActionMode: CREATE_UPDATE
-                StackName: !Ref AlphaStackName
-                Capabilities: CAPABILITY_NAMED_IAM
-                TemplatePath: Template::03-ecs-service.yml
-                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
-                ParameterOverrides: !Sub |
-                  {
-                    "ImageTag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
-                    "ALBStack": "${AlphaALBStack}",
-                    "ClusterStack": "${AlphaClusterStack}",
-                    "DesiredTaskCount": "${AlphaDesiredTaskCount}",
-                    "ECSRepository": "${Repository}",
-                    "Environment": "alpha",
-                    "NginxImageTag": "${NginxImageTag}"
-                  }
-              InputArtifacts:
-                - Name: Template
-                - Name: BuildOutput
-              RunOrder: 3
+#        - Name: Deploy
+#          Actions:
+#            - Name: DeployAlpha
+#              ActionTypeId:
+#                Category: Deploy
+#                Owner: AWS
+#                Version: 1
+#                Provider: CloudFormation
+#              Configuration:
+#                ChangeSetName: Deploy
+#                ActionMode: CREATE_UPDATE
+#                StackName: !Ref AlphaStackName
+#                Capabilities: CAPABILITY_NAMED_IAM
+#                TemplatePath: Template::03-ecs-service.yml
+#                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
+#                ParameterOverrides: !Sub |
+#                  {
+#                    "ImageTag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
+#                    "ALBStack": "${AlphaALBStack}",
+#                    "ClusterStack": "${AlphaClusterStack}",
+#                    "DesiredTaskCount": "${AlphaDesiredTaskCount}",
+#                    "ECSRepository": "${Repository}",
+#                    "Environment": "alpha",
+#                    "NginxImageTag": "${NginxImageTag}"
+#                  }
+#              InputArtifacts:
+#                - Name: Template
+#                - Name: BuildOutput
+#              RunOrder: 3
 
 
 Outputs:
