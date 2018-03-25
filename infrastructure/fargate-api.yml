@@ -245,9 +245,7 @@ Resources:
                 awslogs-region: !Sub ${AWS::Region}
                 awslogs-stream-prefix: ecs-api-php
             Command:
-              - "sh"
-              - "-c"
-              - "/var/www/bin/init-ecs.sh && php-fpm"
+              - "php-fpm"
           - Name: api-nginx
             Image: !Ref NginxImageTag
             Essential: true
