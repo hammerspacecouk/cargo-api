@@ -12,27 +12,18 @@ Parameters:
 
   NginxImageTag:
     Type: String
-    Default: latest
+    Default: nginx:latest
 
   VCpu:
     Type: Number
-    Default: 0.25
+    Default: 256
 
   Memory:
     Type: Number
-    Default: 128
+    Default: 512
 
   DesiredCount:
     Type: Number
-
-  Subnets:
-    Type: List<AWS::EC2::Subnet::Id>
-
-  SourceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup::Id
-
-  VpcId:
-    Type: AWS::EC2::VPC::Id
 
 Resources:
   FargateExecutionRole:
@@ -94,6 +85,96 @@ Resources:
             Resource:
               - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECSRepository}
 
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-vpc-${AWS::StackName}
+  PublicSubnetAz1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select
+         - 0
+         - Fn::GetAZs:
+             !Ref AWS::Region
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-${AWS::StackName}-public-subnet1
+  PublicSubnetAz2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select
+         - 1
+         - Fn::GetAZs:
+             !Ref AWS::Region
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-${AWS::StackName}-public-subnet2
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-${AWS::StackName}-internet-gateway
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+  RouteViaIgw:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-${AWS::StackName}-route-table
+  PublicRouteViaIgw:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref RouteViaIgw
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetAz1
+      RouteTableId: !Ref RouteViaIgw
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetAz2
+      RouteTableId: !Ref RouteViaIgw
+
+  EcsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ECS Allowed Ports
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        -
+          IpProtocol: 'tcp'
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        -
+          Key: Name
+          Value: !Sub ecs-${AWS::StackName}-security-group
+
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -130,8 +211,10 @@ Resources:
           AwsvpcConfiguration:
             AssignPublicIp: ENABLED
             SecurityGroups:
-              - !Ref SourceSecurityGroup
-            Subnets: !Ref Subnets
+              - !Ref EcsSecurityGroup
+            Subnets:
+              - !Ref PublicSubnetAz1
+              - !Ref PublicSubnetAz2
 
   TaskDefinition:
       Type: AWS::ECS::TaskDefinition
