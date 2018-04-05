@@ -42,7 +42,7 @@ class CleanerCommand extends AbstractWorkerCommand
         foreach ($list as $repo) {
             /** @var CleanableInterface $repo */
             $done = $repo->clean($now);
-            $this->logger->notice('[CLEANER CLEANED] ' . get_class($repo) . ' ' . (string)$done);
+            $this->logger->notice('[CLEANER CLEANED] ' . \get_class($repo) . ' ' . (string)$done);
             $total += $done;
         }
         return $total;
