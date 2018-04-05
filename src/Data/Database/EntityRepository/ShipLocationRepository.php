@@ -18,8 +18,8 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         UuidInterface $shipId,
         $resultType = Query::HYDRATE_ARRAY
     ) {
-        $qb = $this->createQueryBuilder('tbl');
-        $qb->select('tbl', 'port', 'channel', 'fromPort', 'toPort')
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port', 'channel', 'fromPort', 'toPort')
             ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.channel', 'channel')
             ->leftJoin('channel.toPort', 'toPort')
