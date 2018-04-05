@@ -20,8 +20,8 @@ class PortVisitRepository extends AbstractEntityRepository
             ->select('count(1)')
             ->where('IDENTITY(tbl.port) = :portId')
             ->andWhere('IDENTITY(tbl.player) = :playerId')
-            ->setParameter('portId', $portId->getBytes())
-            ->setParameter('playerId', $playerId->getBytes())
+            ->setParameter('portId', $portId)
+            ->setParameter('playerId', $playerId)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -31,7 +31,7 @@ class PortVisitRepository extends AbstractEntityRepository
         return (int)$this->createQueryBuilder('tbl')
             ->select('count(1)')
             ->andWhere('IDENTITY(tbl.player) = :playerId')
-            ->setParameter('playerId', $playerId->getBytes())
+            ->setParameter('playerId', $playerId)
             ->getQuery()
             ->getSingleScalarResult();
     }

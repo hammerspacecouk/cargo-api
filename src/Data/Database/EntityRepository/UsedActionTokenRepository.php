@@ -16,7 +16,7 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
         $qb = $this->createQueryBuilder('tbl')
             ->select('count(tbl.id)')
             ->where('tbl.id = :id')
-            ->setParameter('id', $tokenId->getBytes());
+            ->setParameter('id', $tokenId);
         return !!$qb->getQuery()->getSingleScalarResult();
     }
 
