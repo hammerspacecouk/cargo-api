@@ -13,15 +13,10 @@ abstract class AbstractEntity
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="uuid_binary")
+     * @ORM\Column(type="uuid")
      * @ORM\GeneratedValue(strategy="NONE")
      */
     public $id;
-
-    /**
-     * @ORM\Column(type="string", nullable=false)
-     */
-    public $uuid;
 
     /** @ORM\Column(type="datetime", nullable=false) */
     public $createdAt;
@@ -33,6 +28,5 @@ abstract class AbstractEntity
         UuidInterface $id
     ) {
         $this->id = $id;
-        $this->uuid = (string)$this->id;
     }
 }

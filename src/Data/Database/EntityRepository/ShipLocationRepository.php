@@ -25,10 +25,11 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->leftJoin('channel.toPort', 'toPort')
             ->leftJoin('channel.fromPort', 'fromPort')
             ->where('IDENTITY(tbl.ship) = :ship')
-            ->andWhere('tbl.isCurrent = true')
+            ->andWhere('tbl.isCurrent = :current')
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1)
-            ->setParameter('ship', $shipId->getBytes());
+            ->setParameter('current', true)
+            ->setParameter('ship', $shipId);
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -42,7 +43,8 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->leftJoin('tbl.ship', 'ship')
             ->leftJoin('tbl.channel', 'channel')
             ->where('IDENTITY(tbl.ship) IN (:ships)')
-            ->andWhere('tbl.isCurrent = true')
+            ->andWhere('tbl.isCurrent = :current')
+            ->setParameter('current', true)
             ->setParameter('ships', $shipIds);
         return $qb->getQuery()->getResult($resultType);
     }
@@ -59,10 +61,11 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->leftJoin('tbl.channel', 'channel')
             ->leftJoin('channel.fromPort', 'fromPort')
             ->leftJoin('channel.toPort', 'toPort')
-            ->where('tbl.isCurrent = true')
+            ->where('tbl.isCurrent = :current')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
-            ->orderBy('tbl.entryTime', 'DESC');
+            ->orderBy('tbl.entryTime', 'DESC')
+            ->setParameter('current', true);
         return $qb->getQuery()->getResult($resultType);
     }
 
@@ -77,10 +80,11 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->leftJoin('tbl.channel', 'channel')
             ->leftJoin('channel.fromPort', 'fromPort')
             ->leftJoin('channel.toPort', 'toPort')
-            ->where('tbl.isCurrent = true')
+            ->where('tbl.isCurrent = :current')
             ->andWhere('tbl.exitTime <= :now')
             ->orderBy('tbl.exitTime', 'ASC')
             ->setMaxResults($limit)
+            ->setParameter('current', true)
             ->setParameter('now', $since);
         return $qb->getQuery()->getResult($resultType);
     }
@@ -100,13 +104,15 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         $q = $this->getEntityManager()->createQuery(
             'UPDATE ' . ShipLocation::class . ' cl ' .
             'SET ' .
-            'cl.isCurrent = false, ' .
+            'cl.isCurrent = :false, ' .
             'cl.updatedAt = :time ' .
-            'WHERE cl.isCurrent = true' .
+            'WHERE cl.isCurrent = :current' .
             'AND IDENTITY(cl.ship) = :ship '
         );
+        $q->setParameter('current', true);
+        $q->setParameter('false', false);
         $q->setParameter('time', $this->currentTime);
-        $q->setParameter('ship', $uuid->getBytes());
+        $q->setParameter('ship', $uuid);
         $q->execute();
     }
 
@@ -116,8 +122,9 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->select('tbl', 'ship')
             ->leftJoin('tbl.ship', 'ship')
             ->where('IDENTITY(tbl.ship) = (:ship)')
-            ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ship', $ship->id->getBytes());
+            ->andWhere('tbl.isCurrent = :current')
+            ->setParameter('current', true)
+            ->setParameter('ship', $ship->id);
 
         $location = $qb->getQuery()->getSingleResult();
         $location->exitTime = $this->currentTime;
@@ -154,8 +161,9 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->innerJoin('tbl.ship', 'ship')
             ->innerJoin('ship.owner', 'player')
             ->where('IDENTITY(tbl.port) = :portId')
-            ->andWhere('tbl.isCurrent = 1')
-            ->setParameter('portId', $portId->getBytes());
+            ->andWhere('tbl.isCurrent = :current')
+            ->setParameter('current', true)
+            ->setParameter('portId', $portId);
         return array_map(function (array $result) {
             return $result['ship'];
         }, $qb->getQuery()->getArrayResult());

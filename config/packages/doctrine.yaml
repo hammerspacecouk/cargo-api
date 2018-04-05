@@ -7,8 +7,8 @@ parameters:
 
 doctrine:
     dbal:
-        driver:   pdo_mysql
-        server_version: 5.6
+        driver:   pdo_pgsql
+        server_version: 9.8
         host:     "%env(DB_WRITE_HOST)%"
         port:     "%env(DB_PORT)%"
         dbname:   "%env(DB_NAME)%"
@@ -21,11 +21,6 @@ doctrine:
                 dbname:   "%env(DB_NAME)%"
                 user:     "%env(DB_READ_USER)%"
                 password: "%env(DB_READ_PASSWORD)%"
-        charset: utf8mb4
-        default_table_options:
-            charset: utf8mb4
-            collate: utf8mb4_unicode_ci
-            engine: InnoDB
 
 
     orm:

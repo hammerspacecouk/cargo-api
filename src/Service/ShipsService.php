@@ -83,7 +83,7 @@ class ShipsService extends AbstractService
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes());
+            ->setParameter('id', $uuid);
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
         if (!$result) {
@@ -111,8 +111,8 @@ class ShipsService extends AbstractService
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
             ->andWhere('IDENTITY(tbl.owner) = :ownerId')
-            ->setParameter('id', $shipId->getBytes())
-            ->setParameter('ownerId', $ownerId->getBytes());
+            ->setParameter('id', $shipId)
+            ->setParameter('ownerId', $ownerId);
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
         if (!$result) {
@@ -131,7 +131,7 @@ class ShipsService extends AbstractService
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid->getBytes());
+            ->setParameter('id', $uuid);
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
         if (!$result) {
@@ -151,7 +151,7 @@ class ShipsService extends AbstractService
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('count(1)')
             ->where('IDENTITY(tbl.owner) = :id')
-            ->setParameter('id', $userId->getBytes());
+            ->setParameter('id', $userId);
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
@@ -166,7 +166,7 @@ class ShipsService extends AbstractService
             ->where('IDENTITY(tbl.owner) = :id')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
-            ->setParameter('id', $userId->getBytes());
+            ->setParameter('id', $userId);
 
         $results = $qb->getQuery()->getArrayResult();
         $results = $this->attachLocationToShips($results);
@@ -188,18 +188,18 @@ class ShipsService extends AbstractService
 
         // get all the IDs
         $ids = array_map(function ($ship) {
-            return $ship['id']->getBytes();
+            return $ship['id'];
         }, $ships);
 
         // do a batch query to find all the location and key them by ship
         $locations = [];
         foreach ($this->entityManager->getShipLocationRepo()->getCurrentForShipIds($ids) as $location) {
-            $locations[$location['ship']['uuid']] = $location;
+            $locations[$location['ship']['id']->__toString()] = $location;
         }
 
         $shipsWithLocations = [];
         foreach ($ships as $ship) {
-            $ship['location'] = $locations[$ship['uuid']] ?? null;
+            $ship['location'] = $locations[$ship['id']->__toString()] ?? null;
             $shipsWithLocations[] = $ship;
         }
 

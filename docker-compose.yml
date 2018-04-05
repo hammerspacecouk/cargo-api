@@ -4,7 +4,8 @@ version: "3"
 
 services:
   cargo-api-php:
-    image: 323441517494.dkr.ecr.eu-west-2.amazonaws.com/planet-cargo-api:latest
+    image: planet-cargo-api:latest
+#    image: 226925275209.dkr.ecr.us-east-1.amazonaws.com/planet-cargo-api:latest
     links:
       - cargo-db
     volumes:
@@ -25,15 +26,17 @@ services:
 
   cargo-db:
     restart: always
-    image: mysql:5.6
+    image: postgres:9.6
     environment:
-      MYSQL_ROOT_PASSWORD: "root"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_USER: "root"
+      POSTGRES_DB: "cargo"
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgres
 
 volumes:
-  mysql-data:
+  postgres-data:
 
 

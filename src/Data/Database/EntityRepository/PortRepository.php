@@ -14,11 +14,13 @@ class PortRepository extends AbstractEntityRepository
         $randomOffset = random_int(0, ($safeCount - 1));
 
         $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.isSafeHaven = true')
-            ->andWhere('tbl.isOpen = true')
-            ->andWhere('tbl.isDestination = false')
+            ->where('tbl.isSafeHaven = :true')
+            ->andWhere('tbl.isOpen = :true')
+            ->andWhere('tbl.isDestination = :false')
             ->setFirstResult($randomOffset)
-            ->setMaxResults(1);
+            ->setMaxResults(1)
+            ->setParameter('true', true)
+            ->setParameter('false', false);
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -32,11 +34,13 @@ class PortRepository extends AbstractEntityRepository
 
         $result = (int)$this->createQueryBuilder('tbl')
             ->select('count(1)')
-            ->where('tbl.isSafeHaven = true')
-            ->andWhere('tbl.isOpen = true')
-            ->andWhere('tbl.isDestination = false')
+            ->where('tbl.isSafeHaven = :true')
+            ->andWhere('tbl.isOpen = :true')
+            ->andWhere('tbl.isDestination = :false')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleScalarResult()
+            ->setParameter('true', true)
+            ->setParameter('false', false);
 
         $this->cache->set($cacheKey, $result, (60 * 60));
         return $result;
