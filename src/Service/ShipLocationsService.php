@@ -100,14 +100,14 @@ class ShipLocationsService extends AbstractService
             // update the users score - todo - calculate how much the rate delta should be
             $this->entityManager->getUserRepo()->updateScoreRate($owner, Costs::DELTA_SHIP_ARRIVAL);
 
+            $this->entityManager->flush();
             $this->logger->info('Committing all changes');
             $this->entityManager->getConnection()->commit();
-            $this->entityManager->flush();
 
             $this->logger->notice(sprintf(
                 '[ARRIVAL] Ship: %s, Port: %s',
-                (string)$ship->id,
-                (string)$newLocation->id
+                (string)$ship->uuid,
+                (string)$newLocation->uuid
             ));
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();

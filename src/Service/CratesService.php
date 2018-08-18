@@ -49,8 +49,7 @@ class CratesService extends AbstractService
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->select('count(1)')
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('location.isCurrent = :true')
-            ->setParameter('true', true);
+            ->where('location.isCurrent = true');
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
@@ -60,10 +59,9 @@ class CratesService extends AbstractService
     ): array {
         $qb = $this->getQueryBuilder(DbCrate::class)
             ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('location.isCurrent = :true')
+            ->where('location.isCurrent = true')
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-            ->setParameter('true', true);
+            ->setFirstResult($this->getOffset($limit, $page));
 
         $mapper = $this->mapperFactory->createCrateMapper();
 
@@ -109,9 +107,8 @@ class CratesService extends AbstractService
         $qb = $this->getQueryBuilder(DbCrateLocation::class)
             ->select('count(1)')
             ->where('IDENTITY(tbl.port) = :portID')
-            ->andWhere('tbl.isCurrent = :true')
-            ->setParameter('true', true)
-            ->setParameter('portID', $port->getId());
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('portID', $port->getId()->getBytes());
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
@@ -124,9 +121,8 @@ class CratesService extends AbstractService
             ->select('tbl', 'c')
             ->join('tbl.crate', 'c')
             ->where('IDENTITY(tbl.port) = :portID')
-            ->andWhere('tbl.isCurrent = :true')
-            ->setParameter('true', true)
-            ->setParameter('portID', $port->getId())
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('portID', $port->getId()->getBytes())
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page));

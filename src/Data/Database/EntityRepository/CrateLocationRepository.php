@@ -20,7 +20,7 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->where('IDENTITY(tbl.crate) = :crate')
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1)
-            ->setParameter('crate', $crateId);
+            ->setParameter('crate', $crateId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -30,9 +30,8 @@ class CrateLocationRepository extends AbstractEntityRepository
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.id = :id')
-            ->andWhere('tbl.isCurrent = :true')
-            ->setParameter('true', true)
-            ->setParameter('id', $crateId);
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('id', $crateId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }
 
@@ -44,9 +43,8 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->select('tbl', 'crate')
             ->leftJoin('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.ship) = :ship')
-            ->andWhere('tbl.isCurrent = :true')
-            ->setParameter('true', true)
-            ->setParameter('ship', $crateId);
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('ship', $crateId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }
 
@@ -56,15 +54,13 @@ class CrateLocationRepository extends AbstractEntityRepository
         $q = $this->getEntityManager()->createQuery(
             'UPDATE ' . CrateLocation::class . ' cl ' .
             'SET ' .
-            'cl.isCurrent = :false, ' .
+            'cl.isCurrent = false, ' .
             'cl.updatedAt = :time ' .
             'WHERE IDENTITY(cl.crate) = :crate ' .
-            'AND cl.isCurrent = :true'
+            'AND cl.isCurrent = true'
         );
-        $q->setParameter('true', true);
-        $q->setParameter('false', false);
         $q->setParameter('time', $this->currentTime);
-        $q->setParameter('crate', $uuid);
+        $q->setParameter('crate', $uuid->getBytes());
         $q->execute();
     }
 }

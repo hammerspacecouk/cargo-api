@@ -63,7 +63,7 @@ abstract class AbstractEntityRepository extends EntityRepository
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.id = :id')
-            ->setParameter('id', $uuid);
+            ->setParameter('id', $uuid->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -72,7 +72,7 @@ abstract class AbstractEntityRepository extends EntityRepository
         $sql = 'DELETE FROM ' . $className . ' t WHERE t.id = :id';
         $query = $this->getEntityManager()
             ->createQuery($sql)
-            ->setParameter('id', $uuid);
+            ->setParameter('id', $uuid->getBytes());
         $query->execute();
     }
 }

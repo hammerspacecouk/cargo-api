@@ -18,7 +18,7 @@ class ChannelsService extends AbstractService
             ->join('tbl.toPort', 'toPort')
             ->where('IDENTITY(tbl.fromPort) = :id')
             ->orWhere('IDENTITY(tbl.toPort) = :id')
-            ->setParameter('id', $port->getId());
+            ->setParameter('id', $port->getId()->getBytes());
 
         $results = $qb->getQuery()->getArrayResult();
 

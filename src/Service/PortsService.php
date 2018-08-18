@@ -26,9 +26,8 @@ class PortsService extends AbstractService
     public function countAll()
     {
         $qb = $this->getQueryBuilder(DbPort::class)
-            ->where(self::TBL . '.isOpen = :true')
-            ->select('count(1)')
-            ->setParameter('true', true);
+            ->where(self::TBL . '.isOpen = true')
+            ->select('count(1)');
         ;
 
         return (int)$qb->getQuery()->getSingleScalarResult();
@@ -39,10 +38,9 @@ class PortsService extends AbstractService
         int $page = 1
     ): array {
         $qb = $this->getQueryBuilder(DbPort::class)
-            ->where(self::TBL . '.isOpen = :true')
+            ->where(self::TBL . '.isOpen = true')
             ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page))
-            ->setParameter('true', true);
+            ->setFirstResult($this->getOffset($limit, $page));
 
         return $this->mapMany($qb->getQuery()->getArrayResult());
     }
@@ -54,7 +52,7 @@ class PortsService extends AbstractService
             ->select('tbl', 'p')
             ->innerJoin('tbl.homePort', 'p')
             ->where('tbl.id = :id')
-            ->setParameter('id', $userId);
+            ->setParameter('id', $userId->getBytes());
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
 

@@ -11,9 +11,8 @@ class ShipClassRepository extends AbstractEntityRepository
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.isStarterShip = :true')
-            ->setMaxResults(1)
-            ->setParameter('true', true);
+            ->where('tbl.isStarterShip = true')
+            ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 }

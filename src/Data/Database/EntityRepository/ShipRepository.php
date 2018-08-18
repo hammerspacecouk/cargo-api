@@ -19,8 +19,8 @@ class ShipRepository extends AbstractEntityRepository
             ->join('tbl.shipClass', 'c')
             ->where('tbl.id = :id')
             ->andWhere('IDENTITY(tbl.owner) = :ownerId')
-            ->setParameter('id', $shipId)
-            ->setParameter('ownerId', $ownerId);
+            ->setParameter('id', $shipId->getBytes())
+            ->setParameter('ownerId', $ownerId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 

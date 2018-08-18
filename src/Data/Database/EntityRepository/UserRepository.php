@@ -92,8 +92,8 @@ class UserRepository extends AbstractEntityRepository
         $parts = explode('.', $result['emailAddress']);
 
         return \sodium_crypto_secretbox_open(
-            \hex2bin($parts[1]),
-            \hex2bin($parts[0]),
+            hex2bin($parts[1]),
+            hex2bin($parts[0]),
             $this->applicationConfig->getApplicationSecret()
         );
     }
@@ -101,11 +101,11 @@ class UserRepository extends AbstractEntityRepository
     private function makeEmailHash(string $emailAddress): string
     {
         // the e-mail address needs to be queryable so store a hash of it
-        return \bin2hex(\sodium_hex2bin(\hash_hmac(
+        return \sodium_hex2bin(\hash_hmac(
             'sha256',
             $emailAddress,
             $this->applicationConfig->getApplicationSecret()
-        )));
+        ));
     }
 
     private function clampScore($score): int
