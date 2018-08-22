@@ -43,7 +43,7 @@ class AbstractLoginAction
 
     protected function setReturnAddress(
         Request $request
-    ) {
+    ): void {
         $referrer = $request->headers->get('Referer');
         // Adds to the flashData bag - which is set as a response cookie in the Kernel Listener
         $this->flashData->set(self::RETURN_ADDRESS_KEY, $referrer);
@@ -52,16 +52,10 @@ class AbstractLoginAction
     protected function getLoginResponse(
         Request $request,
         EmailAddress $emailAddress
-    ) {
-        $description = $request->headers->get('User-Agent', 'Unknown');
-
+    ): RedirectResponse {
         $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
 
-        $cookie = $this->authenticationService->makeNewAuthenticationCookie(
-            $user,
-            $description,
-            $_SERVER['REMOTE_ADDR'] ?? ''
-        );
+        $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
 
         $response = new RedirectResponse($this->getRedirectUrl());
         $response->headers->setCookie($cookie);

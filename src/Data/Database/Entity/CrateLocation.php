@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\CrateLocationRepository")
@@ -38,12 +37,11 @@ class CrateLocation extends AbstractEntity
     public $isCurrent = true;
 
     public function __construct(
-        UuidInterface $id,
         Crate $crate,
         ?Port $port,
         ?Ship $ship
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->crate = $crate;
         $this->port = $port;
         $this->ship = $ship;

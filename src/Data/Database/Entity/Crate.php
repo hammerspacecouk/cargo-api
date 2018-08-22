@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\CrateRepository")
@@ -31,10 +30,9 @@ class Crate extends AbstractEntity
     public $isDestroyed = false;
 
     public function __construct(
-        UuidInterface $id,
         string $contents
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->contents = $contents;
     }
 }

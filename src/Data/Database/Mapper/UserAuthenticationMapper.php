@@ -13,11 +13,9 @@ class UserAuthenticationMapper extends Mapper
     {
         $domainEntity = new UserAuthentication(
             $item['id'],
-            $item['ipAddress'],
             DateTimeImmutable::createFromMutable($item['originalCreationTime']),
             DateTimeImmutable::createFromMutable($item['lastUsed']),
             DateTimeImmutable::createFromMutable($item['expiry']),
-            $item['description'],
             $this->getUser($item)
         );
         return $domainEntity;

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use App\Data\ID;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\MappedSuperclass
@@ -29,10 +29,8 @@ abstract class AbstractEntity
     /** @ORM\Column(type="datetime", nullable=false) */
     public $updatedAt;
 
-    public function __construct(
-        UuidInterface $id
-    ) {
-        $this->id = $id;
+    public function __construct() {
+        $this->id = ID::makeNewID(static::class);
         $this->uuid = (string)$this->id;
     }
 }

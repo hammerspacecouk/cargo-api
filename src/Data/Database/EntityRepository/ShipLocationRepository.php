@@ -7,7 +7,6 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
-use App\Data\ID;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -134,7 +133,6 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         bool $reverseDirection
     ): void {
         $channel = new ShipLocation(
-            ID::makeNewID(ShipLocation::class),
             $ship,
             null,
             $channel,

@@ -6,8 +6,6 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\User;
-use App\Data\ID;
-use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class PortVisitRepository extends AbstractEntityRepository
@@ -41,7 +39,6 @@ class PortVisitRepository extends AbstractEntityRepository
         Port $portId
     ): void {
         $portVisit = new PortVisit(
-            ID::makeNewID(PortVisit::class),
             $owner,
             $portId,
             $this->currentTime

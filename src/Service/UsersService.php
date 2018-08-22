@@ -7,8 +7,8 @@ use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
-use App\Data\ID;
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use DateTimeImmutable;
@@ -23,19 +23,45 @@ class UsersService extends AbstractService
         UuidInterface $uuid
     ): ?User {
         return $this->mapSingle(
-            $this->entityManager->getUserRepo()->getById($uuid)
+            $this->entityManager->getUserRepo()->getByID($uuid)
         );
     }
 
     public function getByEmailAddress(EmailAddress $email): ?User
     {
-        $userRepo = $this->entityManager->getUserRepo();
-        $emailAddress = (string)$email;
-        $userEntity = $userRepo->getByEmail($emailAddress);
+        $userEntity = $this->entityManager->getUserRepo()
+            ->getByQueryHash($this->makeContentHash((string)$email));
         if ($userEntity) {
             return $this->mapSingle($userEntity);
         }
         return null;
+    }
+
+    public function addEmailToUser(User $user, EmailAddress $email): void
+    {
+        /** @var DbUser $dbUser */
+        $dbUser = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
+        $dbUser->queryHash = $this->makeContentHash((string)$email);
+        // the user isn't anonymous any more, so remove the anonymous IP
+        $dbUser->anonymousIpHash = null;
+        $this->entityManager->persist($dbUser);
+        $this->entityManager->flush();
+    }
+
+    public function getByAnonymousIp(string $ipAddress): ?User
+    {
+        $userEntity = $this->entityManager->getUserRepo()
+            ->getByQueryHash($this->makeContentHash((string)$ipAddress));
+        if ($userEntity) {
+            return $this->mapSingle($userEntity);
+        }
+        return null;
+    }
+
+    public function cleanupIpHashes()
+    {
+        $before = $this->currentTime->sub(new \DateInterval('PT1H'));
+        $this->entityManager->getUserRepo()->clearHashesBefore($before);
     }
 
     public function getOrCreateByEmailAddress(EmailAddress $email): User
@@ -46,18 +72,21 @@ class UsersService extends AbstractService
         }
 
         $this->logger->notice('[NEW PLAYER] Creating a new player');
-        $this->newPlayer($email);
-        $user = $this->getByEmailAddress($email);
-        if ($user) {
-            return $user;
-        }
-        throw new \RuntimeException('Error creating a new user');
+
+        $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
+        $dbUser->queryHash = $this->makeContentHash((string) $email);
+        $id = $this->newPlayer($dbUser);
+
+        return $this->getById($id);
     }
 
-    public function fetchEmailAddress(User $user): EmailAddress
+    public function getNewAnonymousUser(string $ipAddress): User
     {
-        $email = $this->entityManager->getUserRepo()->fetchEmailAddress($user->getId());
-        return new EmailAddress($email);
+        $this->logger->notice('[NEW PLAYER] Creating a new anonymous user');
+        $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
+        $dbUser->anonymousIpHash = $this->makeContentHash($ipAddress);
+        $id = $this->newPlayer($dbUser);
+        return $this->getById($id);
     }
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
@@ -95,7 +124,7 @@ class UsersService extends AbstractService
         return $this->entityManager->getUsedActionTokenRepo()->removeExpired($expiredSince);
     }
 
-    private function newPlayer(EmailAddress $email): void
+    private function newPlayer(DbUser $dbUser): UuidInterface
     {
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
@@ -105,14 +134,11 @@ class UsersService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            $dbUser = $this->entityManager->getUserRepo()->createByEmail((string)$email);
-
             // Set the users original home port
             $dbUser->homePort = $safeHaven;
 
             // Make a new ship
             $ship = new DbShip(
-                ID::makeNewID(DbShip::class),
                 $shipName,
                 $starterShipClass,
                 $dbUser
@@ -120,7 +146,6 @@ class UsersService extends AbstractService
 
             // Put the ship into the home port
             $location = new DbShipLocation(
-                ID::makeNewID(DbShipLocation::class),
                 $ship,
                 $safeHaven,
                 null,
@@ -142,11 +167,22 @@ class UsersService extends AbstractService
             // end the transaction
 
             $this->entityManager->getConnection()->commit();
+
+            return $dbUser->id;
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage());
             $this->entityManager->getConnection()->rollBack();
             throw $e;
         }
+    }
+
+    private function makeContentHash(string $inputContent): string
+    {
+        return \bin2hex(\sodium_hex2bin(\hash_hmac(
+            'sha256',
+            (string)$inputContent,
+            $this->applicationConfig->getApplicationSecret()
+        )));
     }
 
     private function getMapper(): UserMapper
@@ -170,6 +206,6 @@ class UsersService extends AbstractService
      */
     private function mapMany(array $results): array
     {
-        return array_map(['self', 'mapSingle'], $results);
+        return \array_map(['self', 'mapSingle'], $results);
     }
 }

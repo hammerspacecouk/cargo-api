@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject\Token\Action;
 
 use App\Domain\Exception\InvalidTokenException;
-use Lcobucci\JWT\Token;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 

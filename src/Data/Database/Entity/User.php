@@ -4,26 +4,25 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UserRepository")
  * @ORM\Table(
  *     name="users",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
- *     indexes={@ORM\Index(name="user_email", columns={"email_query_hash"})})
- * )})
+ *     indexes={
+ *          @ORM\Index(name="user_query_hash", columns={"query_hash"}),
+ *          @ORM\Index(name="user_ip_hash", columns={"anonymous_ip_hash"})
+ *     }
+ * )
  */
 class User extends AbstractEntity
 {
-    /** @ORM\Column(type="binary") */
-    public $emailQueryHash;
+    /** @ORM\Column(type="binary", nullable=true)) */
+    public $queryHash;
 
-    /** @ORM\Column(type="text") */
-    public $emailAddress;
-
-    /** @ORM\Column(type="boolean") */
-    public $emailBlocked = false;
+    /** @ORM\Column(type="binary", nullable=true)) */
+    public $anonymousIpHash;
 
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
@@ -43,14 +42,9 @@ class User extends AbstractEntity
     public $homePort;
 
     public function __construct(
-        UuidInterface $id,
-        string $emailQueryHash,
-        string $emailAddress,
         int $rotationSteps
     ) {
-        parent::__construct($id);
-        $this->emailQueryHash = $emailQueryHash;
-        $this->emailAddress = $emailAddress;
+        parent::__construct();
         $this->rotationSteps = $rotationSteps;
     }
 }

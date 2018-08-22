@@ -65,10 +65,10 @@ class MakePlayerRanksCommand extends Command
                 $entity->threshold = $data['threshold'];
             } else {
                 $entity = new PlayerRank(
-                    $id,
                     $data['name'],
                     (int)$data['threshold']
                 );
+                $entity->id = $id;
             }
 
             $this->entityManager->persist($entity);

@@ -69,11 +69,11 @@ class MakePlayerStandingsCommand extends Command
                 $entity->threshold = $threshold;
             } else {
                 $entity = new PlayerStanding(
-                    $id,
                     $name,
                     $orderNumber,
                     $threshold
                 );
+                $entity->id = $id;
             }
 
             $this->entityManager->persist($entity);

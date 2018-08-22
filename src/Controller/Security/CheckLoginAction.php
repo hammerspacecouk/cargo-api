@@ -48,19 +48,20 @@ class CheckLoginAction
 
         try {
             $user = $this->getUser($request, $this->authenticationService);
-            $ships = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 100); // todo - remove hardcoding
+        } catch (AccessDeniedHttpException $exception) {
+            // On this controller alone, don't throw a 403, create a brand new user
+            $user = $this->getAnonymousUser($request, $this->usersService, $this->authenticationService);
+        }
 
+        if ($user) {
             $loggedIn = true;
+            $ships = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 100); // todo - remove hardcoding
             $player = [
                 'id' => $user->getId(),
-                'emailAddress' => $this->usersService->fetchEmailAddress($user),
                 'score' => $user->getScore(),
                 'colour' => $user->getColour(),
                 'rankStatus' => $this->playerRanksService->getForUser($user),
-
             ];
-        } catch (AccessDeniedHttpException $exception) {
-            // On this controller alone, don't throw a 403. Just return empty data
         }
 
         return $this->userResponse(new JsonResponse([

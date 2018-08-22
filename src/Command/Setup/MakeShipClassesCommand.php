@@ -75,7 +75,6 @@ class MakeShipClassesCommand extends Command
                 $entity->isStarterShip = $isStarterShip;
             } else {
                 $entity = new ShipClass(
-                    $id,
                     $name,
                     $orderNumber,
                     $capacity,
@@ -83,6 +82,7 @@ class MakeShipClassesCommand extends Command
                     $purchaseCost,
                     $minimumRank
                 );
+                $entity->id = $id;
             }
 
             $this->entityManager->persist($entity);

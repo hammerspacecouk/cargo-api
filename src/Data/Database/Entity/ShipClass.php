@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipClassRepository")
@@ -36,7 +35,6 @@ class ShipClass extends AbstractEntity
     public $minimumRank;
 
     public function __construct(
-        UuidInterface $id,
         string $name,
         int $orderNumber,
         int $capacity,
@@ -44,7 +42,7 @@ class ShipClass extends AbstractEntity
         int $purchaseCost,
         ?PlayerRank $minimumRank
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->name = $name;
         $this->orderNumber = $orderNumber;
         $this->capacity = $capacity;

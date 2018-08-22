@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PortRepository")
@@ -34,14 +33,13 @@ class Port extends AbstractEntity
     public $cluster;
 
     public function __construct(
-        UuidInterface $id,
         string $name,
         ?Cluster $cluster,
         bool $isSafeHaven,
         bool $isDestination,
         bool $isOpen
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->name = $name;
         $this->cluster = $cluster;
         $this->isSafeHaven = $isSafeHaven;

@@ -25,9 +25,9 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
         DateTimeImmutable $expiryTime
     ): void {
         $entity = new UsedActionToken(
-            $tokenId,
             $expiryTime
         );
+        $entity->id = $tokenId;
         $em = $this->getEntityManager();
         $em->persist($entity);
         $em->flush();

@@ -5,7 +5,6 @@ namespace App\Command\Setup;
 
 use App\Data\Database\Entity\Dictionary;
 use App\Data\Database\EntityManager;
-use App\Data\ID;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -79,7 +78,6 @@ class UpdateDictionary extends Command
 
             if (!$this->entityManager->getDictionaryRepo()->wordExistsInContext($word, $context)) {
                 $dictionaryWord = new Dictionary(
-                    ID::makeNewID(Dictionary::class),
                     $word,
                     $context
                 );

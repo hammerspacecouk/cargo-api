@@ -6,7 +6,6 @@ namespace App\Data\Database\Entity;
 use App\Domain\Exception\DataNotFetchedException;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipLocationRepository")
@@ -54,13 +53,12 @@ class ShipLocation extends AbstractEntity
     public $exitTime;
 
     public function __construct(
-        UuidInterface $id,
         Ship $ship,
         ?Port $port,
         ?Channel $channel,
         DateTimeImmutable $entryTime
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->ship = $ship;
         $this->port = $port;
         $this->channel = $channel;

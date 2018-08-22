@@ -73,13 +73,13 @@ class MakePortsCommand extends Command
                 $entity->isDestination = $isDestination;
             } else {
                 $entity = new Port(
-                    $id,
                     $name,
                     $cluster,
                     $isSafeHaven,
                     $isDestination,
                     $isOpen
                 );
+                $entity->id = $id;
             }
 
             $this->entityManager->persist($entity);

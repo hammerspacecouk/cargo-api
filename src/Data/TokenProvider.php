@@ -46,7 +46,7 @@ class TokenProvider
     ): Token {
 
         if (!$id) {
-            $id = ID::makeNewID(DbToken::class);
+            $id = ID::makeNewID(DbToken::class); // todo - don't call the ID class outside of database entities?
         }
 
         $builder = (new Builder())

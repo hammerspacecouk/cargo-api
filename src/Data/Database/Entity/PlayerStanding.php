@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PlayerStandingRepository")
@@ -25,12 +24,11 @@ class PlayerStanding extends AbstractEntity
     public $threshold;
 
     public function __construct(
-        UuidInterface $id,
         string $name,
         int $orderNumber,
         int $threshold
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->name = $name;
         $this->orderNumber = $orderNumber;
         $this->threshold = $threshold;

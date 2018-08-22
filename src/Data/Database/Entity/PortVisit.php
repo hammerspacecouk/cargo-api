@@ -5,7 +5,6 @@ namespace App\Data\Database\Entity;
 
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PortVisitRepository")
@@ -36,12 +35,11 @@ class PortVisit extends AbstractEntity
     public $firstVisited;
 
     public function __construct(
-        UuidInterface $id,
         User $player,
         Port $port,
         DateTimeInterface $firstVisited
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->player = $player;
         $this->port = $port;
         $this->firstVisited = $firstVisited;

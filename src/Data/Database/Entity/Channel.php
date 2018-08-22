@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ChannelRepository")
@@ -44,14 +43,13 @@ class Channel extends AbstractEntity
     public $minimumEntryRank;
 
     public function __construct(
-        UuidInterface $id,
         Port $fromPort,
         Port $toPort,
         string $bearing,
         int $distance,
         ?PlayerRank $minimumEntryRank
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->fromPort = $fromPort;
         $this->toPort = $toPort;
         $this->distance = $distance;

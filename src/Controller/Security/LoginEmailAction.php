@@ -66,14 +66,14 @@ class LoginEmailAction extends AbstractLoginAction
         string $token
     ): Response {
         try {
-            $token = $this->authenticationService->useEmailLoginToken($token);
+            $parsedToken = $this->authenticationService->useEmailLoginToken($token);
         } catch (TokenException $exception) {
             $query = '?messages=' . (new Messages([new Error($exception->getMessage())]));
             return new RedirectResponse(
                 $this->applicationConfig->getWebHostname() . '/login' . $query
             );
         }
-        return $this->getLoginResponse($request, $token->getEmailAddress());
+        return $this->getLoginResponse($request, $parsedToken->getEmailAddress());
     }
 
     private function sendEmail(
@@ -82,10 +82,10 @@ class LoginEmailAction extends AbstractLoginAction
     ) {
         $this->setReturnAddress($request);
         try {
-            $emailAddress = new EmailAddress($emailAddress);
-            $token = $this->authenticationService->makeEmailLoginToken($emailAddress);
+            $validEmailAddress = new EmailAddress($emailAddress);
+            $token = $this->authenticationService->makeEmailLoginToken($validEmailAddress);
 
-            $this->emailsService->sendLoginEmail($emailAddress, $token);
+            $this->emailsService->sendLoginEmail($validEmailAddress, $token);
         } catch (InvalidEmailAddressException | BadRequestHttpException $e) {
             $query = '?messages=' . (new Messages([new Error($e->getMessage())]));
             return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);

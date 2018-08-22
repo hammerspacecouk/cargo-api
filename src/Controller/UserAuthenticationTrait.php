@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
 use App\Service\AuthenticationService;
+use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,16 @@ trait UserAuthenticationTrait
         AuthenticationService $authenticationService
     ): User {
         return $this->getAuthentication($request, $authenticationService)->getUser();
+    }
+
+    private function getAnonymousUser(
+        Request $request,
+        UsersService $usersService,
+        AuthenticationService $authenticationService
+    ): User {
+        $user = $usersService->getNewAnonymousUser($request->getClientIp());
+        $this->userAuthentication = $authenticationService->getAnonymousAuthentication($user);
+        return $user;
     }
 
     private function getAuthentication(
@@ -65,10 +76,7 @@ trait UserAuthenticationTrait
 
         // action is over, let's ensure we handle response cookies correctly
         if ($this->userAuthentication) {
-            $cookie = $authenticationService->getUpdatedCookieForResponse(
-                $this->userAuthentication,
-                $_SERVER['REMOTE_ADDR'] ?? ''
-            );
+            $cookie = $authenticationService->getUpdatedCookieForResponse($this->userAuthentication);
         } else {
             $cookie = $authenticationService->makeRemovalCookie();
         }

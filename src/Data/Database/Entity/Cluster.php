@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ClusterRepository")
@@ -19,10 +18,9 @@ class Cluster extends AbstractEntity
     public $name;
 
     public function __construct(
-        UuidInterface $id,
         string $name
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->name = $name;
     }
 }

@@ -36,7 +36,6 @@ class CratesService extends AbstractService
     public function makeNew(): void
     {
         $crate = new DbCrate(
-            ID::makeNewID(DbCrate::class),
             self::CONTENTS[array_rand(self::CONTENTS)]
         );
 
@@ -149,6 +148,7 @@ class CratesService extends AbstractService
 
         $port = null;
         $ship = null;
+        die('we have some work to do here. do not use this ID to decide'); // todo
         $locationType = ID::getIDType($locationId);
 
         switch ($locationType) {
@@ -171,7 +171,6 @@ class CratesService extends AbstractService
 
             // make a new crate location
             $newLocation = new DbCrateLocation(
-                ID::makeNewID(DbCrateLocation::class),
                 $crate,
                 $port,
                 $ship

@@ -106,13 +106,13 @@ class MakeChannelsCommand extends Command
             $entity->minimumEntryRank = $minimumEntryRank;
         } else {
             $entity = new Channel(
-                $id,
                 $fromPort,
                 $toPort,
                 $bearing,
                 $distance,
                 $minimumEntryRank
             );
+            $entity->id = $id;
         }
 
         $this->entityManager->persist($entity);

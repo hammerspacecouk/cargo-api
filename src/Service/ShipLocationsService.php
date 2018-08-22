@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Data\ID;
 use App\Domain\ValueObject\Costs;
 use DateInterval;
 use DateTimeImmutable;
@@ -78,7 +76,6 @@ class ShipLocationsService extends AbstractService
 
             // make a new ship location
             $newLocation = new DbShipLocation(
-                ID::makeNewID(DbShipLocation::class),
                 $ship,
                 $destinationPort,
                 null,

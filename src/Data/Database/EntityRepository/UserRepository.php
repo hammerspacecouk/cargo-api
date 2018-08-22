@@ -4,50 +4,30 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\User;
-use App\Data\ID;
-use App\Domain\ValueObject\Bearing;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\UuidInterface;
 
 class UserRepository extends AbstractEntityRepository
 {
-    // e-mail addresses need to be obfuscated in the database,
-    // but transparent to the rest of the application
-
-    public function getByEmail(
-        string $emailAddress,
+    public function getByQueryHash(
+        string $queryHash,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
-            ->where('tbl.emailQueryHash = :email')
-            ->setParameter('email', $this->makeEmailHash($emailAddress));
+            ->where('tbl.queryHash = :hash')
+            ->setParameter('hash', $queryHash);
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function createByEmail(string $emailAddress): User
-    {
-        // sometimes we need to be able to read the e-mail (to notify), so also encrypt it
-        $emailNonce = \random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $cipher = \sodium_crypto_secretbox(
-            $emailAddress,
-            $emailNonce,
-            $this->applicationConfig->getApplicationSecret()
-        );
-
-        $email = bin2hex($emailNonce) . '.' . bin2hex($cipher);
-
-        $user = new User(
-            ID::makeNewID(User::class),
-            $this->makeEmailHash($emailAddress),
-            $email,
-            Bearing::getInitialRandomStepNumber()
-        );
-
-        $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush();
-
-        return $user;
+    public function getByIpHash(
+        string $queryHash,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.anonymousIpHash = :hash')
+            ->setParameter('hash', $queryHash);
+        return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
     public function updateScoreRate(User $user, int $rateDelta = 0): void
@@ -86,28 +66,6 @@ class UserRepository extends AbstractEntityRepository
         return $this->clampScore($currentScore + $delta);
     }
 
-    public function fetchEmailAddress(UuidInterface $userId): string
-    {
-        $result = $this->getByID($userId);
-        $parts = explode('.', $result['emailAddress']);
-
-        return \sodium_crypto_secretbox_open(
-            hex2bin($parts[1]),
-            hex2bin($parts[0]),
-            $this->applicationConfig->getApplicationSecret()
-        );
-    }
-
-    private function makeEmailHash(string $emailAddress): string
-    {
-        // the e-mail address needs to be queryable so store a hash of it
-        return \sodium_hex2bin(\hash_hmac(
-            'sha256',
-            $emailAddress,
-            $this->applicationConfig->getApplicationSecret()
-        ));
-    }
-
     private function clampScore($score): int
     {
         // ensure that scores are always above zero and capped at the max int value
@@ -118,5 +76,15 @@ class UserRepository extends AbstractEntityRepository
     {
         $maxDelta = (2 ** 30);
         return (int)max(-$maxDelta, min($rate, $maxDelta));
+    }
+
+    public function clearHashesBefore(\DateTimeImmutable $before): void
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->update()
+            ->set('tbl.anonymousIpHash', 'NULL')
+            ->where('tbl.createdAt < :before')
+            ->setParameter('before', $before);
+        $qb->getQuery()->execute();
     }
 }

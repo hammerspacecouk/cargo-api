@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\DictionaryRepository")
@@ -27,11 +26,10 @@ class Dictionary extends AbstractEntity
     public $context;
 
     public function __construct(
-        UuidInterface $id,
         string $word,
         string $context
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->word = $word;
         $this->context = $context;
     }

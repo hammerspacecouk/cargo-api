@@ -5,7 +5,6 @@ namespace App\Data\Database\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UsedActionTokenRepository")
@@ -23,10 +22,9 @@ class UsedActionToken extends AbstractEntity
     public $expiry;
 
     public function __construct(
-        UuidInterface $id,
         DateTimeImmutable $expiry
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->expiry = $expiry;
     }
 }

@@ -65,10 +65,8 @@ class MakeClustersCommand extends Command
             if ($entity) {
                 $entity->name = $name;
             } else {
-                $entity = new Cluster(
-                    $id,
-                    $name
-                );
+                $entity = new Cluster($name);
+                $entity->id = $id;
             }
 
             $this->entityManager->persist($entity);

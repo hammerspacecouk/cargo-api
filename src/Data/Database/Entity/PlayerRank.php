@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\PlayerRankRepository")
@@ -23,11 +22,10 @@ class PlayerRank extends AbstractEntity
     public $threshold;
 
     public function __construct(
-        UuidInterface $id,
         string $name,
         int $threshold
     ) {
-        parent::__construct($id);
+        parent::__construct();
         $this->name = $name;
         $this->threshold = $threshold;
     }

@@ -5,7 +5,6 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Data\ID;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
@@ -23,7 +22,6 @@ class ShipsService extends AbstractService
             ->getByID($owner->getId(), Query::HYDRATE_OBJECT);
 
         $ship = new DbShip(
-            ID::makeNewID(DbShip::class),
             $this->entityManager->getDictionaryRepo()->getRandomShipName(),
             $starterShip,
             $user
@@ -35,7 +33,6 @@ class ShipsService extends AbstractService
             ->getARandomSafePort(Query::HYDRATE_OBJECT);
 
         $location = new DbShipLocation(
-            ID::makeNewID(DbShipLocation::class),
             $ship,
             $safePort,
             null,
