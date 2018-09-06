@@ -29,7 +29,8 @@ abstract class AbstractEntity
     /** @ORM\Column(type="datetime", nullable=false) */
     public $updatedAt;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->id = ID::makeNewID(static::class);
         $this->uuid = (string)$this->id;
     }

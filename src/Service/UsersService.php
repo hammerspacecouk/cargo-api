@@ -48,10 +48,10 @@ class UsersService extends AbstractService
         $this->entityManager->flush();
     }
 
-    public function getByAnonymousIp(string $ipAddress): ?User
+    public function getByAnonymousIp(string $ipAddress): ?User // todo - am I using this?
     {
         $userEntity = $this->entityManager->getUserRepo()
-            ->getByQueryHash($this->makeContentHash((string)$ipAddress));
+            ->getByQueryHash($this->makeContentHash($ipAddress));
         if ($userEntity) {
             return $this->mapSingle($userEntity);
         }
@@ -74,19 +74,27 @@ class UsersService extends AbstractService
         $this->logger->notice('[NEW PLAYER] Creating a new player');
 
         $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
-        $dbUser->queryHash = $this->makeContentHash((string) $email);
+        $dbUser->queryHash = $this->makeContentHash((string)$email);
         $id = $this->newPlayer($dbUser);
 
-        return $this->getById($id);
+        if ($user = $this->getById($id)) {
+            return $user;
+        }
+        throw new \RuntimeException('Could not create or fetch user');
     }
 
-    public function getNewAnonymousUser(string $ipAddress): User
+    public function getNewAnonymousUser(?string $ipAddress): User
     {
         $this->logger->notice('[NEW PLAYER] Creating a new anonymous user');
         $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
-        $dbUser->anonymousIpHash = $this->makeContentHash($ipAddress);
+        if ($ipAddress) {
+            $dbUser->anonymousIpHash = $this->makeContentHash($ipAddress);
+        }
         $id = $this->newPlayer($dbUser);
-        return $this->getById($id);
+        if ($user = $this->getById($id)) {
+            return $user;
+        }
+        throw new \RuntimeException('Could not create or fetch user');
     }
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
@@ -180,7 +188,7 @@ class UsersService extends AbstractService
     {
         return \bin2hex(\sodium_hex2bin(\hash_hmac(
             'sha256',
-            (string)$inputContent,
+            $inputContent,
             $this->applicationConfig->getApplicationSecret()
         )));
     }

@@ -32,7 +32,7 @@ class RenameShipAction extends AbstractAction
         $ship = $this->shipsService->getByID($renameShipToken->getShipId());
 
         return [
-            'ship' => $ship
+            'ship' => $ship,
         ];
     }
 }

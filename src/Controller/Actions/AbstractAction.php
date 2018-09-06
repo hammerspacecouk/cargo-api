@@ -38,7 +38,7 @@ abstract class AbstractAction
             return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (IllegalMoveException $exception) {
             $this->logger->notice('[ACTION] [ILLEGAL MOVE] ' . $exception->getMessage());
-            return $this->errorResponse('Illegal Move: ' . $exception->getMessage(), Response::HTTP_FORBIDDEN);
+            return $this->errorResponse('Illegal Move: ' . $exception->getMessage(), Response::HTTP_CONFLICT);
         }
     }
 
@@ -79,7 +79,7 @@ abstract class AbstractAction
     protected function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
         $data = [
-            'error' => $message
+            'error' => $message,
         ];
         $response = new JsonResponse($data, $code);
         $response->headers->set('cache-control', self::HEADERS_NO_CACHE);

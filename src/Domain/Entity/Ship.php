@@ -74,7 +74,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
             $data['owner'] = $this->owner;
         }
         if ($this->shipClass) {
-            $data['class'] = $this->shipClass;
+            $data['shipClass'] = $this->shipClass;
         }
         if ($this->location) {
             $data['location'] = $this->location;

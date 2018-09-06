@@ -48,7 +48,7 @@ class AuthenticationService extends AbstractService
         return $this->makeCookie($cookieToken, self::COOKIE_NAME, $expiry);
     }
 
-    public function getAnonymousAuthentication(User $user): UserAuthentication
+    public function getAnonymousAuthentication(User $user): ?UserAuthentication
     {
         /** @var AuthenticationToken $token */
         [$token] = $this->authoriseUser($user);

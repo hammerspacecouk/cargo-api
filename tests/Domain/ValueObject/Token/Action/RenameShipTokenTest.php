@@ -42,7 +42,7 @@ class RenameShipTokenTest extends TokenTestCase
     {
         $token = $this->getMockToken(RenameShipToken::TYPE, [
             RenameShipToken::KEY_SHIP_ID => self::UUID_EXAMPLE_SHIP,
-            RenameShipToken::KEY_SHIP_NAME => self::EXAMPLE_SHIP_NAME
+            RenameShipToken::KEY_SHIP_NAME => self::EXAMPLE_SHIP_NAME,
         ]);
 
         $tokenObject = new RenameShipToken($token);

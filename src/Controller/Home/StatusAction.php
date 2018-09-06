@@ -60,7 +60,7 @@ class StatusAction
     {
         return [
             'time' => $this->applicationTime->format('c'),
-            'host' => getenv('HOSTNAME') ?? 'dev'
+            'host' => getenv('HOSTNAME') ?? 'dev',
         ];
     }
 

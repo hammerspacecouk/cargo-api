@@ -24,7 +24,7 @@ class LoginTwitterAction extends AbstractLoginAction
             $requestToken = $client->oauth(
                 'oauth/request_token',
                 [
-                    'oauth_callback' => $this->applicationConfig->getApiHostname() . '/login/twitter'
+                    'oauth_callback' => $this->applicationConfig->getApiHostname() . '/login/twitter',
                 ]
             );
 

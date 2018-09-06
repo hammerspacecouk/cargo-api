@@ -43,7 +43,7 @@ class SessionsAction
         }, $tokens);
 
         return $this->userResponse(new JsonResponse([
-            'sessions' => $sessions
+            'sessions' => $sessions,
         ]), $this->authenticationService);
     }
 }

@@ -3,58 +3,21 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Controller\UserAuthenticationTrait;
-use App\Service\PortsService;
-use App\Service\ShipsService;
-use App\Service\AuthenticationService;
-use App\Service\UsersService;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Controller\Security\CheckLoginAction;
+use App\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class IndexAction
+// This class does the same thing as CheckLogin, but will create a new anonymous user if you're not logged in
+class IndexAction extends CheckLoginAction
 {
-    use UserAuthenticationTrait;
-
-    private $authenticationService;
-    private $shipsService;
-    private $portsService;
-    private $usersService;
-    private $logger;
-
-    public function __construct(
-        AuthenticationService $authenticationService,
-        ShipsService $shipsService,
-        PortsService $portsService,
-        UsersService $usersService,
-        LoggerInterface $logger
-    ) {
-        $this->authenticationService = $authenticationService;
-        $this->shipsService = $shipsService;
-        $this->portsService = $portsService;
-        $this->usersService = $usersService;
-        $this->logger = $logger;
-    }
-
-    public function __invoke(
-        Request $request
-    ): Response {
-
-        $this->logger->debug(__CLASS__);
-        $user = $this->getUser($request, $this->authenticationService);
-        $userId = $user->getId();
-
-        $homePort = $this->portsService->findHomePortForUserId($userId);
-
-        $ships = $this->shipsService->getForOwnerIDWithLocation($userId, 100);
-
-        $status = [
-            'userId' => $userId,
-            'ships' => $ships,
-            'homePort' => $homePort,
-        ];
-
-        return $this->userResponse(new JsonResponse($status), $this->authenticationService);
+    protected function getUserFromRequest(Request $request): ?User
+    {
+        try {
+            return $this->getUser($request, $this->authenticationService);
+        } catch (AccessDeniedHttpException $exception) {
+            // On this controller, don't throw a 403, make a new anonymous user
+            return $this->getAnonymousUser($request, $this->usersService, $this->authenticationService);
+        }
     }
 }

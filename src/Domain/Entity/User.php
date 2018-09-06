@@ -12,17 +12,20 @@ class User extends Entity implements \JsonSerializable
     private $rotationSteps;
     private $score;
     private $homePort;
+    private $hasEmailAddress;
 
     public function __construct(
         UuidInterface $id,
         int $rotationSteps,
         Score $score,
+        bool $hasEmailAddress,
         ?Port $homePort
     ) {
         parent::__construct($id);
         $this->rotationSteps = $rotationSteps;
         $this->score = $score;
         $this->homePort = $homePort;
+        $this->hasEmailAddress = $hasEmailAddress;
     }
 
     public function jsonSerialize()
@@ -60,5 +63,10 @@ class User extends Entity implements \JsonSerializable
             throw new DataNotFetchedException('Data for Home Port was not fetched');
         }
         return $this->homePort;
+    }
+
+    public function hasEmailAddress(): bool
+    {
+        return $this->hasEmailAddress;
     }
 }

@@ -18,14 +18,14 @@ trait UserAuthenticationTrait
     /** @var UserAuthentication */
     private $userAuthentication;
 
-    private function getUser(
+    protected function getUser(
         Request $request,
         AuthenticationService $authenticationService
     ): User {
         return $this->getAuthentication($request, $authenticationService)->getUser();
     }
 
-    private function getAnonymousUser(
+    protected function getAnonymousUser(
         Request $request,
         UsersService $usersService,
         AuthenticationService $authenticationService

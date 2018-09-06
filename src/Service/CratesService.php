@@ -149,35 +149,35 @@ class CratesService extends AbstractService
         $port = null;
         $ship = null;
         die('we have some work to do here. do not use this ID to decide'); // todo
-        $locationType = ID::getIDType($locationId);
-
-        switch ($locationType) {
-            case DbPort::class:
-                $port = $this->entityManager->getPortRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
-                break;
-            case DbShip::class:
-                $ship = $this->entityManager->getShipRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
-                break;
-        }
-
-        if (!$port && !$ship) {
-            throw new \InvalidArgumentException('Invalid destination ID');
-        }
-
-        // start the transaction
-        $this->entityManager->transactional(function () use ($crate, $port, $ship) {
-            // remove any old crate locations
-            $this->entityManager->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
-
-            // make a new crate location
-            $newLocation = new DbCrateLocation(
-                $crate,
-                $port,
-                $ship
-            );
-
-            $this->entityManager->persist($newLocation);
-            $this->entityManager->flush();
-        });
+//        $locationType = ID::getIDType($locationId);
+//
+//        switch ($locationType) {
+//            case DbPort::class:
+//                $port = $this->entityManager->getPortRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
+//                break;
+//            case DbShip::class:
+//                $ship = $this->entityManager->getShipRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
+//                break;
+//        }
+//
+//        if (!$port && !$ship) {
+//            throw new \InvalidArgumentException('Invalid destination ID');
+//        }
+//
+//        // start the transaction
+//        $this->entityManager->transactional(function () use ($crate, $port, $ship) {
+//            // remove any old crate locations
+//            $this->entityManager->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
+//
+//            // make a new crate location
+//            $newLocation = new DbCrateLocation(
+//                $crate,
+//                $port,
+//                $ship
+//            );
+//
+//            $this->entityManager->persist($newLocation);
+//            $this->entityManager->flush();
+//        });
     }
 }

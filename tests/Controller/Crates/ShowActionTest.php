@@ -32,7 +32,7 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
     public function testNoSuchCrate(): void
     {
         $request = new Request([
-            'uuid' => self::EXAMPLE_UUID
+            'uuid' => self::EXAMPLE_UUID,
         ]);
 
         $uuid = Uuid::fromString(self::EXAMPLE_UUID);
@@ -51,7 +51,7 @@ class ShowActionTest extends \PHPUnit\Framework\TestCase
     public function testValidResponse(): void
     {
         $request = new Request([
-            'uuid' => self::EXAMPLE_UUID
+            'uuid' => self::EXAMPLE_UUID,
         ]);
 
         $crate = $this->createMock(Crate::class);
