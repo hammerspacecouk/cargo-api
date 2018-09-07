@@ -116,11 +116,6 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\PlayerRank::class);
     }
 
-    public function getPlayerStandingRepo(): EntityRepository\PlayerStandingRepository
-    {
-        return $this->getRepository(Entity\PlayerStanding::class);
-    }
-
     public function getPortRepo(): EntityRepository\PortRepository
     {
         return $this->getRepository(Entity\Port::class);

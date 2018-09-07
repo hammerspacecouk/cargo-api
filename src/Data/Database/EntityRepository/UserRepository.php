@@ -5,6 +5,7 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\User;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\UuidInterface;
 
 class UserRepository extends AbstractEntityRepository
 {
@@ -86,5 +87,17 @@ class UserRepository extends AbstractEntityRepository
             ->where('tbl.createdAt < :before')
             ->setParameter('before', $before);
         $qb->getQuery()->execute();
+    }
+
+    public function findWithLastSeenRank(
+        UuidInterface $userId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'r')
+            ->join('tbl.lastRankSeen', 'r')
+            ->where('tbl.id = :userId')
+            ->setParameter('userId', $userId->getBytes());
+        return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 }

@@ -41,6 +41,12 @@ class User extends AbstractEntity
      */
     public $homePort;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="PlayerRank")
+     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     */
+    public $lastRankSeen;
+
     public function __construct(
         int $rotationSteps
     ) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject;
 
 use App\Domain\Entity\PlayerRank;
+use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 
 class PlayerRankStatus implements \JsonSerializable
 {
@@ -11,34 +12,32 @@ class PlayerRankStatus implements \JsonSerializable
     private $currentRank;
     private $nextRank;
     private $previousRank;
+    private $acknowledgePromotionToken;
 
     public function __construct(
         int $portsVisited,
         PlayerRank $currentRank,
         PlayerRank $previousRank = null,
-        PlayerRank $nextRank = null
+        PlayerRank $nextRank = null,
+        AcknowledgePromotionToken $acknowledgePromotionToken = null
     ) {
         $this->portsVisited = $portsVisited;
         $this->currentRank = $currentRank;
         $this->nextRank = $nextRank;
         $this->previousRank = $previousRank;
+        $this->acknowledgePromotionToken = $acknowledgePromotionToken;
     }
 
     public function jsonSerialize(): array
     {
         return [
             'portsVisited' => $this->portsVisited,
-            'isRecentPromotion' => $this->isRecentPromotion(),
+            'acknowledgeToken' => $this->acknowledgePromotionToken,
             'levelProgress' => $this->getLevelProgress(),
             'currentRank' => $this->currentRank,
             'previousRank' => $this->previousRank,
             'nextRank' => $this->nextRank,
         ];
-    }
-
-    public function isRecentPromotion(): bool
-    {
-        return $this->portsVisited == $this->currentRank->getThreshold();
     }
 
     public function getLevelProgress(): ?float
@@ -68,5 +67,10 @@ class PlayerRankStatus implements \JsonSerializable
     public function isTutorial(): bool
     {
         return $this->getPortsVisited() === 0;
+    }
+
+    public function getAcknowledgePromotionToken(): ?AcknowledgePromotionToken
+    {
+        return $this->acknowledgePromotionToken;
     }
 }

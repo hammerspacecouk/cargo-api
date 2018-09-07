@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
+use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 
 class PlayerRanksService extends AbstractService
 {
@@ -21,7 +22,8 @@ class PlayerRanksService extends AbstractService
     public function getForUser(User $user): PlayerRankStatus
     {
         $portVisitCount = $this->entityManager->getPortVisitRepo()->countForPlayerId($user->getId());
-        $allRanks = $this->getList(); /** @var PlayerRank[] $allRanks */
+        $allRanks = $this->getList();
+        /** @var PlayerRank[] $allRanks */
         $previousRank = null;
         $currentRank = null;
         $nextRank = null;
@@ -36,11 +38,31 @@ class PlayerRanksService extends AbstractService
             break;
         }
 
+        $hasAcknowledgedPromotion = false;
+        $rankEntity = $this->entityManager->getUserRepo()->findWithLastSeenRank($user->getId());
+        if ($rankEntity && $currentRank->getId()->equals($rankEntity['lastRankSeen']['id'])) {
+            $hasAcknowledgedPromotion = true;
+        }
+
+        $acknowledgeToken = null;
+        if ($portVisitCount > 1 && !$hasAcknowledgedPromotion) {
+            // make a token to acknowledge the promotion
+            $acknowledgeToken = new AcknowledgePromotionToken(
+                $this->tokenHandler->makeToken(
+                    AcknowledgePromotionToken::makeClaims(
+                        $user->getId(),
+                        $currentRank->getId()
+                    ),
+                    'PT1H'
+                ));
+        }
+
         return new PlayerRankStatus(
             $portVisitCount,
             $currentRank,
             $previousRank,
-            $nextRank
+            $nextRank,
+            $acknowledgeToken
         );
     }
 }

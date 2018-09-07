@@ -36,11 +36,11 @@ class PortVisitRepository extends AbstractEntityRepository
 
     public function recordVisit(
         User $owner,
-        Port $portId
+        Port $port
     ): void {
         $portVisit = new PortVisit(
             $owner,
-            $portId,
+            $port,
             $this->currentTime
         );
         $this->getEntityManager()->persist($portVisit);

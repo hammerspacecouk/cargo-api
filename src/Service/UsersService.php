@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\Database\Entity\User as DbUser;
@@ -160,6 +161,13 @@ class UsersService extends AbstractService
                 $this->currentTime
             );
 
+            // add this port to the list of visited ports for this user
+            $portVisit = new PortVisit(
+                $dbUser,
+                $safeHaven,
+                $this->currentTime
+            );
+
             // Activate two crates - todo
 
             // Put crate 1 into the port - todo
@@ -170,10 +178,10 @@ class UsersService extends AbstractService
             $this->entityManager->persist($ship);
             $this->entityManager->persist($location);
             $this->entityManager->persist($dbUser);
+            $this->entityManager->persist($portVisit);
             $this->entityManager->flush();
 
             // end the transaction
-
             $this->entityManager->getConnection()->commit();
 
             return $dbUser->id;
