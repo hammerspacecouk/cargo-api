@@ -138,15 +138,6 @@ class ShipAction
         // the token key is based on the ship location, so that all directions become invalid after use
         $groupTokenKey = (string)$location->getId();
 
-        // if this is the first time you've moved, we intend to record where you left from
-        $departingPort = null;
-        if ($port->equals($user->getHomePort())) {
-            $status = $this->playerRanksService->getForUser($user);
-            if ($status->isTutorial()) {
-                $departingPort = $port;
-            }
-        }
-
         foreach ($channels as $channel) {
             $bearing = $channel->getBearing()->getValue();
             $destination = $channel->getDestination();
@@ -160,7 +151,7 @@ class ShipAction
             // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
             $journeyTimeMinutes = (int)\round(
-                ($this->applicationConfig->getDistanceMultiplier() * $channel->getDistance() / 60)
+                ($this->applicationConfig->getDistanceMultiplier() * $channel->getDistance()) / 60
             );
             //* 60 * 60 todo - algorithm
 
@@ -170,8 +161,7 @@ class ShipAction
                 $user,
                 $reverseDirection,
                 $journeyTimeMinutes,
-                $groupTokenKey,
-                $departingPort
+                $groupTokenKey
             );
 
             $directions[$bearing] = [

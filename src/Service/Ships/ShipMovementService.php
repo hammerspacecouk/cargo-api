@@ -25,8 +25,7 @@ class ShipMovementService extends ShipsService
         User $owner,
         bool $reverseDirection,
         int $journeyTime,
-        string $tokenKey,
-        ?Port $departingPort
+        string $tokenKey
     ): MoveShipToken {
         $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
         $token = $this->tokenHandler->makeToken(
@@ -35,8 +34,7 @@ class ShipMovementService extends ShipsService
                 $channel->getId(),
                 $owner->getId(),
                 $reverseDirection,
-                $journeyTime,
-                $departingPort ? $departingPort->getId() : null
+                $journeyTime
             ),
             self::TOKEN_EXPIRY,
             $id
@@ -50,12 +48,6 @@ class ShipMovementService extends ShipsService
         $shipId = $token->getShipId();
         $channelId = $token->getChannelId();
         $reversed = $token->isReversed();
-
-        $firstPort = null;
-        $firstPortId = $token->getFirstPortId(); // was it the first journey?
-        if ($firstPortId) {
-            $firstPort = $this->entityManager->getPortRepo()->getByID($firstPortId, Query::HYDRATE_OBJECT);
-        }
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
@@ -84,14 +76,6 @@ class ShipMovementService extends ShipsService
                 $exitTime,
                 $reversed
             );
-
-            if ($firstPort) {
-                $this->logger->info('Recording users first visit to a port');
-                $this->entityManager->getPortVisitRepo()->recordVisit(
-                    $ship->owner,
-                    $firstPort
-                );
-            }
 
             // update the users score - todo - calculate how much the rate delta should be
             $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, Costs::DELTA_SHIP_DEPARTURE);

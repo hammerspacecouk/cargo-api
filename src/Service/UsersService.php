@@ -11,6 +11,7 @@ use App\Data\Database\Mapper\UserMapper;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -131,6 +132,26 @@ class UsersService extends AbstractService
     public function cleanupActionTokens(DateTimeImmutable $expiredSince): int
     {
         return $this->entityManager->getUsedActionTokenRepo()->removeExpired($expiredSince);
+    }
+
+    public function parseAcknowledgePromotionToken(
+        string $tokenString
+    ): AcknowledgePromotionToken {
+        return new AcknowledgePromotionToken($this->tokenHandler->parseTokenFromString($tokenString, false));
+    }
+
+    public function useAcknowledgePromotionToken(AcknowledgePromotionToken $token): void
+    {
+        $userId = $token->getUserId();
+        $rankId = $token->getRankId();
+
+        /** @var DbUser $userEntity */
+        $userEntity = $this->entityManager->getUserRepo()->getByID($userId, Query::HYDRATE_OBJECT);
+        $rankEntity = $this->entityManager->getPlayerRankRepo()->getByID($rankId, Query::HYDRATE_OBJECT);
+
+        $userEntity->lastRankSeen = $rankEntity;
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
     }
 
     private function newPlayer(DbUser $dbUser): UuidInterface

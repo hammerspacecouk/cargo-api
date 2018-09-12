@@ -89,8 +89,7 @@ class MoveShipTokenTest extends TokenTestCase
             Uuid::fromString(self::UUID_EXAMPLE_CHANNEL),
             Uuid::fromString(self::UUID_EXAMPLE_USER),
             true,
-            120,
-            Uuid::fromString(self::UUID_EXAMPLE_PORT)
+            120
         );
 
         $this->assertTrue(is_array($claims));
@@ -99,7 +98,6 @@ class MoveShipTokenTest extends TokenTestCase
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[MoveShipToken::KEY_SHIP]);
         $this->assertSame(self::UUID_EXAMPLE_CHANNEL, $claims[MoveShipToken::KEY_CHANNEL]);
         $this->assertSame(self::UUID_EXAMPLE_USER, $claims[MoveShipToken::KEY_OWNER]);
-        $this->assertSame(self::UUID_EXAMPLE_PORT, $claims[MoveShipToken::KEY_FIRST_PORT]);
         $this->assertSame(120, $claims[MoveShipToken::KEY_JOURNEY_TIME]);
         $this->assertTrue($claims[MoveShipToken::KEY_REVERSED]);
     }

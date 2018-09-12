@@ -25,7 +25,6 @@ class MoveShipAction extends AbstractAction
     // general status and stats of the game as a whole
     public function invoke(string $tokenString): array
     {
-
         $moveShipToken = $this->shipMovementService->parseMoveShipToken($tokenString);
         $newChannelLocation = $this->shipMovementService->useMoveShipToken($moveShipToken);
 
