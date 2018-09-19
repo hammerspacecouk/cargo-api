@@ -14,7 +14,7 @@ services:
       APP_ENV: "dev"
 
   cargo-api-nginx:
-    image: nginx:latest
+    image: nginx:alpine
     links:
       - cargo-api-php
     ports:
