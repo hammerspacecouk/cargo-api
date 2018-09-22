@@ -6,7 +6,6 @@ namespace App\Data\Database\Mapper;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Score;
-use DateTimeImmutable;
 
 class UserMapper extends Mapper
 {
@@ -32,15 +31,10 @@ class UserMapper extends Mapper
 
     private function mapScore($item): Score
     {
-        $date = new DateTimeImmutable('1970-01-01T00:00:00Z');
-        if ($item['scoreCalculationTime']) {
-            $date = DateTimeImmutable::createFromMutable($item['scoreCalculationTime']);
-        }
-
         return new Score(
             (int)$item['score'],
             (int)$item['scoreRate'],
-            $date
+            $item['scoreCalculationTime']
         );
     }
 }

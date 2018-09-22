@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\Ship;
+use App\Data\Database\Entity\ShipClass;
+use App\Data\Database\Entity\User;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -34,9 +36,34 @@ class ShipRepository extends AbstractEntityRepository
             throw new \InvalidArgumentException('No such ship');
         }
 
+        $oldName = $ship->name;
         // update the ship name
         $ship->name = $newName;
         $this->getEntityManager()->persist($ship);
         $this->getEntityManager()->flush();
+
+        $this->getEntityManager()->getEventRepo()->logShipRename($ship, $oldName);
+    }
+
+    public function createNewShip(
+        string $shipName,
+        ShipClass $starterShipClass,
+        User $owner
+    ): Ship {
+        $ship = new Ship(
+            $shipName,
+            $starterShipClass,
+            $owner
+        );
+        $this->getEntityManager()->persist($ship);
+
+        $this->getEntityManager()->getEventRepo()->logNewShip(
+            $ship,
+            $owner
+        );
+
+        $this->getEntityManager()->flush();
+
+        return $ship;
     }
 }

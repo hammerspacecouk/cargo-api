@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\PortVisit;
-use App\Data\Database\Entity\Ship as DbShip;
-use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
 use App\Domain\Entity\User;
@@ -68,35 +65,23 @@ class UsersService extends AbstractService
 
     public function getOrCreateByEmailAddress(EmailAddress $email): User
     {
+        $this->logger->notice('[NEW PLAYER] Creating a new player');
         $user = $this->getByEmailAddress($email);
         if ($user) {
             return $user;
         }
-
-        $this->logger->notice('[NEW PLAYER] Creating a new player');
-
-        $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
-        $dbUser->queryHash = $this->makeContentHash((string)$email);
-        $id = $this->newPlayer($dbUser);
-
-        if ($user = $this->getById($id)) {
-            return $user;
-        }
-        throw new \RuntimeException('Could not create or fetch user');
+        $queryHash = $this->makeContentHash((string)$email);
+        return $this->newPlayer($queryHash, null);
     }
 
     public function getNewAnonymousUser(?string $ipAddress): User
     {
         $this->logger->notice('[NEW PLAYER] Creating a new anonymous user');
-        $dbUser = new DbUser(Bearing::getInitialRandomStepNumber());
+        $ipHash = null;
         if ($ipAddress) {
-            $dbUser->anonymousIpHash = $this->makeContentHash($ipAddress);
+            $ipHash = $this->makeContentHash($ipAddress);
         }
-        $id = $this->newPlayer($dbUser);
-        if ($user = $this->getById($id)) {
-            return $user;
-        }
-        throw new \RuntimeException('Could not create or fetch user');
+        return $this->newPlayer(null, $ipHash);
     }
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
@@ -154,8 +139,9 @@ class UsersService extends AbstractService
         $this->entityManager->flush();
     }
 
-    private function newPlayer(DbUser $dbUser): UuidInterface
+    private function newPlayer(?string $queryHash, ?string $ipHash): User
     {
+        // get some starting types
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
         $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
@@ -164,30 +150,18 @@ class UsersService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            // Set the users original home port
-            $dbUser->homePort = $safeHaven;
-
-            // Make a new ship
-            $ship = new DbShip(
-                $shipName,
-                $starterShipClass,
-                $dbUser
+            // Set the users original home port and persist the user
+            $player = $this->entityManager->getUserRepo()->newPlayer(
+                $queryHash,
+                $ipHash,
+                Bearing::getInitialRandomStepNumber(),
+                $safeHaven
             );
 
-            // Put the ship into the home port
-            $location = new DbShipLocation(
-                $ship,
-                $safeHaven,
-                null,
-                $this->currentTime
-            );
-
-            // add this port to the list of visited ports for this user
-            $portVisit = new PortVisit(
-                $dbUser,
-                $safeHaven,
-                $this->currentTime
-            );
+            // make the player an initial ship and place it in the home port
+            $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $starterShipClass, $player);
+            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $safeHaven);
+            $this->entityManager->getPortVisitRepo()->recordVisit($player, $safeHaven);
 
             // Activate two crates - todo
 
@@ -195,22 +169,17 @@ class UsersService extends AbstractService
 
             // Put crate 2 onto the ship - todo
 
-            // Save everything
-            $this->entityManager->persist($ship);
-            $this->entityManager->persist($location);
-            $this->entityManager->persist($dbUser);
-            $this->entityManager->persist($portVisit);
-            $this->entityManager->flush();
-
             // end the transaction
             $this->entityManager->getConnection()->commit();
-
-            return $dbUser->id;
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage());
             $this->entityManager->getConnection()->rollBack();
             throw $e;
         }
+        if ($user = $this->getById($player->id)) {
+            return $user;
+        }
+        throw new \RuntimeException('Could not create or fetch user');
     }
 
     private function makeContentHash(string $inputContent): string

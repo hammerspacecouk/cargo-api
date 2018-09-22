@@ -37,7 +37,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
     {
         if ($this->location === null) {
             throw new DataNotFetchedException(
-                'Tried to use the crate location, but it was not fetched'
+                'Tried to use the ship location, but it was not fetched'
             );
         }
         return $this->location;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Mapper;
 
+// Please keep this class in alphabetical order
 class MapperFactory
 {
     public function createChannelMapper(): ChannelMapper
@@ -13,6 +14,11 @@ class MapperFactory
     public function createCrateMapper(): CrateMapper
     {
         return new CrateMapper($this);
+    }
+
+    public function createEventMapper(): EventMapper
+    {
+        return new EventMapper($this);
     }
 
     public function createPlayerRankMapper(): PlayerRankMapper

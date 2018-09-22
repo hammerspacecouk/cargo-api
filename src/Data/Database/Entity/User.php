@@ -33,7 +33,7 @@ class User extends AbstractEntity
     /** @ORM\Column(type="bigint") */
     public $scoreRate = 0;
 
-    /** @ORM\Column(type="datetime", nullable=true) */
+    /** @ORM\Column(type="datetime_microsecond") */
     public $scoreCalculationTime;
 
     /**
@@ -48,9 +48,16 @@ class User extends AbstractEntity
     public $lastRankSeen;
 
     public function __construct(
-        int $rotationSteps
+        ?string $queryHash,
+        ?string $ipHash,
+        int $rotationSteps,
+        Port $homePort
     ) {
         parent::__construct();
+        $this->queryHash = $queryHash;
+        $this->anonymousIpHash = $ipHash;
         $this->rotationSteps = $rotationSteps;
+        $this->homePort = $homePort;
+        $this->scoreCalculationTime = (new \DateTimeImmutable())->setTimestamp(0);
     }
 }

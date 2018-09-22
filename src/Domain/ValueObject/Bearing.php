@@ -26,8 +26,8 @@ class Bearing implements \JsonSerializable
 
     public static function validate(string $bearing): string
     {
-        $bearing = strtoupper($bearing);
-        if (!in_array($bearing, self::BEARINGS)) {
+        $bearing = \strtoupper($bearing);
+        if (!\in_array($bearing, self::BEARINGS, true)) {
             throw new \InvalidArgumentException('Not a valid bearing (' . $bearing . ')');
         }
         return $bearing;
@@ -35,21 +35,21 @@ class Bearing implements \JsonSerializable
 
     public static function getInitialRandomStepNumber(): int
     {
-        return 0; // random_int(0, 5); - 0 for beta. todo - randomise on going live
+        return 0; // \random_int(0, \count(self::BEARINGS) - 1); - 0 for beta. todo - randomise on going live
     }
 
     public static function getEmptyBearingsList(): array
     {
-        return array_fill_keys(array_keys(self::BEARINGS), null);
+        return \array_fill_keys(\array_keys(self::BEARINGS), null);
     }
 
     public static function getRotatedBearing(string $bearing, int $steps): string
     {
         $bearing = self::validate($bearing);
-        $bearings = array_keys(self::BEARINGS);
-        $key = array_search($bearing, $bearings);
+        $bearings = \array_keys(self::BEARINGS);
+        $key = \array_search($bearing, $bearings);
         $newKey = ($key + $steps);
-        $indexCount = count($bearings);
+        $indexCount = \count($bearings);
 
         return $bearings[($newKey % $indexCount)];
     }

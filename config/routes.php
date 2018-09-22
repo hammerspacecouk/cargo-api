@@ -104,7 +104,7 @@ $collection->add('actions_move_ship', new Route(Action\MoveShipToken::getPath(),
     '_controller' => Controller\Actions\MoveShipAction::class,
 ]));
 
-$collection->add('actions_move_ship', new Route(Action\AcknowledgePromotionToken::getPath(), [
+$collection->add('actions_acknowledge_promotion', new Route(Action\AcknowledgePromotionToken::getPath(), [
     '_controller' => Controller\Actions\AcknowledgePromotionAction::class,
 ]));
 

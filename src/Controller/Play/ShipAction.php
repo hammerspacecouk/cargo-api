@@ -14,6 +14,7 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\EventsService;
 use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\Ships\ShipNameService;
@@ -40,10 +41,12 @@ class ShipAction
     private $usersService;
     private $logger;
     private $playerRanksService;
+    private $eventsService;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
+        EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipsService $shipsService,
         ShipMovementService $shipMovementService,
@@ -61,6 +64,7 @@ class ShipAction
         $this->usersService = $usersService;
         $this->logger = $logger;
         $this->playerRanksService = $playerRanksService;
+        $this->eventsService = $eventsService;
     }
 
     public function __invoke(
@@ -100,6 +104,7 @@ class ShipAction
             'port' => null,
             'channel' => null,
             'directions' => null,
+            'events' => [],
         ];
 
         if ($location instanceof ShipInPort) {
@@ -111,6 +116,7 @@ class ShipAction
                 $location
             );
             $data['shipsInLocation'] = $this->shipsService->findAllInPort($location->getPort());
+            $data['events'] = $this->eventsService->findLatestForPort($location->getPort());
         }
         if ($location instanceof ShipInChannel) {
             $data['channel'] = $location;

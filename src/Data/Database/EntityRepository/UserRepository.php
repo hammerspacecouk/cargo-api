@@ -3,12 +3,31 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class UserRepository extends AbstractEntityRepository
 {
+    public function newPlayer(
+        ?string $queryHash,
+        ?string $ipHash,
+        int $rotationSteps,
+        Port $homePort
+    ): User {
+        $user = new User(
+            $queryHash,
+            $ipHash,
+            $rotationSteps,
+            $homePort
+        );
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+        $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $homePort);
+        return $user;
+    }
+
     public function getByQueryHash(
         string $queryHash,
         $resultType = Query::HYDRATE_ARRAY

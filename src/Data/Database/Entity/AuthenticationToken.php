@@ -19,13 +19,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AuthenticationToken extends AbstractEntity
 {
-    /** @ORM\Column(type="datetime") */
+    /** @ORM\Column(type="datetime_microsecond") */
     public $originalCreationTime;
 
-    /** @ORM\Column(type="datetime") */
+    /** @ORM\Column(type="datetime_microsecond") */
     public $lastUsed;
 
-    /** @ORM\Column(type="datetime") */
+    /** @ORM\Column(type="datetime_microsecond") */
     public $expiry;
 
     /**

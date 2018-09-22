@@ -5,7 +5,6 @@ namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
-use DateTimeImmutable;
 
 class UserAuthenticationMapper extends Mapper
 {
@@ -13,9 +12,9 @@ class UserAuthenticationMapper extends Mapper
     {
         $domainEntity = new UserAuthentication(
             $item['id'],
-            DateTimeImmutable::createFromMutable($item['originalCreationTime']),
-            DateTimeImmutable::createFromMutable($item['lastUsed']),
-            DateTimeImmutable::createFromMutable($item['expiry']),
+            $item['originalCreationTime'],
+            $item['lastUsed'],
+            $item['expiry'],
             $this->getUser($item)
         );
         return $domainEntity;

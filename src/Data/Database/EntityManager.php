@@ -68,7 +68,7 @@ class EntityManager extends EntityManagerDecorator
 
     public function getAll()
     {
-        $entityFiles = \scandir(__DIR__ . '/Entity/');
+        $entityFiles = \scandir(__DIR__ . '/Entity/', SCANDIR_SORT_NONE);
         $results = \array_map(function ($className) {
             $fullEntityName = __NAMESPACE__ . '\\Entity\\' . \str_replace('.php', '', $className);
             if (\class_exists($fullEntityName) && \is_subclass_of($fullEntityName, AbstractEntity::class)) {
@@ -109,6 +109,11 @@ class EntityManager extends EntityManagerDecorator
     public function getDictionaryRepo(): EntityRepository\DictionaryRepository
     {
         return $this->getRepository(Entity\Dictionary::class);
+    }
+
+    public function getEventRepo(): EntityRepository\EventRepository
+    {
+        return $this->getRepository(Entity\Event::class);
     }
 
     public function getPlayerRankRepo(): EntityRepository\PlayerRankRepository

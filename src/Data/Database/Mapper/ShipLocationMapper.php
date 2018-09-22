@@ -7,16 +7,11 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\ShipLocation;
-use DateTimeImmutable;
 
 class ShipLocationMapper extends Mapper
 {
     public function getShipLocation(array $item): ShipLocation
     {
-        $id = $item['id'];
-        $entryTime = DateTimeImmutable::createFromMutable($item['entryTime']);
-        $exitTime = $item['exitTime'] ? DateTimeImmutable::createFromMutable($item['exitTime']) : null;
-
         $ship = null;
         if (isset($item['ship'])) {
             $ship = $this->mapperFactory->createShipMapper()->getShip($item['ship']);
@@ -24,10 +19,10 @@ class ShipLocationMapper extends Mapper
 
         if (isset($item['channel'])) {
             return new ShipInChannel(
-                $id,
+                $item['id'],
                 $ship,
-                $entryTime,
-                $exitTime,
+                $item['entryTime'],
+                $item['exitTime'],
                 $this->getOrigin($item),
                 $this->getDestination($item)
             );
@@ -37,9 +32,9 @@ class ShipLocationMapper extends Mapper
             $port = $this->mapperFactory->createPortMapper()->getPort($item['port']);
 
             return new ShipInPort(
-                $id,
+                $item['id'],
                 $ship,
-                $entryTime,
+                $item['entryTime'],
                 $port
             );
         }

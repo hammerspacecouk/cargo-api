@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\EntityManager;
 use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,9 @@ abstract class AbstractEntityRepository extends EntityRepository
 
     /** @var LoggerInterface */
     protected $logger;
+
+    /** @var EntityManager */
+    protected $_em;
 
     /**
      * We are away from dependency injection via constructors territory, so we have to rely on the (risky) strategy
@@ -74,5 +78,10 @@ abstract class AbstractEntityRepository extends EntityRepository
             ->createQuery($sql)
             ->setParameter('id', $uuid->getBytes());
         $query->execute();
+    }
+
+    protected function getEntityManager(): EntityManager
+    {
+        return $this->_em;
     }
 }

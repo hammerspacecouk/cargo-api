@@ -5,6 +5,7 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Channel;
+use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
 use DateTimeImmutable;
@@ -113,14 +114,19 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
     {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'ship')
-            ->leftJoin('tbl.ship', 'ship')
-            ->where('IDENTITY(tbl.ship) = (:ship)')
+            ->join('tbl.ship', 'ship')
+            ->leftJoin('tbl.port', 'port')
+            ->where('tbl.ship = :ship')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ship', $ship->id->getBytes());
+            ->setParameter('ship', $ship);
 
         $location = $qb->getQuery()->getSingleResult();
         $location->exitTime = $this->currentTime;
         $location->isCurrent = false;
+
+        if ($location->port) {
+            $this->getEntityManager()->getEventRepo()->logShipDeparture($ship, $location->port);
+        }
 
         $this->getEntityManager()->persist($location);
         $this->getEntityManager()->flush();
@@ -132,16 +138,33 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         DateTimeImmutable $exitTime,
         bool $reverseDirection
     ): void {
-        $channel = new ShipLocation(
+        $location = new ShipLocation(
             $ship,
             null,
             $channel,
             $this->currentTime
         );
 
-        $channel->exitTime = $exitTime;
-        $channel->reverseDirection = $reverseDirection;
-        $this->getEntityManager()->persist($channel);
+        $location->exitTime = $exitTime;
+        $location->reverseDirection = $reverseDirection;
+        $this->getEntityManager()->persist($location);
+        $this->getEntityManager()->flush();
+    }
+
+    public function makeInPort(
+        Ship $ship,
+        Port $port
+    ) {
+        $location = new ShipLocation(
+            $ship,
+            $port,
+            null,
+            $this->currentTime
+        );
+        $this->getEntityManager()->persist($location);
+
+        $this->getEntityManager()->getEventRepo()->logShipArrival($ship, $port);
+
         $this->getEntityManager()->flush();
     }
 

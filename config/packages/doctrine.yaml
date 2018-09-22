@@ -26,6 +26,9 @@ doctrine:
             charset: utf8mb4
             collate: utf8mb4_unicode_ci
             engine: InnoDB
+        types:
+            datetime_microsecond:
+                class: App\Data\Database\Types\DateTimeMicrosecondType
 
 
     orm:

@@ -46,10 +46,10 @@ class ShipLocation extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $reverseDirection = false;
 
-    /** @ORM\Column(type="datetime", nullable=false) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $entryTime;
 
-    /** @ORM\Column(type="datetime", nullable=true) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $exitTime;
 
     public function __construct(

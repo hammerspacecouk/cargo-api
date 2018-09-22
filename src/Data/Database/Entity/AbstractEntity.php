@@ -23,10 +23,10 @@ abstract class AbstractEntity
      */
     public $uuid;
 
-    /** @ORM\Column(type="datetime", nullable=false) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $createdAt;
 
-    /** @ORM\Column(type="datetime", nullable=false) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $updatedAt;
 
     public function __construct()

@@ -31,7 +31,7 @@ class PortVisit extends AbstractEntity
      */
     public $port;
 
-    /** @ORM\Column(type="datetime", nullable=false) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $firstVisited;
 
     public function __construct(

@@ -20,7 +20,7 @@ class Crate extends AbstractEntity
     /** @ORM\Column(type="float") */
     public $value = 0;
 
-    /** @ORM\Column(type="datetime", nullable=true) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $valueCalculationDate;
 
     /** @ORM\Column(type="float") */

@@ -151,7 +151,7 @@ class AuthenticationService extends AbstractService
         // compare the hashes. if incorrect, return null
         $digest = $this->getDigest(
             $authentication->getUser()->getId(),
-            DateTimeImmutable::createFromMutable($tokenEntity['expiry']),
+            $tokenEntity['expiry'],
             $secret
         );
 
