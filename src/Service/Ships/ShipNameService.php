@@ -84,7 +84,6 @@ class ShipNameService extends ShipsService
             $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
             $this->logger->info('Committing transaction');
             $this->entityManager->getConnection()->commit();
-            $this->logger->notice('[SHIP RENAME] Ship ' . (string)$shipId . ' renamed to ' . $name);
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
             $this->logger->error('Rolled back "useRenameShipToken" transaction');

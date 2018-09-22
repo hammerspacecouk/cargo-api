@@ -53,6 +53,7 @@ class Event extends Entity implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
+            'id' => $this->id,
             'action' => $this->action,
             'time' => $this->time->format('c'),
             'value' => $this->value,

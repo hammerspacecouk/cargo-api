@@ -65,7 +65,7 @@ class UsersService extends AbstractService
 
     public function getOrCreateByEmailAddress(EmailAddress $email): User
     {
-        $this->logger->notice('[NEW PLAYER] Creating a new player');
+        $this->logger->notice('[NEW PLAYER] [EMAIL]');
         $user = $this->getByEmailAddress($email);
         if ($user) {
             return $user;
@@ -76,7 +76,7 @@ class UsersService extends AbstractService
 
     public function getNewAnonymousUser(?string $ipAddress): User
     {
-        $this->logger->notice('[NEW PLAYER] Creating a new anonymous user');
+        $this->logger->notice('[NEW PLAYER] [ANONYMOUS]');
         $ipHash = null;
         if ($ipAddress) {
             $ipHash = $this->makeContentHash($ipAddress);
@@ -135,6 +135,7 @@ class UsersService extends AbstractService
         $rankEntity = $this->entityManager->getPlayerRankRepo()->getByID($rankId, Query::HYDRATE_OBJECT);
 
         $userEntity->lastRankSeen = $rankEntity;
+        $this->entityManager->getEventRepo()->logPromotion($userEntity, $rankEntity);
         $this->entityManager->persist($userEntity);
         $this->entityManager->flush();
     }

@@ -74,21 +74,11 @@ class ShipLocationsService extends AbstractService
             $currentLocation->exitTime = $this->currentTime;
             $this->entityManager->persist($currentLocation);
 
-            // make a new ship location
-            $newLocation = new DbShipLocation(
-                $ship,
-                $destinationPort,
-                null,
-                $this->currentTime
-            );
-            $this->entityManager->persist($newLocation);
+            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $destinationPort);
 
             // add this port to the list of visited ports for this user
             if (!$alreadyVisited) {
-                $this->entityManager->getPortVisitRepo()->recordVisit(
-                    $owner,
-                    $destinationPort
-                );
+                $this->entityManager->getPortVisitRepo()->recordVisit($owner, $destinationPort);
             }
 
             // todo - move all the crates to the port
@@ -97,15 +87,8 @@ class ShipLocationsService extends AbstractService
             // update the users score - todo - calculate how much the rate delta should be
             $this->entityManager->getUserRepo()->updateScoreRate($owner, Costs::DELTA_SHIP_ARRIVAL);
 
-            $this->entityManager->flush();
             $this->logger->info('Committing all changes');
             $this->entityManager->getConnection()->commit();
-
-            $this->logger->notice(sprintf(
-                '[ARRIVAL] Ship: %s, Port: %s',
-                (string)$ship->uuid,
-                (string)$newLocation->uuid
-            ));
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollBack();
             $this->logger->error('Failed to process arrival');

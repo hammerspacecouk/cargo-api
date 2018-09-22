@@ -116,9 +116,9 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->select('tbl', 'ship')
             ->join('tbl.ship', 'ship')
             ->leftJoin('tbl.port', 'port')
-            ->where('tbl.ship = :ship')
+            ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ship', $ship);
+            ->setParameter('ship', $ship->id->getBytes());
 
         $location = $qb->getQuery()->getSingleResult();
         $location->exitTime = $this->currentTime;

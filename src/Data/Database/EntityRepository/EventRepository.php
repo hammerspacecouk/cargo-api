@@ -165,6 +165,8 @@ class EventRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush($entity);
 
+        $this->logger->notice('[GAME_EVENT] [' . $eventType . ']');
+
         return $entity;
     }
 }
