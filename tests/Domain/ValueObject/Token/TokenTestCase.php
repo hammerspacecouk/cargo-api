@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Tests\App\Domain\ValueObject\Token;
 
 use App\Domain\ValueObject\Token\AbstractToken;
-use Lcobucci\JWT\Token;
+use ParagonIE\Paseto\JsonToken;
 use PHPUnit\Framework\MockObject\MockObject;
 use Ramsey\Uuid\UuidInterface;
 
@@ -29,7 +29,7 @@ abstract class TokenTestCase extends \PHPUnit\Framework\TestCase
 
     protected function getRawMockToken(array $claims): MockObject
     {
-        $token = $this->createMock(Token::class);
+        $token = $this->createMock(JsonToken::class);
 
         $token->expects($this->any())
             ->method('hasClaim')

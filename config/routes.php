@@ -112,7 +112,7 @@ $collection->add('actions_rename_ship', new Route(Action\RenameShipToken::getPat
     '_controller' => Controller\Actions\RenameShipAction::class,
 ]));
 
-$collection->add('actions_request_ship_name', new Route('/actions/request-ship-name', [
+$collection->add('actions_request_ship_name', new Route(Action\RequestShipNameToken::getPath(), [
     '_controller' => Controller\Actions\RequestShipNameAction::class,
 ]));
 

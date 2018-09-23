@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure;
 
+use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
+
 class ApplicationConfig
 {
     private $environment;
@@ -13,7 +15,6 @@ class ApplicationConfig
     private $emailFromName;
     private $emailFromAddress;
     private $tokenPrivateKey;
-    private $tokenIssuer;
     private $version;
     private $applicationSecret;
 
@@ -27,7 +28,6 @@ class ApplicationConfig
         string $emailFromAddress,
         string $applicationSecret,
         string $tokenPrivateKey,
-        string $tokenIssuer,
         ?string $version
     ) {
         $this->environment = $environment;
@@ -38,7 +38,6 @@ class ApplicationConfig
         $this->emailFromName = $emailFromName;
         $this->emailFromAddress = $emailFromAddress;
         $this->tokenPrivateKey = $tokenPrivateKey;
-        $this->tokenIssuer = $tokenIssuer;
         $this->version = $version;
         $this->applicationSecret = $applicationSecret;
     }
@@ -78,14 +77,9 @@ class ApplicationConfig
         return $this->emailFromAddress;
     }
 
-    public function getTokenPrivateKey(): string
+    public function getTokenPrivateKey(): SymmetricKey
     {
-        return $this->tokenPrivateKey;
-    }
-
-    public function getTokenIssuer(): string
-    {
-        return $this->tokenIssuer;
+        return new SymmetricKey(\hex2bin($this->tokenPrivateKey));
     }
 
     public function getApplicationSecret(): string

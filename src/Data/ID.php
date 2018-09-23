@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use function App\Functions\Classes\shortHash;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -25,7 +26,7 @@ class ID
     private static function markUuid(UuidInterface $uuid, string $entityClass): UuidInterface
     {
         $str = (string)$uuid;
-        $marker = \substr(\md5($entityClass), 0, 4);
+        $marker = shortHash($entityClass, 4);
         $str = \substr_replace($str, $marker, 9, 4);
         return Uuid::fromString($str);
     }

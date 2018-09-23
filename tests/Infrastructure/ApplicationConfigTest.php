@@ -32,6 +32,5 @@ class ApplicationConfigTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($fromAddress, $config->getEmailFromAddress());
         $this->assertSame($secret, $config->getApplicationSecret());
         $this->assertSame($tokenPrivateKey, $config->getTokenPrivateKey());
-        $this->assertSame($tokenIssuer, $config->getTokenIssuer());
     }
 }

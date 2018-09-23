@@ -4,14 +4,15 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Domain\Exception\TokenException;
+use App\Domain\ValueObject\Token\FlashDataToken;
 use App\Infrastructure\ApplicationConfig;
 use App\Domain\ValueObject\Message\Message;
+use ParagonIE\Paseto\Exception\PasetoException;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 class FlashDataStore
 {
-    // todo. this should be different
     private const COOKIE_NAME = 'FLASH_DATA_STORE';
 
     private $tokenProvider;
@@ -77,14 +78,12 @@ class FlashDataStore
 
     public function makeCookie(): Cookie
     {
-        $claims = [
-            'data' => serialize($this->data),
-            'messages' => serialize($this->messages),
-        ];
-
         return new Cookie(
             self::COOKIE_NAME,
-            (string)$this->tokenProvider->makeToken($claims, 'PT1H'),
+            (string)$this->tokenProvider->makeToken(...FlashDataToken::make(
+                $this->data,
+                $this->messages
+            )),
             0,
             '/',
             $this->applicationConfig->getCookieScope(),
@@ -101,11 +100,13 @@ class FlashDataStore
         }
 
         try {
-            $token = $this->tokenProvider->parseTokenFromString($cookie, false);
-
-            $this->data = unserialize($token->getClaim('data'));
-            $this->messages = unserialize($token->getClaim('messages'));
-        } catch (TokenException $exception) {
+            $token = new FlashDataToken(
+                $this->tokenProvider->parseTokenFromString($cookie, false),
+                $cookie
+            );
+            $this->data = $token->getData();
+            $this->messages = $token->getMessages();
+        } catch (TokenException | PasetoException $exception) {
             // if there any kind of exceptions with the token,
             // just ignore it as though there was no token
         }

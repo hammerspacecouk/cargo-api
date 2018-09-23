@@ -86,20 +86,17 @@ class UsersService extends AbstractService
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
     {
-        $token = $this->tokenHandler->makeToken(
-            DeleteAccountToken::makeClaims(
-                $userId,
-                $stage
-            ),
-            DeleteAccountToken::TOKEN_TIME
-        );
-        return new DeleteAccountToken($token);
+        $token = $this->tokenHandler->makeToken(...DeleteAccountToken::make(
+            $userId,
+            $stage
+        ));
+        return new DeleteAccountToken($token->getJsonToken(), (string)$token);
     }
 
     public function parseDeleteAccountToken(
         string $tokenString
     ): DeleteAccountToken {
-        return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString));
+        return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
     public function useStageTwoDeleteAccountToken(DeleteAccountToken $token): DeleteAccountToken
@@ -122,7 +119,10 @@ class UsersService extends AbstractService
     public function parseAcknowledgePromotionToken(
         string $tokenString
     ): AcknowledgePromotionToken {
-        return new AcknowledgePromotionToken($this->tokenHandler->parseTokenFromString($tokenString, false));
+        return new AcknowledgePromotionToken(
+            $this->tokenHandler->parseTokenFromString($tokenString, false),
+            $tokenString
+        );
     }
 
     public function useAcknowledgePromotionToken(AcknowledgePromotionToken $token): void

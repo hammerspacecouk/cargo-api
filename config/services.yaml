@@ -43,7 +43,6 @@ services:
             - "%env(MAILER_FROM_ADDRESS)%"
             - '%env(APP_SECRET)%'
             - '%env(TOKEN_PRIVATE_KEY)%'
-            - '%env(TOKEN_ISSUER)%'
             - '%env(APP_VERSION)%'
 
     Google_Client:

@@ -4,47 +4,36 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
+use function App\Functions\Classes\shortHash;
 use DateTimeImmutable;
-use Lcobucci\JWT\Token;
+use ParagonIE\Paseto\JsonToken;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractToken
 {
-    public const KEY_TOKEN_TYPE = 'tt';
-    public const KEY_TOKEN_ID = 'jti';
-    public const KEY_TOKEN_EXPIRY = 'exp';
-
-    private const TYPE = null;
+    public const EXPIRY = 'PT1H';
 
     protected $token;
+    protected $tokenString;
     private $id;
     private $expiry;
 
-    public function __construct(Token $token)
+    public static function getSubject(): string
+    {
+        return shortHash(static::class, 8);
+    }
+
+    public function __construct(JsonToken $token, $tokenString)
     {
         $this->validateTokenType($token);
         $this->token = $token;
-        $this->id = Uuid::fromString($token->getClaim(self::KEY_TOKEN_ID));
-        $this->expiry = DateTimeImmutable::createFromFormat('U', (string)$token->getClaim(self::KEY_TOKEN_EXPIRY));
+        $this->tokenString = $tokenString;
+        $this->id = Uuid::fromString($token->getJti());
+        $this->expiry = DateTimeImmutable::createFromMutable($token->getExpiration());
     }
 
-    private function validateTokenType(Token $token): void
-    {
-        if (!$token->hasClaim(self::KEY_TOKEN_TYPE) ||
-            $token->getClaim(self::KEY_TOKEN_TYPE) !== static::TYPE
-        ) {
-            throw new InvalidTokenException('Token did not match expected type');
-        }
-    }
-
-    public static function createClaims(array $data): array
-    {
-        $data[self::KEY_TOKEN_TYPE] = static::TYPE;
-        return $data;
-    }
-
-    public function getOriginalToken(): Token
+    public function getOriginalToken(): JsonToken
     {
         return $this->token;
     }
@@ -61,6 +50,26 @@ abstract class AbstractToken
 
     public function __toString(): string
     {
-        return (string)$this->token;
+        return (string)\str_replace('v2.local.', '', $this->tokenString);
+    }
+
+    protected static function create(array $claims, $id = null): array
+    {
+        $tokenArgs = [
+            $claims,
+            static::getSubject(),
+            static::EXPIRY,
+        ];
+        if ($id) {
+            $tokenArgs[] = $id;
+        }
+        return $tokenArgs;
+    }
+
+    private function validateTokenType(JsonToken $token): void
+    {
+        if ($token->getSubject() !== static::getSubject()) {
+            throw new InvalidTokenException('Token did not match expected type');
+        }
     }
 }

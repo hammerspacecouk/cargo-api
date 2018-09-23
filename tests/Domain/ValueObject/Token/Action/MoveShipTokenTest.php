@@ -24,7 +24,7 @@ class MoveShipTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoShipId(): void
     {
-        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
+        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -33,7 +33,7 @@ class MoveShipTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoChannelId(): void
     {
-        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
+        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -42,7 +42,7 @@ class MoveShipTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoDirection(): void
     {
-        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::TYPE));
+        $tokenObject = new MoveShipToken($this->getMockToken(MoveShipToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -51,7 +51,7 @@ class MoveShipTokenTest extends TokenTestCase
 
     public function testTokenData(): void
     {
-        $token = $this->getMockToken(MoveShipToken::TYPE, [
+        $token = $this->getMockToken(MoveShipToken::SUBJECT, [
             MoveShipToken::KEY_CHANNEL => self::UUID_EXAMPLE_CHANNEL,
             MoveShipToken::KEY_SHIP => self::UUID_EXAMPLE_SHIP,
             MoveShipToken::KEY_OWNER => self::UUID_EXAMPLE_USER,
@@ -93,7 +93,7 @@ class MoveShipTokenTest extends TokenTestCase
         );
 
         $this->assertTrue(is_array($claims));
-        $this->assertSame(MoveShipToken::TYPE, $claims[MoveShipToken::KEY_TOKEN_TYPE]);
+        $this->assertSame(MoveShipToken::SUBJECT, $claims[MoveShipToken::KEY_TOKEN_TYPE]);
 
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[MoveShipToken::KEY_SHIP]);
         $this->assertSame(self::UUID_EXAMPLE_CHANNEL, $claims[MoveShipToken::KEY_CHANNEL]);

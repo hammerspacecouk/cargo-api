@@ -6,7 +6,6 @@ namespace App\Service\Ships;
 use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\ID;
 use App\Domain\Entity\Channel;
-use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
@@ -17,8 +16,6 @@ use Doctrine\ORM\Query;
 
 class ShipMovementService extends ShipsService
 {
-    private const TOKEN_EXPIRY = 'PT1H';
-
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
@@ -27,19 +24,15 @@ class ShipMovementService extends ShipsService
         int $journeyTime,
         string $tokenKey
     ): MoveShipToken {
-        $id = ID::makeIDFromKey(DbToken::class, $tokenKey);
-        $token = $this->tokenHandler->makeToken(
-            MoveShipToken::makeClaims(
-                $ship->getId(),
-                $channel->getId(),
-                $owner->getId(),
-                $reverseDirection,
-                $journeyTime
-            ),
-            self::TOKEN_EXPIRY,
-            $id
-        );
-        return new MoveShipToken($token);
+        $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
+            ID::makeIDFromKey(DbToken::class, $tokenKey),
+            $ship->getId(),
+            $channel->getId(),
+            $owner->getId(),
+            $reverseDirection,
+            $journeyTime
+        ));
+        return new MoveShipToken($token->getJsonToken(), (string)$token);
     }
 
     public function useMoveShipToken(
@@ -109,6 +102,6 @@ class ShipMovementService extends ShipsService
     public function parseMoveShipToken(
         string $tokenString
     ): MoveShipToken {
-        return new MoveShipToken($this->tokenHandler->parseTokenFromString($tokenString));
+        return new MoveShipToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 }

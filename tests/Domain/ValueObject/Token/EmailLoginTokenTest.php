@@ -19,7 +19,7 @@ class EmailLoginTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoEmailAddress(): void
     {
-        $tokenObject = new EmailLoginToken($this->getMockToken(EmailLoginToken::TYPE));
+        $tokenObject = new EmailLoginToken($this->getMockToken(EmailLoginToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -28,7 +28,7 @@ class EmailLoginTokenTest extends TokenTestCase
 
     public function testTokenData(): void
     {
-        $token = $this->getMockToken(EmailLoginToken::TYPE, [
+        $token = $this->getMockToken(EmailLoginToken::SUBJECT, [
             EmailLoginToken::KEY_EMAIL_ADDRESS => self::EMAIL_ADDRESS_EXAMPLE,
         ]);
 
@@ -43,7 +43,7 @@ class EmailLoginTokenTest extends TokenTestCase
         $claims = EmailLoginToken::makeClaims(new EmailAddress(self::EMAIL_ADDRESS_EXAMPLE));
 
         $this->assertTrue(is_array($claims));
-        $this->assertSame(EmailLoginToken::TYPE, $claims[EmailLoginToken::KEY_TOKEN_TYPE]);
+        $this->assertSame(EmailLoginToken::SUBJECT, $claims[EmailLoginToken::KEY_TOKEN_TYPE]);
         $this->assertSame(self::EMAIL_ADDRESS_EXAMPLE, $claims[EmailLoginToken::KEY_EMAIL_ADDRESS]);
     }
 }

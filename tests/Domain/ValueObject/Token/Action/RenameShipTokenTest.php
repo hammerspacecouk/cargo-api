@@ -22,7 +22,7 @@ class RenameShipTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoShipId(): void
     {
-        $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::TYPE));
+        $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -31,7 +31,7 @@ class RenameShipTokenTest extends TokenTestCase
 
     public function testInvalidDueToNoName(): void
     {
-        $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::TYPE));
+        $tokenObject = new RenameShipToken($this->getMockToken(RenameShipToken::SUBJECT));
 
         // don't expect the exception until we call the method that would throw it
         $this->expectException(InvalidTokenException::class);
@@ -40,7 +40,7 @@ class RenameShipTokenTest extends TokenTestCase
 
     public function testTokenData(): void
     {
-        $token = $this->getMockToken(RenameShipToken::TYPE, [
+        $token = $this->getMockToken(RenameShipToken::SUBJECT, [
             RenameShipToken::KEY_SHIP_ID => self::UUID_EXAMPLE_SHIP,
             RenameShipToken::KEY_SHIP_NAME => self::EXAMPLE_SHIP_NAME,
         ]);
@@ -63,13 +63,13 @@ class RenameShipTokenTest extends TokenTestCase
 
     public function testMakeClaims(): void
     {
-        $claims = RenameShipToken::makeClaims(
+        $claims = RenameShipToken::make(
             Uuid::fromString(self::UUID_EXAMPLE_SHIP),
             self::EXAMPLE_SHIP_NAME
         );
 
         $this->assertTrue(is_array($claims));
-        $this->assertSame(RenameShipToken::TYPE, $claims[RenameShipToken::KEY_TOKEN_TYPE]);
+        $this->assertSame(RenameShipToken::SUBJECT, $claims[RenameShipToken::KEY_TOKEN_TYPE]);
 
         $this->assertSame(self::UUID_EXAMPLE_SHIP, $claims[RenameShipToken::KEY_SHIP_ID]);
         $this->assertSame(self::EXAMPLE_SHIP_NAME, $claims[RenameShipToken::KEY_SHIP_NAME]);

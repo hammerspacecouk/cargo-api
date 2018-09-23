@@ -9,19 +9,18 @@ use JsonSerializable;
 abstract class AbstractActionToken extends AbstractToken implements JsonSerializable
 {
     public const PATH_PREFIX = '/actions';
-    private const TYPE = null;
 
     public function jsonSerialize()
     {
         return [
             'type' => 'ActionToken',
-            'path' => $this->getPath(),
-            'token' => (string)$this->getOriginalToken(),
+            'path' => static::getPath(),
+            'token' => (string)$this,
         ];
     }
 
     public static function getPath()
     {
-        return self::PATH_PREFIX . '/' . static::TYPE;
+        return self::PATH_PREFIX . '/' . static::getSubject();
     }
 }

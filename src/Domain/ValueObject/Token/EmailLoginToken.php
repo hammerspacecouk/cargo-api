@@ -3,28 +3,22 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token;
 
-use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\EmailAddress;
 
 class EmailLoginToken extends AbstractToken
 {
-    public const TYPE = 'el';
+    private const KEY_EMAIL_ADDRESS = 'ea';
 
-    public const KEY_EMAIL_ADDRESS = 'ea';
-
-    public static function makeClaims(
+    public static function make(
         EmailAddress $emailAddress
     ): array {
-        return parent::createClaims([
+        return parent::create([
             self::KEY_EMAIL_ADDRESS => (string)$emailAddress,
         ]);
     }
 
     public function getEmailAddress(): EmailAddress
     {
-        if ($this->token->hasClaim(self::KEY_EMAIL_ADDRESS)) {
-            return new EmailAddress($this->token->getClaim(self::KEY_EMAIL_ADDRESS));
-        }
-        throw new InvalidTokenException('No Email found');
+        return new EmailAddress($this->token->get(self::KEY_EMAIL_ADDRESS));
     }
 }

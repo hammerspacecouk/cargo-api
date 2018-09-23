@@ -15,22 +15,17 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipNameService extends ShipsService
 {
-    private const TOKEN_EXPIRY = 'PT1H';
-
     public function getRequestShipNameTransaction(
         UuidInterface $userId,
         UuidInterface $shipId
     ): Transaction {
-        $token = $this->tokenHandler->makeToken(
-            RequestShipNameToken::makeClaims(
-                $shipId,
-                $userId
-            ),
-            self::TOKEN_EXPIRY
-        );
+        $token = $this->tokenHandler->makeToken(...RequestShipNameToken::make(
+            $shipId,
+            $userId
+        ));
         return new Transaction(
             Costs::ACTION_REQUEST_SHIP_NAME,
-            new RequestShipNameToken($token)
+            new RequestShipNameToken($token->getJsonToken(), (string)$token)
         );
     }
 
@@ -38,14 +33,11 @@ class ShipNameService extends ShipsService
         UuidInterface $shipId,
         string $newName
     ): RenameShipToken {
-        $token = $this->tokenHandler->makeToken(
-            RenameShipToken::makeClaims(
-                $shipId,
-                $newName
-            ),
-            self::TOKEN_EXPIRY
-        );
-        return new RenameShipToken($token);
+        $token = $this->tokenHandler->makeToken(...RenameShipToken::make(
+            $shipId,
+            $newName
+        ));
+        return new RenameShipToken($token->getJsonToken(), (string)$token);
     }
 
     // Parse tokens
@@ -53,18 +45,18 @@ class ShipNameService extends ShipsService
     public function parseRenameShipToken(
         string $tokenString
     ): RenameShipToken {
-        return new RenameShipToken($this->tokenHandler->parseTokenFromString($tokenString));
+        return new RenameShipToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
     public function parseRequestShipNameToken(
         string $tokenString
     ): RequestShipNameToken {
-        return new RequestShipNameToken($this->tokenHandler->parseTokenFromString($tokenString));
+        return new RequestShipNameToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
     public function useRequestShipNameToken(
         RequestShipNameToken $token
-    ) {
+    ): string {
         $name = $this->requestShipName($token->getUserId(), $token->getShipId());
         $this->tokenHandler->markAsUsed($token->getOriginalToken());
         return $name;
@@ -104,7 +96,8 @@ class ShipNameService extends ShipsService
         $userRepo = $this->entityManager->getUserRepo();
 
         // check the user has enough credits
-        $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT); /** @var User $userEntity **/
+        $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT);
+        /** @var User $userEntity * */
         if ($userRepo->currentScore($userEntity) < Costs::ACTION_REQUEST_SHIP_NAME) {
             throw new IllegalMoveException(Costs::ACTION_REQUEST_SHIP_NAME . ' required to request a ship name');
         }

@@ -3,19 +3,21 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use function App\Functions\Classes\toMutableDateTime;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\Database\EntityManager;
-use App\Domain\Exception\ExpiredTokenException;
 use App\Domain\Exception\InvalidTokenException;
-use App\Domain\Exception\TokenException;
 use DateInterval;
 use DateTimeImmutable;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Token;
-use Lcobucci\JWT\ValidationData;
+use ParagonIE\Paseto\Builder;
+use ParagonIE\Paseto\Exception\PasetoException;
+use ParagonIE\Paseto\JsonToken;
+use ParagonIE\Paseto\Parser;
+use ParagonIE\Paseto\Protocol\Version2;
+use ParagonIE\Paseto\ProtocolCollection;
+use ParagonIE\Paseto\Purpose;
+use ParagonIE\Paseto\Rules\NotExpired;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -41,68 +43,44 @@ class TokenProvider
 
     public function makeToken(
         array $claims,
+        string $subject,
         string $expiryInterval,
         UuidInterface $id = null
-    ): Token {
+    ): Builder {
 
         if (!$id) {
             $id = ID::makeNewID(DbToken::class); // todo - don't call the ID class outside of database entities?
         }
 
-        $builder = (new Builder())
-            ->setIssuedAt($this->currentTime->getTimestamp())
-            ->setId((string)$id)
-            ->setExpiration($this->currentTime->add(
-                new DateInterval($expiryInterval)
-            )->getTimestamp());
-
-        foreach ($claims as $key => $value) {
-            $builder->set($key, $value);
-        }
-
-        // Now that all the data is present we can sign it
-        $builder->sign($this->getSigner(), $this->applicationConfig->getTokenPrivateKey());
-
-        return $builder->getToken();
+        return (new Builder())
+            ->setKey($this->applicationConfig->getTokenPrivateKey())
+            ->setJti((string) $id)
+            ->setSubject($subject)
+            ->setVersion(new Version2())
+            ->setPurpose(Purpose::local())
+            ->setExpiration($this->currentTime->add(new DateInterval($expiryInterval)))
+            ->setClaims($claims);
     }
 
     public function parseTokenFromString(
         string $tokenString,
         bool $confirmSingleUse = true
-    ): Token {
+    ): JsonToken {
+        $tokenString = 'v2.local.' . $tokenString;
+        $parser = (new Parser())
+            ->setKey($this->applicationConfig->getTokenPrivateKey())
+            // Adding rules to be checked against the token
+            ->addRule(new NotExpired(toMutableDateTime($this->currentTime)))
+            ->setPurpose(Purpose::local())
+            // Only allow version 2
+            ->setAllowedVersions(ProtocolCollection::v2());
+
         try {
-            $token = (new Parser())->parse($tokenString);
-            return $this->parseToken($token, $confirmSingleUse);
-        } catch (\Exception $e) {
-            // turn all types of unrecognised paring errors into InvalidToken errors
-            if (!$e instanceof TokenException) {
-                $e = new InvalidTokenException($e->getMessage());
-            }
-            throw $e;
-        }
-    }
-
-    public function markAsUsed(Token $token): void
-    {
-        $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
-            $this->uuidFromToken($token),
-            $this->expiryFromToken($token)
-        );
-    }
-
-    private function parseToken(
-        Token $token,
-        bool $confirmSingleUse = true
-    ): Token {
-        if ($token->isExpired($this->currentTime)) {
-            throw new ExpiredTokenException('Token has expired');
-        }
-
-        $data = new ValidationData($this->currentTime->getTimestamp());
-        if (!$token->verify($this->getSigner(), $this->applicationConfig->getTokenPrivateKey()) ||
-            !$token->validate($data)
-        ) {
-            throw new InvalidTokenException('Token was tampered with or otherwise invalid');
+            $token = $parser->parse($tokenString);
+        } catch (PasetoException $ex) {
+            throw new InvalidTokenException(
+                'Token was tampered with or otherwise invalid or expired: ' . $ex->getMessage()
+            );
         }
 
         if ($confirmSingleUse &&
@@ -113,20 +91,23 @@ class TokenProvider
         return $token;
     }
 
-    private function getSigner(): Sha256
+    public function markAsUsed(JsonToken $token): void
     {
-        return new Sha256();
+        $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
+            $this->uuidFromToken($token),
+            $this->expiryFromToken($token)
+        );
     }
 
     private function uuidFromToken(
-        Token $token
+        JsonToken $token
     ): UuidInterface {
-        return Uuid::fromString($token->getClaim('jti'));
+        return Uuid::fromString($token->get('jti'));
     }
 
     private function expiryFromToken(
-        Token $token
+        JsonToken $token
     ): DateTimeImmutable {
-        return DateTimeImmutable::createFromFormat('U', (string)$token->getClaim('exp'));
+        return DateTimeImmutable::createFromMutable($token->getExpiration());
     }
 }

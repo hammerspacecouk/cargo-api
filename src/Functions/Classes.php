@@ -11,7 +11,7 @@ function whoImplements(string $interfaceName, ?array $from = null): array
         }
 
         return \array_filter($from, function ($className) use ($interfaceName) {
-            return \in_array($interfaceName, \class_implements($className));
+            return \in_array($interfaceName, \class_implements($className), true);
         });
     }
     return [];

@@ -22,7 +22,6 @@ class AuthenticationService extends AbstractService
 
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
     private const COOKIE_EXPIRY = 'P3M';
-    private const EXPIRY_EMAIL_LOGIN = 'PT1H';
     private const WAIT_BEFORE_REFRESH = 'PT1H';
 
     public function getUnexpiredById(
@@ -185,13 +184,10 @@ class AuthenticationService extends AbstractService
     public function makeEmailLoginToken(
         EmailAddress $emailAddress
     ): EmailLoginToken {
-        $token = $this->tokenHandler->makeToken(
-            EmailLoginToken::makeClaims(
-                $emailAddress
-            ),
-            self::EXPIRY_EMAIL_LOGIN
-        );
-        return new EmailLoginToken($token);
+        $token = $this->tokenHandler->makeToken(...EmailLoginToken::make(
+            $emailAddress
+        ));
+        return new EmailLoginToken($token->getJsonToken(), (string)$token);
     }
 
     public function useEmailLoginToken(
@@ -199,7 +195,7 @@ class AuthenticationService extends AbstractService
     ): EmailLoginToken {
         $token = $this->tokenHandler->parseTokenFromString($tokenString);
         $this->tokenHandler->markAsUsed($token);
-        return new EmailLoginToken($token);
+        return new EmailLoginToken($token, $tokenString);
     }
 
     private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret)
@@ -211,7 +207,7 @@ class AuthenticationService extends AbstractService
                 (string)$userId,
                 $expiry->getTimestamp(),
             ]),
-            (string)$this->applicationConfig->getTokenPrivateKey()
+            $this->applicationConfig->getTokenPrivateKey()->encode()
         );
     }
 }

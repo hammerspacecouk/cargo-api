@@ -6,6 +6,8 @@
         "psr-4": { "App\\": "src" },
         "files": [
             "src/Functions/Classes.php",
+            "src/Functions/DateTimes.php",
+            "src/Functions/Strings.php",
             "src/Functions/Transforms.php"
         ]
     },
@@ -14,14 +16,14 @@
     },
     "require": {
         "php": "^7.2",
-        "ext-sodium": "*",
         "ext-json": "*",
+        "ext-sodium": "*",
         "abraham/twitteroauth": "^0.7.4",
         "aws/aws-sdk-php": "^3.44",
         "doctrine/doctrine-bundle": "^1.8",
         "facebook/graph-sdk": "^5.6",
         "google/apiclient": "^2.1",
-        "lcobucci/jwt": "^3.2",
+        "paragonie/paseto": "^1.0",
         "psr/cache": "^1.0",
         "ramsey/uuid": "^3.6",
         "ramsey/uuid-doctrine": "^1.4",

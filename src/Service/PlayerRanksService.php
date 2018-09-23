@@ -47,14 +47,14 @@ class PlayerRanksService extends AbstractService
         $acknowledgeToken = null;
         if ($portVisitCount > 1 && !$hasAcknowledgedPromotion) {
             // make a token to acknowledge the promotion
+            $token = $this->tokenHandler->makeToken(...AcknowledgePromotionToken::make(
+                $user->getId(),
+                $currentRank->getId()
+            ));
             $acknowledgeToken = new AcknowledgePromotionToken(
-                $this->tokenHandler->makeToken(
-                    AcknowledgePromotionToken::makeClaims(
-                        $user->getId(),
-                        $currentRank->getId()
-                    ),
-                    'PT1H'
-                ));
+                $token->getJsonToken(),
+                (string)$token
+            );
         }
 
         return new PlayerRankStatus(

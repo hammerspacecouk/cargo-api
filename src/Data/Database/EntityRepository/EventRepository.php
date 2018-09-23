@@ -3,17 +3,20 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Event;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\User;
 use App\Domain\Entity\Event as DomainEvent;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Ramsey\Uuid\UuidInterface;
 
-class EventRepository extends AbstractEntityRepository
+class EventRepository extends AbstractEntityRepository implements CleanableInterface
 {
     private const DEFAULT_PAGE_SIZE = 25;
 
@@ -124,6 +127,11 @@ class EventRepository extends AbstractEntityRepository
         );
     }
 
+    public function clean(\DateTimeImmutable $now): int
+    {
+        return $this->removeOld($now);
+    }
+
     private function buildSelect(
         int $limit,
         int $offset
@@ -168,5 +176,14 @@ class EventRepository extends AbstractEntityRepository
         $this->logger->notice('[GAME_EVENT] [' . $eventType . ']');
 
         return $entity;
+    }
+
+    private function removeOld(DateTimeImmutable $now): int
+    {
+        $sql = 'DELETE FROM ' . Event::class . ' t WHERE t.time < :before';
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('before', $now->sub(new DateInterval('P3M')));
+        return $query->execute();
     }
 }
