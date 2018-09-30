@@ -78,12 +78,14 @@ class FlashDataStore
 
     public function makeCookie(): Cookie
     {
+        $token = $this->tokenProvider->makeToken(...FlashDataToken::make(
+            $this->data,
+            $this->messages
+        ));
+
         return new Cookie(
             self::COOKIE_NAME,
-            (string)$this->tokenProvider->makeToken(...FlashDataToken::make(
-                $this->data,
-                $this->messages
-            )),
+            (string)(new FlashDataToken($token->getJsonToken(), (string) $token)),
             0,
             '/',
             $this->applicationConfig->getCookieScope(),
