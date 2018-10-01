@@ -54,7 +54,7 @@ class User extends Entity implements \JsonSerializable
     public function getColour(): string
     {
         // get the last 6 characters of the UUID (as they are already hex)
-        return '#' . substr((string)$this->id, -6);
+        return substr((string)$this->id, -6);
     }
 
     public function getHomePort(): Port

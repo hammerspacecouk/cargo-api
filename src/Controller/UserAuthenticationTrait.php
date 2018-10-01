@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
+use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -12,6 +13,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 trait UserAuthenticationTrait
 {
@@ -28,8 +30,17 @@ trait UserAuthenticationTrait
     protected function getAnonymousUser(
         Request $request,
         UsersService $usersService,
-        AuthenticationService $authenticationService
+        AuthenticationService $authenticationService,
+        ApplicationConfig $applicationConfig
     ): User {
+        if (!$usersService->allowedToMakeAnonymousUser($request->getClientIp())) {
+            throw new TooManyRequestsHttpException(
+                $applicationConfig->getIpLifetimeSeconds(),
+                'The number of new anonymous accounts per IP address is limited. ' .
+                'Please try again later or log in with another method'
+            ); // todo - ensure this renders as plain text in prod
+        }
+
         $user = $usersService->getNewAnonymousUser($request->getClientIp());
         $this->userAuthentication = $authenticationService->getAnonymousAuthentication($user);
         return $user;

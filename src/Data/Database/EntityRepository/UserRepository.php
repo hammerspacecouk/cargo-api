@@ -3,13 +3,17 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
+use function App\Functions\Numbers\clamp;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
-class UserRepository extends AbstractEntityRepository
+class UserRepository extends AbstractEntityRepository implements CleanableInterface
 {
+    private const MAX_RATE_DELTA = 2 ** 30;
+
     public function newPlayer(
         ?string $queryHash,
         ?string $ipHash,
@@ -39,15 +43,12 @@ class UserRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function getByIpHash(
-        string $queryHash,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
+    public function countByIpHash(string $queryHash): int {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl')
+            ->select('COUNT(1)')
             ->where('tbl.anonymousIpHash = :hash')
             ->setParameter('hash', $queryHash);
-        return $qb->getQuery()->getOneOrNullResult($resultType);
+        return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function updateScoreRate(User $user, int $rateDelta = 0): void
@@ -86,28 +87,6 @@ class UserRepository extends AbstractEntityRepository
         return $this->clampScore($currentScore + $delta);
     }
 
-    private function clampScore($score): int
-    {
-        // ensure that scores are always above zero and capped at the max int value
-        return (int)max(0, min($score, PHP_INT_MAX));
-    }
-
-    private function clampRate($rate): int
-    {
-        $maxDelta = (2 ** 30);
-        return (int)max(-$maxDelta, min($rate, $maxDelta));
-    }
-
-    public function clearHashesBefore(\DateTimeImmutable $before): void
-    {
-        $qb = $this->createQueryBuilder('tbl')
-            ->update()
-            ->set('tbl.anonymousIpHash', 'NULL')
-            ->where('tbl.createdAt < :before')
-            ->setParameter('before', $before);
-        $qb->getQuery()->execute();
-    }
-
     public function findWithLastSeenRank(
         UuidInterface $userId,
         $resultType = Query::HYDRATE_ARRAY
@@ -118,5 +97,41 @@ class UserRepository extends AbstractEntityRepository
             ->where('tbl.id = :userId')
             ->setParameter('userId', $userId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function clean(\DateTimeImmutable $now): int
+    {
+        // remove IP hashes from User accounts older than X minutes
+        $count = $this->clearHashesBefore(
+            $now->sub($this->applicationConfig->getIpLifetimeInterval())
+        );
+
+        // todo - remove users who never made a move:
+        // todo - (port_visits === 1 after 1 week for anonymous)
+        // todo - (port_visits === 1 after 1 month for registered)
+
+        return $count;
+    }
+
+    private function clampScore($score): int
+    {
+        return clamp($score, 0, PHP_INT_MAX);
+    }
+
+    private function clampRate($rate): int
+    {
+        return clamp($rate, -self::MAX_RATE_DELTA, self::MAX_RATE_DELTA);
+    }
+
+    private function clearHashesBefore(\DateTimeImmutable $before): int
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->update()
+            ->set('tbl.anonymousIpHash', 'NULL')
+            ->set('tbl.updatedAt', ':now')
+            ->where('tbl.createdAt < :before')
+            ->setParameter('before', $before)
+            ->setParameter('now', $this->currentTime);
+        return $qb->getQuery()->execute();
     }
 }

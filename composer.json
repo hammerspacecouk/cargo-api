@@ -7,6 +7,7 @@
         "files": [
             "src/Functions/Classes.php",
             "src/Functions/DateTimes.php",
+            "src/Functions/Numbers.php",
             "src/Functions/Strings.php",
             "src/Functions/Transforms.php"
         ]

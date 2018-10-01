@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use function App\Functions\Classes\toMutableDateTime;
+use function App\Functions\DateTimes\toMutableDateTime;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\Database\EntityManager;

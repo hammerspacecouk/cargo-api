@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure;
 
+use DateInterval;
 use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
 
 class ApplicationConfig
@@ -11,6 +12,8 @@ class ApplicationConfig
     private $hostnameApi;
     private $hostnameWeb;
     private $cookieScope;
+    private $maxUsersPerIp;
+    private $ipLifetimeSeconds;
     private $distanceMultiplier;
     private $emailFromName;
     private $emailFromAddress;
@@ -23,7 +26,9 @@ class ApplicationConfig
         string $hostnameApi,
         string $hostnameWeb,
         string $cookieScope,
-        float $distanceMultiplier,
+        int $maxUsersPerIp,
+        int $ipLifetimeSeconds,
+        int $distanceMultiplier,
         string $emailFromName,
         string $emailFromAddress,
         string $applicationSecret,
@@ -34,12 +39,14 @@ class ApplicationConfig
         $this->hostnameApi = $hostnameApi;
         $this->hostnameWeb = $hostnameWeb;
         $this->cookieScope = $cookieScope;
+        $this->maxUsersPerIp = $maxUsersPerIp;
         $this->distanceMultiplier = $distanceMultiplier;
         $this->emailFromName = $emailFromName;
         $this->emailFromAddress = $emailFromAddress;
         $this->tokenPrivateKey = $tokenPrivateKey;
         $this->version = $version;
         $this->applicationSecret = $applicationSecret;
+        $this->ipLifetimeSeconds = $ipLifetimeSeconds;
     }
 
     public function getEnvironment(): string
@@ -62,7 +69,22 @@ class ApplicationConfig
         return $this->cookieScope;
     }
 
-    public function getDistanceMultiplier(): float
+    public function getMaxUsersPerIp(): int
+    {
+        return $this->maxUsersPerIp;
+    }
+
+    public function getIpLifetimeSeconds(): int
+    {
+        return $this->ipLifetimeSeconds;
+    }
+
+    public function getIpLifetimeInterval(): DateInterval
+    {
+        return new DateInterval('PT' . $this->ipLifetimeSeconds . 'S');
+    }
+
+    public function getDistanceMultiplier(): int
     {
         return $this->distanceMultiplier;
     }

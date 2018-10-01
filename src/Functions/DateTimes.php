@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Functions\Classes;
+namespace App\Functions\DateTimes;
 
 use DateTime;
 use DateTimeInterface;

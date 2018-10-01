@@ -2,6 +2,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     distance_multiplier: 10
+    ip_hash_lifetime_seconds: 3600
 
 services:
     # default configuration for services in *this* file
@@ -38,7 +39,9 @@ services:
             - '%env(CONFIG_HOSTNAME_API)%'
             - '%env(CONFIG_HOSTNAME_WEB)%'
             - '%env(CONFIG_COOKIE_SCOPE)%'
+            - '%env(CONFIG_MAX_IP_USERS)%'
             - '%distance_multiplier%'
+            - '%ip_hash_lifetime_seconds%'
             - "%env(MAILER_FROM_NAME)%"
             - "%env(MAILER_FROM_ADDRESS)%"
             - '%env(APP_SECRET)%'

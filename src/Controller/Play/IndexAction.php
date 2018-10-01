@@ -6,6 +6,7 @@ namespace App\Controller\Play;
 use App\Controller\UserAuthenticationTrait;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\SessionState;
+use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\EventsService;
 use App\Service\PlayerRanksService;
@@ -23,17 +24,20 @@ class IndexAction
     protected $authenticationService;
     protected $usersService;
 
+    private $applicationConfig;
     private $shipsService;
     private $playerRanksService;
     private $eventsService;
 
     public function __construct(
+        ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
         PlayerRanksService $playerRanksService,
         UsersService $usersService,
         ShipsService $shipsService,
         EventsService $eventsService
     ) {
+        $this->applicationConfig = $applicationConfig;
         $this->authenticationService = $authenticationService;
         $this->usersService = $usersService;
         $this->playerRanksService = $playerRanksService;
@@ -69,7 +73,12 @@ class IndexAction
             return $this->getUser($request, $this->authenticationService);
         } catch (AccessDeniedHttpException $exception) {
             // On this controller, don't throw a 403, make a new anonymous user
-            return $this->getAnonymousUser($request, $this->usersService, $this->authenticationService);
+            return $this->getAnonymousUser(
+                $request,
+                $this->usersService,
+                $this->authenticationService,
+                $this->applicationConfig
+            );
         }
     }
 }

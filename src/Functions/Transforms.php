@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Functions\Classes;
+namespace App\Functions\Transforms;
 
 use InvalidArgumentException;
 
-function csvToArray($filename): array
+function csvToArray(string $filename): array
 {
     if (!file_exists($filename) || !is_readable($filename)) {
         throw new InvalidArgumentException('File path not able to be opened');

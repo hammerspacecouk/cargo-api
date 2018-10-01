@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use function App\Functions\Classes\shortHash;
+use function App\Functions\Strings\shortHash;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 

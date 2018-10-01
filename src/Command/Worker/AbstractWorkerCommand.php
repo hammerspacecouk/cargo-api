@@ -35,7 +35,7 @@ abstract class AbstractWorkerCommand extends Command
         $diff = 0;
 
         while ($diff < static::MAX_TTL) {
-            $now = $this->currentTime->add(new DateInterval('PT' . $diff . 'S'));
+            $now = $this->currentTime->add(new DateInterval('PT' . $diff . 'S')); // todo - datefactory
             $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format('c')}");
             $processed = $this->handle($now);
             $this->logger->info("[WORKER] [$workerName] [BATCH] $processed");

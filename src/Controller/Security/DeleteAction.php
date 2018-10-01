@@ -105,7 +105,9 @@ class DeleteAction
         $this->usersService->useStageThreeDeleteAccountToken($token);
         $this->clearAuthentication($request, $this->authenticationService, $this->logger);
 
-        $response = new RedirectResponse($this->applicationConfig->getWebHostname());
+        $response = new RedirectResponse(
+            $this->applicationConfig->getWebHostname() . '#logout'
+        );
 
         // redirect to the application homepage, now that the account is deleted and you're logged out
         return $this->userResponse($response, $this->authenticationService);

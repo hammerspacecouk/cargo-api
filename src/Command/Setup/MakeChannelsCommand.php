@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use function App\Functions\Classes\csvToArray;
+use function App\Functions\Transforms\csvToArray;
 
 class MakeChannelsCommand extends Command
 {

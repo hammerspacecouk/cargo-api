@@ -16,6 +16,8 @@ use Ramsey\Uuid\UuidInterface;
 
 class UsersService extends AbstractService
 {
+    public const IP_HASH_LIFETIME = 'PT1H';
+
     private $userMapper;
 
     public function getById(
@@ -57,12 +59,6 @@ class UsersService extends AbstractService
         return null;
     }
 
-    public function cleanupIpHashes()
-    {
-        $before = $this->currentTime->sub(new \DateInterval('PT1H'));
-        $this->entityManager->getUserRepo()->clearHashesBefore($before);
-    }
-
     public function getOrCreateByEmailAddress(EmailAddress $email): User
     {
         $this->logger->notice('[NEW PLAYER] [EMAIL]');
@@ -72,6 +68,15 @@ class UsersService extends AbstractService
         }
         $queryHash = $this->makeContentHash((string)$email);
         return $this->newPlayer($queryHash, null);
+    }
+
+    public function allowedToMakeAnonymousUser(?string $ipAddress): bool
+    {
+        $ipHash = $this->makeContentHash($ipAddress);
+        $max = $this->applicationConfig->getMaxUsersPerIp();
+        return (
+            $this->entityManager->getUserRepo()->countByIpHash($ipHash) < $max
+        );
     }
 
     public function getNewAnonymousUser(?string $ipAddress): User

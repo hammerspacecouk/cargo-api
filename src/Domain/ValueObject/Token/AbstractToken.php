@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
-use function App\Functions\Classes\shortHash;
+use function App\Functions\Strings\shortHash;
 use DateTimeImmutable;
 use ParagonIE\Paseto\JsonToken;
 use Ramsey\Uuid\Uuid;

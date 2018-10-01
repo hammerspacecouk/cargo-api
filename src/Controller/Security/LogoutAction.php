@@ -45,7 +45,9 @@ class LogoutAction
         // set an ok message
         $this->flashData->addMessage(new Info('Logged out'));
 
-        $response = new RedirectResponse($this->applicationConfig->getWebHostname());
+        $response = new RedirectResponse(
+            $this->applicationConfig->getWebHostname() . '#logout'
+        );
 
         // redirect to the application homepage, now that you're logged out
         return $this->userResponse($response, $this->authenticationService);

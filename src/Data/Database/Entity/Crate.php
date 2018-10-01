@@ -17,13 +17,13 @@ class Crate extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $contents;
 
-    /** @ORM\Column(type="float") */
+    /** @ORM\Column(type="integer") */
     public $value = 0;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $valueCalculationDate;
 
-    /** @ORM\Column(type="float") */
+    /** @ORM\Column(type="integer") */
     public $valueChangeRate = 0;
 
     /** @ORM\Column(type="boolean") */
