@@ -4,29 +4,26 @@ declare(strict_types=1);
 namespace App\Controller\Home;
 
 use App\Infrastructure\ApplicationConfig;
+use App\Infrastructure\DateTimeFactory;
 use App\Service\PlayerRanksService;
-use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class StatusAction
 {
-    private $playerRanksService;
-    private $applicationTime;
+    private $dateTimeFactory;
     private $cache;
     private $applicationConfig;
     private $logger;
 
     public function __construct(
-        PlayerRanksService $playerRanksService,
-        DateTimeImmutable $applicationTime,
+        DateTimeFactory $dateTimeFactory,
         CacheInterface $cache,
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
-        $this->playerRanksService = $playerRanksService;
-        $this->applicationTime = $applicationTime;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->applicationConfig = $applicationConfig;
         $this->logger = $logger;
@@ -59,7 +56,7 @@ class StatusAction
     private function getRequestStatus(): array
     {
         return [
-            'time' => $this->applicationTime->format('c'),
+            'time' => $this->dateTimeFactory->now()->format(DateTimeFactory::FULL),
             'host' => getenv('HOSTNAME') ?? 'dev',
         ];
     }

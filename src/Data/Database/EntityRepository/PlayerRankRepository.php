@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
-use App\Data\Database\Entity\PlayerRank;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\UuidInterface;
 
 class PlayerRankRepository extends AbstractEntityRepository
 {

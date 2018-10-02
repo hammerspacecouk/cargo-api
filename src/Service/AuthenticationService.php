@@ -59,10 +59,10 @@ class AuthenticationService extends AbstractService
         ?DateTimeImmutable $creationTime = null,
         ?UserAuthentication $previousToken = null
     ): array {
-        $expiry = $this->currentTime->add(new \DateInterval(self::COOKIE_EXPIRY));
+        $expiry = $this->dateTimeFactory->now()->add(new \DateInterval(self::COOKIE_EXPIRY));
         $secret = \bin2hex(\random_bytes(32));
         if (!$creationTime) {
-            $creationTime = $this->currentTime;
+            $creationTime = $this->dateTimeFactory->now();
         }
 
         $digest = $this->getDigest($user->getId(), $expiry, $secret);
@@ -71,7 +71,7 @@ class AuthenticationService extends AbstractService
 
         $tokenEntity = new AuthenticationToken(
             $creationTime,
-            $this->currentTime,
+            $this->dateTimeFactory->now(),
             $expiry,
             $digest,
             $userEntity
@@ -98,7 +98,7 @@ class AuthenticationService extends AbstractService
         return $this->makeCookie(
             '',
             self::COOKIE_NAME,
-            $this->currentTime->sub(new DateInterval('P1Y'))
+            $this->dateTimeFactory->now()->sub(new DateInterval('P1Y'))
         );
     }
 
@@ -107,8 +107,8 @@ class AuthenticationService extends AbstractService
     ): ?Cookie {
         // to lower churn (and thundering herd), we'll only update the token every so often (not every request)
         $timeToUpdate = $currentAuthentication->getLastUsed()->add(new DateInterval(self::WAIT_BEFORE_REFRESH));
-        if ($timeToUpdate > $this->currentTime &&
-            $this->currentTime->getTimestamp() !==
+        if ($timeToUpdate > $this->dateTimeFactory->now() &&
+            $this->dateTimeFactory->now()->getTimestamp() !==
             $currentAuthentication->getLastUsed()->getTimestamp() // session was made in this request
         ) {
             return null;

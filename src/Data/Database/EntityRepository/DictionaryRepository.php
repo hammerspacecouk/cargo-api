@@ -18,7 +18,7 @@ class DictionaryRepository extends AbstractEntityRepository
             ->andWhere('tbl.context = :context')
             ->setParameter('word', $word)
             ->setParameter('context', $context);
-        return !!$qb->getQuery()->getSingleScalarResult();
+        return (bool)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function getRandomShipName(): string

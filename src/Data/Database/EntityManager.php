@@ -5,8 +5,8 @@ namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
+use App\Infrastructure\DateTimeFactory;
 use App\Infrastructure\ApplicationConfig;
-use DateTimeImmutable;
 use Doctrine\ORM\Decorator\EntityManagerDecorator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,7 +14,7 @@ use Psr\SimpleCache\CacheInterface;
 
 class EntityManager extends EntityManagerDecorator
 {
-    private $currentTime;
+    private $dateTimeFactory;
     private $cache;
     private $logger;
     private $applicationConfig;
@@ -24,12 +24,12 @@ class EntityManager extends EntityManagerDecorator
     public function __construct(
         EntityManagerInterface $entityManager,
         ApplicationConfig $applicationConfig,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
         parent::__construct($entityManager);
-        $this->currentTime = $currentTime;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->logger = $logger;
         $this->applicationConfig = $applicationConfig;
@@ -40,9 +40,10 @@ class EntityManager extends EntityManagerDecorator
         /** @var AbstractEntity $entity */
 
         // interject to update the created_at/updated_at fields (for audit purposes)
-        $entity->updatedAt = $this->currentTime;
+        $now = $this->dateTimeFactory->now();
+        $entity->updatedAt = $now;
         if (!$entity->createdAt) {
-            $entity->createdAt = $this->currentTime;
+            $entity->createdAt = $now;
         }
         parent::persist($entity);
     }
@@ -56,7 +57,7 @@ class EntityManager extends EntityManagerDecorator
             // set dependencies (which could not be injected via construct)
             $repo->setEntityManager($this);
             $repo->setApplicationConfig($this->applicationConfig);
-            $repo->setCurrentTime($this->currentTime);
+            $repo->setDateTimeFactory($this->dateTimeFactory);
             $repo->setCache($this->cache);
             $repo->setLogger($this->logger);
 

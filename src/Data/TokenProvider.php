@@ -8,6 +8,7 @@ use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\Database\EntityManager;
 use App\Domain\Exception\InvalidTokenException;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use ParagonIE\Paseto\Builder;
@@ -25,19 +26,19 @@ use Ramsey\Uuid\UuidInterface;
 class TokenProvider
 {
     private $applicationConfig;
-    private $currentTime;
+    private $dateTimeFactory;
     private $entityManager;
     private $logger;
 
     public function __construct(
         EntityManager $entityManager,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
         $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
-        $this->currentTime = $currentTime;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
     }
 
@@ -58,7 +59,7 @@ class TokenProvider
             ->setSubject($subject)
             ->setVersion(new Version2())
             ->setPurpose(Purpose::local())
-            ->setExpiration($this->currentTime->add(new DateInterval($expiryInterval)))
+            ->setExpiration($this->dateTimeFactory->now()->add(new DateInterval($expiryInterval)))
             ->setClaims($claims);
     }
 
@@ -70,7 +71,7 @@ class TokenProvider
         $parser = (new Parser())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
             // Adding rules to be checked against the token
-            ->addRule(new NotExpired(toMutableDateTime($this->currentTime)))
+            ->addRule(new NotExpired(toMutableDateTime($this->dateTimeFactory->now())))
             ->setPurpose(Purpose::local())
             // Only allow version 2
             ->setAllowedVersions(ProtocolCollection::v2());

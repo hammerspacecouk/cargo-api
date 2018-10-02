@@ -164,7 +164,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     private function log(string $eventType, callable $values): Event
     {
         $entity = new Event(
-            $this->currentTime,
+            $this->dateTimeFactory->now(),
             $eventType
         );
 

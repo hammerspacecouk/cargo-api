@@ -14,7 +14,7 @@ class PortVisitRepository extends AbstractEntityRepository
         UuidInterface $portId,
         UuidInterface $playerId
     ): bool {
-        return !!(int)$this->createQueryBuilder('tbl')
+        return (bool)(int)$this->createQueryBuilder('tbl')
             ->select('count(1)')
             ->where('IDENTITY(tbl.port) = :portId')
             ->andWhere('IDENTITY(tbl.player) = :playerId')
@@ -41,7 +41,7 @@ class PortVisitRepository extends AbstractEntityRepository
         $portVisit = new PortVisit(
             $owner,
             $port,
-            $this->currentTime
+            $this->dateTimeFactory->now()
         );
         $this->getEntityManager()->persist($portVisit);
         $this->getEntityManager()->flush();

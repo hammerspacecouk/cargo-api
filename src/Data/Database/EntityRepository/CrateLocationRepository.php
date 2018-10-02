@@ -59,7 +59,7 @@ class CrateLocationRepository extends AbstractEntityRepository
             'WHERE IDENTITY(cl.crate) = :crate ' .
             'AND cl.isCurrent = true'
         );
-        $q->setParameter('time', $this->currentTime);
+        $q->setParameter('time', $this->dateTimeFactory->now());
         $q->setParameter('crate', $uuid->getBytes());
         $q->execute();
     }

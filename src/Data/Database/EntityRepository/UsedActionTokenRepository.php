@@ -17,7 +17,7 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
             ->select('count(tbl.id)')
             ->where('tbl.id = :id')
             ->setParameter('id', $tokenId->getBytes());
-        return !!$qb->getQuery()->getSingleScalarResult();
+        return (bool)$qb->getQuery()->getSingleScalarResult();
     }
 
     public function markAsUsed(
@@ -42,7 +42,7 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
         return $query->execute();
     }
 
-    public function clean(\DateTimeImmutable $now): int
+    public function clean(DateTimeImmutable $now): int
     {
         return $this->removeExpired($now);
     }

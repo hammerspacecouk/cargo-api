@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
 
@@ -36,8 +37,8 @@ class ShipInChannel extends AbstractShipLocation
     {
         $data = [
             'type' => 'Channel',
-            'startTime' => $this->getEntryTime()->format('c'),
-            'arrival' => $this->getExitTime()->format('c'),
+            'startTime' => $this->getEntryTime()->format(DateTimeFactory::FULL),
+            'arrival' => $this->getExitTime()->format(DateTimeFactory::FULL),
             'travelTime' => $this->getTravelTime(),
         ];
         if ($this->destination) {

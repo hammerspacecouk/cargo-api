@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Maintenance;
 
 use App\Infrastructure\ApplicationConfig;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;
@@ -17,19 +18,19 @@ class TestEmailCommand extends Command
 {
     private $applicationConfig;
     private $mailer;
-    private $currentTime;
+    private $dateTimeFactory;
     private $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         Swift_Mailer $mailer,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
         parent::__construct();
         $this->applicationConfig = $applicationConfig;
         $this->mailer = $mailer;
-        $this->currentTime = $currentTime;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
     }
 
@@ -56,7 +57,7 @@ class TestEmailCommand extends Command
 
         $message = new Swift_Message(
             'This is a test',
-            'Sent at <i>' . $this->currentTime->format('c') . '</i>',
+            'Sent at <i>' . $this->dateTimeFactory->now()->format(DateTimeFactory::FULL) . '</i>',
             'text/html'
         );
         $message->addFrom(

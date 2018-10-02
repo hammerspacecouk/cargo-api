@@ -7,6 +7,7 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\Exception\DataNotFetchedException;
+use App\Infrastructure\DateTimeFactory;
 use Ramsey\Uuid\Uuid;
 
 class ShipInChannelTest extends \PHPUnit\Framework\TestCase
@@ -62,8 +63,8 @@ class ShipInChannelTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(
             [
                 'type' => 'Channel',
-                'startTime' => $entry->format('c'),
-                'arrival' => $exit->format('c'),
+                'startTime' => $entry->format(DateTimeFactory::FULL),
+                'arrival' => $exit->format(DateTimeFactory::FULL),
                 'travelTime' => 3600,
                 'destination' => $destination,
             ],

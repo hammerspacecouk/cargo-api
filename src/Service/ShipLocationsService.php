@@ -71,7 +71,7 @@ class ShipLocationsService extends AbstractService
         try {
             // remove the old ship location
             $currentLocation->isCurrent = false;
-            $currentLocation->exitTime = $this->currentTime;
+            $currentLocation->exitTime = $this->dateTimeFactory->now();
             $this->entityManager->persist($currentLocation);
 
             $this->entityManager->getShipLocationRepo()->makeInPort($ship, $destinationPort);

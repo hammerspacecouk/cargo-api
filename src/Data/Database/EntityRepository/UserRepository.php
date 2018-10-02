@@ -7,6 +7,7 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use function App\Functions\Numbers\clamp;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -58,7 +59,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
         $user->score = $newScore;
         $user->scoreRate = $this->clampRate($rate);
-        $user->scoreCalculationTime = $this->currentTime;
+        $user->scoreCalculationTime = $this->dateTimeFactory->now();
 
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
@@ -66,10 +67,11 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function updateScoreValue(User $user, int $scoreDelta = 0): void
     {
+        $now = $this->dateTimeFactory->now();
         $newScore = ($this->currentScore($user) + $scoreDelta);
 
         $user->score = $this->clampScore($newScore);
-        $user->scoreCalculationTime = $this->currentTime;
+        $user->scoreCalculationTime = $now;
 
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
@@ -77,11 +79,12 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function currentScore(User $user): int
     {
+        $now = $this->dateTimeFactory->now();
         $currentScore = $user->score;
         $rate = $user->scoreRate;
-        $previousTime = ($user->scoreCalculationTime ?? $this->currentTime);
+        $previousTime = ($user->scoreCalculationTime ?? $now);
 
-        $secondsDifference = ($this->currentTime->getTimestamp() - $previousTime->getTimestamp());
+        $secondsDifference = ($now->getTimestamp() - $previousTime->getTimestamp());
         $delta = ($secondsDifference * $rate);
 
         return $this->clampScore($currentScore + $delta);
@@ -131,7 +134,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             ->set('tbl.updatedAt', ':now')
             ->where('tbl.createdAt < :before')
             ->setParameter('before', $before)
-            ->setParameter('now', $this->currentTime);
+            ->setParameter('now', $this->dateTimeFactory->now());
         return $qb->getQuery()->execute();
     }
 }

@@ -78,18 +78,6 @@ services:
     GuzzleHttp\Client:
         class: GuzzleHttp\Client
 
-    DateTimeZone:
-        class: DateTimeZone
-        arguments:
-            - 'UTC' # Always UTC. Only do conversion at the very edge with the user
-
-    # Ensure that injected times are all the same instance
-    DateTimeImmutable:
-        class: DateTimeImmutable
-        arguments:
-            - "now"
-            - "@DateTimeZone"
-
     Roave\DoctrineSimpleCache\SimpleCacheAdapter:
         class: Roave\DoctrineSimpleCache\SimpleCacheAdapter
         arguments:

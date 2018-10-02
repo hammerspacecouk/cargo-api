@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 
 class Score implements \JsonSerializable
@@ -42,7 +43,7 @@ class Score implements \JsonSerializable
             'type' => 'Score',
             'value' => $this->getScore(),
             'rate' => $this->getRate(),
-            'datetime' => $this->getCalculationTime()->format('c'),
+            'datetime' => $this->getCalculationTime()->format(DateTimeFactory::FULL),
         ];
     }
 }

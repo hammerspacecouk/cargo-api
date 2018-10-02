@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
 
@@ -55,7 +56,7 @@ class Event extends Entity implements \JsonSerializable
         return [
             'id' => $this->id,
             'action' => $this->action,
-            'time' => $this->time->format('c'),
+            'time' => $this->time->format(DateTimeFactory::FULL),
             'value' => $this->value,
             'actioningPlayer' => $this->actioningPlayer,
             'actioningShip' => $this->actioningShip,
