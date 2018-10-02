@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
 
@@ -69,9 +70,9 @@ class UserAuthentication extends Entity implements \JsonSerializable
     public function jsonSerialize()
     {
         $data = [
-            'creationTime' => $this->getCreationTime()->format('c'),
-            'lastUsed' => $this->getLastUsed()->format('c'),
-            'expiry' => $this->getExpiry()->format('c'),
+            'creationTime' => $this->getCreationTime()->format(DateTimeFactory::FULL),
+            'lastUsed' => $this->getLastUsed()->format(DateTimeFactory::FULL),
+            'expiry' => $this->getExpiry()->format(DateTimeFactory::FULL),
         ];
         if ($this->user) {
             $data['user'] = $this->getUser();

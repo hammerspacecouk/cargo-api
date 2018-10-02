@@ -5,6 +5,7 @@ namespace App\Command\Worker;
 
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\EntityManager;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 
@@ -16,10 +17,10 @@ class CleanerCommand extends AbstractWorkerCommand
 
     public function __construct(
         EntityManager $entityManager,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
-        parent::__construct($currentTime, $logger);
+        parent::__construct($dateTimeFactory, $logger);
         $this->entityManager = $entityManager;
     }
 

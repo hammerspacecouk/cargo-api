@@ -36,7 +36,7 @@ class ShipsService extends AbstractService
             $ship,
             $safePort,
             null,
-            $this->currentTime
+            $this->dateTimeFactory->now()
         );
 
         $this->entityManager->persist($location);

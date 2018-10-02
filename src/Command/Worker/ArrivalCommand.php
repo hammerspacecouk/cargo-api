@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Worker;
 
+use App\Infrastructure\DateTimeFactory;
 use App\Service\ShipLocationsService;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -13,10 +14,10 @@ class ArrivalCommand extends AbstractWorkerCommand
 
     public function __construct(
         ShipLocationsService $shipLocationsService,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
-        parent::__construct($currentTime, $logger);
+        parent::__construct($dateTimeFactory, $logger);
         $this->locationsService = $shipLocationsService;
     }
 

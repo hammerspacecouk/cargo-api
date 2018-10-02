@@ -5,7 +5,7 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\EntityManager;
 use App\Infrastructure\ApplicationConfig;
-use DateTimeImmutable;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
@@ -15,8 +15,8 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractEntityRepository extends EntityRepository
 {
-    /** @var DateTimeImmutable */
-    protected $currentTime;
+    /** @var DateTimeFactory */
+    protected $dateTimeFactory;
 
     /** @var ApplicationConfig */
     protected $applicationConfig;
@@ -41,9 +41,9 @@ abstract class AbstractEntityRepository extends EntityRepository
         $this->applicationConfig = $config;
     }
 
-    public function setCurrentTime(DateTimeImmutable $time): void
+    public function setDateTimeFactory(DateTimeFactory $dateTimeFactory): void
     {
-        $this->currentTime = $time;
+        $this->dateTimeFactory = $dateTimeFactory;
     }
 
     public function setCache(CacheInterface $cache): void

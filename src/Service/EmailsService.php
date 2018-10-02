@@ -6,9 +6,6 @@ namespace App\Service;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 use App\Infrastructure\ApplicationConfig;
-use DateTimeImmutable;
-use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
 use Swift_Mailer;
 use Swift_Message;
 
@@ -18,27 +15,18 @@ class EmailsService
 
     private $mailer;
     private $applicationConfig;
-    private $currentTime;
-    private $cache;
-    private $logger;
 
     public function __construct(
         Swift_Mailer $mailer,
-        ApplicationConfig $applicationConfig,
-        DateTimeImmutable $currentTime,
-        CacheInterface $cache,
-        LoggerInterface $logger
+        ApplicationConfig $applicationConfig
     ) {
         $this->mailer = $mailer;
         $this->applicationConfig = $applicationConfig;
-        $this->currentTime = $currentTime;
-        $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public function sendLoginEmail(EmailAddress $emailAddress, EmailLoginToken $token)
     {
-        $url = $this->applicationConfig->getWebHostname() . '/login/email?token=' . (string)$token;
+        $url = $this->applicationConfig->getWebHostname() . '/login/email?token=' . $token;
 
         // todo - use twig
         $body = <<<EMAIL

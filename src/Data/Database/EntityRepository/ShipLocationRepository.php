@@ -105,7 +105,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             'WHERE cl.isCurrent = true' .
             'AND IDENTITY(cl.ship) = :ship '
         );
-        $q->setParameter('time', $this->currentTime);
+        $q->setParameter('time', $this->dateTimeFactory->now());
         $q->setParameter('ship', $uuid->getBytes());
         $q->execute();
     }
@@ -121,7 +121,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->setParameter('ship', $ship->id->getBytes());
 
         $location = $qb->getQuery()->getSingleResult();
-        $location->exitTime = $this->currentTime;
+        $location->exitTime = $this->dateTimeFactory->now();
         $location->isCurrent = false;
 
         if ($location->port) {
@@ -142,7 +142,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             null,
             $channel,
-            $this->currentTime
+            $this->dateTimeFactory->now()
         );
 
         $location->exitTime = $exitTime;
@@ -159,7 +159,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             $port,
             null,
-            $this->currentTime
+            $this->dateTimeFactory->now()
         );
         $this->getEntityManager()->persist($location);
 

@@ -7,7 +7,7 @@ use App\Data\Database\EntityManager;
 use App\Data\Database\Mapper\MapperFactory;
 use App\Data\TokenProvider;
 use App\Infrastructure\ApplicationConfig;
-use DateTimeImmutable;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -23,7 +23,7 @@ abstract class AbstractService
     protected $mapperFactory;
     protected $applicationConfig;
     protected $tokenHandler;
-    protected $currentTime;
+    protected $dateTimeFactory;
     protected $cache;
     protected $logger;
 
@@ -32,7 +32,7 @@ abstract class AbstractService
         MapperFactory $mapperFactory,
         ApplicationConfig $applicationConfig,
         TokenProvider $tokenHandler,
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
@@ -40,7 +40,7 @@ abstract class AbstractService
         $this->mapperFactory = $mapperFactory;
         $this->applicationConfig = $applicationConfig;
         $this->tokenHandler = $tokenHandler;
-        $this->currentTime = $currentTime;
+        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->logger = $logger;
     }

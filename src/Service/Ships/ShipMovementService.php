@@ -53,7 +53,7 @@ class ShipMovementService extends ShipsService
         }
 
         // todo - adjust exit time if any abilities were applied
-        $exitTime = $this->currentTime->add(
+        $exitTime = $this->dateTimeFactory->now()->add(
             new \DateInterval('PT' . $token->getJourneyTime() . 'M')
         );
 

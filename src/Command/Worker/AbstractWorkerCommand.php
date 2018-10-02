@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Worker;
 
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -16,15 +17,15 @@ abstract class AbstractWorkerCommand extends Command
     protected const BATCH_SIZE = 100;
 
     protected $logger;
-    protected $currentTime;
+    protected $dateTimeFactory;
 
     public function __construct(
-        DateTimeImmutable $currentTime,
+        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
         parent::__construct();
         $this->logger = $logger;
-        $this->currentTime = $currentTime;
+        $this->dateTimeFactory = $dateTimeFactory;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): void
@@ -35,8 +36,8 @@ abstract class AbstractWorkerCommand extends Command
         $diff = 0;
 
         while ($diff < static::MAX_TTL) {
-            $now = $this->currentTime->add(new DateInterval('PT' . $diff . 'S')); // todo - datefactory
-            $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format('c')}");
+            $now = $this->dateTimeFactory->now();
+            $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format(DateTimeFactory::FULL)}");
             $processed = $this->handle($now);
             $this->logger->info("[WORKER] [$workerName] [BATCH] $processed");
 

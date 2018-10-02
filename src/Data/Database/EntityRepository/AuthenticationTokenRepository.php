@@ -22,7 +22,7 @@ class AuthenticationTokenRepository extends AbstractEntityRepository implements 
             ->where('tbl.id = :id')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('now', $this->currentTime);
+            ->setParameter('now', $this->dateTimeFactory->now());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
@@ -35,7 +35,7 @@ class AuthenticationTokenRepository extends AbstractEntityRepository implements 
             ->where('IDENTITY(tbl.user) = (:userId)')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('userId', $userId->getBytes())
-            ->setParameter('now', $this->currentTime);
+            ->setParameter('now', $this->dateTimeFactory->now());
         return $qb->getQuery()->getResult($resultType);
     }
 
