@@ -5,6 +5,8 @@ namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\Score;
+use App\Infrastructure\DateTimeFactory;
+use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
 
 class User extends Entity implements \JsonSerializable
@@ -13,12 +15,14 @@ class User extends Entity implements \JsonSerializable
     private $score;
     private $homePort;
     private $hasEmailAddress;
+    private $playStartTime;
 
     public function __construct(
         UuidInterface $id,
         int $rotationSteps,
         Score $score,
         bool $hasEmailAddress,
+        DateTimeImmutable $playStartTime,
         ?Port $homePort
     ) {
         parent::__construct($id);
@@ -26,6 +30,7 @@ class User extends Entity implements \JsonSerializable
         $this->score = $score;
         $this->homePort = $homePort;
         $this->hasEmailAddress = $hasEmailAddress;
+        $this->playStartTime = $playStartTime;
     }
 
     public function jsonSerialize()
@@ -34,6 +39,7 @@ class User extends Entity implements \JsonSerializable
             'id' => $this->getId(),
             'score' => $this->getScore(),
             'colour' => $this->getColour(),
+            'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
         ];
         if ($this->homePort) {
             $data['homePort'] = $this->getHomePort();
@@ -68,5 +74,10 @@ class User extends Entity implements \JsonSerializable
     public function hasEmailAddress(): bool
     {
         return $this->hasEmailAddress;
+    }
+
+    public function getPlayStartTime(): DateTimeImmutable
+    {
+        return $this->playStartTime;
     }
 }

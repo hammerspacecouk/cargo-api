@@ -16,6 +16,7 @@ class UserMapper extends Mapper
             $item['rotationSteps'],
             $this->mapScore($item),
             $item['queryHash'] !== null,
+            $item['createdAt'],
             $this->mapHomePort($item)
         );
         return $domainEntity;
