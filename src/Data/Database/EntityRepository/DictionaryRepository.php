@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\Dictionary;
+use function App\Functions\Arrays\seedableRandomItem;
 use Doctrine\ORM\Query;
 
 class DictionaryRepository extends AbstractEntityRepository
@@ -34,7 +35,7 @@ class DictionaryRepository extends AbstractEntityRepository
     public function getRandomWord(string $context): string
     {
         $words = $this->getAllByContext($context);
-        return $words[array_rand($words)];
+        return seedableRandomItem($words);
     }
 
     private function getAllByContext(string $context): array

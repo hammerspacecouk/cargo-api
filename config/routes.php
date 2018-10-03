@@ -42,11 +42,14 @@ $collection->add('login_microsoft', new Route('/login/microsoft', [
 $collection->add('login_twitter', new Route('/login/twitter', [
     '_controller' => Controller\Security\LoginTwitterAction::class,
 ]));
+$collection->add('profile_show', new Route('/profile', [
+    '_controller' => Controller\Profile\ShowAction::class,
+]));
 $collection->add('profile_sessions', new Route('/profile/sessions', [
-    '_controller' => Controller\Security\SessionsAction::class,
+    '_controller' => Controller\Profile\SessionsAction::class,
 ]));
 $collection->add('profile_delete', new Route('/profile/delete', [
-    '_controller' => Controller\Security\DeleteAction::class,
+    '_controller' => Controller\Profile\DeleteAction::class,
 ]));
 
 // Crates

@@ -1,49 +1,47 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Security;
+namespace App\Controller\Profile;
 
 use App\Controller\UserAuthenticationTrait;
-use App\Domain\Entity\UserAuthentication;
 use App\Service\AuthenticationService;
-use Psr\Log\LoggerInterface;
+use App\Service\PortsService;
+use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SessionsAction
+class ShowAction
 {
     use UserAuthenticationTrait;
 
     private $authenticationService;
-    private $logger;
+    private $portsService;
+    private $usersService;
 
     public function __construct(
         AuthenticationService $authenticationService,
-        LoggerInterface $logger
+        PortsService $portsService,
+        UsersService $usersService
     ) {
         $this->authenticationService = $authenticationService;
-        $this->logger = $logger;
+        $this->portsService = $portsService;
+        $this->usersService = $usersService;
     }
 
     public function __invoke(
         Request $request
     ): Response {
         $authentication = $this->getAuthentication($request, $this->authenticationService);
-        $tokens = $this->authenticationService->findAllForUser($authentication->getUser());
+        $player = $authentication->getUser();
 
-        $sessions = array_map(function (UserAuthentication $token) use ($authentication) {
-            $isCurrent = $token->getId()->equals($authentication->getId());
-
-            return [
-                'isCurrent' => $isCurrent,
-                'removeToken' => $isCurrent? null : 'todo', // todo - make an action token based on the ID
-                'state' => $token,
-            ];
-        }, $tokens);
+        $homePort = $this->portsService->findHomePortForUserId($player->getId());
 
         return $this->userResponse(new JsonResponse([
-            'sessions' => $sessions,
+            'player' => $player,
+            'isAnonymous' => !$player->hasEmailAddress(),
+            'canDelete' => $this->usersService->canUserDelete($player),
+            'homePort' => $homePort,
         ]), $this->authenticationService);
     }
 }

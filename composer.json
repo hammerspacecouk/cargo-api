@@ -5,6 +5,7 @@
     "autoload": {
         "psr-4": { "App\\": "src" },
         "files": [
+            "src/Functions/Arrays.php",
             "src/Functions/Classes.php",
             "src/Functions/DateTimes.php",
             "src/Functions/Numbers.php",

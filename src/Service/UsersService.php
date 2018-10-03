@@ -10,6 +10,7 @@ use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -17,6 +18,8 @@ use Ramsey\Uuid\UuidInterface;
 class UsersService extends AbstractService
 {
     public const IP_HASH_LIFETIME = 'PT1H';
+
+    private const DELETE_DELAY = 'PT15M';
 
     private $userMapper;
 
@@ -89,6 +92,12 @@ class UsersService extends AbstractService
         return $this->newPlayer(null, $ipHash);
     }
 
+    public function canUserDelete(User $user): bool
+    {
+        $threshold = $this->dateTimeFactory->now()->sub(new DateInterval(self::DELETE_DELAY));
+        return $user->getPlayStartTime() < $threshold;
+    }
+
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
     {
         $token = $this->tokenHandler->makeToken(...DeleteAccountToken::make(
@@ -147,6 +156,13 @@ class UsersService extends AbstractService
 
     private function newPlayer(?string $queryHash, ?string $ipHash): User
     {
+        if ($ipHash) {
+            // for anonymous users, turn the ipHash and date into a number and use it as a random number seed
+            // this is so you can't keep deleting an account and re-creating to try and get a different ship name
+            $seed = crc32(sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
+            mt_srand($seed);
+        }
+
         // get some starting types
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
