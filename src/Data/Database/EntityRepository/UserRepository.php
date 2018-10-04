@@ -7,7 +7,6 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use function App\Functions\Numbers\clamp;
-use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -110,6 +109,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         );
 
         // todo - remove users who never made a move:
+        // todo - anonymous users that haven't made a move after 24 hours (delete log lines)
         // todo - (port_visits === 1 after 1 week for anonymous)
         // todo - (port_visits === 1 after 1 month for registered)
 

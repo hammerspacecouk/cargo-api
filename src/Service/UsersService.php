@@ -156,12 +156,20 @@ class UsersService extends AbstractService
 
     private function newPlayer(?string $queryHash, ?string $ipHash): User
     {
-        if ($ipHash) {
-            // for anonymous users, turn the ipHash and date into a number and use it as a random number seed
-            // this is so you can't keep deleting an account and re-creating to try and get a different ship name
-            $seed = crc32(sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
-            mt_srand($seed);
+        if (!($queryHash xor $ipHash)) {
+            throw new \DomainException('Must have either an email or ip hash to start');
         }
+
+        // generate a random number seed for picking a home port and initial ship name
+        // this is so that users can't keep deleting and recreating accounts to get new starting variables
+        if ($ipHash) {
+            // for anonymous users, add the ipHash to the date (so shared IPs are more unlikely to match)
+            $seed = crc32(sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
+        } else {
+            // email based users will get the same outcome for that same email
+            $seed = crc32($queryHash);
+        }
+        mt_srand($seed);
 
         // get some starting types
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
