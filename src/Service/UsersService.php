@@ -7,6 +7,7 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\Mapper\UserMapper;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
+use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
@@ -184,6 +185,7 @@ class UsersService extends AbstractService
             $player = $this->entityManager->getUserRepo()->newPlayer(
                 $queryHash,
                 $ipHash,
+                Colour::makeInitialRandomValue(),
                 Bearing::getInitialRandomStepNumber(),
                 $safeHaven
             );

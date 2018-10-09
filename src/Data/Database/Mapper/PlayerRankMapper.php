@@ -12,7 +12,8 @@ class PlayerRankMapper extends Mapper
         return new PlayerRank(
             $item['id'],
             $item['name'],
-            $item['threshold']
+            $item['threshold'],
+            $item['emblemSvg'] ?? '' // todo - not needed once all populated
         );
     }
 }

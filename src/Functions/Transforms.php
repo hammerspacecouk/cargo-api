@@ -31,3 +31,18 @@ function csvToArray(string $filename): array
     fclose($handle);
     return $data;
 }
+
+/**
+ * Converts three colour components into a hex colour (without prefixed #)
+ * @param int $red
+ * @param int $green
+ * @param int $blue
+ * @return string
+ */
+function rgbToHex(
+    int $red,
+    int $green,
+    int $blue
+): string {
+    return \sprintf('%02x%02x%02x', $red, $green, $blue);
+}

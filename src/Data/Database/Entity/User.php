@@ -24,6 +24,9 @@ class User extends AbstractEntity
     /** @ORM\Column(type="binary", nullable=true)) */
     public $anonymousIpHash;
 
+    /** @ORM\Column(type="string", length=6)) */
+    public $colour = '000000';
+
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
@@ -50,12 +53,14 @@ class User extends AbstractEntity
     public function __construct(
         ?string $queryHash,
         ?string $ipHash,
+        string $colour,
         int $rotationSteps,
         Port $homePort
     ) {
         parent::__construct();
         $this->queryHash = $queryHash;
         $this->anonymousIpHash = $ipHash;
+        $this->colour = $colour;
         $this->rotationSteps = $rotationSteps;
         $this->homePort = $homePort;
         $this->scoreCalculationTime = (new \DateTimeImmutable())->setTimestamp(0);

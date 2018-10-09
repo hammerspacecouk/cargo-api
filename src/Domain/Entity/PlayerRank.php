@@ -9,15 +9,18 @@ class PlayerRank extends Entity implements \JsonSerializable
 {
     private $name;
     private $threshold;
+    private $emblem;
 
     public function __construct(
         UuidInterface $id,
         string $name,
-        int $threshold
+        int $threshold,
+        string $emblem
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->threshold = $threshold;
+        $this->emblem = $emblem;
     }
 
     public function jsonSerialize()
@@ -36,5 +39,10 @@ class PlayerRank extends Entity implements \JsonSerializable
     public function getThreshold(): int
     {
         return $this->threshold;
+    }
+
+    public function getEmblem(): string
+    {
+        return $this->emblem;
     }
 }

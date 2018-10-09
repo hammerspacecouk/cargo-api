@@ -6,6 +6,7 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
+use App\Domain\ValueObject\Colour;
 use function App\Functions\Numbers\clamp;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -17,12 +18,14 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
     public function newPlayer(
         ?string $queryHash,
         ?string $ipHash,
+        Colour $colour,
         int $rotationSteps,
         Port $homePort
     ): User {
         $user = new User(
             $queryHash,
             $ipHash,
+            $colour->getHex(),
             $rotationSteps,
             $homePort
         );
