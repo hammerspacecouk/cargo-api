@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
+use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Score;
 use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
@@ -12,17 +13,21 @@ use Ramsey\Uuid\UuidInterface;
 class User extends Entity implements \JsonSerializable
 {
     private $rotationSteps;
+    private $colour;
     private $score;
     private $homePort;
     private $hasEmailAddress;
     private $playStartTime;
+    private $lastUpdated;
 
     public function __construct(
         UuidInterface $id,
         int $rotationSteps,
+        Colour $colour,
         Score $score,
         bool $hasEmailAddress,
         DateTimeImmutable $playStartTime,
+        DateTimeImmutable $lastUpdated,
         ?Port $homePort
     ) {
         parent::__construct($id);
@@ -31,6 +36,8 @@ class User extends Entity implements \JsonSerializable
         $this->homePort = $homePort;
         $this->hasEmailAddress = $hasEmailAddress;
         $this->playStartTime = $playStartTime;
+        $this->lastUpdated = $lastUpdated;
+        $this->colour = $colour;
     }
 
     public function jsonSerialize()
@@ -38,13 +45,23 @@ class User extends Entity implements \JsonSerializable
         $data = [
             'id' => $this->getId(),
             'score' => $this->getScore(),
-            'colour' => $this->getColour(),
+            'colour' => $this->getColour(), // todo - remove this line
+            'emblem' => $this->getEmblemPath(),
             'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
         ];
         if ($this->homePort) {
             $data['homePort'] = $this->getHomePort();
         }
         return $data;
+    }
+
+    public function getEmblemPath(): string
+    {
+        return '/emblem/' .
+            $this->getId() .
+            '/' .
+            sha1($this->lastUpdated->format(DateTimeFactory::FULL)) .
+            '.svg';
     }
 
     public function getRotationSteps()
@@ -57,10 +74,9 @@ class User extends Entity implements \JsonSerializable
         return $this->score;
     }
 
-    public function getColour(): string
+    public function getColour(): Colour
     {
-        // get the last 6 characters of the UUID (as they are already hex)
-        return substr((string)$this->id, -6);
+        return $this->colour;
     }
 
     public function getHomePort(): Port

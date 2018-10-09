@@ -63,9 +63,11 @@ class MakePlayerRanksCommand extends Command
             if ($entity) {
                 $entity->name = $data['name'];
                 $entity->threshold = $data['threshold'];
+                $entity->emblemSvg = $data['emblem'];
             } else {
                 $entity = new PlayerRank(
                     $data['name'],
+                    $data['emblem'],
                     (int)$data['threshold']
                 );
                 $entity->id = $id;

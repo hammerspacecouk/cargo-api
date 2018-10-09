@@ -73,4 +73,11 @@ class PlayerRankStatus implements \JsonSerializable
     {
         return $this->acknowledgePromotionToken;
     }
+
+    public function getEmblem(Colour $playerColour)
+    {
+        $emblem = $this->currentRank->getEmblem();
+        $targetColour = 'fefefe';
+        return \str_replace($targetColour, $playerColour->getHex(), $emblem);
+    }
 }

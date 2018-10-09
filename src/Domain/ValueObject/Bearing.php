@@ -35,7 +35,8 @@ class Bearing implements \JsonSerializable
 
     public static function getInitialRandomStepNumber(): int
     {
-        return 0; // \random_int(0, \count(self::BEARINGS) - 1); - 0 for beta. todo - randomise on going live
+        /** @noinspection RandomApiMigrationInspection - due to wanting to use the seeded value */
+        return \mt_rand(0, \count(self::BEARINGS) - 1);
     }
 
     public static function getEmptyBearingsList(): array
@@ -47,11 +48,11 @@ class Bearing implements \JsonSerializable
     {
         $bearing = self::validate($bearing);
         $bearings = \array_keys(self::BEARINGS);
-        $key = \array_search($bearing, $bearings);
+        $key = \array_search($bearing, $bearings, true);
         $newKey = ($key + $steps);
         $indexCount = \count($bearings);
 
-        return $bearings[($newKey % $indexCount)];
+        return $bearings[$newKey % $indexCount];
     }
 
     public function getOpposite(): Bearing

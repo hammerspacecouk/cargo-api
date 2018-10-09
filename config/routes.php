@@ -9,6 +9,17 @@ use Symfony\Component\Routing\Route;
 
 $collection = new RouteCollection();
 
+// All the actions in order from least specific to most specific
+$actions = [
+    Controller\Home\EmblemAction::class,
+];
+// todo - all routes like this?
+foreach ($actions as $action) {
+    /** @var Controller\Home\EmblemAction $action */
+    $collection->add($action, $action::getRouteDefinition());
+}
+
+
 // home
 $collection->add('home', new Route('/', [
     '_controller' => Controller\Home\IndexAction::class,
