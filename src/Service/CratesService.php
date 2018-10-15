@@ -5,9 +5,6 @@ namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
-use App\Data\Database\Entity\Port as DbPort;
-use App\Data\Database\Entity\Ship as DbShip;
-use App\Data\ID;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
 use Doctrine\ORM\Query;

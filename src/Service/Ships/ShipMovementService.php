@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
-use App\Data\Database\Entity\UsedActionToken as DbToken;
-use App\Data\ID;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
@@ -13,6 +11,7 @@ use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Service\ShipsService;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 
 class ShipMovementService extends ShipsService
 {
@@ -25,7 +24,7 @@ class ShipMovementService extends ShipsService
         string $tokenKey
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
-            ID::makeIDFromKey(DbToken::class, $tokenKey),
+            $this->uuidFactory->uuid5(Uuid::NIL, sha1($tokenKey)),
             $ship->getId(),
             $channel->getId(),
             $owner->getId(),

@@ -11,6 +11,7 @@ use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use Ramsey\Uuid\UuidFactory;
 
 abstract class AbstractService
 {
@@ -26,6 +27,7 @@ abstract class AbstractService
     protected $dateTimeFactory;
     protected $cache;
     protected $logger;
+    protected $uuidFactory;
 
     public function __construct(
         EntityManager $entityManager,
@@ -33,6 +35,7 @@ abstract class AbstractService
         ApplicationConfig $applicationConfig,
         TokenProvider $tokenHandler,
         DateTimeFactory $dateTimeFactory,
+        UuidFactory $uuidFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
@@ -43,6 +46,7 @@ abstract class AbstractService
         $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->logger = $logger;
+        $this->uuidFactory = $uuidFactory;
     }
 
     protected function getQueryBuilder(string $name): QueryBuilder

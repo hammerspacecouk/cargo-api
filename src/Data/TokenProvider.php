@@ -21,24 +21,28 @@ use ParagonIE\Paseto\Purpose;
 use ParagonIE\Paseto\Rules\NotExpired;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidFactory;
 use Ramsey\Uuid\UuidInterface;
 
 class TokenProvider
 {
     private $applicationConfig;
     private $dateTimeFactory;
+    private $uuidFactory;
     private $entityManager;
     private $logger;
 
     public function __construct(
         EntityManager $entityManager,
         DateTimeFactory $dateTimeFactory,
+        UuidFactory $uuidFactory,
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
         $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
         $this->dateTimeFactory = $dateTimeFactory;
+        $this->uuidFactory = $uuidFactory;
         $this->logger = $logger;
     }
 
@@ -50,7 +54,7 @@ class TokenProvider
     ): Builder {
 
         if (!$id) {
-            $id = ID::makeNewID(DbToken::class); // todo - don't call the ID class outside of database entities?
+            $id = $this->uuidFactory->uuid4();
         }
 
         return (new Builder())
