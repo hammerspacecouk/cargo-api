@@ -85,3 +85,6 @@ services:
 
     Psr\SimpleCache\CacheInterface:
         class: App\Infrastructure\Cache
+
+    Ramsey\Uuid\UuidFactoryInterface:
+        class: Ramsey\Uuid\UuidFactory

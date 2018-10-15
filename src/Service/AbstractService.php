@@ -11,7 +11,7 @@ use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidFactoryInterface;
 
 abstract class AbstractService
 {
@@ -35,7 +35,7 @@ abstract class AbstractService
         ApplicationConfig $applicationConfig,
         TokenProvider $tokenHandler,
         DateTimeFactory $dateTimeFactory,
-        UuidFactory $uuidFactory,
+        UuidFactoryInterface $uuidFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {

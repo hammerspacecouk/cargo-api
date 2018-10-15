@@ -5,7 +5,6 @@ namespace App\Data;
 
 use function App\Functions\DateTimes\toMutableDateTime;
 use App\Infrastructure\ApplicationConfig;
-use App\Data\Database\Entity\UsedActionToken as DbToken;
 use App\Data\Database\EntityManager;
 use App\Domain\Exception\InvalidTokenException;
 use App\Infrastructure\DateTimeFactory;
@@ -21,7 +20,7 @@ use ParagonIE\Paseto\Purpose;
 use ParagonIE\Paseto\Rules\NotExpired;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\UuidFactoryInterface;
 use Ramsey\Uuid\UuidInterface;
 
 class TokenProvider
@@ -35,7 +34,7 @@ class TokenProvider
     public function __construct(
         EntityManager $entityManager,
         DateTimeFactory $dateTimeFactory,
-        UuidFactory $uuidFactory,
+        UuidFactoryInterface $uuidFactory,
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
