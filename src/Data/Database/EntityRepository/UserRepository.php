@@ -135,7 +135,8 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             ->update()
             ->set('tbl.anonymousIpHash', 'NULL')
             ->set('tbl.updatedAt', ':now')
-            ->where('tbl.createdAt < :before')
+            ->where('tbl.anonymousIpHash IS NOT NULL')
+            ->andWhere('tbl.createdAt < :before')
             ->setParameter('before', $before)
             ->setParameter('now', $this->dateTimeFactory->now());
         return $qb->getQuery()->execute();
