@@ -30,10 +30,12 @@ class Colour implements \JsonSerializable
 
     public static function makeInitialRandomValue(): self
     {
-        $hex = rgbToHex(...\array_map(function() {
+        $makeColour = function() {
             /** @noinspection RandomApiMigrationInspection - purposely want to use the seeded value */
             return \mt_rand(self::INITIAL_BRIGHTNESS_MIN, self::INITIAL_BRIGHTNESS_MAX);
-        }, ['r','g','b']));
+        };
+
+        $hex = rgbToHex($makeColour(), $makeColour(), $makeColour());
 
         return new self($hex);
     }

@@ -15,6 +15,15 @@ class Bearing implements \JsonSerializable
         'W' => 'E',
     ];
 
+    private const CANVAS_DEGREES_FROM_HORIZON = [
+        'NW' => -60,
+        'NE' => -60,
+        'E' => 0,
+        'SE' => 60,
+        'SW' => 60,
+        'W' => 0,
+    ];
+
     private $bearing;
 
     public function __construct(
@@ -58,6 +67,19 @@ class Bearing implements \JsonSerializable
     public function getOpposite(): Bearing
     {
         return new Bearing(self::BEARINGS[$this->bearing]);
+    }
+
+    public function getDegreesFromHorizon(): int
+    {
+        return self::CANVAS_DEGREES_FROM_HORIZON[$this->bearing];
+    }
+
+    public function getXMultiplier(): int
+    {
+      if (\in_array($this->bearing, ['NW', 'W', 'SW'])) {
+          return -1;
+      }
+      return 1;
     }
 
     public function jsonSerialize(): string
