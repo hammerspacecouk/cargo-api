@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
+use App\Domain\Exception\NoUserHttpException;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\UsersService;
@@ -13,6 +14,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 trait UserAuthenticationTrait
@@ -25,6 +27,17 @@ trait UserAuthenticationTrait
         AuthenticationService $authenticationService
     ): User {
         return $this->getAuthentication($request, $authenticationService)->getUser();
+    }
+
+    protected function getUserIfExists(
+        Request $request,
+        AuthenticationService $authenticationService
+    ): ?User {
+        try {
+            return $this->getAuthentication($request, $authenticationService)->getUser();
+        } catch (NoUserHttpException $exception) {
+            return null;
+        }
     }
 
     protected function getAnonymousUser(
@@ -53,11 +66,11 @@ trait UserAuthenticationTrait
         try {
             $this->userAuthentication = $authenticationService->getAuthenticationFromRequest($request);
             if (!$this->userAuthentication) {
-                throw new AccessDeniedHttpException('Invalid user');
+                throw new NoUserHttpException('Invalid user');
             }
             return $this->userAuthentication;
         } catch (InvalidUuidStringException $e) {
-            throw new AccessDeniedHttpException('Token Invalid: ' . $e->getMessage());
+            throw new BadRequestHttpException('Token Invalid: ' . $e->getMessage());
         }
     }
 
@@ -65,7 +78,7 @@ trait UserAuthenticationTrait
         Request $request,
         AuthenticationService $authenticationService,
         LoggerInterface $logger
-    ) {
+    ): void {
         try {
             $userAuthentication = $authenticationService->getAuthenticationFromRequest($request);
             if ($userAuthentication) {

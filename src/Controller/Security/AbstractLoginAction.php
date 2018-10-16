@@ -53,7 +53,21 @@ class AbstractLoginAction
         Request $request,
         EmailAddress $emailAddress
     ): RedirectResponse {
-        $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
+        // do you already have an anonymous session
+        $currentSessionUser = $this->getUserIfExists($request, $this->authenticationService);
+        if ($currentSessionUser && !$currentSessionUser->hasEmailAddress()) {
+            // if this is an anonymous user we can convert it to a full account
+            // but ONLY if there isn't already an account with this email
+            $exists = (bool) $this->usersService->getByEmailAddress($emailAddress);
+            if ($exists) {
+                return new RedirectResponse(
+                    $this->applicationConfig->getWebHostname() . '/about/duplicate'
+                );
+            }
+            $user = $this->usersService->addEmailToUser($currentSessionUser, $emailAddress);
+        } else {
+            $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
+        }
 
         $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
 

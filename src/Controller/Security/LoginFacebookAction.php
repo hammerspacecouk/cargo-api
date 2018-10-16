@@ -44,13 +44,12 @@ class LoginFacebookAction extends AbstractLoginAction
             throw new AccessDeniedHttpException('Error validating login');
         }
 
-        if (!isset($accessToken)) {
+        if ($accessToken === null) {
             if ($helper->getError()) {
                 $this->logger->error($helper->getErrorReason() . $helper->getErrorDescription());
                 throw new UnauthorizedHttpException($helper->getError());
-            } else {
-                throw new BadRequestHttpException();
             }
+            throw new BadRequestHttpException();
         }
 
         // OAuth 2.0 client handler

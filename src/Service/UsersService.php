@@ -42,7 +42,7 @@ class UsersService extends AbstractService
         return null;
     }
 
-    public function addEmailToUser(User $user, EmailAddress $email): void
+    public function addEmailToUser(User $user, EmailAddress $email): User
     {
         /** @var DbUser $dbUser */
         $dbUser = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
@@ -51,6 +51,8 @@ class UsersService extends AbstractService
         $dbUser->anonymousIpHash = null;
         $this->entityManager->persist($dbUser);
         $this->entityManager->flush();
+
+        return $this->getByEmailAddress($email);
     }
 
     public function getByAnonymousIp(string $ipAddress): ?User // todo - am I using this?

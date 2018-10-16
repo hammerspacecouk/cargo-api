@@ -12,7 +12,6 @@ use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CheckLoginAction
 {
@@ -36,7 +35,7 @@ class CheckLoginAction
     public function __invoke(
         Request $request
     ): Response {
-        $user = $this->getUserFromRequest($request);
+        $user = $this->getUserIfExists($request, $this->authenticationService);
         if ($user) {
             $state = new SessionState(
                 $user,
@@ -47,15 +46,5 @@ class CheckLoginAction
         }
 
         return $this->userResponse(new JsonResponse($state), $this->authenticationService);
-    }
-
-    protected function getUserFromRequest(Request $request): ?User
-    {
-        try {
-            return $this->getUser($request, $this->authenticationService);
-        } catch (AccessDeniedHttpException $exception) {
-            // On this controller alone, don't throw a 403, return empty data
-            return null;
-        }
     }
 }

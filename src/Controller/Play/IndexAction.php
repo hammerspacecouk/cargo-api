@@ -69,16 +69,15 @@ class IndexAction
 
     protected function getUserFromRequest(Request $request): User
     {
-        try {
-            return $this->getUser($request, $this->authenticationService);
-        } catch (AccessDeniedHttpException $exception) {
-            // On this controller, don't throw a 403, make a new anonymous user
-            return $this->getAnonymousUser(
+        $user = $this->getUserIfExists($request, $this->authenticationService);
+        if (!$user) {
+            $user = $this->getAnonymousUser(
                 $request,
                 $this->usersService,
                 $this->authenticationService,
                 $this->applicationConfig
             );
         }
+        return $user;
     }
 }

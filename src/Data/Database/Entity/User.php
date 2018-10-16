@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User extends AbstractEntity
 {
-    /** @ORM\Column(type="binary", nullable=true)) */
+    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
     public $queryHash;
 
     /** @ORM\Column(type="binary", nullable=true)) */
