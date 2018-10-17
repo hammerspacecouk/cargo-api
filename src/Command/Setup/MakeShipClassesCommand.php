@@ -61,6 +61,7 @@ class MakeShipClassesCommand extends Command
             $orderNumber = (int)$data['orderNumber'];
             $minimumRank = $this->getPlayerRank($data['minimumRankId']);
             $capacity = (int)$data['capacity'];
+            $speedMultiplier = (float)$data['speedMultiplier'];
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
             /** @var ShipClass $entity */
@@ -71,6 +72,7 @@ class MakeShipClassesCommand extends Command
                 $entity->orderNumber = $orderNumber;
                 $entity->minimumRank = $minimumRank;
                 $entity->capacity = $capacity;
+                $entity->speedMultiplier = $speedMultiplier;
                 $entity->purchaseCost = $purchaseCost;
                 $entity->isStarterShip = $isStarterShip;
             } else {
@@ -78,6 +80,7 @@ class MakeShipClassesCommand extends Command
                     $name,
                     $orderNumber,
                     $capacity,
+                    $speedMultiplier,
                     $isStarterShip,
                     $purchaseCost,
                     $minimumRank

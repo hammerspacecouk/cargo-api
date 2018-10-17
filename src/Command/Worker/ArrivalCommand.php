@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Worker;
 
+use App\Data\Database\EntityManager;
 use App\Infrastructure\DateTimeFactory;
 use App\Service\ShipLocationsService;
 use DateTimeImmutable;
@@ -15,9 +16,10 @@ class ArrivalCommand extends AbstractWorkerCommand
     public function __construct(
         ShipLocationsService $shipLocationsService,
         DateTimeFactory $dateTimeFactory,
+        EntityManager $entityManager,
         LoggerInterface $logger
     ) {
-        parent::__construct($dateTimeFactory, $logger);
+        parent::__construct($dateTimeFactory, $entityManager, $logger);
         $this->locationsService = $shipLocationsService;
     }
 

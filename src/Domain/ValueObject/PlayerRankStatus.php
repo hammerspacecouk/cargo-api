@@ -64,6 +64,11 @@ class PlayerRankStatus implements \JsonSerializable
         return $this->currentRank;
     }
 
+    public function getNextRank(): ?PlayerRank
+    {
+        return $this->nextRank;
+    }
+
     public function isTutorial(): bool
     {
         return $this->getPortsVisited() === 0;

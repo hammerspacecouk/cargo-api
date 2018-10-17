@@ -7,6 +7,8 @@ use Ramsey\Uuid\UuidInterface;
 
 class Port extends Entity implements \JsonSerializable, CrateLocation
 {
+    public const TOTAL_PORT_COUNT = 1000;
+
     private $name;
     private $isSafeHaven;
 

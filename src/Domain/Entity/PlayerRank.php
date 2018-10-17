@@ -45,4 +45,9 @@ class PlayerRank extends Entity implements \JsonSerializable
     {
         return $this->emblem;
     }
+
+    public function getSpeedMultiplier(): float
+    {
+        return $this->threshold / Port::TOTAL_PORT_COUNT;
+    }
 }

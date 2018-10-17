@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Play;
 
 use App\Domain\Entity\ShipInChannel;
+use App\Domain\ValueObject\PlayerRankStatus;
 use App\Infrastructure\ApplicationConfig;
 use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
@@ -12,6 +13,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
+use App\Service\AlgorithmService;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
 use App\Service\EventsService;
@@ -33,25 +35,25 @@ class ShipAction
     use GetShipTrait;
 
     private $applicationConfig;
+    private $algorithmService;
     private $authenticationService;
     private $shipsService;
     private $shipMovementService;
     private $shipNameService;
     private $channelsService;
-    private $usersService;
     private $logger;
     private $playerRanksService;
     private $eventsService;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
+        AlgorithmService $algorithmService,
         AuthenticationService $authenticationService,
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipsService $shipsService,
         ShipMovementService $shipMovementService,
         ShipNameService $shipNameService,
-        UsersService $usersService,
         ChannelsService $channelsService,
         LoggerInterface $logger
     ) {
@@ -61,10 +63,10 @@ class ShipAction
         $this->shipMovementService = $shipMovementService;
         $this->shipNameService = $shipNameService;
         $this->channelsService = $channelsService;
-        $this->usersService = $usersService;
         $this->logger = $logger;
         $this->playerRanksService = $playerRanksService;
         $this->eventsService = $eventsService;
+        $this->algorithmService = $algorithmService;
     }
 
     public function __invoke(
@@ -107,13 +109,16 @@ class ShipAction
             'events' => [],
         ];
 
+        $rankStatus = $this->playerRanksService->getForUser($user);
+
         if ($location instanceof ShipInPort) {
             $data['port'] = $location->getPort();
             $data['directions'] = $this->getDirectionsFromPort(
                 $location->getPort(),
                 $ship,
                 $user,
-                $location
+                $location,
+                $rankStatus
             );
             $data['shipsInLocation'] = $this->shipsService->findAllInPort($location->getPort());
             $data['events'] = $this->eventsService->findLatestForPort($location->getPort());
@@ -124,7 +129,7 @@ class ShipAction
         }
 
         $data['playerScore'] = $user->getScore();
-        $data['playerRankStatus'] = $this->playerRanksService->getForUser($user);
+        $data['playerRankStatus'] = $rankStatus;
 
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }
@@ -133,7 +138,8 @@ class ShipAction
         Port $port,
         Ship $ship,
         User $user,
-        ShipInPort $location
+        ShipInPort $location,
+        PlayerRankStatus $rankStatus
     ): array {
 
         // find all channels for a port, with their bearing and distance
@@ -154,26 +160,27 @@ class ShipAction
                 $reverseDirection = true;
             }
 
-            // todo - move this logic into a service
             $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
-            $journeyTimeMinutes = (int)\round(
-                ($this->applicationConfig->getDistanceMultiplier() * $channel->getDistance()) / 60
+
+            $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
+                $channel->getDistance(),
+                $ship,
+                $rankStatus
             );
-            //* 60 * 60 todo - algorithm
 
             $token = $this->shipMovementService->getMoveShipToken(
                 $ship,
                 $channel,
                 $user,
                 $reverseDirection,
-                $journeyTimeMinutes,
+                $journeyTimeSeconds,
                 $groupTokenKey
             );
 
             $directions[$bearing] = [
                 'destination' => $destination,
                 'distanceUnit' => $channel->getDistance(),
-                'journeyTimeMinutes' => $journeyTimeMinutes,
+                'journeyTimeSeconds' => $journeyTimeSeconds,
                 'action' => $token
             ];
         }

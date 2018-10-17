@@ -33,10 +33,14 @@ class MoveShipAction extends AbstractAction
             'port' => null,
             'channel' => $newChannelLocation,
             'directions' => null,
-            'players' => null, // todo - get the players in the channel
+            'shipsInLocation' => null,
+            'events' => null,
         ];
 
         $user = $this->usersService->getById($moveShipToken->getOwnerId());
+        if (!$user) {
+            throw new \RuntimeException('Something went very wrong. User was not found');
+        }
         $data['playerScore'] = $user->getScore();
         return $data;
     }

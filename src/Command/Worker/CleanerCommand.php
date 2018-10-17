@@ -13,15 +13,12 @@ use function App\Functions\Classes\whoImplements;
 
 class CleanerCommand extends AbstractWorkerCommand
 {
-    private $entityManager;
-
     public function __construct(
         EntityManager $entityManager,
         DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
-        parent::__construct($dateTimeFactory, $logger);
-        $this->entityManager = $entityManager;
+        parent::__construct($dateTimeFactory, $entityManager, $logger);
     }
 
     protected function configure(): void

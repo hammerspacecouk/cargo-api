@@ -7,13 +7,16 @@ class ShipClass implements \JsonSerializable
 {
     private $name;
     private $capacity;
+    private $speedMultiplier;
 
     public function __construct(
         string $name,
-        int $capacity
+        int $capacity,
+        float $speedMultiplier
     ) {
         $this->name = $name;
         $this->capacity = $capacity;
+        $this->speedMultiplier = $speedMultiplier;
     }
 
     public function jsonSerialize(): array
@@ -33,5 +36,10 @@ class ShipClass implements \JsonSerializable
     public function getCapacity(): int
     {
         return $this->capacity;
+    }
+
+    public function getSpeedMultiplier(): float
+    {
+        return $this->speedMultiplier;
     }
 }
