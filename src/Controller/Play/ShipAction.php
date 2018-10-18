@@ -168,20 +168,29 @@ class ShipAction
                 $rankStatus
             );
 
-            $token = $this->shipMovementService->getMoveShipToken(
-                $ship,
-                $channel,
-                $user,
-                $reverseDirection,
-                $journeyTimeSeconds,
-                $groupTokenKey
-            );
+            $minimumRank = $channel->getMinimumRank();
+            $meetsRequiredRank = $minimumRank ? $rankStatus->getCurrentRank()->meets($minimumRank) : true;
+
+            $token = null;
+
+            if ($meetsRequiredRank) {
+                $token = $this->shipMovementService->getMoveShipToken(
+                    $ship,
+                    $channel,
+                    $user,
+                    $reverseDirection,
+                    $journeyTimeSeconds,
+                    $groupTokenKey
+                );
+            }
 
             $directions[$bearing] = [
                 'destination' => $destination,
                 'distanceUnit' => $channel->getDistance(),
                 'journeyTimeSeconds' => $journeyTimeSeconds,
-                'action' => $token
+                'action' => $token,
+                'minimumRank' => $minimumRank,
+                'minimumStrength' => $channel->getMinimumStrength(),
             ];
         }
 

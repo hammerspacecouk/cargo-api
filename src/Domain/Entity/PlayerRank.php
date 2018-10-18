@@ -50,4 +50,9 @@ class PlayerRank extends Entity implements \JsonSerializable
     {
         return $this->threshold / Port::TOTAL_PORT_COUNT;
     }
+
+    public function meets(self $minimumRank): bool
+    {
+        return $this->threshold >= $minimumRank->getThreshold();
+    }
 }

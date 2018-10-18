@@ -17,6 +17,15 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $name;
 
+    /** @ORM\Column(type="text") */
+    public $description;
+
+    /** @ORM\Column(type="text") */
+    public $iconSvg;
+
+    /** @ORM\Column(type="integer") */
+    public $strength;
+
     /** @ORM\Column(type="integer", unique=true) */
     public $orderNumber;
 
@@ -39,6 +48,9 @@ class ShipClass extends AbstractEntity
 
     public function __construct(
         string $name,
+        string $description,
+        string $iconSvg,
+        int $strength,
         int $orderNumber,
         int $capacity,
         float $speedMultiplier,
@@ -54,5 +66,8 @@ class ShipClass extends AbstractEntity
         $this->purchaseCost = $purchaseCost;
         $this->minimumRank = $minimumRank;
         $this->speedMultiplier = $speedMultiplier;
+        $this->description = $description;
+        $this->iconSvg = $iconSvg;
+        $this->strength = $strength;
     }
 }

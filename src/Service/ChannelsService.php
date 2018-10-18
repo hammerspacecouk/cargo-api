@@ -29,9 +29,10 @@ class ChannelsService extends AbstractService
     public function getAllLinkedToPort(Port $port): array
     {
         $qb = $this->getQueryBuilder(DbChannel::class)
-            ->select('tbl', 'fromPort', 'toPort')
+            ->select('tbl', 'fromPort', 'toPort', 'minimumEntryRank')
             ->join('tbl.fromPort', 'fromPort')
             ->join('tbl.toPort', 'toPort')
+            ->leftJoin('tbl.minimumEntryRank', 'minimumEntryRank')
             ->where('IDENTITY(tbl.fromPort) = :id')
             ->orWhere('IDENTITY(tbl.toPort) = :id')
             ->setParameter('id', $port->getId()->getBytes());

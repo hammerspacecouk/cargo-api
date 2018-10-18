@@ -36,6 +36,9 @@ class Channel extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $distance;
 
+    /** @ORM\Column(type="integer") */
+    public $minimumStrength;
+
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      * @ORM\JoinColumn(onDelete="SET NULL")
@@ -47,6 +50,7 @@ class Channel extends AbstractEntity
         Port $toPort,
         string $bearing,
         int $distance,
+        int $minimumStrength,
         ?PlayerRank $minimumEntryRank
     ) {
         parent::__construct();
@@ -56,9 +60,10 @@ class Channel extends AbstractEntity
         $this->minimumEntryRank = $minimumEntryRank;
 
         $bearing = \strtoupper(\trim($bearing));
-        if (!\in_array($bearing, self::ALLOWED_BEARINGS)) {
+        if (!\in_array($bearing, self::ALLOWED_BEARINGS, true)) {
             throw new \InvalidArgumentException('Invalid Bearing');
         }
         $this->bearing = $bearing;
+        $this->minimumStrength = $minimumStrength;
     }
 }

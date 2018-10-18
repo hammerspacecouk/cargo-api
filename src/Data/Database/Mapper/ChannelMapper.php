@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Channel;
+use App\Domain\Entity\Null\NullPlayerRank;
+use App\Domain\Entity\PlayerRank;
 use App\Domain\ValueObject\Bearing;
 
 class ChannelMapper extends Mapper
@@ -17,7 +19,20 @@ class ChannelMapper extends Mapper
             $portMapper->getPort($item['fromPort']),
             $portMapper->getPort($item['toPort']),
             new Bearing($item['bearing']),
-            $item['distance']
+            $item['distance'],
+            $item['minimumStrength'],
+            $this->getMinimumEntryRank($item)
         );
+    }
+
+    private function getMinimumEntryRank(array $item): ?PlayerRank
+    {
+        if (array_key_exists('minimumEntryRank', $item)) {
+            if (isset($item['minimumEntryRank'])) {
+                return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['minimumEntryRank']);
+            }
+            return new NullPlayerRank();
+        }
+        return null;
     }
 }

@@ -82,9 +82,10 @@ class MakeChannelsCommand extends Command
         $bearing = Bearing::validate($data['bearing']);
 
         $distance = (int)$data['distance'];
+        $minimumStrength = (int)$data['minimumStrength'];
         $minimumEntryRank = $this->getPlayerRank($data['minimumEntryRankId']);
 
-        $this->makeOrUpdateEntity($id, $fromPort, $toPort, $bearing, $distance, $minimumEntryRank);
+        $this->makeOrUpdateEntity($id, $fromPort, $toPort, $bearing, $distance, $minimumStrength, $minimumEntryRank);
     }
 
     private function makeOrUpdateEntity(
@@ -93,6 +94,7 @@ class MakeChannelsCommand extends Command
         Port $toPort,
         string $bearing,
         int $distance,
+        int $minimumStrength,
         ?PlayerRank $minimumEntryRank
     ): void {
         /** @var Channel $entity */
@@ -104,12 +106,14 @@ class MakeChannelsCommand extends Command
             $entity->bearing = $bearing;
             $entity->distance = $distance;
             $entity->minimumEntryRank = $minimumEntryRank;
+            $entity->minimumStrength = $minimumStrength;
         } else {
             $entity = new Channel(
                 $fromPort,
                 $toPort,
                 $bearing,
                 $distance,
+                $minimumStrength,
                 $minimumEntryRank
             );
             $entity->id = $id;

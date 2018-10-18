@@ -58,7 +58,10 @@ class MakeShipClassesCommand extends Command
 
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
+            $description = $data['description'];
+            $iconSvg = $data['iconSvg'];
             $orderNumber = (int)$data['orderNumber'];
+            $strength = (int)$data['strength'];
             $minimumRank = $this->getPlayerRank($data['minimumRankId']);
             $capacity = (int)$data['capacity'];
             $speedMultiplier = (float)$data['speedMultiplier'];
@@ -69,6 +72,9 @@ class MakeShipClassesCommand extends Command
 
             if ($entity) {
                 $entity->name = $name;
+                $entity->description = $description;
+                $entity->iconSvg = $iconSvg;
+                $entity->strength = $strength;
                 $entity->orderNumber = $orderNumber;
                 $entity->minimumRank = $minimumRank;
                 $entity->capacity = $capacity;
@@ -78,6 +84,9 @@ class MakeShipClassesCommand extends Command
             } else {
                 $entity = new ShipClass(
                     $name,
+                    $description,
+                    $iconSvg,
+                    $strength,
                     $orderNumber,
                     $capacity,
                     $speedMultiplier,

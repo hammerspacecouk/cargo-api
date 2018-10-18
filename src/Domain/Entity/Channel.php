@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\Entity\Null\NullPlayerRank;
+use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\Bearing;
 use Ramsey\Uuid\UuidInterface;
 
@@ -12,19 +14,25 @@ class Channel extends Entity implements \JsonSerializable
     private $destination;
     private $bearing;
     private $distance;
+    private $minimumRank;
+    private $minimumStrength;
 
     public function __construct(
         UuidInterface $id,
         Port $origin,
         Port $destination,
         Bearing $bearing,
-        int $distance
+        int $distance,
+        int $minimumStrength,
+        ?PlayerRank $minimumRank = null
     ) {
         parent::__construct($id);
         $this->origin = $origin;
         $this->destination = $destination;
         $this->bearing = $bearing;
         $this->distance = $distance;
+        $this->minimumRank = $minimumRank;
+        $this->minimumStrength = $minimumStrength;
     }
 
     public function getOrigin(): Port
@@ -47,9 +55,27 @@ class Channel extends Entity implements \JsonSerializable
         return $this->distance;
     }
 
+    public function getMinimumStrength(): int
+    {
+        return $this->minimumStrength;
+    }
+
     public function jsonSerialize()
     {
         // must not be exposed without explicit consent
         return null;
+    }
+
+    public function getMinimumRank(): ?PlayerRank
+    {
+        if (!$this->minimumRank) {
+            throw new DataNotFetchedException(
+                'Tried to use the channel minimum rank, but it was not fetched'
+            );
+        }
+        if ($this->minimumRank instanceof NullPlayerRank) {
+            return null;
+        }
+        return $this->minimumRank;
     }
 }
