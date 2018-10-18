@@ -35,6 +35,18 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $user;
     }
 
+    public function getByIDWithHomePort(
+        UuidInterface $userId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'homePort')
+            ->join('tbl.homePort', 'homePort')
+            ->where('tbl.id = :id')
+            ->setParameter('id', $userId->getBytes());
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
     public function getByQueryHash(
         string $queryHash,
         $resultType = Query::HYDRATE_ARRAY

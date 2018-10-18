@@ -74,11 +74,7 @@ class ShipAction
     ): Response {
 
         $this->logger->debug(__CLASS__);
-
         $user = $this->getUser($request, $this->authenticationService);
-        if (!$user) {
-            throw new UnauthorizedHttpException('No user found');
-        }
 
         // get the ship. is it yours
         $ship = $this->getShipForOwnerId($request, $this->shipsService, $user->getId());

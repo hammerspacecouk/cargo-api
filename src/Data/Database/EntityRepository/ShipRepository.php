@@ -7,6 +7,7 @@ use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\Database\Entity\User;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipRepository extends AbstractEntityRepository
@@ -65,5 +66,22 @@ class ShipRepository extends AbstractEntityRepository
         $this->getEntityManager()->flush();
 
         return $ship;
+    }
+
+    public function countClassesForUserId(UuidInterface $userId): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('IDENTITY(tbl.shipClass) as scID', 'COUNT(1) as cnt')
+            ->where('IDENTITY(tbl.owner) = :ownerId')
+            ->andWhere('tbl.strength > 0')
+            ->groupBy('tbl.shipClass')
+            ->setParameter('ownerId', $userId->getBytes());
+        $results = $qb->getQuery()->getArrayResult();
+        $mappedResults = [];
+        foreach ($results as $result) {
+            $uuid = Uuid::fromBytes($result['scID']);
+            $mappedResults[(string)$uuid] = (int)$result['cnt'];
+        }
+        return $mappedResults;
     }
 }

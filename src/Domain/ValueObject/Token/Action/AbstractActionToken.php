@@ -13,7 +13,6 @@ abstract class AbstractActionToken extends AbstractToken implements JsonSerializ
     public function jsonSerialize()
     {
         return [
-            'type' => 'ActionToken',
             'path' => static::getPath(),
             'token' => (string)$this,
         ];

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
-use App\Domain\ValueObject\ShipClass;
+use App\Domain\Entity\ShipClass;
 use Ramsey\Uuid\UuidInterface;
 
 class Ship extends Entity implements \JsonSerializable, CrateLocation

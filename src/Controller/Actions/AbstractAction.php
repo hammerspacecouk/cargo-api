@@ -28,16 +28,16 @@ abstract class AbstractAction
     public function __invoke(
         Request $request
     ): Response {
-        $this->logger->debug(\get_called_class());
+        $this->logger->debug(static::class);
         $tokenString = $this->getTokenDataFromRequest($request);
         try {
             $data = $this->invoke($tokenString);
             return $this->actionResponse($data);
         } catch (TokenException $exception) {
-            $this->logger->notice('[ACTION] [INVALID TOKEN] ' . $exception->getMessage());
+            $this->logger->notice('[ACTION] [INVALID_TOKEN] ' . $exception->getMessage());
             return $this->errorResponse($exception->getMessage(), Response::HTTP_BAD_REQUEST);
         } catch (IllegalMoveException $exception) {
-            $this->logger->notice('[ACTION] [ILLEGAL MOVE] ' . $exception->getMessage());
+            $this->logger->notice('[ACTION] [ILLEGAL_MOVE] ' . $exception->getMessage());
             return $this->errorResponse('Illegal Move: ' . $exception->getMessage(), Response::HTTP_CONFLICT);
         }
     }

@@ -6,7 +6,7 @@ namespace App\Data\Database\Mapper;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\ShipClass;
+use App\Domain\Entity\ShipClass;
 
 class ShipMapper extends Mapper
 {
