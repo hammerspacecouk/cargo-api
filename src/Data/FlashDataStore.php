@@ -85,7 +85,7 @@ class FlashDataStore
 
         return new Cookie(
             self::COOKIE_NAME,
-            (string)(new FlashDataToken($token->getJsonToken(), (string) $token)),
+            (string)(new FlashDataToken($token->getJsonToken(), (string)$token)),
             0,
             '/',
             $this->applicationConfig->getCookieScope(),

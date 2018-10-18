@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-
 use App\Service\PlayerRanksService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;

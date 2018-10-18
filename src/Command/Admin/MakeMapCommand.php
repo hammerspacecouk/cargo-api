@@ -75,10 +75,10 @@ class MakeMapCommand extends Command
         $progress->advance();
 
         // now loop the rest
-        while(!empty($channels)) {
+        while (!empty($channels)) {
             foreach ($channels as $i => $channel) {
-                $originId = (string) $channel->getOrigin()->getId();
-                $destinationId = (string) $channel->getDestination()->getId();
+                $originId = (string)$channel->getOrigin()->getId();
+                $destinationId = (string)$channel->getDestination()->getId();
                 if (isset($ports[$originId])) {
                     $reversed = false;
                     $startX = $ports[$originId][1];
@@ -93,7 +93,7 @@ class MakeMapCommand extends Command
                     continue;
                 }
 
-                $endId = (string) $end->getId();
+                $endId = (string)$end->getId();
                 if (isset($ports[$endId])) {
                     $endX = $ports[$endId][1];
                     $endY = $ports[$endId][2];
@@ -142,7 +142,9 @@ class MakeMapCommand extends Command
         }
         $lineLength = ($length + 1) * self::HEXAGON_WIDTH;
 
-        $endX = $startX + ((\cos(\deg2rad($bearing->getDegreesFromHorizon())) * $lineLength) * $bearing->getXMultiplier());
+        $endX = $startX + (
+                (\cos(\deg2rad($bearing->getDegreesFromHorizon())) * $lineLength) * $bearing->getXMultiplier()
+            );
         $endY = $startY + (\sin(\deg2rad($bearing->getDegreesFromHorizon())) * $lineLength);
 
         return [$endX, $endY];
@@ -180,7 +182,7 @@ class MakeMapCommand extends Command
         }, $lines));
 
         $hexSvgs = \implode('', \array_map(function (array $port) {
-            return '<polygon data-id="' . $port[0]->getId()  .
+            return '<polygon data-id="' . $port[0]->getId() .
                 '" points="' . $this->getHexPoints($port[1], $port[2]) . '"' .
                 ' stroke="black" fill="white" />';
         }, $ports));
@@ -189,7 +191,7 @@ class MakeMapCommand extends Command
             return '<text x="' . ($port[1] - (self::HEXAGON_WIDTH / 2.05)) .
                 '" y="' . ($port[2] + 4) . '" style="font-family:sans-serif;font-size: 12px" textLength="' .
                 self::HEXAGON_WIDTH * 0.95 . '" lengthAdjust="spacingAndGlyphs">' .
-                $port[0]->getName()  . '</text>';
+                $port[0]->getName() . '</text>';
         }, $ports));
 
         return <<<SVG

@@ -12,7 +12,7 @@ namespace App\Functions\Numbers;
  */
 function clamp(int $input, int $min, int $max): int
 {
-    return (int)max($min, min($input, $max));
+    return \max($min, \min($input, $max));
 }
 
 /**

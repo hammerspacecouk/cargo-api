@@ -58,7 +58,8 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function countByIpHash(string $queryHash): int {
+    public function countByIpHash(string $queryHash): int
+    {
         $qb = $this->createQueryBuilder('tbl')
             ->select('COUNT(1)')
             ->where('tbl.anonymousIpHash = :hash')

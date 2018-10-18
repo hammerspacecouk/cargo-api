@@ -52,7 +52,11 @@ class UsersService extends AbstractService
         $this->entityManager->persist($dbUser);
         $this->entityManager->flush();
 
-        return $this->getByEmailAddress($email);
+        $userWithEmail = $this->getByEmailAddress($email);
+        if (!$userWithEmail) {
+            throw new \RuntimeException(__METHOD__ . ' went very wrong');
+        }
+        return $userWithEmail;
     }
 
     public function getByAnonymousIp(string $ipAddress): ?User // todo - am I using this?
@@ -78,6 +82,10 @@ class UsersService extends AbstractService
 
     public function allowedToMakeAnonymousUser(?string $ipAddress): bool
     {
+        if (!$ipAddress) {
+            $ipAddress = ''; // todo - remember to check IPs are coming through Cloudflare and ELB
+        }
+
         $ipHash = $this->makeContentHash($ipAddress);
         $max = $this->applicationConfig->getMaxUsersPerIp();
         return (

@@ -58,7 +58,7 @@ class TokenProvider
 
         return (new Builder())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
-            ->setJti((string) $id)
+            ->setJti((string)$id)
             ->setSubject($subject)
             ->setVersion(new Version2())
             ->setPurpose(Purpose::local())

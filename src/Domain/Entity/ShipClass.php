@@ -7,7 +7,7 @@ use App\Domain\Entity\PlayerRank;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
 
-class ShipClass extends Entity  implements \JsonSerializable
+class ShipClass extends Entity implements \JsonSerializable
 {
     private $name;
     private $capacity;

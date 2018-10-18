@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Tests\App\Functions;
 
-
 use function App\Functions\Numbers\clamp;
 
 class NumbersTest extends \PHPUnit\Framework\TestCase

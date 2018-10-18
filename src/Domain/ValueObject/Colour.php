@@ -30,7 +30,7 @@ class Colour implements \JsonSerializable
 
     public static function makeInitialRandomValue(): self
     {
-        $makeColour = function() {
+        $makeColour = function () {
             /** @noinspection RandomApiMigrationInspection - purposely want to use the seeded value */
             return \mt_rand(self::INITIAL_BRIGHTNESS_MIN, self::INITIAL_BRIGHTNESS_MAX);
         };
@@ -46,6 +46,6 @@ class Colour implements \JsonSerializable
         if (\strlen($input) === 6 && \ctype_xdigit($input)) {
             return $input;
         }
-        throw new \InvalidArgumentException('"'. $input . '" is not a valid colour value');
+        throw new \InvalidArgumentException('"' . $input . '" is not a valid colour value');
     }
 }

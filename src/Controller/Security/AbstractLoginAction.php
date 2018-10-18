@@ -58,7 +58,7 @@ class AbstractLoginAction
         if ($currentSessionUser && !$currentSessionUser->hasEmailAddress()) {
             // if this is an anonymous user we can convert it to a full account
             // but ONLY if there isn't already an account with this email
-            $exists = (bool) $this->usersService->getByEmailAddress($emailAddress);
+            $exists = (bool)$this->usersService->getByEmailAddress($emailAddress);
             if ($exists) {
                 return new RedirectResponse(
                     $this->applicationConfig->getWebHostname() . '/about/duplicate'
