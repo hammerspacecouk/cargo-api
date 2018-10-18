@@ -76,10 +76,10 @@ class Bearing implements \JsonSerializable
 
     public function getXMultiplier(): int
     {
-      if (\in_array($this->bearing, ['NW', 'W', 'SW'])) {
-          return -1;
-      }
-      return 1;
+        if (\in_array($this->bearing, ['NW', 'W', 'SW'])) {
+            return -1;
+        }
+        return 1;
     }
 
     public function jsonSerialize(): string

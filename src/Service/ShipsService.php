@@ -4,8 +4,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
+use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\User;
+use App\Domain\Entity\ShipClass;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -61,8 +64,8 @@ class ShipsService extends AbstractService
     public function shipOwnedBy(
         UuidInterface $shipId,
         UuidInterface $ownerId
-    ) {
-        return !!$this->getByIDForOwnerId($shipId, $ownerId);
+    ): bool {
+        return (bool)$this->getByIDForOwnerId($shipId, $ownerId);
     }
 
     public function getByIDForOwnerId(

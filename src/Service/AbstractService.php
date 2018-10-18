@@ -3,15 +3,19 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Database\Entity\User;
 use App\Data\Database\EntityManager;
 use App\Data\Database\Mapper\MapperFactory;
 use App\Data\TokenProvider;
+use App\Domain\Exception\IllegalMoveException;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Ramsey\Uuid\UuidFactoryInterface;
+use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractService
 {
@@ -58,5 +62,16 @@ abstract class AbstractService
     protected function getOffset(int $limit, int $page): int
     {
         return ($limit * ($page - 1));
+    }
+
+    protected function consumeCredits(User $userEntity, int $credits): void
+    {
+        $userRepo = $this->entityManager->getUserRepo();
+        // check the user has enough credits
+        if ($userRepo->currentScore($userEntity) < $credits) {
+            throw new IllegalMoveException($credits . ' required');
+        }
+        // save their new credits value
+        $userRepo->updateScoreValue($userEntity, -$credits);
     }
 }

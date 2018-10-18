@@ -50,7 +50,7 @@ class EventsService extends AbstractService
 
     /**
      * @param array $results
-     * @return User[]
+     * @return Event[]
      */
     private function mapMany(array $results): array
     {

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Domain\ValueObject;
 
-use App\Domain\ValueObject\ShipClass;
+use App\Domain\Entity\ShipClass;
 
 class ShipClassTest extends \PHPUnit\Framework\TestCase
 {

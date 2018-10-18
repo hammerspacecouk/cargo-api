@@ -94,15 +94,8 @@ class ShipNameService extends ShipsService
         }
 
         $userRepo = $this->entityManager->getUserRepo();
-
-        // check the user has enough credits
         $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT);
-        /** @var User $userEntity * */
-        if ($userRepo->currentScore($userEntity) < Costs::ACTION_REQUEST_SHIP_NAME) {
-            throw new IllegalMoveException(Costs::ACTION_REQUEST_SHIP_NAME . ' required to request a ship name');
-        }
-
-        $userRepo->updateScoreValue($userEntity, -Costs::ACTION_REQUEST_SHIP_NAME);
+        $this->consumeCredits($userEntity, Costs::ACTION_REQUEST_SHIP_NAME);
 
         return $this->entityManager->getDictionaryRepo()->getRandomShipName();
     }

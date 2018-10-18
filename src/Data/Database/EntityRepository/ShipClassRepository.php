@@ -7,6 +7,27 @@ use Doctrine\ORM\Query;
 
 class ShipClassRepository extends AbstractEntityRepository
 {
+    private const CACHE_LIFETIME = 60 * 60 * 24 * 2; // 2 days
+
+    public function getList(): array
+    {
+        $cacheKey = __CLASS__ . '-' . __METHOD__;
+        if ($data = $this->cache->get($cacheKey)) {
+            return $data;
+        }
+
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'minimumRank')
+            ->join('tbl.minimumRank', 'minimumRank')
+            ->orderBy('tbl.orderNumber', 'ASC');
+
+        $data = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+
+        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
+
+        return $data;
+    }
+
     public function getStarter(
         $resultType = Query::HYDRATE_ARRAY
     ) {

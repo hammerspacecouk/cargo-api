@@ -29,35 +29,40 @@ class EventMapper extends Mapper
         return $domainEntity;
     }
 
-    private function getUser(?array $data): ?User {
+    private function getUser(?array $data): ?User
+    {
         if ($data) {
             return $this->mapperFactory->createUserMapper()->getUser($data);
         }
         return null;
     }
 
-    private function getShip(?array $data): ?Ship {
+    private function getShip(?array $data): ?Ship
+    {
         if ($data) {
             return $this->mapperFactory->createShipMapper()->getShip($data);
         }
         return null;
     }
 
-    private function getPort(?array $data): ?Port {
+    private function getPort(?array $data): ?Port
+    {
         if ($data) {
             return $this->mapperFactory->createPortMapper()->getPort($data);
         }
         return null;
     }
 
-    private function getRank(?array $data): ?PlayerRank {
+    private function getRank(?array $data): ?PlayerRank
+    {
         if ($data) {
             return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($data);
         }
         return null;
     }
 
-    private function getCrate(?array $data): ?Crate {
+    private function getCrate(?array $data): ?Crate
+    {
         if ($data) {
             return $this->mapperFactory->createCrateMapper()->getCrate($data);
         }

@@ -59,10 +59,10 @@ class IndexAction
         );
 
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
-        $activeShips = \array_filter($allShips, function(Ship $ship) {
+        $activeShips = \array_filter($allShips, function (Ship $ship) {
             return !$ship->isDestroyed();
         });
-        $destroyedShips = \array_filter($allShips, function(Ship $ship) {
+        $destroyedShips = \array_filter($allShips, function (Ship $ship) {
             return $ship->isDestroyed();
         });
 

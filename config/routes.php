@@ -107,6 +107,11 @@ $collection->add('play_status', new Route('/play', [
     '_controller' => Controller\Play\IndexAction::class,
 ]));
 
+$collection->add(
+    Controller\Play\UpgradesAction::class,
+    Controller\Play\UpgradesAction::getRouteDefinition()
+);
+
 $collection->add('play_positions_ship', new Route('/play/{uuid}', [
     '_controller' => Controller\Play\ShipAction::class,
 ], [
@@ -128,6 +133,10 @@ $collection->add('actions_rename_ship', new Route(Action\RenameShipToken::getPat
 
 $collection->add('actions_request_ship_name', new Route(Action\RequestShipNameToken::getPath(), [
     '_controller' => Controller\Actions\RequestShipNameAction::class,
+]));
+
+$collection->add(Controller\Actions\PurchaseShipAction::class, new Route(Action\PurchaseShipToken::getPath(), [
+    '_controller' => Controller\Actions\PurchaseShipAction::class,
 ]));
 
 return $collection;
