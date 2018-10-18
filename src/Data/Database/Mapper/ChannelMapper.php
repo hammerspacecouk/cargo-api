@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Channel;
-use App\Domain\Entity\Null\NullPlayerRank;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\ValueObject\Bearing;
 
@@ -27,11 +26,8 @@ class ChannelMapper extends Mapper
 
     private function getMinimumEntryRank(array $item): ?PlayerRank
     {
-        if (array_key_exists('minimumEntryRank', $item)) {
-            if (isset($item['minimumEntryRank'])) {
-                return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['minimumEntryRank']);
-            }
-            return new NullPlayerRank();
+        if (isset($item['minimumEntryRank'])) {
+            return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['minimumEntryRank']);
         }
         return null;
     }

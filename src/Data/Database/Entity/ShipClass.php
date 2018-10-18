@@ -56,7 +56,7 @@ class ShipClass extends AbstractEntity
         float $speedMultiplier,
         bool $isStarterShip,
         int $purchaseCost,
-        ?PlayerRank $minimumRank
+        PlayerRank $minimumRank
     ) {
         parent::__construct();
         $this->name = $name;

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-use App\Domain\Entity\Null\NullPlayerRank;
 use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\Bearing;
 use Ramsey\Uuid\UuidInterface;
@@ -66,15 +65,12 @@ class Channel extends Entity implements \JsonSerializable
         return null;
     }
 
-    public function getMinimumRank(): ?PlayerRank
+    public function getMinimumRank(): PlayerRank
     {
         if (!$this->minimumRank) {
             throw new DataNotFetchedException(
                 'Tried to use the channel minimum rank, but it was not fetched'
             );
-        }
-        if ($this->minimumRank instanceof NullPlayerRank) {
-            return null;
         }
         return $this->minimumRank;
     }

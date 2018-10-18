@@ -46,6 +46,11 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         return $this->strength <= 0;
     }
 
+    public function meetsStrength(int $minimumStrength): bool
+    {
+        return $this->strength >= $minimumStrength;
+    }
+
     public function getLocation(): ShipLocation
     {
         if ($this->location === null) {

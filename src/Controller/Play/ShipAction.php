@@ -170,10 +170,11 @@ class ShipAction
 
             $minimumRank = $channel->getMinimumRank();
             $meetsRequiredRank = $minimumRank ? $rankStatus->getCurrentRank()->meets($minimumRank) : true;
+            $meetsMinimumStrength = $ship->meetsStrength($channel->getMinimumStrength());
 
             $token = null;
 
-            if ($meetsRequiredRank) {
+            if ($meetsRequiredRank && $meetsMinimumStrength) {
                 $token = $this->shipMovementService->getMoveShipToken(
                     $ship,
                     $channel,
@@ -189,8 +190,8 @@ class ShipAction
                 'distanceUnit' => $channel->getDistance(),
                 'journeyTimeSeconds' => $journeyTimeSeconds,
                 'action' => $token,
-                'minimumRank' => $minimumRank,
-                'minimumStrength' => $channel->getMinimumStrength(),
+                'minimumRank' => !$meetsRequiredRank ? $minimumRank : null,
+                'minimumStrength' => !$meetsMinimumStrength ? $channel->getMinimumStrength() : null,
             ];
         }
 
