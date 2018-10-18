@@ -13,10 +13,12 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
     private $shipClass;
     private $location;
     private $owner;
+    private $strength;
 
     public function __construct(
         UuidInterface $id,
         string $name,
+        int $strength,
         ?User $owner,
         ?ShipClass $shipClass,
         ?ShipLocation $location = null
@@ -26,11 +28,22 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         $this->shipClass = $shipClass;
         $this->location = $location;
         $this->owner = $owner;
+        $this->strength = $strength;
     }
 
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getStrengthPercent(): int
+    {
+        return (int)\ceil(($this->strength / $this->getShipClass()->getStrength()) * 100);
+    }
+
+    public function isDestroyed(): bool
+    {
+        return $this->strength <= 0;
     }
 
     public function getLocation(): ShipLocation
@@ -75,6 +88,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
         }
         if ($this->shipClass) {
             $data['shipClass'] = $this->shipClass;
+            $data['strengthPercent'] = $this->getStrengthPercent();
         }
         if ($this->location) {
             $data['location'] = $this->location;

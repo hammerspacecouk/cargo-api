@@ -11,7 +11,8 @@ class ShipClassMapper extends Mapper
     {
         $domainEntity = new ShipClass(
             $item['name'],
-            $item['capacity'],
+            (int)$item['capacity'],
+            (int)$item['strength'],
             $item['speedMultiplier']
         );
         return $domainEntity;

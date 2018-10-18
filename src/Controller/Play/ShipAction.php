@@ -120,7 +120,7 @@ class ShipAction
                 $location,
                 $rankStatus
             );
-            $data['shipsInLocation'] = $this->shipsService->findAllInPort($location->getPort());
+            $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($location->getPort());
             $data['events'] = $this->eventsService->findLatestForPort($location->getPort());
         }
         if ($location instanceof ShipInChannel) {

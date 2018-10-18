@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Play;
 
 use App\Controller\UserAuthenticationTrait;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\SessionState;
 use App\Infrastructure\ApplicationConfig;
@@ -15,7 +16,6 @@ use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class IndexAction
 {
@@ -58,9 +58,18 @@ class IndexAction
             $this->playerRanksService->getForUser($user)
         );
 
+        $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
+        $activeShips = \array_filter($allShips, function(Ship $ship) {
+            return !$ship->isDestroyed();
+        });
+        $destroyedShips = \array_filter($allShips, function(Ship $ship) {
+            return $ship->isDestroyed();
+        });
+
         $data = [
             'sessionState' => $state,
-            'ships' => $this->shipsService->getForOwnerIDWithLocation($user->getId(), 100), // todo - paginate
+            'activeShips' => $activeShips,
+            'destroyedShips' => $destroyedShips,
             'events' => $this->eventsService->findLatestForUser($user),
         ];
 

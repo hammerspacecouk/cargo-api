@@ -9,13 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
  * @ORM\Table(
  *     name="ships",
- *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
+ *     indexes={
+ *          @ORM\Index(name="ships_strength", columns={"strength"}),
+ *     }
  * )})
  */
 class Ship extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
     public $name;
+
+    /** @ORM\Column(type="integer") */
+    public $strength;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
@@ -37,6 +43,7 @@ class Ship extends AbstractEntity
         parent::__construct();
         $this->name = $name;
         $this->shipClass = $shipClass;
+        $this->strength = $shipClass->strength; // starts with the full strength of the class
         $this->owner = $owner;
     }
 }

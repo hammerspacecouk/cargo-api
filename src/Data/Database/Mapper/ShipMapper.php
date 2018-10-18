@@ -15,6 +15,7 @@ class ShipMapper extends Mapper
         return new Ship(
             $item['id'],
             $item['name'],
+            (int)$item['strength'],
             $this->getOwner($item),
             $this->getShipClass($item),
             $this->getLocation($item)

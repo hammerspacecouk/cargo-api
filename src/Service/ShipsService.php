@@ -4,46 +4,13 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
-use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\User;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipsService extends AbstractService
 {
-    public function makeNew(User $owner): void
-    {
-        // all ships begin as starter ships, and must be upgraded
-        $starterShip = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
-
-        $user = $this->entityManager->getUserRepo()
-            ->getByID($owner->getId(), Query::HYDRATE_OBJECT);
-
-        $ship = new DbShip(
-            $this->entityManager->getDictionaryRepo()->getRandomShipName(),
-            $starterShip,
-            $user
-        );
-        $this->entityManager->persist($ship);
-
-        // new ships need to be put into a safe port
-        $safePort = $this->entityManager->getPortRepo()
-            ->getARandomSafePort(Query::HYDRATE_OBJECT);
-
-        $location = new DbShipLocation(
-            $ship,
-            $safePort,
-            null,
-            $this->dateTimeFactory->now()
-        );
-
-        $this->entityManager->persist($location);
-
-        $this->entityManager->flush();
-    }
-
     public function countAll(): int
     {
         $qb = $this->getQueryBuilder(DbShip::class)
@@ -171,9 +138,9 @@ class ShipsService extends AbstractService
         return $this->mapMany($results);
     }
 
-    public function findAllInPort(Port $port): array
+    public function findAllActiveInPort(Port $port): array
     {
-        $results = $this->entityManager->getShipLocationRepo()->getShipsForPortId($port->getId());
+        $results = $this->entityManager->getShipLocationRepo()->getActiveShipsForPortId($port->getId());
         return $this->mapMany($results);
     }
 
