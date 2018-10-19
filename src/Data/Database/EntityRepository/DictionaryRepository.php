@@ -34,34 +34,70 @@ class DictionaryRepository extends AbstractEntityRepository
 
     public function getRandomWord(string $context): string
     {
-        $words = $this->getAllByContext($context);
-        return seedableRandomItem($words);
-    }
-
-    private function getAllByContext(string $context): array
-    {
-        $cacheKey = 'DictionaryRepository-getAll-' . $context;
-        $data = $this->cache->get($cacheKey);
-        if ($data) {
-            return $data;
-        }
-
-        $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl.word')
-            ->where('tbl.context = :context')
-            ->setParameter('context', $context);
-
-        $data = array_map(function ($result) {
-            return $result['word'];
-        }, $qb->getQuery()->getResult(Query::HYDRATE_ARRAY));
-
-        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
-
-        return $data;
+        return seedableRandomItem($this->getAllWordsByContext($context));
     }
 
     public function getRandomShipNameSecond(): string
     {
         return $this->getRandomWord(Dictionary::CONTEXT_SHIP_NAME_2);
+    }
+
+    public function getRandomCrateContents(): array
+    {
+        return seedableRandomItem($this->getCrateContentsList());
+
+    }
+
+    private function getCrateContentsList(): array
+    {
+        $cacheKey = 'DictionaryRepository-crateContentsList';
+        $contents = $this->cache->get($cacheKey);
+        if ($contents) {
+            return $contents;
+        }
+        // get all the words and their abundance
+        $all = $this->getAllByContext(Dictionary::CONTEXT_CRATE_CONTENTS);
+
+        // get the highest abundance value (already ordered)
+        $maxAbundance = $all[0]['abundance'];
+
+        // make an array containing each number of items according to their abundance
+        $data = [];
+        foreach ($all as $item) {
+            $value = $maxAbundance / $item['abundance'];
+            for ($i = 0; $i < $item['abundance']; $i++) {
+                $data[] = [$item['word'], $value];
+            }
+        }
+        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
+        return $data;
+    }
+
+    private function getAllByContext(string $context): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.context = :context')
+            ->orderBy('tbl.abundance', 'DESC')
+            ->setParameter('context', $context);
+
+        return $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+    }
+
+    private function getAllWordsByContext(string $context): array
+    {
+        $cacheKey = 'DictionaryRepository-getAllWords-' . $context;
+        $data = $this->cache->get($cacheKey);
+        if ($data) {
+            return $data;
+        }
+
+        $data = array_map(function ($result) {
+            return $result['word'];
+        }, $this->getAllByContext($context));
+
+        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
+
+        return $data;
     }
 }

@@ -154,7 +154,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
     public function makeInPort(
         Ship $ship,
         Port $port
-    ) {
+    ): void {
         $location = new ShipLocation(
             $ship,
             $port,

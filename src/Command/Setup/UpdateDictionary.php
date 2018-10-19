@@ -19,6 +19,7 @@ class UpdateDictionary extends Command
     private const CONTEXT_MAP = [
         'shipName1' => Dictionary::CONTEXT_SHIP_NAME_1,
         'shipName2' => Dictionary::CONTEXT_SHIP_NAME_2,
+        'crateContents' => Dictionary::CONTEXT_CRATE_CONTENTS,
     ];
 
     private $entityManager;
@@ -75,12 +76,16 @@ class UpdateDictionary extends Command
 
         foreach ($inputData as $row) {
             $word = $row['word'];
+            $abundance = $row['abundance'] ?? null;
 
             if (!$this->entityManager->getDictionaryRepo()->wordExistsInContext($word, $context)) {
                 $dictionaryWord = new Dictionary(
                     $word,
                     $context
                 );
+                if ($abundance) {
+                    $dictionaryWord->abundance = (int)$abundance;
+                }
                 $this->entityManager->persist($dictionaryWord);
             }
 

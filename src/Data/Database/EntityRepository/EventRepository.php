@@ -127,6 +127,18 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
+    public function logNewCrate(string $contents, User $reservedForPlayer)
+    {
+        return $this->log(
+            DomainEvent::ACTION_CRATE_NEW,
+            function (Event $entity) use ($contents, $reservedForPlayer) {
+                $entity->value = $contents;
+                $entity->actioningPlayer = $reservedForPlayer;
+                return $entity;
+            }
+        );
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeOld($now);

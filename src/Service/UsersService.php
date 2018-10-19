@@ -205,11 +205,16 @@ class UsersService extends AbstractService
             $this->entityManager->getShipLocationRepo()->makeInPort($ship, $safeHaven);
             $this->entityManager->getPortVisitRepo()->recordVisit($player, $safeHaven);
 
-            // Activate two crates - todo
+            // Make a crate (reserved for this player)
+            [$contents, $value] = $this->entityManager->getDictionaryRepo()->getRandomCrateContents();
+            $crate = $this->entityManager->getCrateRepo()->newCrate(
+                $contents,
+                $value,
+                $player
+            );
 
-            // Put crate 1 into the port - todo
-
-            // Put crate 2 onto the ship - todo
+            // Put the crate into the port
+            $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $safeHaven);
 
             // end the transaction
             $this->entityManager->getConnection()->commit();

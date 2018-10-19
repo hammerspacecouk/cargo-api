@@ -18,7 +18,7 @@ class Crate extends AbstractEntity
     public $contents;
 
     /** @ORM\Column(type="integer") */
-    public $value = 0;
+    public $value;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $valueCalculationDate;
@@ -29,10 +29,18 @@ class Crate extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $isDestroyed = false;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     */
+    public $reservedFor;
+
     public function __construct(
-        string $contents
+        string $contents,
+        int $value
     ) {
         parent::__construct();
         $this->contents = $contents;
+        $this->value = $value;
     }
 }

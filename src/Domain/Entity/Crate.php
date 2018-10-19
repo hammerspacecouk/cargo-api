@@ -11,18 +11,18 @@ class Crate extends Entity implements \JsonSerializable
 {
     private $contents;
     private $location;
-    private $isDestroyed;
+    private $value;
 
     public function __construct(
         UuidInterface $id,
         string $contents,
-        bool $isDestroyed = false,
+        int $value,
         ?CrateLocation $location = null
     ) {
         parent::__construct($id);
         $this->contents = $contents;
+        $this->value = $value;
         $this->location = $location;
-        $this->isDestroyed = $isDestroyed;
     }
 
     public function getLocation(): ?CrateLocation
@@ -42,8 +42,7 @@ class Crate extends Entity implements \JsonSerializable
     {
         $data = [
             'id' => $this->id,
-            'type' => 'Crate',
-            'isDestroyed' => $this->isDestroyed,
+            'value' => $this->value,
             'contents' => $this->contents,
         ];
         if ($this->location) {

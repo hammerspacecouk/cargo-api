@@ -63,17 +63,6 @@ $collection->add('profile_delete', new Route('/profile/delete', [
     '_controller' => Controller\Profile\DeleteAction::class,
 ]));
 
-// Crates
-$collection->add('crates_list', new Route('/crates', [
-    '_controller' => Controller\Crates\ListAction::class,
-]));
-
-$collection->add('crates_show', new Route('/crates/{uuid}', [
-    '_controller' => Controller\Crates\ShowAction::class,
-], [
-    'uuid' => Uuid::VALID_PATTERN,
-]));
-
 // Ports
 $collection->add('ports_list', new Route('/ports', [
     '_controller' => Controller\Ports\ListAction::class,
@@ -81,12 +70,6 @@ $collection->add('ports_list', new Route('/ports', [
 
 $collection->add('ports_show', new Route('/ports/{uuid}', [
     '_controller' => Controller\Ports\ShowAction::class,
-], [
-    'uuid' => Uuid::VALID_PATTERN,
-]));
-
-$collection->add('ports_crates', new Route('/ports/{uuid}/crates', [
-    '_controller' => Controller\Ports\CratesAction::class,
 ], [
     'uuid' => Uuid::VALID_PATTERN,
 ]));

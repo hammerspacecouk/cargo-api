@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
+use App\Domain\Entity\Crate;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\ValueObject\PlayerRankStatus;
-use App\Infrastructure\ApplicationConfig;
 use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
 use App\Domain\Entity\Port;
@@ -16,25 +16,23 @@ use App\Domain\ValueObject\Bearing;
 use App\Service\AlgorithmService;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\CratesService;
 use App\Service\EventsService;
 use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class ShipAction
 {
     use UserAuthenticationTrait;
     use GetShipTrait;
 
-    private $applicationConfig;
     private $algorithmService;
     private $authenticationService;
     private $shipsService;
@@ -44,11 +42,12 @@ class ShipAction
     private $logger;
     private $playerRanksService;
     private $eventsService;
+    private $cratesService;
 
     public function __construct(
-        ApplicationConfig $applicationConfig,
         AlgorithmService $algorithmService,
         AuthenticationService $authenticationService,
+        CratesService $cratesService,
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipsService $shipsService,
@@ -57,7 +56,6 @@ class ShipAction
         ChannelsService $channelsService,
         LoggerInterface $logger
     ) {
-        $this->applicationConfig = $applicationConfig;
         $this->authenticationService = $authenticationService;
         $this->shipsService = $shipsService;
         $this->shipMovementService = $shipMovementService;
@@ -67,6 +65,7 @@ class ShipAction
         $this->playerRanksService = $playerRanksService;
         $this->eventsService = $eventsService;
         $this->algorithmService = $algorithmService;
+        $this->cratesService = $cratesService;
     }
 
     public function __invoke(
@@ -97,27 +96,37 @@ class ShipAction
 
         $data = [
             'ship' => $ship,
-            'requestShipName' => $requestShipNameTransaction,
+            'requestShipName' => $requestShipNameTransaction, // todo - move to fleet API
             'status' => $shipWithLocation->getLocation()->getStatus(),
             'port' => null,
             'channel' => null,
             'directions' => null,
             'events' => [],
+            'cratesOnShip' => $this->cratesService->findForShip($ship),
         ];
 
         $rankStatus = $this->playerRanksService->getForUser($user);
 
         if ($location instanceof ShipInPort) {
-            $data['port'] = $location->getPort();
+            $port = $location->getPort();
+            $data['port'] = $port;
             $data['directions'] = $this->getDirectionsFromPort(
-                $location->getPort(),
+                $port,
                 $ship,
                 $user,
                 $location,
                 $rankStatus
             );
-            $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($location->getPort());
-            $data['events'] = $this->eventsService->findLatestForPort($location->getPort());
+            $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($port);
+            $data['events'] = $this->eventsService->findLatestForPort($port);
+            $cratesInPort = $this->cratesService->findInPortForUser($port, $user);
+
+            $data['cratesInPort'] = \array_map(function(Crate $crate) {
+                return [
+                    'token' => 'ttt', // todo
+                    'crate' => $crate,
+                ];
+            }, $cratesInPort);
         }
         if ($location instanceof ShipInChannel) {
             $data['channel'] = $location;

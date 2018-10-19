@@ -14,7 +14,7 @@ class CrateMapper extends Mapper
         return new Crate(
             $item['id'],
             $item['contents'],
-            $item['isDestroyed'],
+            $item['value'],
             $this->getLocation($item)
         );
     }

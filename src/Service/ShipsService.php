@@ -173,7 +173,10 @@ class ShipsService extends AbstractService
         return $shipsWithLocations;
     }
 
-    /** @return Ship[] */
+    /**
+     * @param array $results
+     * @return Ship[]
+     */
     private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createShipMapper();

@@ -7,128 +7,42 @@ use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
+use App\Domain\Entity\Ship;
+use App\Domain\Entity\User;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\UuidInterface;
 
 class CratesService extends AbstractService
 {
-    const CONTENTS = [
-        '🎂',
-        '🚗',
-        '🛴',
-        '🎈',
-        '🚽',
-        '🏀',
-        '⛸',
-        '🏓',
-        '🎷',
-        '🔨',
-        '💾',
-        '🗿',
-        '💰',
-        '✉',
-    ];
-
     public function makeNew(): void
     {
+        [$contents, $value] = $this->entityManager->getDictionaryRepo()->getRandomCrateContents();
         $crate = new DbCrate(
-            self::CONTENTS[array_rand(self::CONTENTS)]
+            $contents,
+            $value
         );
-
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
     }
 
-    public function countAllAvailable(): int
+    public function findInPortForUser(Port $port, User $user): array
     {
-        $qb = $this->getQueryBuilder(DbCrate::class)
-            ->select('count(1)')
-            ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('location.isCurrent = true');
-        return (int)$qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function findActive(
-        int $limit,
-        int $page = 1
-    ): array {
-        $qb = $this->getQueryBuilder(DbCrate::class)
-            ->innerJoin(DbCrateLocation::class, 'location', Join::WITH, 'location.crate = tbl')
-            ->where('location.isCurrent = true')
-            ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page));
+        $results = $this->entityManager->getCrateLocationRepo()
+            ->findWithCrateForPortIdAndUserId(
+                $port->getId(),
+                $user->getId()
+            );
 
         $mapper = $this->mapperFactory->createCrateMapper();
-
-        $results = $qb->getQuery()->getArrayResult();
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getCrate($result);
-        }, $results);
-    }
-
-    public function getByID(
-        UuidInterface $uuid
-    ): ?Crate {
-    
-        $result = $this->entityManager->getCrateRepo()->getByID($uuid);
-
-        if (!$result) {
-            return null;
-        }
-
-        $mapper = $this->mapperFactory->createCrateMapper();
-        return $mapper->getCrate($result);
-    }
-
-    public function getByIDWithLocation(
-        UuidInterface $uuid
-    ): ?Crate {
-    
-        $result = $this->entityManager->getCrateRepo()->getByID($uuid);
-
-        if (!$result) {
-            return null;
-        }
-
-        $result['location'] = $this->entityManager->getCrateLocationRepo()
-            ->getCurrentForCrateID($uuid);
-
-        $mapper = $this->mapperFactory->createCrateMapper();
-        return $mapper->getCrate($result);
-    }
-
-    public function countForPort(Port $port): int
-    {
-        $qb = $this->getQueryBuilder(DbCrateLocation::class)
-            ->select('count(1)')
-            ->where('IDENTITY(tbl.port) = :portID')
-            ->andWhere('tbl.isCurrent = true')
-            ->setParameter('portID', $port->getId()->getBytes());
-        return (int)$qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function findActiveForPort(
-        Port $port,
-        int $limit,
-        int $page = 1
-    ): array {
-        $qb = $this->getQueryBuilder(DbCrateLocation::class)
-            ->select('tbl', 'c')
-            ->join('tbl.crate', 'c')
-            ->where('IDENTITY(tbl.port) = :portID')
-            ->andWhere('tbl.isCurrent = true')
-            ->setParameter('portID', $port->getId()->getBytes())
-            ->orderBy('tbl.createdAt', 'DESC')
-            ->setMaxResults($limit)
-            ->setFirstResult($this->getOffset($limit, $page));
-
-        $mapper = $this->mapperFactory->createCrateMapper();
-
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
         return array_map(function ($result) use ($mapper) {
             return $mapper->getCrate($result['crate']);
         }, $results);
+    }
+
+    public function findForShip(Ship $ship): array
+    {
+        return [];
     }
 
     public function moveCrateToLocation(
@@ -176,5 +90,17 @@ class CratesService extends AbstractService
 //            $this->entityManager->persist($newLocation);
 //            $this->entityManager->flush();
 //        });
+    }
+
+    /**
+     * @param array $results
+     * @return Crate[]
+     */
+    private function mapMany(array $results): array
+    {
+        $mapper = $this->mapperFactory->createCrateMapper();
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getCrate($result);
+        }, $results);
     }
 }
