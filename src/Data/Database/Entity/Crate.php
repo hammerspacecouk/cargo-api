@@ -31,7 +31,7 @@ class Crate extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=true)
      */
     public $reservedFor;
 

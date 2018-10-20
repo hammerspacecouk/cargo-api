@@ -28,6 +28,7 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
             $expiryTime
         );
         $entity->id = $tokenId;
+        $entity->uuid = (string)$tokenId;
         $em = $this->getEntityManager();
         $em->persist($entity);
         $em->flush();

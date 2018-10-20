@@ -59,6 +59,14 @@ class IndexAction
         );
 
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
+
+        /* todo - use this
+        $requestShipNameTransaction = $this->shipNameService->getRequestShipNameTransaction(
+            $user->getId(),
+            $ship->getId()
+        );
+        */
+
         $activeShips = \array_filter($allShips, function (Ship $ship) {
             return !$ship->isDestroyed();
         });

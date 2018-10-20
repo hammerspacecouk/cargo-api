@@ -122,4 +122,12 @@ $collection->add(Controller\Actions\PurchaseShipAction::class, new Route(Action\
     '_controller' => Controller\Actions\PurchaseShipAction::class,
 ]));
 
+$collection->add(Controller\Actions\PortActions\PickupCrateAction::class, new Route(Action\MoveCrate\PickupCrateToken::getPath(), [
+    '_controller' => Controller\Actions\PortActions\PickupCrateAction::class,
+]));
+
+$collection->add(Controller\Actions\PortActions\DropCrateAction::class, new Route(Action\MoveCrate\DropCrateToken::getPath(), [
+    '_controller' => Controller\Actions\PortActions\DropCrateAction::class,
+]));
+
 return $collection;

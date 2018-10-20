@@ -53,7 +53,7 @@ abstract class AbstractToken
         return (string)\str_replace('v2.local.', '', $this->tokenString);
     }
 
-    protected static function create(array $claims, $id = null): array
+    protected static function create(array $claims, UuidInterface $id = null): array
     {
         $tokenArgs = [
             $claims,

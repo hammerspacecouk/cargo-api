@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait IDRequestTrait
 {
-    public function getID(Request $request): UuidInterface
+    public function getIDFromUrl(Request $request): UuidInterface
     {
         $uuid = $request->get('uuid');
         if (!$uuid || !Uuid::isValid($uuid)) {

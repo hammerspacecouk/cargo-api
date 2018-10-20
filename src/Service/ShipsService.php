@@ -4,11 +4,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
-use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\User;
-use App\Domain\Entity\ShipClass;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -95,8 +92,9 @@ class ShipsService extends AbstractService
     ): ?Ship {
     
         $qb = $this->getQueryBuilder(DbShip::class)
-            ->select('tbl', 'c')
+            ->select('tbl', 'c', 'o')
             ->join('tbl.shipClass', 'c')
+            ->join('tbl.owner', 'o')
             ->where('tbl.id = :id')
             ->setParameter('id', $uuid->getBytes());
 

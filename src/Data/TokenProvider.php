@@ -106,7 +106,7 @@ class TokenProvider
     private function uuidFromToken(
         JsonToken $token
     ): UuidInterface {
-        return Uuid::fromString($token->get('jti'));
+        return Uuid::fromString($token->getJti());
     }
 
     private function expiryFromToken(

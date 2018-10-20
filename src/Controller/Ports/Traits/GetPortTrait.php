@@ -17,7 +17,7 @@ trait GetPortTrait
         Request $request,
         PortsService $portsService
     ): Port {
-        $uuid = $this->getID($request);
+        $uuid = $this->getIDFromUrl($request);
         $port = $portsService->getByID($uuid);
         if (!$port) {
             throw new NotFoundHttpException('No such port');

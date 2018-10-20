@@ -66,7 +66,7 @@ class User extends Entity implements \JsonSerializable
 
     public function getRotationSteps()
     {
-        return $this->rotationSteps;
+        return 0; // todo - activate this $this->rotationSteps;
     }
 
     public function getScore(): Score

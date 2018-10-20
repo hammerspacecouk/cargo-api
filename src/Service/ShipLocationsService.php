@@ -3,14 +3,17 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Domain\ValueObject\Costs;
+use App\Service\Ships\DeltaTrait;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 
 class ShipLocationsService extends AbstractService
 {
+    use DeltaTrait;
+
     public function findLatest(
         int $limit,
         int $page = 1
@@ -67,11 +70,27 @@ class ShipLocationsService extends AbstractService
             $ownerId
         );
 
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
+        // reverse the delta from this journey originally
+        $delta = -$this->calculateDelta(
+            $ship->id,
+            $currentLocation->channel->distance,
+            $currentLocation->entryTime,
+            $currentLocation->exitTime
+        );
+        $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID($ship->id,
+            Query::HYDRATE_OBJECT);
+
+        $this->entityManager->transactional(function () use (
+            $currentLocation,
+            $ship,
+            $destinationPort,
+            $alreadyVisited,
+            $owner,
+            $crateLocations,
+            $delta
+        ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
-            $currentLocation->exitTime = $this->dateTimeFactory->now();
             $this->entityManager->persist($currentLocation);
 
             $this->entityManager->getShipLocationRepo()->makeInPort($ship, $destinationPort);
@@ -81,20 +100,21 @@ class ShipLocationsService extends AbstractService
                 $this->entityManager->getPortVisitRepo()->recordVisit($owner, $destinationPort);
             }
 
-            // todo - move all the crates to the port
-            // todo - calculate the user's new rank and cache it
+            // move all the crates to the port
+            foreach ($crateLocations as $crateLocation) {
+                /** @var CrateLocation $crateLocation */
+                $crateLocation->isCurrent = false;
+                $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);
+                $this->entityManager->getCrateLocationRepo()->makeInPort(
+                    $crateLocation->crate,
+                    $destinationPort
+                );
+            }
 
-            // update the users score - todo - calculate how much the rate delta should be
-            $this->entityManager->getUserRepo()->updateScoreRate($owner, Costs::DELTA_SHIP_ARRIVAL);
-
-            $this->logger->info('Committing all changes');
-            $this->entityManager->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Failed to process arrival');
-            throw $e;
-        }
+            // update the users score
+            $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
+        });
     }
 
-    // todo - move location based methods from ShipsService into here
+    // todo - move location based methods from ShipsService into here - maybe
 }

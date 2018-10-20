@@ -38,6 +38,16 @@ class Crate extends Entity implements \JsonSerializable
         return $this->location;
     }
 
+    public function getValue(): int
+    {
+        return $this->value;
+    }
+
+    public function getValuePerLightYear(int $distanceMultiplier): int
+    {
+        return $this->value * $distanceMultiplier;
+    }
+
     public function jsonSerialize()
     {
         $data = [

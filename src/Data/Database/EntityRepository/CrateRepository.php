@@ -23,7 +23,18 @@ class CrateRepository extends AbstractEntityRepository
 
         $this->getEntityManager()->persist($crate);
         $this->getEntityManager()->flush();
-        $this->getEntityManager()->getEventRepo()->logNewCrate($contents, $reservedForPlayer);
+        $this->getEntityManager()->getEventRepo()->logNewCrate($crate, $reservedForPlayer);
         return $crate;
+    }
+
+    public function removeReservation(Crate $crate): void
+    {
+        // if this crate was previously reserved, open it up to the world
+        // otherwise, do nothing
+        if ($crate->reservedFor) {
+            $crate->reservedFor = null;
+            $this->getEntityManager()->persist($crate);
+            $this->getEntityManager()->flush();
+        }
     }
 }

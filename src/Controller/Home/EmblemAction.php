@@ -31,7 +31,7 @@ class EmblemAction
         UsersService $usersService,
         PlayerRanksService $playerRanksService
     ) {
-        $playerId = $this->getID($request);
+        $playerId = $this->getIDFromUrl($request);
         $player = $usersService->getById($playerId);
         if (!$player) {
             throw new NotFoundHttpException('No such player');

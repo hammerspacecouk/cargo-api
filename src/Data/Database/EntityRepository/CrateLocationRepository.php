@@ -6,6 +6,7 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Port;
+use App\Data\Database\Entity\Ship;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -29,59 +30,47 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function getCurrentForCrateID(
+    public function findForCrateAndPortId(
         UuidInterface $crateId,
+        UuidInterface $portId,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'port', 'ship')
-            ->leftJoin('tbl.port', 'port')
-            ->leftJoin('tbl.ship', 'ship')
+            ->select('tbl', 'port', 'crate')
+            ->join('tbl.port', 'port')
+            ->join('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.crate) = :crate')
-            ->orderBy('tbl.createdAt', 'DESC')
+            ->andWhere('IDENTITY(tbl.port) = :port')
+            ->andWhere('tbl.isCurrent = true')
             ->setMaxResults(1)
-            ->setParameter('crate', $crateId->getBytes());
+            ->setParameter('crate', $crateId->getBytes())
+            ->setParameter('port', $portId->getBytes());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function findCurrentForCreateID(
-        UuidInterface $crateId,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.id = :id')
-            ->andWhere('tbl.isCurrent = true')
-            ->setParameter('id', $crateId->getBytes());
-        return $qb->getQuery()->getResult($resultType);
-    }
-
     public function findCurrentForShipID(
-        UuidInterface $crateId,
+        UuidInterface $shipId,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'crate')
-            ->leftJoin('tbl.crate', 'crate')
+            ->join('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
-            ->setParameter('ship', $crateId->getBytes());
+            ->setParameter('ship', $shipId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function disableAllActiveForCrateID(UuidInterface $uuid): void
+    public function makeInShip(Crate $crate, Ship $ship): void
     {
-        // remove any old crate locations
-        $q = $this->getEntityManager()->createQuery(
-            'UPDATE ' . CrateLocation::class . ' cl ' .
-            'SET ' .
-            'cl.isCurrent = false, ' .
-            'cl.updatedAt = :time ' .
-            'WHERE IDENTITY(cl.crate) = :crate ' .
-            'AND cl.isCurrent = true'
+        $location = new CrateLocation(
+            $crate,
+            null,
+            $ship
         );
-        $q->setParameter('time', $this->dateTimeFactory->now());
-        $q->setParameter('crate', $uuid->getBytes());
-        $q->execute();
+
+        $this->getEntityManager()->persist($location);
+        $this->getEntityManager()->flush();
     }
 
     public function makeInPort(Crate $crate, Port $port): void
@@ -91,8 +80,24 @@ class CrateLocationRepository extends AbstractEntityRepository
             $port,
             null
         );
-        $this->getEntityManager()->persist($location);
 
+        $this->getEntityManager()->persist($location);
         $this->getEntityManager()->flush();
     }
+
+    public function exitLocation(Crate $crate): void
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('IDENTITY(tbl.crate) = :crate')
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('crate', $crate->id->getBytes());
+
+        $location = $qb->getQuery()->getSingleResult();
+        $location->isCurrent = false;
+
+        $this->getEntityManager()->persist($location);
+        $this->getEntityManager()->flush();
+    }
+
 }

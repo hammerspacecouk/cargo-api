@@ -4,13 +4,14 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
-use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
+use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\Query\Expr\Join;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class CratesService extends AbstractService
@@ -42,54 +43,124 @@ class CratesService extends AbstractService
 
     public function findForShip(Ship $ship): array
     {
-        return [];
+        $results = $this->entityManager->getCrateLocationRepo()
+            ->findCurrentForShipID(
+                $ship->getId()
+            );
+
+        $mapper = $this->mapperFactory->createCrateMapper();
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getCrate($result['crate']);
+        }, $results);
     }
 
-    public function moveCrateToLocation(
-        UuidInterface $crateID,
-        UuidInterface $locationId
+    public function crateIsInPort(UuidInterface $crateId, UuidInterface $portId): bool
+    {
+        return (bool)$this->entityManager->getCrateLocationRepo()
+            ->findForCrateAndPortId(
+                $crateId,
+                $portId
+            );
+    }
+
+    public function getPickupCrateToken(
+        Crate $crate,
+        Ship $ship,
+        Port $port,
+        string $tokenKey
+    ): PickupCrateToken {
+        $token = $this->tokenHandler->makeToken(...PickupCrateToken::make(
+            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
+            $crate->getId(),
+            $port->getId(),
+            $ship->getId()
+        ));
+        return new PickupCrateToken($token->getJsonToken(), (string)$token);
+    }
+
+    public function getDropCrateToken(
+        Crate $crate,
+        Ship $ship,
+        Port $port,
+        string $tokenKey
+    ): DropCrateToken {
+        $token = $this->tokenHandler->makeToken(...DropCrateToken::make(
+            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
+            $crate->getId(),
+            $port->getId(),
+            $ship->getId()
+        ));
+        return new DropCrateToken($token->getJsonToken(), (string)$token);
+    }
+
+    public function parsePickupCrateToken(
+        string $tokenString
+    ): PickupCrateToken {
+        return new PickupCrateToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function parseDropCrateToken(
+        string $tokenString
+    ): DropCrateToken {
+        return new DropCrateToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function usePickupCrateToken(
+        PickupCrateToken $token
     ): void {
-        $crateRepo = $this->entityManager->getCrateRepo();
+        $crateId = $token->getCrateId();
+        $portId = $token->getPortId();
+        $shipId = $token->getShipId();
 
-        // fetch the crate and the port
-        $crate = $crateRepo->getByID($crateID, Query::HYDRATE_OBJECT);
-        if (!$crate) {
-            throw new \InvalidArgumentException('No such active crate');
-        }
+        $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
+        $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
+        $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
 
-        $port = null;
-        $ship = null;
-        die('we have some work to do here. do not use this ID to decide'); // todo
-//        $locationType = ID::getIDType($locationId);
-//
-//        switch ($locationType) {
-//            case DbPort::class:
-//                $port = $this->entityManager->getPortRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
-//                break;
-//            case DbShip::class:
-//                $ship = $this->entityManager->getShipRepo()->getByID($locationId, Query::HYDRATE_OBJECT);
-//                break;
-//        }
-//
-//        if (!$port && !$ship) {
-//            throw new \InvalidArgumentException('Invalid destination ID');
-//        }
-//
-//        // start the transaction
-//        $this->entityManager->transactional(function () use ($crate, $port, $ship) {
-//            // remove any old crate locations
-//            $this->entityManager->getCrateLocationRepo()->disableAllActiveForCrateID($crate->id);
-//
-//            // make a new crate location
-//            $newLocation = new DbCrateLocation(
-//                $crate,
-//                $port,
-//                $ship
-//            );
-//
-//            $this->entityManager->persist($newLocation);
-//            $this->entityManager->flush();
-//        });
+        $this->entityManager->transactional(function() use ($port, $crate, $token, $ship) {
+            $this->logger->info('Revoking previous location');
+            $this->entityManager->getCrateLocationRepo()->exitLocation($crate);
+
+            $this->logger->info('Creating new location');
+            $this->entityManager->getCrateLocationRepo()->makeInShip(
+                $crate,
+                $ship
+            );
+
+            $this->entityManager->getCrateRepo()->removeReservation($crate);
+
+            $this->entityManager->getEventRepo()->logCratePickup($crate, $ship, $port);
+
+            $this->logger->info('Marking token as used');
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+
+            $this->logger->notice('[CRATE_PICKUP]');
+        });
+    }
+
+    public function useDropCrateToken(
+        DropCrateToken $token
+    ): void {
+        $crateId = $token->getCrateId();
+        $portId = $token->getPortId();
+
+        $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
+        $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
+
+        $this->entityManager->transactional(function() use ($port, $crate, $token) {
+            $this->logger->info('Revoking previous location');
+            $this->entityManager->getCrateLocationRepo()->exitLocation($crate);
+
+            $this->logger->info('Creating new location');
+            $this->entityManager->getCrateLocationRepo()->makeInPort(
+                $crate,
+                $port
+            );
+
+            $this->logger->info('Marking token as used');
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+
+            $this->logger->notice('[CRATE_DROP]');
+        });
     }
 
     /**

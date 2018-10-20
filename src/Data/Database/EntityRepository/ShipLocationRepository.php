@@ -135,6 +135,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
     public function makeInChannel(
         Ship $ship,
         Channel $channel,
+        DateTimeImmutable $entryTime,
         DateTimeImmutable $exitTime,
         bool $reverseDirection
     ): void {
@@ -142,7 +143,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             null,
             $channel,
-            $this->dateTimeFactory->now()
+            $entryTime
         );
 
         $location->exitTime = $exitTime;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\CleanableInterface;
+use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\Event;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
@@ -127,13 +128,26 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
-    public function logNewCrate(string $contents, User $reservedForPlayer)
+    public function logNewCrate(Crate $crate, User $reservedForPlayer)
     {
         return $this->log(
             DomainEvent::ACTION_CRATE_NEW,
-            function (Event $entity) use ($contents, $reservedForPlayer) {
-                $entity->value = $contents;
+            function (Event $entity) use ($crate, $reservedForPlayer) {
+                $entity->subjectCrate = $crate;
                 $entity->actioningPlayer = $reservedForPlayer;
+                return $entity;
+            }
+        );
+    }
+
+    public function logCratePickup(Crate $crate, Ship $ship, Port $port)
+    {
+        return $this->log(
+            DomainEvent::ACTION_CRATE_PICKUP,
+            function (Event $entity) use ($crate, $ship, $port) {
+                $entity->subjectPort = $port;
+                $entity->subjectCrate = $crate;
+                $entity->actioningShip = $ship;
                 return $entity;
             }
         );

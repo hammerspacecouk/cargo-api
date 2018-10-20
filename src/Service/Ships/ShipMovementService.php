@@ -7,7 +7,6 @@ use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Service\ShipsService;
 use Doctrine\ORM\Query;
@@ -15,6 +14,8 @@ use Ramsey\Uuid\Uuid;
 
 class ShipMovementService extends ShipsService
 {
+    use DeltaTrait;
+
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
@@ -24,7 +25,7 @@ class ShipMovementService extends ShipsService
         string $tokenKey
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
-            $this->uuidFactory->uuid5(Uuid::NIL, sha1($tokenKey)),
+            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
             $ship->getId(),
             $channel->getId(),
             $owner->getId(),
@@ -40,24 +41,34 @@ class ShipMovementService extends ShipsService
         $shipId = $token->getShipId();
         $channelId = $token->getChannelId();
         $reversed = $token->isReversed();
+        $now = $this->dateTimeFactory->now();
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
         }
 
+        /** @var \App\Data\Database\Entity\Channel $channel */
         $channel = $this->entityManager->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
         if (!$channel) {
             throw new \InvalidArgumentException('No such channel');
         }
 
-        // todo - adjust exit time if any abilities were applied
-        $exitTime = $this->dateTimeFactory->now()->add(
+        $exitTime = $now->add(
             new \DateInterval('PT' . $token->getJourneyTime() . 'S')
         );
 
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
+        $delta = $this->calculateDelta($shipId, $channel->distance, $now, $exitTime);
+
+        $this->entityManager->transactional(function () use (
+            $ship,
+            $channel,
+            $now,
+            $exitTime,
+            $reversed,
+            $delta,
+            $token
+        ) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getShipLocationRepo()->exitLocation($ship);
 
@@ -65,32 +76,24 @@ class ShipMovementService extends ShipsService
             $this->entityManager->getShipLocationRepo()->makeInChannel(
                 $ship,
                 $channel,
+                $now,
                 $exitTime,
                 $reversed
             );
 
-            // update the users score - todo - calculate how much the rate delta should be
-            $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, Costs::DELTA_SHIP_DEPARTURE);
-
-            // todo - mark any abilities as used
+            // update the users score
+            $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, $delta);
 
             $this->logger->info('Marking token as used');
 
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
-
-            $this->logger->info('Committing transaction');
-            $this->entityManager->getConnection()->commit();
             $this->logger->notice(sprintf(
                 '[DEPARTURE] Ship: %s, Channel: %s, Reversed: %s',
-                (string)$shipId,
-                (string)$channelId,
+                (string)$ship->id,
+                (string)$channel->id,
                 (string)$reversed
             ));
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Rolled back "useMoveShipToken" transaction');
-            throw $e;
-        }
+        });
 
         $newLocation = $this->entityManager->getShipLocationRepo()->getCurrentForShipId(
             $shipId

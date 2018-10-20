@@ -24,7 +24,7 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
     {
         $request = new Request();
         $this->expectException(BadRequestHttpException::class);
-        $this->trait->getID($request);
+        $this->trait->getIDFromUrl($request);
     }
 
     public function testInvalidUuidInRequest(): void
@@ -33,7 +33,7 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
             'uuid' => '1234',
         ]);
         $this->expectException(BadRequestHttpException::class);
-        $this->trait->getID($request);
+        $this->trait->getIDFromUrl($request);
     }
 
     public function testGetId(): void
@@ -41,7 +41,7 @@ class IDRequestTraitTest extends \PHPUnit\Framework\TestCase
         $request = new Request([
             'uuid' => self::EXAMPLE_UUID,
         ]);
-        $uuid = $this->trait->getID($request);
+        $uuid = $this->trait->getIDFromUrl($request);
 
         $this->assertInstanceOf(UuidInterface::class, $uuid);
         $this->assertSame(self::EXAMPLE_UUID, (string)$uuid);

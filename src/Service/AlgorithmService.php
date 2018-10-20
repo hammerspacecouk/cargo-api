@@ -8,7 +8,9 @@ use App\Domain\ValueObject\PlayerRankStatus;
 
 class AlgorithmService extends AbstractService
 {
-    private const MINIMUM_JOURNEY_TIME_SECONDS = 20;
+    private const MINIMUM_JOURNEY_TIME_SECONDS = 36;
+
+    public const MINIMUM_EARNINGS_DISTANCE = 1/100;
 
     public function getJourneyTime(
         int $distanceUnits,
@@ -26,5 +28,10 @@ class AlgorithmService extends AbstractService
         $time *= $applicableClass->getSpeedMultiplier();
 
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
+    }
+
+    public function getTotalEarnings(int $totalCrateValue, int $distance): int
+    {
+        return (int)\round($totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE));
     }
 }

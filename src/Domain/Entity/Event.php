@@ -10,6 +10,7 @@ use Ramsey\Uuid\UuidInterface;
 class Event extends Entity implements \JsonSerializable
 {
     public const ACTION_CRATE_NEW = 'crate_new';
+    public const ACTION_CRATE_PICKUP = 'crate_pickup';
 
     public const ACTION_PLAYER_NEW = 'player_new';
     public const ACTION_PLAYER_PROMOTION = 'player_promotion';
