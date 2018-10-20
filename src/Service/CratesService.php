@@ -116,7 +116,7 @@ class CratesService extends AbstractService
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
 
-        $this->entityManager->transactional(function() use ($port, $crate, $token, $ship) {
+        $this->entityManager->transactional(function () use ($port, $crate, $token, $ship) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getCrateLocationRepo()->exitLocation($crate);
 
@@ -146,7 +146,7 @@ class CratesService extends AbstractService
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
 
-        $this->entityManager->transactional(function() use ($port, $crate, $token) {
+        $this->entityManager->transactional(function () use ($port, $crate, $token) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getCrateLocationRepo()->exitLocation($crate);
 

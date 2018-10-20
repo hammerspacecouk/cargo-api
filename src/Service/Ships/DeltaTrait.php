@@ -18,7 +18,7 @@ trait DeltaTrait
         // get crates currently on this ship to calculate delta
         $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID($shipId);
         $crateMapper = $this->mapperFactory->createCrateMapper();
-        $totalCrateValue = \array_reduce($crateLocations, function (int $acc, array $crateLocation) use($crateMapper) {
+        $totalCrateValue = \array_reduce($crateLocations, function (int $acc, array $crateLocation) use ($crateMapper) {
             return $acc + $crateMapper->getCrate($crateLocation['crate'])
                     ->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier());
         }, 0);

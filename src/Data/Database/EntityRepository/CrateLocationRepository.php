@@ -99,5 +99,4 @@ class CrateLocationRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($location);
         $this->getEntityManager()->flush();
     }
-
 }

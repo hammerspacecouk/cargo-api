@@ -45,7 +45,6 @@ class DictionaryRepository extends AbstractEntityRepository
     public function getRandomCrateContents(): array
     {
         return seedableRandomItem($this->getCrateContentsList());
-
     }
 
     private function getCrateContentsList(): array

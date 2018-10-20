@@ -77,8 +77,10 @@ class ShipLocationsService extends AbstractService
             $currentLocation->entryTime,
             $currentLocation->exitTime
         );
-        $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID($ship->id,
-            Query::HYDRATE_OBJECT);
+        $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID(
+            $ship->id,
+            Query::HYDRATE_OBJECT
+        );
 
         $this->entityManager->transactional(function () use (
             $currentLocation,
