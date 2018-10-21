@@ -7,7 +7,10 @@ use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
+use App\Data\Database\Entity\ShipLocation;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\UuidInterface;
 
 class CrateLocationRepository extends AbstractEntityRepository
@@ -58,6 +61,30 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
             ->setParameter('ship', $shipId->getBytes());
+        return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function getOnShipsInPortBefore(
+        DateTimeImmutable $before,
+        int $limit,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'crate', 'ship')
+            ->join('tbl.crate', 'crate')
+            ->join('tbl.ship', 'ship')
+            ->join(
+                ShipLocation::class,
+                'shipLoc',
+                Join::WITH,
+                'ship.id = shipLoc.ship'
+            )
+            ->join('shipLoc.port', 'port')
+            ->where('tbl.updatedAt <= :before')
+            ->andWhere('tbl.isCurrent = true')
+            ->andWhere('shipLoc.isCurrent = true')
+            ->setMaxResults($limit)
+            ->setParameter('before', $before);
         return $qb->getQuery()->getResult($resultType);
     }
 

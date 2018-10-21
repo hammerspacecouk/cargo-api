@@ -4,18 +4,24 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
+use App\Data\Database\Entity\CrateLocation;
+use App\Data\Database\Entity\ShipLocation;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class CratesService extends AbstractService
 {
+    private const MAX_TIME_TO_HOARD_CRATE = 'PT1H';
+
     public function makeNew(): void
     {
         [$contents, $value] = $this->entityManager->getDictionaryRepo()->getRandomCrateContents();
@@ -126,8 +132,6 @@ class CratesService extends AbstractService
                 $ship
             );
 
-            $this->entityManager->getCrateRepo()->removeReservation($crate);
-
             $this->entityManager->getEventRepo()->logCratePickup($crate, $ship, $port);
 
             $this->logger->info('Marking token as used');
@@ -161,6 +165,41 @@ class CratesService extends AbstractService
 
             $this->logger->notice('[CRATE_DROP]');
         });
+    }
+
+    public function restoreHoardedBackToPort(
+        DateTimeImmutable $now,
+        int $limit
+    ):int {
+        $since = $now->sub(new DateInterval(self::MAX_TIME_TO_HOARD_CRATE));
+
+        // fetch all crates that were put on a ship more than an hour ago, and that ship is still in port
+        $crateLocations = $this->entityManager->getCrateLocationRepo()->getOnShipsInPortBefore(
+            $since,
+            $limit,
+            Query::HYDRATE_OBJECT
+        );
+        $total = count($crateLocations);
+
+        // put those crates back in the port
+        $this->logger->info('Putting ' . $total . ' crates back into the port');
+        foreach ($crateLocations as $crateLocation) {
+            /** @var CrateLocation $crateLocation */
+            /** @var ShipLocation $shipLocation */
+            $shipLocation = $this->entityManager->getShipLocationRepo()->getCurrentForShipId(
+                $crateLocation->ship->id,
+                Query::HYDRATE_OBJECT
+            );
+
+            $this->entityManager->transactional(function() use ($crateLocation, $shipLocation) {
+                $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);
+                $this->entityManager->getCrateLocationRepo()->makeInPort(
+                    $crateLocation->crate,
+                    $shipLocation->port
+                );
+            });
+        }
+        return $total;
     }
 
     /**

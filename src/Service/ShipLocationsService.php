@@ -14,6 +14,8 @@ class ShipLocationsService extends AbstractService
 {
     use DeltaTrait;
 
+    private const AUTO_MOVE_TIME = 'PT1H';
+
     public function findLatest(
         int $limit,
         int $page = 1
@@ -38,7 +40,7 @@ class ShipLocationsService extends AbstractService
         );
         $total = count($locations);
 
-        $this->logger->info('Processing ' . count($locations) . ' arrivals in this batch');
+        $this->logger->info('Processing ' . $total . ' arrivals in this batch');
         if (!empty($locations)) {
             foreach ($locations as $location) {
                 $this->moveShipFromChannelToPort($location);
@@ -111,11 +113,25 @@ class ShipLocationsService extends AbstractService
                     $crateLocation->crate,
                     $destinationPort
                 );
+                $this->entityManager->getCrateRepo()->removeReservation($crateLocation->crate);
             }
 
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
         });
+    }
+
+    public function autoMoveShips(
+        DateTimeImmutable $before,
+        int $limit
+    ): int {
+        // find ships of capacity 0 that have been sitting in a port for a while
+
+        // for each of them, find all the possible directions they can use
+
+        // of the possible directions, find which ones the ship is allowed to travel
+        // of the remaining directions, find one which the player has NOT been to before
+        // if not found, choose the one the player hasn't been to most recently
     }
 
     // todo - move location based methods from ShipsService into here - maybe
