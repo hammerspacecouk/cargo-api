@@ -206,12 +206,7 @@ class UsersService extends AbstractService
             $this->entityManager->getPortVisitRepo()->recordVisit($player, $safeHaven);
 
             // Make a crate (reserved for this player)
-            [$contents, $value] = $this->entityManager->getDictionaryRepo()->getRandomCrateContents();
-            $crate = $this->entityManager->getCrateRepo()->newCrate(
-                $contents,
-                $value,
-                $player
-            );
+            $crate = $this->entityManager->getCrateRepo()->newRandomCrateForPlayer($player);
 
             // Put the crate into the port
             $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $safeHaven);

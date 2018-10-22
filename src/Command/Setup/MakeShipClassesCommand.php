@@ -62,6 +62,7 @@ class MakeShipClassesCommand extends Command
             $iconSvg = $data['iconSvg'];
             $orderNumber = (int)$data['orderNumber'];
             $strength = (int)$data['strength'];
+            $autoNavigate = (bool)$data['autoNavigate'];
             $minimumRank = $this->getPlayerRank($data['minimumRankId']);
             $capacity = (int)$data['capacity'];
             $speedMultiplier = (float)$data['speedMultiplier'];
@@ -75,6 +76,7 @@ class MakeShipClassesCommand extends Command
                 $entity->description = $description;
                 $entity->iconSvg = $iconSvg;
                 $entity->strength = $strength;
+                $entity->autoNavigate = $autoNavigate;
                 $entity->orderNumber = $orderNumber;
                 $entity->minimumRank = $minimumRank;
                 $entity->capacity = $capacity;
@@ -87,6 +89,7 @@ class MakeShipClassesCommand extends Command
                     $description,
                     $iconSvg,
                     $strength,
+                    $autoNavigate,
                     $orderNumber,
                     $capacity,
                     $speedMultiplier,

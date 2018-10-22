@@ -44,6 +44,8 @@ class TimedCommand extends AbstractWorkerCommand
         // move hoarded crates back to the port after one hour
         $total += $this->cratesService->restoreHoardedBackToPort($now, self::BATCH_SIZE);
 
+        // todo - if it's been a while since the last goalCrate was made, make a new one
+
         return $total;
     }
 }

@@ -20,6 +20,9 @@ class Crate extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $value;
 
+    /** @ORM\Column(type="boolean") */
+    public $isGoal = false;
+
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $valueCalculationDate;
 

@@ -25,9 +25,6 @@ class Dictionary extends AbstractEntity
     /** @ORM\Column(type="string", length=191) */
     public $context;
 
-    /** @ORM\Column(type="integer", nullable=true) */
-    public $abundance;
-
     public function __construct(
         string $word,
         string $context

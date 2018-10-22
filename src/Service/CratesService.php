@@ -24,14 +24,16 @@ class CratesService extends AbstractService
 
     public function makeNew(): void
     {
-        [$contents, $value] = $this->entityManager->getDictionaryRepo()->getRandomCrateContents();
+        $crateContents = $this->entityManager->getCrateTypeRepo()->getRandomCrateContents();
         $crate = new DbCrate(
-            $contents,
-            $value
+            $crateContents->contents,
+            $crateContents->value
         );
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
     }
+
+    // todo makeNewGoalCrate()
 
     public function findInPortForUser(Port $port, User $user): array
     {

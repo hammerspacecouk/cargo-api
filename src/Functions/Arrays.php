@@ -5,7 +5,7 @@ namespace App\Functions\Arrays;
 
 function seedableRandomItem(array $array)
 {
-    $max = count($array) - 1;
+    $max = \count($array) - 1;
     /** @noinspection RandomApiMigrationInspection - because it needs to be seedable */
-    return $array[mt_rand(0, $max)];
+    return $array[\mt_rand(0, $max)];
 }

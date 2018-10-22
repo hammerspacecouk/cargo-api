@@ -5,7 +5,6 @@ namespace App\Command\Maintenance;
 
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
-use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Swift_Message;

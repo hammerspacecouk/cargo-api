@@ -26,6 +26,9 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $strength;
 
+    /** @ORM\Column(type="boolean") */
+    public $autoNavigate = false;
+
     /** @ORM\Column(type="integer", unique=true) */
     public $orderNumber;
 
@@ -51,6 +54,7 @@ class ShipClass extends AbstractEntity
         string $description,
         string $iconSvg,
         int $strength,
+        bool $autoNavigate,
         int $orderNumber,
         int $capacity,
         float $speedMultiplier,
@@ -69,5 +73,6 @@ class ShipClass extends AbstractEntity
         $this->description = $description;
         $this->iconSvg = $iconSvg;
         $this->strength = $strength;
+        $this->autoNavigate = $autoNavigate;
     }
 }
