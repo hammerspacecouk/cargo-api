@@ -185,7 +185,23 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         }, $qb->getQuery()->getArrayResult());
     }
 
-    public function clean(\DateTimeImmutable $now): int
+    public function getAutoMoveShipsInPortBefore(DateTimeImmutable $before)
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'shipClass', 'player')
+            ->join('tbl.ship', 'ship')
+            ->join('tbl.port', 'port')
+            ->join('ship.owner', 'player')
+            ->join('ship.shipClass', 'shipClass')
+            ->where('tbl.entryTime < :before')
+            ->andWhere('tbl.isCurrent = 1')
+            ->andWhere('shipClass.autoNavigate = 1')
+            ->andWhere('ship.strength > 0')
+            ->setParameter('before', $before);
+        return $qb->getQuery()->getResult();
+    }
+
+    public function clean(DateTimeImmutable $now): int
     {
         return $this->removeInactiveBefore($now);
     }

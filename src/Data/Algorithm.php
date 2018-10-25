@@ -1,18 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Data;
 
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\PlayerRankStatus;
+use App\Infrastructure\ApplicationConfig;
 
-class AlgorithmService extends AbstractService
+class Algorithm
 {
     private const MINIMUM_JOURNEY_TIME_SECONDS = 36;
 
     public const MINIMUM_EARNINGS_DISTANCE = 1/100;
 
-    // todo - remove
+    private $applicationConfig;
+
+    public function __construct(
+        ApplicationConfig $applicationConfig
+    ) {
+        $this->applicationConfig = $applicationConfig;
+    }
+
     public function getJourneyTime(
         int $distanceUnits,
         Ship $ship,
@@ -31,7 +39,6 @@ class AlgorithmService extends AbstractService
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
     }
 
-    // todo - remove
     public function getTotalEarnings(int $totalCrateValue, int $distance): int
     {
         return (int)\round($totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE));

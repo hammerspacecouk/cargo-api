@@ -24,6 +24,20 @@ class PortVisitRepository extends AbstractEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function getForPortAndUser(
+        UuidInterface $portId,
+        UuidInterface $playerId
+    ) {
+        return (bool)(int)$this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('IDENTITY(tbl.port) = :portId')
+            ->andWhere('IDENTITY(tbl.player) = :playerId')
+            ->setParameter('portId', $portId->getBytes())
+            ->setParameter('playerId', $playerId->getBytes())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function countForPlayerId(UuidInterface $playerId)
     {
         return (int)$this->createQueryBuilder('tbl')

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Algorithm;
 use App\Data\Database\Entity\User;
 use App\Data\Database\EntityManager;
 use App\Data\Database\Mapper\MapperFactory;
@@ -32,11 +33,13 @@ abstract class AbstractService
     protected $cache;
     protected $logger;
     protected $uuidFactory;
+    protected $algorithm;
 
     public function __construct(
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
         ApplicationConfig $applicationConfig,
+        Algorithm $algorithm,
         TokenProvider $tokenHandler,
         DateTimeFactory $dateTimeFactory,
         UuidFactoryInterface $uuidFactory,
@@ -51,6 +54,7 @@ abstract class AbstractService
         $this->cache = $cache;
         $this->logger = $logger;
         $this->uuidFactory = $uuidFactory;
+        $this->algorithm = $algorithm;
     }
 
     protected function getQueryBuilder(string $name): QueryBuilder
