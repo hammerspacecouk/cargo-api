@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
-use App\Domain\Entity\User;
 use App\Domain\ValueObject\SessionState;
 use App\Service\AuthenticationService;
 use App\Service\PlayerRanksService;
@@ -42,6 +41,7 @@ class CheckLoginAction
                 $this->playerRanksService->getForUser($user)
             );
         } else {
+            // todo - make a CSRF token for Anonymous login
             $state = new SessionState();
         }
 

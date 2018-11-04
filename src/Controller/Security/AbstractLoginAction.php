@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
+use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
@@ -69,6 +70,11 @@ class AbstractLoginAction
             $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
         }
 
+        return $this->getLoginResponseForUser($user);
+    }
+
+    protected function getLoginResponseForUser(User $user): RedirectResponse
+    {
         $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
 
         $response = new RedirectResponse($this->getRedirectUrl());

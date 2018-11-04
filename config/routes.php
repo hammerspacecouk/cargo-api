@@ -38,6 +38,7 @@ $collection->add('logout', new Route('/logout', [
 $collection->add('login_check', new Route('/login/check', [
     '_controller' => Controller\Security\CheckLoginAction::class,
 ]));
+$collection->add('login_anonymous', Controller\Security\LoginAnonymousAction::getRouteDefinition());
 $collection->add('login_email', new Route('/login/email', [
     '_controller' => Controller\Security\LoginEmailAction::class,
 ]));

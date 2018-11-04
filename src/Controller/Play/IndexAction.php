@@ -48,10 +48,7 @@ class IndexAction
     public function __invoke(
         Request $request
     ): Response {
-        $user = $this->getUserFromRequest($request);
-        if (!$user) {
-            throw new \RuntimeException('Unable to make a new user. This went very wrong');
-        }
+        $user = $this->getUser($request, $this->authenticationService);
 
         $state = new SessionState(
             $user,
@@ -82,19 +79,5 @@ class IndexAction
         ];
 
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);
-    }
-
-    protected function getUserFromRequest(Request $request): User
-    {
-        $user = $this->getUserIfExists($request, $this->authenticationService);
-        if (!$user) {
-            $user = $this->getAnonymousUser(
-                $request,
-                $this->usersService,
-                $this->authenticationService,
-                $this->applicationConfig
-            );
-        }
-        return $user;
     }
 }
