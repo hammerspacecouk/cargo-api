@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
-use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;

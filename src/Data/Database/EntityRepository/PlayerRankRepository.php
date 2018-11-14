@@ -25,4 +25,13 @@ class PlayerRankRepository extends AbstractEntityRepository
 
         return $data;
     }
+
+    public function getStarter(
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->where('tbl.threshold = 0')
+            ->setMaxResults(1);
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
 }

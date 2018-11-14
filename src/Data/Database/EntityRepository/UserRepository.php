@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\CleanableInterface;
+use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use App\Domain\ValueObject\Colour;
@@ -20,7 +21,8 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         ?string $ipHash,
         Colour $colour,
         int $rotationSteps,
-        Port $homePort
+        Port $homePort,
+        PlayerRank $initialRank
     ): User {
         $user = new User(
             $queryHash,
@@ -29,6 +31,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             $rotationSteps,
             $homePort
         );
+        $user->lastRankSeen = $initialRank;
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $homePort);

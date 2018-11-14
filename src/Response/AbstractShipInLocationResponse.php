@@ -15,8 +15,6 @@ use App\Service\EventsService;
 use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\ShipsService;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractShipInLocationResponse
 {

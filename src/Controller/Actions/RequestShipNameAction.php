@@ -46,11 +46,15 @@ class RequestShipNameAction extends AbstractAction
         );
 
         $user = $this->usersService->getById($token->getUserId());
+        if (!$user) {
+            throw new \RuntimeException('Something went very wrong here');
+        }
 
         return [
             'nameOffered' => $shipName,
             'action' => $actionToken,
-            'requestShipName' => $requestShipNameTransaction,
+            'shipId' => $token->getShipId(),
+            'newRequestShipNameToken' => $requestShipNameTransaction,
             'newScore' => $user->getScore(),
         ];
     }

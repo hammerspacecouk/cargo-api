@@ -44,8 +44,9 @@ class ShipsService extends AbstractService
     ): ?Ship {
     
         $qb = $this->getQueryBuilder(DbShip::class)
-            ->select('tbl', 'c')
+            ->select('tbl', 'c', 'o')
             ->join('tbl.shipClass', 'c')
+            ->join('tbl.owner', 'o')
             ->where('tbl.id = :id')
             ->setParameter('id', $uuid->getBytes());
 

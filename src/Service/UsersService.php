@@ -186,6 +186,7 @@ class UsersService extends AbstractService
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
         $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
+        $initialRank = $this->entityManager->getPlayerRankRepo()->getStarter(Query::HYDRATE_OBJECT);
 
         // start a transaction
         $this->entityManager->getConnection()->beginTransaction();
@@ -197,7 +198,8 @@ class UsersService extends AbstractService
                 $ipHash,
                 Colour::makeInitialRandomValue(),
                 Bearing::getInitialRandomStepNumber(),
-                $safeHaven
+                $safeHaven,
+                $initialRank
             );
 
             // make the player an initial ship and place it in the home port
