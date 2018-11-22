@@ -47,8 +47,9 @@ class FleetResponse
         }, $activeShips);
 
         return [
-            'activeShips' => $activeFleetShips,
-            'destroyedShips' => $destroyedShips,
+            // keys may have gaps after filter. ignore them
+            'activeShips' => \array_values($activeFleetShips),
+            'destroyedShips' => \array_values($destroyedShips),
             'events' => $this->eventsService->findLatestForUser($user),
         ];
     }

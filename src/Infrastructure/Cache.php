@@ -42,7 +42,7 @@ class Cache implements CacheInterface
         $key = $this->sanitiseKey($key);
 
         $this->logger->debug('Caching ' . $key . ' for ' . $ttl . ' seconds');
-        return $this->adapter->set($key, $value, $ttl = null);
+        return $this->adapter->set($key, $value, $ttl);
     }
 
     public function delete($key)
