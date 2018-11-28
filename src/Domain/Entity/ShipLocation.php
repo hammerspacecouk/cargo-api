@@ -15,4 +15,6 @@ interface ShipLocation
     public function getEntryTime(): DateTimeImmutable;
 
     public function getStatus(): string;
+
+    public function isDangerous(): bool;
 }

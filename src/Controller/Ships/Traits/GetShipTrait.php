@@ -6,7 +6,6 @@ namespace App\Controller\Ships\Traits;
 use App\Controller\IDRequestTrait;
 use App\Domain\Entity\Ship;
 use App\Service\ShipsService;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

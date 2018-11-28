@@ -31,7 +31,6 @@ class UpgradesService extends AbstractService
             }
 
             $alreadyOwned = $shipCountsByClassId[(string)$mapped->getId()] ?? 0;
-            $token =
 
             $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                 $user->getId(),

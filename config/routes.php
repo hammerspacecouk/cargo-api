@@ -96,6 +96,11 @@ $collection->add(
     Controller\Play\UpgradesAction::getRouteDefinition()
 );
 
+$collection->add(
+    Controller\Play\ShipEditAction::class,
+    Controller\Play\ShipEditAction::getRouteDefinition()
+);
+
 $collection->add('play_positions_ship', new Route('/play/{uuid}', [
     '_controller' => Controller\Play\ShipAction::class,
 ], [

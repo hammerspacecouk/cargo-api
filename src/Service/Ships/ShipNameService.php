@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
-use App\Data\Database\Entity\User;
-use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;

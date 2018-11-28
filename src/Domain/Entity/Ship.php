@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
-use App\Domain\Entity\ShipClass;
 use Ramsey\Uuid\UuidInterface;
 
 class Ship extends Entity implements \JsonSerializable, CrateLocation
@@ -44,6 +43,11 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
     public function isDestroyed(): bool
     {
         return $this->strength <= 0;
+    }
+
+    public function isHealthy(): bool
+    {
+        return $this->getStrengthPercent() > 25;
     }
 
     public function meetsStrength(int $minimumStrength): bool
@@ -87,6 +91,7 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
             'id' => $this->id,
             'type' => 'Ship',
             'name' => $this->name,
+            'isDestroyed' => $this->isDestroyed(),
         ];
         if ($this->owner) {
             $data['owner'] = $this->owner;

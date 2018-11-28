@@ -47,7 +47,6 @@ class DictionaryRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
             ->where('tbl.context = :context')
-            ->orderBy('tbl.abundance', 'DESC')
             ->setParameter('context', $context);
 
         return $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);

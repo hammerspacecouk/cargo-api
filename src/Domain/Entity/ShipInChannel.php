@@ -72,4 +72,10 @@ class ShipInChannel extends AbstractShipLocation
     {
         return ($this->getExitTime()->getTimestamp() - $this->getEntryTime()->getTimestamp());
     }
+
+    public function isDangerous(): bool
+    {
+        // you can't be hurt while travelling
+        return false;
+    }
 }
