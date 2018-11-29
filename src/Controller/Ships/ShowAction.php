@@ -5,12 +5,25 @@ namespace App\Controller\Ships;
 
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 
 class ShowAction
 {
     use Traits\GetShipTrait;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/ships/{uuid}', [
+                '_controller' => self::class,
+            ], [
+                'uuid' => Uuid::VALID_PATTERN,
+            ]),
+        ];
+    }
 
     public function __invoke(
         Request $request,

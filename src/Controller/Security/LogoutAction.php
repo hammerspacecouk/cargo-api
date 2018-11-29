@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class LogoutAction
 {
@@ -21,6 +22,15 @@ class LogoutAction
     private $applicationConfig;
     private $flashData;
     private $logger;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/logout', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

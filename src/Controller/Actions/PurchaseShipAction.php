@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Service\Ships\ShipMovementService;
+use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
 use App\Service\UpgradesService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -12,6 +12,11 @@ class PurchaseShipAction extends AbstractAction
 {
     private $upgradesService;
     private $usersService;
+
+    public static function getRouteDefinition(): array
+    {
+        return self::buildRouteDefinition(PurchaseShipToken::class);
+    }
 
     public function __construct(
         UpgradesService $upgradesService,

@@ -5,10 +5,10 @@ namespace App\Controller\Home;
 
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
-use App\Service\PlayerRanksService;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Route;
 
 class StatusAction
 {
@@ -16,6 +16,15 @@ class StatusAction
     private $cache;
     private $applicationConfig;
     private $logger;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/status', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         DateTimeFactory $dateTimeFactory,

@@ -14,10 +14,12 @@ use App\Response\ShipInPortResponse;
 use App\Service\AuthenticationService;
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Route;
 
 class ShipAction
 {
@@ -37,6 +39,17 @@ class ShipAction
     private $applicationConfig;
     private $shipInPortResponse;
     private $shipInChannelResponse;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            static::class => new Route('/play/{uuid}', [
+                '_controller' => self::class,
+            ], [
+                'uuid' => Uuid::VALID_PATTERN,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
+use App\Data\TokenProvider;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
@@ -32,7 +33,11 @@ class ShipMovementService extends ShipsService
             $reverseDirection,
             $journeyTime
         ));
-        return new MoveShipToken($token->getJsonToken(), (string)$token);
+        return new MoveShipToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now())
+        );
     }
 
     public function useMoveShipToken(

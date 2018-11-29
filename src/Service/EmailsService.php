@@ -24,7 +24,7 @@ class EmailsService
         $this->applicationConfig = $applicationConfig;
     }
 
-    public function sendLoginEmail(EmailAddress $emailAddress, EmailLoginToken $token)
+    public function sendLoginEmail(EmailAddress $emailAddress, EmailLoginToken $token): void
     {
         $url = $this->applicationConfig->getWebHostname() . '/login/email?token=' . $token;
 
@@ -37,7 +37,7 @@ EMAIL;
         $this->send($emailAddress, 'Login link', $body);
     }
 
-    private function send(EmailAddress $to, string $title, string $body)
+    private function send(EmailAddress $to, string $title, string $body): void
     {
         $message = new Swift_Message(
             $title,

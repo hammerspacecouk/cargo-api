@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 use function App\Functions\DateTimes\toMutableDateTime;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\EntityManager;
@@ -25,6 +26,8 @@ use Ramsey\Uuid\UuidInterface;
 
 class TokenProvider
 {
+    private const ACTIONS_PATH_PREFIX = '/actions';
+
     private $applicationConfig;
     private $dateTimeFactory;
     private $uuidFactory;
@@ -43,6 +46,19 @@ class TokenProvider
         $this->dateTimeFactory = $dateTimeFactory;
         $this->uuidFactory = $uuidFactory;
         $this->logger = $logger;
+    }
+
+    public static function getActionPath(string $tokenClass, DateTimeImmutable $dateTime): string
+    {
+        // change the action paths every day - but make them a bit unpredictable
+        if (!\is_subclass_of($tokenClass, AbstractActionToken::class)) {
+            throw new \InvalidArgumentException($tokenClass . ' is not an ActionToken');
+        }
+        // datetime scoped to the day
+        // $day = $dateTime->format('Y-m-d');
+        // todo - the date has been removed for now because the routes get cached. Switch to dynamic routing
+        $combined = \getenv('APP_SECRET') . $tokenClass;
+        return self::ACTIONS_PATH_PREFIX . '/' . \sha1($combined);
     }
 
     public function makeToken(

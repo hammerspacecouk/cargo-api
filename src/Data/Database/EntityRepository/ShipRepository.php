@@ -84,4 +84,19 @@ class ShipRepository extends AbstractEntityRepository
         }
         return $mappedResults;
     }
+
+    public function updateStrengthValue(Ship $ship, int $strengthDelta = 0): int
+    {
+        $newStrength = $ship->strength + $strengthDelta;
+        if ($newStrength < 0) {
+            $newStrength = 0;
+        }
+
+        $ship->strength = $newStrength;
+
+        $this->getEntityManager()->persist($ship);
+        $this->getEntityManager()->flush();
+
+        return $newStrength;
+    }
 }

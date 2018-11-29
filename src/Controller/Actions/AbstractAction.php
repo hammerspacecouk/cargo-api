@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\TokenException;
 use Psr\Log\LoggerInterface;
@@ -11,12 +12,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\Routing\Route;
 
 abstract class AbstractAction
 {
     private const HEADERS_NO_CACHE = 'no-cache, no-store, must-revalidate';
 
     protected $logger;
+
+    abstract public static function getRouteDefinition(): array;
+
+    protected static function buildRouteDefinition(string $tokenClass): array
+    {
+        $now = new \DateTimeImmutable();
+        // $yesterday = $now->sub(new \DateInterval('P1D')); -- todo - add back later
+        return [
+            static::class => new Route(TokenProvider::getActionPath($tokenClass, $now), [
+                '_controller' => static::class,
+            ]),
+        ];
+    }
 
     public function __construct(LoggerInterface $logger)
     {

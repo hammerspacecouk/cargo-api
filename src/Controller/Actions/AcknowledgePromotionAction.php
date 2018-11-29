@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Service\PlayerRanksService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -12,6 +13,11 @@ class AcknowledgePromotionAction extends AbstractAction
 {
     private $usersService;
     private $playerRanksService;
+
+    public static function getRouteDefinition(): array
+    {
+        return self::buildRouteDefinition(AcknowledgePromotionToken::class);
+    }
 
     public function __construct(
         UsersService $usersService,

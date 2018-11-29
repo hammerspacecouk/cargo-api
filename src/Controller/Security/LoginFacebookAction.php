@@ -13,9 +13,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Routing\Route;
 
 class LoginFacebookAction extends AbstractLoginAction
 {
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/login/facebook', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
+
     public function __invoke(
         Request $request,
         Facebook $client

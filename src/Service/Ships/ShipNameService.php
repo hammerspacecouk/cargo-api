@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
+use App\Data\TokenProvider;
 use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
@@ -23,7 +24,11 @@ class ShipNameService extends ShipsService
         ));
         return new Transaction(
             Costs::ACTION_REQUEST_SHIP_NAME,
-            new RequestShipNameToken($token->getJsonToken(), (string)$token)
+            new RequestShipNameToken(
+                $token->getJsonToken(),
+                (string)$token,
+                TokenProvider::getActionPath(RequestShipNameToken::class, $this->dateTimeFactory->now())
+            )
         );
     }
 
@@ -35,7 +40,11 @@ class ShipNameService extends ShipsService
             $shipId,
             $newName
         ));
-        return new RenameShipToken($token->getJsonToken(), (string)$token);
+        return new RenameShipToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(RenameShipToken::class, $this->dateTimeFactory->now())
+        );
     }
 
     // Parse tokens
@@ -43,7 +52,10 @@ class ShipNameService extends ShipsService
     public function parseRenameShipToken(
         string $tokenString
     ): RenameShipToken {
-        return new RenameShipToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        return new RenameShipToken(
+            $this->tokenHandler->parseTokenFromString($tokenString),
+            $tokenString
+        );
     }
 
     public function parseRequestShipNameToken(

@@ -24,7 +24,7 @@ abstract class AbstractToken
         return shortHash(static::class, 8);
     }
 
-    public function __construct(JsonToken $token, $tokenString)
+    public function __construct(JsonToken $token, string $tokenString)
     {
         $this->validateTokenType($token);
         $this->token = $token;

@@ -12,6 +12,7 @@ use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class ShowAction
 {
@@ -21,6 +22,15 @@ class ShowAction
     private $portsService;
     private $usersService;
     private $playerRanksService;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/profile', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

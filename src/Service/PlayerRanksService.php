@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\TokenProvider;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
@@ -53,7 +54,8 @@ class PlayerRanksService extends AbstractService
             ));
             $acknowledgeToken = new AcknowledgePromotionToken(
                 $token->getJsonToken(),
-                (string)$token
+                (string)$token,
+                TokenProvider::getActionPath(AcknowledgePromotionToken::class, $this->dateTimeFactory->now())
             );
         }
 

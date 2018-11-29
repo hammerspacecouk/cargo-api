@@ -8,6 +8,11 @@ use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 
 class DropCrateAction extends AbstractPortAction
 {
+    public static function getRouteDefinition(): array
+    {
+        return self::buildRouteDefinition(DropCrateToken::class);
+    }
+
     protected function parseToken(string $tokenString): AbstractMoveCrateToken
     {
         return $this->cratesService->parseDropCrateToken($tokenString);

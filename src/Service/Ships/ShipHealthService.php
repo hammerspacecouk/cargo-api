@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
+use App\Data\TokenProvider;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Domain\ValueObject\Transaction;
 use App\Service\ShipsService;
+use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipHealthService extends ShipsService
@@ -21,11 +23,15 @@ class ShipHealthService extends ShipsService
 
     public function useShipHealthToken(
         ShipHealthToken $token
-    ): string {
-        // todo - real service
-        $name = $this->updateHealth($token->getUserId(), $token->getShipId(), $token->getPercent());
+    ): int {
+        $newHealth = $this->updateHealth(
+            $token->getUserId(),
+            $token->getShipId(),
+            $token->getPercent(),
+            $token->getCost()
+        );
         $this->tokenHandler->markAsUsed($token->getOriginalToken());
-        return $name;
+        return $newHealth;
     }
 
     public function getSmallHealthTransaction(
@@ -66,9 +72,50 @@ class ShipHealthService extends ShipsService
         ));
         return new Transaction(
             $cost,
-            new ShipHealthToken($token->getJsonToken(), (string)$token),
+            new ShipHealthToken(
+                $token->getJsonToken(),
+                (string)$token,
+                TokenProvider::getActionPath(ShipHealthToken::class, $this->dateTimeFactory->now())
+            ),
             0,
             $percent
         );
+    }
+
+    private function updateHealth(
+        UuidInterface $userId,
+        UuidInterface $shipId,
+        int $percent, // todo - this should not be percentage, as its too strong?
+        int $cost
+    ): int
+    {
+        // get the ship and its class to determine health improvement
+        /** @var \App\Data\Database\Entity\Ship $ship */
+        $ship = $this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId, Query::HYDRATE_OBJECT);
+        if (!$ship) {
+            throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
+        }
+
+        $userRepo = $this->entityManager->getUserRepo();
+        $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT);
+
+        $maxStrength = $ship->shipClass->strength;
+        $amountToAdd = ($percent / 100) * $maxStrength;
+        $currentStrength = $ship->strength;
+
+        if (($currentStrength + $amountToAdd) > $maxStrength) {
+            $amountToAdd = $maxStrength - $currentStrength;
+        }
+
+        $newStrength = $this->entityManager->transactional(function() use ($ship, $amountToAdd, $userEntity, $cost) {
+            $newStrength = $this->entityManager->getShipRepo()->updateStrengthValue(
+                $ship,
+                (int)\ceil($amountToAdd)
+            );
+            $this->consumeCredits($userEntity, $cost);
+            return $newStrength;
+        });
+
+        return $newStrength;
     }
 }

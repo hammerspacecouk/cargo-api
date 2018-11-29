@@ -5,9 +5,19 @@ namespace App\Controller\Security;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 
 class LoginAction
 {
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/login', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
+
     public function __invoke(
         Request $request
     ): JsonResponse {

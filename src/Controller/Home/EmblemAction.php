@@ -16,14 +16,16 @@ class EmblemAction
 {
     use IDRequestTrait;
 
-    public static function getRouteDefinition(): Route
+    public static function getRouteDefinition(): array
     {
-        return new Route('/emblem/{uuid}/{hash}.svg', [
-            '_controller' => self::class,
-        ], [
-            'uuid' => Uuid::VALID_PATTERN,
-            'hash' => '^[0-9a-f]{40}$',
-        ]);
+        return [
+            self::class => new Route('/emblem/{uuid}/{hash}.svg', [
+                '_controller' => self::class,
+            ], [
+                'uuid' => Uuid::VALID_PATTERN,
+                'hash' => '^[0-9a-f]{40}$',
+            ]),
+        ];
     }
 
     public function __invoke(

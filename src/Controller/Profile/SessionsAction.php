@@ -9,12 +9,22 @@ use App\Service\AuthenticationService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class SessionsAction
 {
     use UserAuthenticationTrait;
 
     private $authenticationService;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/profile/sessions', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService

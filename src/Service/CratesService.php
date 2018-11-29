@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\Crate as DbCrate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation;
+use App\Data\TokenProvider;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
@@ -83,7 +84,11 @@ class CratesService extends AbstractService
             $port->getId(),
             $ship->getId()
         ));
-        return new PickupCrateToken($token->getJsonToken(), (string)$token);
+        return new PickupCrateToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now())
+        );
     }
 
     public function getDropCrateToken(
@@ -98,7 +103,11 @@ class CratesService extends AbstractService
             $port->getId(),
             $ship->getId()
         ));
-        return new DropCrateToken($token->getJsonToken(), (string)$token);
+        return new DropCrateToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now())
+        );
     }
 
     public function parsePickupCrateToken(

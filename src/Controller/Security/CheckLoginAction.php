@@ -11,6 +11,7 @@ use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class CheckLoginAction
 {
@@ -20,6 +21,15 @@ class CheckLoginAction
     protected $usersService;
 
     private $playerRanksService;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/login/check', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

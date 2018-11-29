@@ -43,11 +43,11 @@ class FleetResponse
             $shipB = $b['ship'];
 
             if ($a['needsAttention'] !== $b['needsAttention']) {
-                return (int)$a['needsAttention'] - (int)$b['needsAttention'];
+                return (int)$b['needsAttention'] - (int)$a['needsAttention'];
             }
 
             if ($shipA->isDestroyed() !== $shipB->isDestroyed()) {
-                return (int)$shipB->isDestroyed() - (int)$shipA->isDestroyed();
+                return (int)$shipA->isDestroyed() - (int)$shipB->isDestroyed();
             }
 
             return \strcmp($shipA->getName(), $shipB->getName());
@@ -65,7 +65,7 @@ class FleetResponse
             return true;
         }
 
-        if (!$ship->isHealthy()) {
+        if (!$ship->isHealthy() && !$ship->isDestroyed()) {
             return true;
         }
 

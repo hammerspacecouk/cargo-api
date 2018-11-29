@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
+use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
@@ -39,7 +40,11 @@ class UpgradesService extends AbstractService
 
             return new Transaction(
                 $mapped->getPurchaseCost(),
-                new PurchaseShipToken($rawToken->getJsonToken(), (string)$rawToken),
+                new PurchaseShipToken(
+                    $rawToken->getJsonToken(),
+                    (string)$rawToken,
+                    TokenProvider::getActionPath(PurchaseShipToken::class, $this->dateTimeFactory->now())
+                ),
                 $alreadyOwned,
                 $mapped
             );

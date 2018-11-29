@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\Routing\Route;
 
 class DeleteAction
 {
@@ -23,6 +24,15 @@ class DeleteAction
     private $applicationConfig;
     private $logger;
     private $usersService;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/profile/delete', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

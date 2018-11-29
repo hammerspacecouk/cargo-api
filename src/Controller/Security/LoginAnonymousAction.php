@@ -9,17 +9,19 @@ use Symfony\Component\Routing\Route;
 
 class LoginAnonymousAction extends AbstractLoginAction
 {
-    public static function getRouteDefinition(): Route
+    public static function getRouteDefinition(): array
     {
-        return new Route(
-            '/login/anonymous',
-            ['_controller' => self::class,],
-            [],
-            [],
-            '',
-            [],
-            ['POST']
-        );
+        return [
+            self::class => new Route(
+                '/login/anonymous',
+                ['_controller' => self::class,],
+                [],
+                [],
+                '',
+                [],
+                ['POST']
+            ),
+        ];
     }
 
     public function __invoke(

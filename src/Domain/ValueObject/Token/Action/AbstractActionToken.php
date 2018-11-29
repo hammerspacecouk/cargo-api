@@ -3,23 +3,35 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\Token\AbstractToken;
 use JsonSerializable;
+use ParagonIE\Paseto\JsonToken;
 
 abstract class AbstractActionToken extends AbstractToken implements JsonSerializable
 {
-    public const PATH_PREFIX = '/actions';
+    private $path;
+
+    public function __construct(JsonToken $token, string $tokenString, ?string $path = null)
+    {
+        parent::__construct($token, $tokenString);
+        $this->path = $path;
+    }
 
     public function jsonSerialize()
     {
+        if (!$this->path) {
+            throw new DataNotFetchedException('Tried to render a token without setting a path');
+        }
+
         return [
-            'path' => static::getPath(),
+            'path' => $this->path,
             'token' => (string)$this,
         ];
     }
 
-    public static function getPath()
+    public static function getPath() // todo - deprecating
     {
-        return self::PATH_PREFIX . '/' . static::getSubject();
+        return '/' . static::getSubject();
     }
 }

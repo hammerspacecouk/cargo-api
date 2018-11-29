@@ -11,9 +11,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Routing\Route;
 
 class LoginMicrosoftAction extends AbstractLoginAction
 {
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/login/microsoft', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
+
     public function __invoke(
         Request $request,
         Microsoft $client

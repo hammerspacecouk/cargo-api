@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
@@ -13,6 +14,11 @@ class RequestShipNameAction extends AbstractAction
     private $shipsService;
     private $shipNameService;
     private $usersService;
+
+    public static function getRouteDefinition(): array
+    {
+        return self::buildRouteDefinition(RequestShipNameToken::class);
+    }
 
     public function __construct(
         ShipsService $shipsService,

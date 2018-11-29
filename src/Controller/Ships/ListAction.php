@@ -8,12 +8,22 @@ use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 
 class ListAction
 {
     use PaginationRequestTrait;
 
     private const PER_PAGE = 50;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            self::class => new Route('/ships', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __invoke(
         Request $request,

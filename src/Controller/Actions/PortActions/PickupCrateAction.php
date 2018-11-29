@@ -9,6 +9,11 @@ use Symfony\Component\HttpKernel\Exception\GoneHttpException;
 
 class PickupCrateAction extends AbstractPortAction
 {
+    public static function getRouteDefinition(): array
+    {
+        return self::buildRouteDefinition(PickupCrateToken::class);
+    }
+
     protected function parseToken(string $tokenString): AbstractMoveCrateToken
     {
         $token = $this->cratesService->parsePickupCrateToken($tokenString);

@@ -29,11 +29,13 @@ class ShipEditAction
     private $shipNameService;
     private $logger;
 
-    public static function getRouteDefinition(): Route
+    public static function getRouteDefinition(): array
     {
-        return new Route('/edit/{uuid}', [
-            '_controller' => self::class,
-        ]);
+        return [
+            static::class => new Route('/edit/{uuid}', [
+                '_controller' => self::class,
+            ]),
+        ];
     }
 
     public function __construct(
@@ -70,7 +72,7 @@ class ShipEditAction
             'health' => [
                 $this->shipHealthService->getSmallHealthTransaction($user, $ship),
                 $this->shipHealthService->getLargeHealthTransaction($user, $ship),
-            ]
+            ],
         ];
 
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);

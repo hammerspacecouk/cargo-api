@@ -198,7 +198,7 @@ class AuthenticationService extends AbstractService
         return new EmailLoginToken($token, $tokenString);
     }
 
-    private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret)
+    private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret): string
     {
         return \hash_hmac(
             'sha256',

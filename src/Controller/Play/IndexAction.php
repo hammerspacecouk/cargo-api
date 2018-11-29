@@ -12,6 +12,7 @@ use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Route;
 
 class IndexAction
 {
@@ -26,6 +27,15 @@ class IndexAction
     private $eventsService;
     private $shipNameService;
     private $fleetResponse;
+
+    public static function getRouteDefinition(): array
+    {
+        return [
+            static::class => new Route('/play', [
+                '_controller' => self::class,
+            ]),
+        ];
+    }
 
     public function __construct(
         AuthenticationService $authenticationService,

@@ -2,138 +2,63 @@
 declare(strict_types=1);
 
 use App\Controller;
-use App\Domain\ValueObject\Token\Action;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
 
 $collection = new RouteCollection();
 
 // All the actions in order from least specific to most specific
 $actions = [
+    // home
+    Controller\Home\IndexAction::class,
     Controller\Home\EmblemAction::class,
-];
-// todo - all routes like this?
-foreach ($actions as $action) {
-    /** @var Controller\Home\EmblemAction $action */
-    $collection->add($action, $action::getRouteDefinition());
-}
+    Controller\Home\StatusAction::class,
 
+    // login
+    Controller\Security\LoginAction::class,
+    Controller\Security\LogoutAction::class,
+    Controller\Security\CheckLoginAction::class,
+    Controller\Security\LoginAnonymousAction::class,
+    Controller\Security\LoginEmailAction::class,
+    Controller\Security\LoginFacebookAction::class,
+    Controller\Security\LoginGoogleAction::class,
+    Controller\Security\LoginMicrosoftAction::class,
+    Controller\Security\LoginTwitterAction::class,
 
-// home
-$collection->add('home', new Route('/', [
-    '_controller' => Controller\Home\IndexAction::class,
-]));
-$collection->add('app_status', new Route('/status', [
-    '_controller' => Controller\Home\StatusAction::class,
-]));
+    // ports
+    Controller\Ports\ListAction::class,
+    Controller\Ports\ShowAction::class,
 
-// login
-$collection->add('login', new Route('/login', [
-    '_controller' => Controller\Security\LoginAction::class,
-]));
-$collection->add('logout', new Route('/logout', [
-    '_controller' => Controller\Security\LogoutAction::class,
-]));
-$collection->add('login_check', new Route('/login/check', [
-    '_controller' => Controller\Security\CheckLoginAction::class,
-]));
-$collection->add('login_anonymous', Controller\Security\LoginAnonymousAction::getRouteDefinition());
-$collection->add('login_email', new Route('/login/email', [
-    '_controller' => Controller\Security\LoginEmailAction::class,
-]));
-$collection->add('login_facebook', new Route('/login/facebook', [
-    '_controller' => Controller\Security\LoginFacebookAction::class,
-]));
-$collection->add('login_google', new Route('/login/google', [
-    '_controller' => Controller\Security\LoginGoogleAction::class,
-]));
-$collection->add('login_microsoft', new Route('/login/microsoft', [
-    '_controller' => Controller\Security\LoginMicrosoftAction::class,
-]));
-$collection->add('login_twitter', new Route('/login/twitter', [
-    '_controller' => Controller\Security\LoginTwitterAction::class,
-]));
-$collection->add('profile_show', new Route('/profile', [
-    '_controller' => Controller\Profile\ShowAction::class,
-]));
-$collection->add('profile_sessions', new Route('/profile/sessions', [
-    '_controller' => Controller\Profile\SessionsAction::class,
-]));
-$collection->add('profile_delete', new Route('/profile/delete', [
-    '_controller' => Controller\Profile\DeleteAction::class,
-]));
+    // ships
+    Controller\Ships\ListAction::class,
+    Controller\Ships\ShowAction::class,
 
-// Ports
-$collection->add('ports_list', new Route('/ports', [
-    '_controller' => Controller\Ports\ListAction::class,
-]));
+    // profile (requires cookie)
+    Controller\Profile\ShowAction::class,
+    Controller\Profile\SessionsAction::class,
+    Controller\Profile\DeleteAction::class,
 
-$collection->add('ports_show', new Route('/ports/{uuid}', [
-    '_controller' => Controller\Ports\ShowAction::class,
-], [
-    'uuid' => Uuid::VALID_PATTERN,
-]));
-
-// ships
-$collection->add('ships_list', new Route('/ships', [
-    '_controller' => Controller\Ships\ListAction::class,
-]));
-
-$collection->add('ships_show', new Route('/ships/{uuid}', [
-    '_controller' => Controller\Ships\ShowAction::class,
-], [
-    'uuid' => Uuid::VALID_PATTERN,
-]));
-
-// Play - requires cookie
-$collection->add('play_status', new Route('/play', [
-    '_controller' => Controller\Play\IndexAction::class,
-]));
-
-$collection->add(
+    // play (requires cookie)
+    Controller\Play\IndexAction::class,
     Controller\Play\UpgradesAction::class,
-    Controller\Play\UpgradesAction::getRouteDefinition()
-);
-
-$collection->add(
     Controller\Play\ShipEditAction::class,
-    Controller\Play\ShipEditAction::getRouteDefinition()
-);
+    Controller\Play\ShipAction::class,
 
-$collection->add('play_positions_ship', new Route('/play/{uuid}', [
-    '_controller' => Controller\Play\ShipAction::class,
-], [
-    'uuid' => Uuid::VALID_PATTERN,
-]));
 
-// actions
-$collection->add('actions_move_ship', new Route(Action\MoveShipToken::getPath(), [
-    '_controller' => Controller\Actions\MoveShipAction::class,
-]));
+    // actions (uses token)
+    Controller\Actions\AcknowledgePromotionAction::class,
+    Controller\Actions\AddHealthAction::class,
+    Controller\Actions\MoveShipAction::class,
+    Controller\Actions\PurchaseShipAction::class,
+    Controller\Actions\RenameShipAction::class,
+    Controller\Actions\RequestShipNameAction::class,
+    Controller\Actions\PortActions\DropCrateAction::class,
+    Controller\Actions\PortActions\PickupCrateAction::class,
+];
 
-$collection->add('actions_acknowledge_promotion', new Route(Action\AcknowledgePromotionToken::getPath(), [
-    '_controller' => Controller\Actions\AcknowledgePromotionAction::class,
-]));
-
-$collection->add('actions_rename_ship', new Route(Action\RenameShipToken::getPath(), [
-    '_controller' => Controller\Actions\RenameShipAction::class,
-]));
-
-$collection->add('actions_request_ship_name', new Route(Action\RequestShipNameToken::getPath(), [
-    '_controller' => Controller\Actions\RequestShipNameAction::class,
-]));
-
-$collection->add(Controller\Actions\PurchaseShipAction::class, new Route(Action\PurchaseShipToken::getPath(), [
-    '_controller' => Controller\Actions\PurchaseShipAction::class,
-]));
-
-$collection->add(Controller\Actions\PortActions\PickupCrateAction::class, new Route(Action\MoveCrate\PickupCrateToken::getPath(), [
-    '_controller' => Controller\Actions\PortActions\PickupCrateAction::class,
-]));
-
-$collection->add(Controller\Actions\PortActions\DropCrateAction::class, new Route(Action\MoveCrate\DropCrateToken::getPath(), [
-    '_controller' => Controller\Actions\PortActions\DropCrateAction::class,
-]));
+foreach ($actions as $action) {
+    foreach ($action::getRouteDefinition() as $name => $definition) {
+        $collection->add($name, $definition);
+    }
+}
 
 return $collection;

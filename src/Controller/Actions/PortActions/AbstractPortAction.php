@@ -4,18 +4,12 @@ declare(strict_types=1);
 namespace App\Controller\Actions\PortActions;
 
 use App\Controller\Actions\AbstractAction;
-use App\Domain\Exception\IllegalMoveException;
-use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\AbstractMoveCrateToken;
 use App\Response\ShipInPortResponse;
 use App\Service\CratesService;
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 abstract class AbstractPortAction extends AbstractAction
 {

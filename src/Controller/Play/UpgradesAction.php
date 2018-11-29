@@ -23,11 +23,13 @@ class UpgradesAction
     private $logger;
     private $upgradesService;
 
-    public static function getRouteDefinition(): Route
+    public static function getRouteDefinition(): array
     {
-        return new Route('/play/upgrades', [
-            '_controller' => self::class,
-        ]);
+        return [
+            static::class => new Route('/play/upgrades', [
+                '_controller' => self::class,
+            ]),
+        ];
     }
 
     public function __construct(
