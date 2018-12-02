@@ -18,7 +18,7 @@ class User extends Entity implements \JsonSerializable
     private $homePort;
     private $hasEmailAddress;
     private $playStartTime;
-    private $lastUpdated;
+    private $playerRank;
 
     public function __construct(
         UuidInterface $id,
@@ -27,8 +27,8 @@ class User extends Entity implements \JsonSerializable
         Score $score,
         bool $hasEmailAddress,
         DateTimeImmutable $playStartTime,
-        DateTimeImmutable $lastUpdated,
-        ?Port $homePort
+        ?Port $homePort,
+        ?PlayerRank $playerRank
     ) {
         parent::__construct($id);
         $this->rotationSteps = $rotationSteps;
@@ -36,8 +36,8 @@ class User extends Entity implements \JsonSerializable
         $this->homePort = $homePort;
         $this->hasEmailAddress = $hasEmailAddress;
         $this->playStartTime = $playStartTime;
-        $this->lastUpdated = $lastUpdated;
         $this->colour = $colour;
+        $this->playerRank = $playerRank;
     }
 
     public function jsonSerialize()
@@ -45,23 +45,21 @@ class User extends Entity implements \JsonSerializable
         $data = [
             'id' => $this->getId(),
             'score' => $this->getScore(),
-            'colour' => $this->getColour(), // todo - remove this line
-            'emblem' => $this->getEmblemPath(),
             'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
         ];
         if ($this->homePort) {
             $data['homePort'] = $this->getHomePort();
+        }
+        if ($this->playerRank) {
+            $data['emblem'] = $this->getEmblemPath();
+            $data['rank'] = $this->getRank();
         }
         return $data;
     }
 
     public function getEmblemPath(): string
     {
-        return '/emblem/' .
-            $this->getId() .
-            '/' .
-            sha1($this->lastUpdated->format(DateTimeFactory::FULL)) .
-            '.svg';
+        return '/emblem/' . $this->getRank()->getId() . '-' . $this->getColour() . '.svg';
     }
 
     public function getRotationSteps()
@@ -85,6 +83,14 @@ class User extends Entity implements \JsonSerializable
             throw new DataNotFetchedException('Data for Home Port was not fetched');
         }
         return $this->homePort;
+    }
+
+    public function getRank(): PlayerRank
+    {
+        if ($this->playerRank === null) {
+            throw new DataNotFetchedException('Data for Player Rank was not fetched');
+        }
+        return $this->playerRank;
     }
 
     public function hasEmailAddress(): bool

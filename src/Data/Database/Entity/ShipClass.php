@@ -20,9 +20,6 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $description;
 
-    /** @ORM\Column(type="text") */
-    public $iconSvg;
-
     /** @ORM\Column(type="integer") */
     public $strength;
 
@@ -52,7 +49,6 @@ class ShipClass extends AbstractEntity
     public function __construct(
         string $name,
         string $description,
-        string $iconSvg,
         int $strength,
         bool $autoNavigate,
         int $orderNumber,
@@ -71,7 +67,6 @@ class ShipClass extends AbstractEntity
         $this->minimumRank = $minimumRank;
         $this->speedMultiplier = $speedMultiplier;
         $this->description = $description;
-        $this->iconSvg = $iconSvg;
         $this->strength = $strength;
         $this->autoNavigate = $autoNavigate;
     }

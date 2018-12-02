@@ -59,7 +59,6 @@ class MakeShipClassesCommand extends Command
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
             $description = $data['description'];
-            $iconSvg = $data['iconSvg'];
             $orderNumber = (int)$data['orderNumber'];
             $strength = (int)$data['strength'];
             $autoNavigate = (bool)$data['autoNavigate'];
@@ -74,7 +73,6 @@ class MakeShipClassesCommand extends Command
             if ($entity) {
                 $entity->name = $name;
                 $entity->description = $description;
-                $entity->iconSvg = $iconSvg;
                 $entity->strength = $strength;
                 $entity->autoNavigate = $autoNavigate;
                 $entity->orderNumber = $orderNumber;
@@ -87,7 +85,6 @@ class MakeShipClassesCommand extends Command
                 $entity = new ShipClass(
                     $name,
                     $description,
-                    $iconSvg,
                     $strength,
                     $autoNavigate,
                     $orderNumber,

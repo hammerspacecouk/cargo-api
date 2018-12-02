@@ -8,9 +8,20 @@ use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use Ramsey\Uuid\UuidInterface;
 
 class PlayerRanksService extends AbstractService
 {
+    public function getById(UuidInterface $uuid): ?PlayerRank
+    {
+        $result = $this->entityManager->getPlayerRankRepo()->getByID($uuid);
+        if (!$result) {
+            return null;
+        }
+        return $this->mapperFactory->createPlayerRankMapper()
+            ->getPlayerRank($result);
+    }
+
     public function getList(): array
     {
         $results = $this->entityManager->getPlayerRankRepo()->getList();

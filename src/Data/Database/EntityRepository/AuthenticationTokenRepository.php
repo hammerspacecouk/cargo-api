@@ -16,8 +16,9 @@ class AuthenticationTokenRepository extends AbstractEntityRepository implements 
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'u')
+            ->select('tbl', 'u', 'r')
             ->join('tbl.user', 'u')
+            ->join('u.lastRankSeen', 'r')
             ->where('tbl.id = :id')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('id', $tokenId->getBytes())

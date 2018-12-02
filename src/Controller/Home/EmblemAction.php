@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Controller\Home;
 
 use App\Controller\IDRequestTrait;
+use App\Domain\ValueObject\Colour;
 use App\Service\PlayerRanksService;
-use App\Service\UsersService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,30 +19,29 @@ class EmblemAction
     public static function getRouteDefinition(): array
     {
         return [
-            self::class => new Route('/emblem/{uuid}/{hash}.svg', [
+            self::class => new Route('/emblem/{uuid}-{colour}.svg', [
                 '_controller' => self::class,
             ], [
                 'uuid' => Uuid::VALID_PATTERN,
-                'hash' => '^[0-9a-f]{40}$',
+                'colour' => '^[0-9a-f]{6}$',
             ]),
         ];
     }
 
     public function __invoke(
         Request $request,
-        UsersService $usersService,
         PlayerRanksService $playerRanksService
     ) {
-        $playerId = $this->getIDFromUrl($request);
-        $player = $usersService->getById($playerId);
-        if (!$player) {
-            throw new NotFoundHttpException('No such player');
+        $rankId = $this->getIDFromUrl($request);
+        $colour = new Colour($request->get('colour'));
+
+        $rank = $playerRanksService->getById($rankId);
+        if (!$rank) {
+            throw new NotFoundHttpException('No such emblem');
         }
 
-        $rank = $playerRanksService->getForUser($player);
-
         return new Response(
-            $rank->getEmblem($player->getColour()),
+            $rank->getEmblem($colour),
             Response::HTTP_OK,
             [
                 'content-type' => 'image/svg+xml',

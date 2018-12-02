@@ -46,7 +46,7 @@ class User extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn()
      */
     public $lastRankSeen;
 
@@ -55,7 +55,8 @@ class User extends AbstractEntity
         ?string $ipHash,
         string $colour,
         int $rotationSteps,
-        Port $homePort
+        Port $homePort,
+        PlayerRank $lastRankSeen
     ) {
         parent::__construct();
         $this->queryHash = $queryHash;
@@ -64,5 +65,6 @@ class User extends AbstractEntity
         $this->rotationSteps = $rotationSteps;
         $this->homePort = $homePort;
         $this->scoreCalculationTime = (new \DateTimeImmutable())->setTimestamp(0);
+        $this->lastRankSeen = $lastRankSeen;
     }
 }

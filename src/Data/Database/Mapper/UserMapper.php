@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Mapper;
 
+use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Colour;
@@ -19,8 +20,8 @@ class UserMapper extends Mapper
             $this->mapScore($item),
             $item['queryHash'] !== null,
             $item['createdAt'],
-            $item['updatedAt'],
-            $this->mapHomePort($item)
+            $this->mapHomePort($item),
+            $this->mapRank($item)
         );
         return $domainEntity;
     }
@@ -29,6 +30,14 @@ class UserMapper extends Mapper
     {
         if (isset($item['homePort'])) {
             return $this->mapperFactory->createPortMapper()->getPort($item['homePort']);
+        }
+        return null;
+    }
+
+    private function mapRank($item): ?PlayerRank
+    {
+        if (isset($item['lastRankSeen'])) {
+            return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['lastRankSeen']);
         }
         return null;
     }

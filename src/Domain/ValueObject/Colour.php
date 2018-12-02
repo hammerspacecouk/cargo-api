@@ -18,6 +18,11 @@ class Colour implements \JsonSerializable
         $this->hex = self::validateColour($hex);
     }
 
+    public function __toString(): string
+    {
+        return $this->hex;
+    }
+
     public function jsonSerialize(): string
     {
         return $this->hex;

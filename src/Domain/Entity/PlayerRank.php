@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\ValueObject\Colour;
 use Ramsey\Uuid\UuidInterface;
 
 class PlayerRank extends Entity implements \JsonSerializable
@@ -41,9 +42,14 @@ class PlayerRank extends Entity implements \JsonSerializable
         return $this->threshold;
     }
 
-    public function getEmblem(): string
+    public function getEmblem(?Colour $playerColour): string
     {
-        return $this->emblem;
+        $emblem = $this->emblem;
+        if ($playerColour) {
+            $targetColour = 'fefefe';
+            $emblem = \str_replace($targetColour, $playerColour, $this->emblem);
+        }
+        return $emblem;
     }
 
     public function getSpeedMultiplier(): float

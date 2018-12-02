@@ -29,9 +29,9 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             $ipHash,
             $colour->getHex(),
             $rotationSteps,
-            $homePort
+            $homePort,
+            $initialRank
         );
-        $user->lastRankSeen = $initialRank;
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $homePort);
