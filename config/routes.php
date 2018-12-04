@@ -40,7 +40,6 @@ $actions = [
     // play (requires cookie)
     Controller\Play\IndexAction::class,
     Controller\Play\UpgradesAction::class,
-    Controller\Play\ShipEditAction::class,
     Controller\Play\ShipAction::class,
 
 

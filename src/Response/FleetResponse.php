@@ -4,33 +4,37 @@ declare(strict_types=1);
 namespace App\Response;
 
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Service\EventsService;
+use App\Service\Ships\ShipHealthService;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
 
 class FleetResponse
 {
     private $eventsService;
     private $shipsService;
+    private $shipHealthService;
+    private $shipNameService;
 
     public function __construct(
         EventsService $eventsService,
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        ShipHealthService $shipHealthService,
+        ShipNameService $shipNameService
     ) {
         $this->eventsService = $eventsService;
         $this->shipsService = $shipsService;
+        $this->shipHealthService = $shipHealthService;
+        $this->shipNameService = $shipNameService;
     }
 
     public function getResponseDataForUser(User $user): array
     {
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
 
-        $fleetShips = \array_map(function (Ship $ship) {
-            return [
-                'ship' => $ship,
-                'needsAttention' => $this->shipNeedsAttention($ship),
-            ];
+        $fleetShips = \array_map(function (Ship $ship) use ($user) {
+            return $this->mapShip($ship, $user);
         }, $allShips);
 
         // order the ships. At the top should be those that need attention.
@@ -56,6 +60,24 @@ class FleetResponse
         return [
             'ships' => $fleetShips,
             'events' => $this->eventsService->findLatestForUser($user),
+        ];
+    }
+
+    private function mapShip(Ship $ship, User $user): array
+    {
+        $renameToken = $this->shipNameService->getRequestShipNameTransaction(
+            $user->getId(),
+            $ship->getId()
+        );
+
+        return [
+            'ship' => $ship,
+            'needsAttention' => $this->shipNeedsAttention($ship),
+            'renameToken' => $renameToken,
+            'health' => [
+                $this->shipHealthService->getSmallHealthTransaction($user, $ship),
+                $this->shipHealthService->getLargeHealthTransaction($user, $ship),
+            ],
         ];
     }
 

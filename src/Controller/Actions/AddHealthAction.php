@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace App\Controller\Actions;
 
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
+use App\Response\FleetResponse;
 use App\Service\Ships\ShipHealthService;
-use App\Service\Ships\ShipNameService;
-use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
@@ -14,6 +13,7 @@ class AddHealthAction extends AbstractAction
 {
     private $shipHealthService;
     private $usersService;
+    private $fleetResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -23,11 +23,13 @@ class AddHealthAction extends AbstractAction
     public function __construct(
         ShipHealthService $shipHealthService,
         UsersService $usersService,
+        FleetResponse $fleetResponse,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
         $this->shipHealthService = $shipHealthService;
         $this->usersService = $usersService;
+        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole
@@ -36,10 +38,7 @@ class AddHealthAction extends AbstractAction
         $this->logger->notice('[ACTION] [SHIP HEALTH]');
 
         $token = $this->shipHealthService->parseShipHealthToken($tokenString);
-        $newHealth = $this->shipHealthService->useShipHealthToken($token);
-
-        // the previous tokens are now unusable, so todo - make new ones
-
+        $this->shipHealthService->useShipHealthToken($token);
 
         $user = $this->usersService->getById($token->getUserId());
         if (!$user) {
@@ -47,9 +46,8 @@ class AddHealthAction extends AbstractAction
         }
 
         return [
-            // todo - new tokens
             'newScore' => $user->getScore(),
-            'newHealth' => $newHealth,
+            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
         ];
     }
 }
