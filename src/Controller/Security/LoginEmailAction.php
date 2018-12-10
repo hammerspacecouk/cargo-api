@@ -59,30 +59,31 @@ class LoginEmailAction extends AbstractLoginAction
         $this->logger->debug(__CLASS__);
         $token = $request->get('token');
         $target = $request->get('target');
+        $loginToken = $request->get('loginToken', '');
 
-        if ($token) {
-            $this->logger->notice('[LOGIN] [EMAIL]');
-            return $this->processLogin($request, $token);
+        try {
+            if ($token) {
+                $this->logger->notice('[LOGIN] [EMAIL]');
+                return $this->processLogin($request, $token);
+            }
+            if ($target && $this->usersService->verifyLoginToken($loginToken)) {
+                $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
+                return $this->sendEmail($request, $target);
+            }
+        } catch (TokenException | InvalidEmailAddressException | BadRequestHttpException $e) {
+            $query = '?messages=' . new Messages([new Error($e->getMessage())]);
+            return new RedirectResponse(
+                $this->applicationConfig->getWebHostname() . '/login' . $query
+            );
         }
-        if ($target) {
-            $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
-            return $this->sendEmail($request, $target);
-        }
-        throw new BadRequestHttpException('Expecting an e-mail address or token');
+        throw new BadRequestHttpException('Expecting an e-mail address or valid token');
     }
 
     private function processLogin(
         Request $request,
         string $token
     ): Response {
-        try {
-            $parsedToken = $this->authenticationService->useEmailLoginToken($token);
-        } catch (TokenException $exception) {
-            $query = '?messages=' . (new Messages([new Error($exception->getMessage())]));
-            return new RedirectResponse(
-                $this->applicationConfig->getWebHostname() . '/login' . $query
-            );
-        }
+        $parsedToken = $this->authenticationService->useEmailLoginToken($token);
         return $this->getLoginResponse($request, $parsedToken->getEmailAddress());
     }
 
@@ -91,24 +92,15 @@ class LoginEmailAction extends AbstractLoginAction
         string $emailAddress
     ) {
         $this->setReturnAddress($request);
-        try {
-            $validEmailAddress = new EmailAddress($emailAddress);
-            $token = $this->authenticationService->makeEmailLoginToken($validEmailAddress);
+        $validEmailAddress = new EmailAddress($emailAddress);
+        $token = $this->authenticationService->makeEmailLoginToken($validEmailAddress);
 
-            $this->emailsService->sendLoginEmail($validEmailAddress, $token);
-        } catch (InvalidEmailAddressException | BadRequestHttpException $e) {
-            $query = '?messages=' . (new Messages([new Error($e->getMessage())]));
-            return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);
-        }
+        $this->emailsService->sendLoginEmail($validEmailAddress, $token);
 
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(['status' => 'ok']);
         }
-        // todo - differing response for XHR
-
-        $query = '?messages=' . (new Messages([
-            new Ok('Sent. Please check your e-mail for the login link')
-        ]));
+        $query = '?messages=' . new Messages([new Ok('Sent. Please check your e-mail for the login link'),]);
         return new RedirectResponse($this->applicationConfig->getWebHostname() . '/login' . $query);
     }
 }

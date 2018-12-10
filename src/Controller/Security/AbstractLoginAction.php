@@ -88,9 +88,10 @@ class AbstractLoginAction
         $redirectUrl = $this->flashData->getOnce(self::RETURN_ADDRESS_KEY);
         $host = $this->applicationConfig->getWebHostname();
         $home = $host . '/';
+        $login = $host . '/login';
 
-        if (!$redirectUrl || $redirectUrl === $home) {
-            // don't send logged in users back to home. send them straight to the action
+        if (!$redirectUrl || $redirectUrl === $home || \strpos($redirectUrl, $login) === 0) {
+            // don't send logged in users back to home or login. send them straight to the action
             $redirectUrl = $host . '/play';
         }
 

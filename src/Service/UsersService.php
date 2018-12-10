@@ -11,6 +11,7 @@ use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
+use App\Domain\ValueObject\Token\FlashDataToken;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -78,6 +79,22 @@ class UsersService extends AbstractService
         }
         $queryHash = $this->makeContentHash((string)$email);
         return $this->newPlayer($queryHash, null);
+    }
+
+    public function getLoginToken(): FlashDataToken
+    {
+        $token = $this->tokenHandler->makeToken(...FlashDataToken::make(
+            ['login' => true],
+            []
+        ));
+        return new FlashDataToken($token->getJsonToken(), (string)$token);
+    }
+
+    public function verifyLoginToken(string $tokenString): bool
+    {
+        // will throw if the token is expired or invalid
+        $token = new FlashDataToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        return $token->getData()['login'];
     }
 
     public function allowedToMakeAnonymousUser(?string $ipAddress): bool

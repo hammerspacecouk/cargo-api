@@ -51,8 +51,11 @@ class CheckLoginAction
                 $this->playerRanksService->getForUser($user)
             );
         } else {
-            // todo - make a CSRF token for Anonymous login
-            $state = new SessionState();
+            $state = new SessionState(
+                null,
+                null,
+                $this->usersService->getLoginToken()
+            );
         }
 
         return $this->userResponse(new JsonResponse($state), $this->authenticationService);

@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\Exception\TokenException;
+use App\Domain\ValueObject\Message\Error;
+use App\Domain\ValueObject\Message\Messages;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -27,7 +30,15 @@ class LoginAnonymousAction extends AbstractLoginAction
     public function __invoke(
         Request $request
     ): RedirectResponse {
-        // todo - validate Token for CSRF
+        $loginToken = $request->get('loginToken', '');
+        try {
+            $this->usersService->verifyLoginToken($loginToken);
+        } catch (TokenException $exception) {
+            $query = '?messages=' . new Messages([new Error($exception->getMessage())]);
+            return new RedirectResponse(
+                $this->applicationConfig->getWebHostname() . '/login' . $query
+            );
+        }
 
         // do you already have a session
         $user = $this->getUserIfExists($request, $this->authenticationService);
