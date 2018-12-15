@@ -8,10 +8,10 @@ use App\Data\Database\Entity\User;
 
 class CrateRepository extends AbstractEntityRepository
 {
-    public function newRandomCrateForPlayer(
+    public function makeInitialCrateForPlayer(
         User $reservedForPlayer
     ): Crate {
-        $crateContents = $this->getEntityManager()->getCrateTypeRepo()->getRandomCrateContents();
+        $crateContents = $this->getEntityManager()->getCrateTypeRepo()->getRandomInitialCrateContents();
 
         $crate = new Crate(
             $crateContents->contents,
@@ -22,6 +22,19 @@ class CrateRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($crate);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->getEventRepo()->logNewCrate($crate, $reservedForPlayer);
+        return $crate;
+    }
+
+    public function newRandomCrate(): Crate {
+        $crateContents = $this->getEntityManager()->getCrateTypeRepo()->getRandomCrateContents();
+
+        $crate = new Crate(
+            $crateContents->contents,
+            $crateContents->value
+        );
+
+        $this->getEntityManager()->persist($crate);
+        $this->getEntityManager()->flush();
         return $crate;
     }
 

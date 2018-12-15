@@ -192,12 +192,12 @@ class UsersService extends AbstractService
         // this is so that users can't keep deleting and recreating accounts to get new starting variables
         if ($ipHash) {
             // for anonymous users, add the ipHash to the date (so shared IPs are more unlikely to match)
-            $seed = crc32(sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
+            $seed = \crc32(\sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
         } else {
             // email based users will get the same outcome for that same email
-            $seed = crc32($queryHash);
+            $seed = \crc32($queryHash);
         }
-        mt_srand($seed);
+        \mt_srand($seed);
 
         // get some starting types
         $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
@@ -225,7 +225,7 @@ class UsersService extends AbstractService
             $this->entityManager->getPortVisitRepo()->recordVisit($player, $safeHaven);
 
             // Make a crate (reserved for this player)
-            $crate = $this->entityManager->getCrateRepo()->newRandomCrateForPlayer($player);
+            $crate = $this->entityManager->getCrateRepo()->makeInitialCrateForPlayer($player);
 
             // Put the crate into the port
             $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $safeHaven);

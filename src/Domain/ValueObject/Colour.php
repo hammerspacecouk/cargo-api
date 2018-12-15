@@ -7,8 +7,8 @@ use function App\Functions\Transforms\rgbToHex;
 
 class Colour implements \JsonSerializable
 {
-    private const INITIAL_BRIGHTNESS_MIN = 120;
-    private const INITIAL_BRIGHTNESS_MAX = 160;
+    private const INITIAL_BRIGHTNESS_MIN = 100;
+    private const INITIAL_BRIGHTNESS_MAX = 200;
 
     private $hex;
 
@@ -47,7 +47,7 @@ class Colour implements \JsonSerializable
 
     public static function validateColour(string $input): string
     {
-        $input = strtolower($input);
+        $input = \strtolower($input);
         if (\strlen($input) === 6 && \ctype_xdigit($input)) {
             return $input;
         }

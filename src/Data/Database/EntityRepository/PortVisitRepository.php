@@ -24,7 +24,7 @@ class PortVisitRepository extends AbstractEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countForPlayerId(UuidInterface $playerId)
+    public function countForPlayerId(UuidInterface $playerId): int
     {
         return (int)$this->createQueryBuilder('tbl')
             ->select('count(1)')

@@ -71,6 +71,11 @@ class ShipLocationsService extends AbstractService
             $destinationPort->id,
             $ownerId
         );
+        $makeNewCrate = null;
+        // if this was their first travel from the home (visits = 1) we're going to make a new crate
+        if (!$alreadyVisited && $portVisitRepo->countForPlayerId($ownerId) === 1) {
+            $makeNewCrate = true;
+        }
 
         // reverse the delta from this journey originally
         $delta = -$this->calculateDelta(
@@ -91,7 +96,8 @@ class ShipLocationsService extends AbstractService
             $alreadyVisited,
             $owner,
             $crateLocations,
-            $delta
+            $delta,
+            $makeNewCrate
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
@@ -114,6 +120,14 @@ class ShipLocationsService extends AbstractService
                     $destinationPort
                 );
                 $this->entityManager->getCrateRepo()->removeReservation($crateLocation->crate);
+            }
+
+            if ($makeNewCrate) {
+                $crate = $this->entityManager->getCrateRepo()->newRandomCrate();
+                $this->entityManager->getCrateLocationRepo()->makeInPort(
+                    $crate,
+                    $destinationPort
+                );
             }
 
             // update the users score

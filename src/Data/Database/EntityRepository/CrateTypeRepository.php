@@ -4,21 +4,28 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\CrateType;
-use Doctrine\ORM\Query;
 
 class CrateTypeRepository extends AbstractEntityRepository
 {
     private const CACHE_LIFETIME = 60 * 60 * 24 * 2; // 2 days
 
-    public function getRandomCrateContents(): CrateType
+    public function getRandomInitialCrateContents(): CrateType
     {
         $contents = $this->getAvailableCrateTypesForNewUser();
+
+        /** @noinspection RandomApiMigrationInspection - so it can be seeded */
+        return $contents[\mt_rand(0, \count($contents) - 1)];
+    }
+
+    public function getRandomCrateContents(): CrateType
+    {
+        $contents = $this->getAvailableCrateTypes();
         return $this->getRandomWeighted($contents);
     }
 
-    private function getAvailableCrateTypesForNewUser(): array
+    private function getAvailableCrateTypes(): array
     {
-        $cacheKey = __CLASS__ . __METHOD__;
+        $cacheKey = __CLASS__ . '-' . __METHOD__;
         $data = $this->cache->get($cacheKey);
         if ($data) {
             return $data;
@@ -26,23 +33,36 @@ class CrateTypeRepository extends AbstractEntityRepository
         // get all the crate options and their abundance
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
-            ->where('tbl.isGoal = 0')
             ->orderBy('tbl.abundance', 'DESC');
 
-        $data = $qb->getQuery()->getResult();
+        $data = \array_values($qb->getQuery()->getResult());
+        $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
+        return $data;
+    }
 
+    private function getAvailableCrateTypesForNewUser(): array
+    {
+        $cacheKey = __CLASS__ . '-' . __METHOD__;
+        $data = $this->cache->get($cacheKey);
+        if ($data) {
+            return $data;
+        }
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.value = 1');
+
+        $data = \array_values($qb->getQuery()->getResult());
         $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
         return $data;
     }
 
     private function getRandomWeighted(array $crateTypes): CrateType
     {
-        $total = \array_reduce($crateTypes, function(int $carry, CrateType $crateType) {
+        $total = \array_reduce($crateTypes, function (int $carry, CrateType $crateType) {
             return $carry + $crateType->abundance;
         }, 0);
 
-        /** @noinspection RandomApiMigrationInspection - so it can be seeded */
-        $randomValue = \mt_rand(0, $total);
+        $randomValue = \random_int(0, $total);
 
         foreach ($crateTypes as $crateType) {
             $randomValue -= $crateType->abundance;
