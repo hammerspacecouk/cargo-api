@@ -41,6 +41,9 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $purchaseCost;
 
+    /** @ORM\Column(type="text") */
+    public $svg;
+
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
@@ -56,6 +59,7 @@ class ShipClass extends AbstractEntity
         float $speedMultiplier,
         bool $isStarterShip,
         int $purchaseCost,
+        string $svg,
         PlayerRank $minimumRank
     ) {
         parent::__construct();
@@ -69,5 +73,6 @@ class ShipClass extends AbstractEntity
         $this->description = $description;
         $this->strength = $strength;
         $this->autoNavigate = $autoNavigate;
+        $this->svg = $svg;
     }
 }

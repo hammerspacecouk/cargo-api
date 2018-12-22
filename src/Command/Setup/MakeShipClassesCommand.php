@@ -67,6 +67,7 @@ class MakeShipClassesCommand extends Command
             $speedMultiplier = (float)$data['speedMultiplier'];
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
+            $svg = trim($data['svg']);
             /** @var ShipClass $entity */
             $entity = $this->entityManager->getShipClassRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
@@ -81,6 +82,7 @@ class MakeShipClassesCommand extends Command
                 $entity->speedMultiplier = $speedMultiplier;
                 $entity->purchaseCost = $purchaseCost;
                 $entity->isStarterShip = $isStarterShip;
+                $entity->svg = $svg;
             } else {
                 $entity = new ShipClass(
                     $name,
@@ -92,6 +94,7 @@ class MakeShipClassesCommand extends Command
                     $speedMultiplier,
                     $isStarterShip,
                     $purchaseCost,
+                    $svg,
                     $minimumRank
                 );
                 $entity->id = $id;

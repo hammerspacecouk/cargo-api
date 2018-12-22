@@ -12,6 +12,7 @@ $actions = [
     Controller\Home\IndexAction::class,
     Controller\Home\EmblemAction::class,
     Controller\Home\StatusAction::class,
+    Controller\Home\ShipClassImageAction::class,
 
     // login
     Controller\Security\LoginAction::class,

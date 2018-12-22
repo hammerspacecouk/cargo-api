@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-use App\Domain\Entity\PlayerRank;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
 
@@ -16,6 +15,7 @@ class ShipClass extends Entity implements \JsonSerializable
     private $minimumRank;
     private $purchaseCost;
     private $description;
+    private $imageSvg;
 
     public function __construct(
         UuidInterface $id,
@@ -25,6 +25,7 @@ class ShipClass extends Entity implements \JsonSerializable
         int $strength,
         int $purchaseCost,
         float $speedMultiplier,
+        string $imageSvg,
         ?PlayerRank $minimumRank
     ) {
         parent::__construct($id);
@@ -35,6 +36,7 @@ class ShipClass extends Entity implements \JsonSerializable
         $this->minimumRank = $minimumRank;
         $this->purchaseCost = $purchaseCost;
         $this->description = $description;
+        $this->imageSvg = $imageSvg;
     }
 
     public function jsonSerialize(): array
@@ -44,12 +46,29 @@ class ShipClass extends Entity implements \JsonSerializable
             'name' => $this->getName(),
             'description' => $this->getDescription(),
             'capacity' => $this->getCapacity(),
+            'image' => $this->getImagePath(),
         ];
     }
 
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getImage(): string
+    {
+        return $this->imageSvg;
+    }
+
+    public function getImageHash(): string
+    {
+        // use a hash of the svg data as a cache buster.
+        return \sha1($this->imageSvg);
+    }
+
+    public function getImagePath(): string
+    {
+        return '/ship-class/' . $this->id->toString() . '-' . $this->getImageHash() . '.svg';
     }
 
     public function getCapacity(): int

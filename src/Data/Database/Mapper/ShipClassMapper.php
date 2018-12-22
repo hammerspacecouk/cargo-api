@@ -18,6 +18,7 @@ class ShipClassMapper extends Mapper
             (int)$item['strength'],
             (int)$item['purchaseCost'],
             $item['speedMultiplier'],
+            $item['svg'],
             $this->getMinimumRank($item)
         );
         return $domainEntity;
