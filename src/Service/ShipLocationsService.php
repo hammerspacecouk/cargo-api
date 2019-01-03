@@ -97,7 +97,7 @@ class ShipLocationsService extends AbstractService
             $owner,
             $crateLocations,
             $delta,
-            $makeNewCrate,
+            $makeNewCrate
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;

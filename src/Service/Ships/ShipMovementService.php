@@ -72,7 +72,7 @@ class ShipMovementService extends ShipsService
             $exitTime,
             $reversed,
             $delta,
-            $token,
+            $token
         ) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getShipLocationRepo()->exitLocation($ship);
