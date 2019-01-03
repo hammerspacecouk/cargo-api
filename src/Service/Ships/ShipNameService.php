@@ -20,15 +20,15 @@ class ShipNameService extends ShipsService
     ): Transaction {
         $token = $this->tokenHandler->makeToken(...RequestShipNameToken::make(
             $shipId,
-            $userId
+            $userId,
         ));
         return new Transaction(
             Costs::ACTION_REQUEST_SHIP_NAME,
             new RequestShipNameToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(RequestShipNameToken::class, $this->dateTimeFactory->now())
-            )
+                TokenProvider::getActionPath(RequestShipNameToken::class, $this->dateTimeFactory->now()),
+            ),
         );
     }
 
@@ -38,12 +38,12 @@ class ShipNameService extends ShipsService
     ): RenameShipToken {
         $token = $this->tokenHandler->makeToken(...RenameShipToken::make(
             $shipId,
-            $newName
+            $newName,
         ));
         return new RenameShipToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(RenameShipToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(RenameShipToken::class, $this->dateTimeFactory->now()),
         );
     }
 
@@ -54,7 +54,7 @@ class ShipNameService extends ShipsService
     ): RenameShipToken {
         return new RenameShipToken(
             $this->tokenHandler->parseTokenFromString($tokenString),
-            $tokenString
+            $tokenString,
         );
     }
 

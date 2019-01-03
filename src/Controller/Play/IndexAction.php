@@ -56,7 +56,7 @@ class IndexAction
 
         $state = new SessionState(
             $user,
-            $this->playerRanksService->getForUser($user)
+            $this->playerRanksService->getForUser($user),
         );
 
         $data = [

@@ -115,7 +115,7 @@ class TokenProvider
     {
         $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
             $this->uuidFromToken($token),
-            $this->expiryFromToken($token)
+            $this->expiryFromToken($token),
         );
     }
 

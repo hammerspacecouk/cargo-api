@@ -42,13 +42,13 @@ class RequestShipNameAction extends AbstractAction
 
         $actionToken = $this->shipNameService->getRenameShipToken(
             $token->getShipId(),
-            $shipName
+            $shipName,
         );
 
         // the previous token should not be reusable, so we need to send a new one
         $requestShipNameTransaction = $this->shipNameService->getRequestShipNameTransaction(
             $token->getUserId(),
-            $token->getShipId()
+            $token->getShipId(),
         );
 
         $user = $this->usersService->getById($token->getUserId());

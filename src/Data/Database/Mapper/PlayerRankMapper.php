@@ -13,7 +13,7 @@ class PlayerRankMapper extends Mapper
             $item['id'],
             $item['name'],
             $item['threshold'],
-            $item['emblemSvg'] ?? '' // todo - not needed once all populated
+            $item['emblemSvg'] ?? '', // todo - not needed once all populated
         );
     }
 }

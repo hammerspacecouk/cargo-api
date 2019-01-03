@@ -51,7 +51,7 @@ class LoginTwitterAction extends AbstractLoginAction
             [
                 'oauth_verifier' => $verifier,
                 'oauth_token'=> $token,
-            ]
+            ],
         );
 
         $client->setOauthToken($accessToken['oauth_token'], $accessToken['oauth_token_secret']);

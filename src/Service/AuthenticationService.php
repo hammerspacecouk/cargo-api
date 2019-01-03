@@ -74,7 +74,7 @@ class AuthenticationService extends AbstractService
             $this->dateTimeFactory->now(),
             $expiry,
             $digest,
-            $userEntity
+            $userEntity,
         );
 
         $this->entityManager->getConnection()->beginTransaction();
@@ -98,7 +98,7 @@ class AuthenticationService extends AbstractService
         return $this->makeCookie(
             '',
             self::COOKIE_NAME,
-            $this->dateTimeFactory->now()->sub(new DateInterval('P1Y'))
+            $this->dateTimeFactory->now()->sub(new DateInterval('P1Y')),
         );
     }
 
@@ -117,7 +117,7 @@ class AuthenticationService extends AbstractService
         return $this->makeNewAuthenticationCookie(
             $currentAuthentication->getUser(),
             $currentAuthentication->getCreationTime(),
-            $currentAuthentication
+            $currentAuthentication,
         );
     }
 
@@ -151,7 +151,7 @@ class AuthenticationService extends AbstractService
         $digest = $this->getDigest(
             $authentication->getUser()->getId(),
             $tokenEntity['expiry'],
-            $secret
+            $secret,
         );
 
         if (!\hash_equals($tokenEntity['digest'], $digest)) {
@@ -207,7 +207,7 @@ class AuthenticationService extends AbstractService
                 (string)$userId,
                 $expiry->getTimestamp(),
             ]),
-            $this->applicationConfig->getTokenPrivateKey()->encode()
+            $this->applicationConfig->getTokenPrivateKey()->encode(),
         );
     }
 }

@@ -41,7 +41,7 @@ class PortVisitRepository extends AbstractEntityRepository
         $portVisit = new PortVisit(
             $owner,
             $port,
-            $this->dateTimeFactory->now()
+            $this->dateTimeFactory->now(),
         );
         $this->getEntityManager()->persist($portVisit);
         $this->getEntityManager()->flush();

@@ -57,11 +57,11 @@ class TestEmailCommand extends Command
         $message = new Swift_Message(
             'This is a test',
             'Sent at <i>' . $this->dateTimeFactory->now()->format(DateTimeFactory::FULL) . '</i>',
-            'text/html'
+            'text/html',
         );
         $message->addFrom(
             $this->applicationConfig->getEmailFromAddress(),
-            $this->applicationConfig->getEmailFromName()
+            $this->applicationConfig->getEmailFromName(),
         );
         $message->addTo($emailAddress);
 

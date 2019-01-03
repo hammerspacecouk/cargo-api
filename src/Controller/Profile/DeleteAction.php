@@ -138,7 +138,7 @@ class DeleteAction
         $response = new RedirectResponse(
             $this->applicationConfig->getWebHostname() .
             '/profile/delete?' .
-            http_build_query($params)
+            http_build_query($params),
         );
         return $this->userResponse($response, $this->authenticationService);
     }

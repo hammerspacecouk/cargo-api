@@ -64,7 +64,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningPlayer = $player;
                 $entity->subjectPort = $homePort;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -76,7 +76,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningPlayer = $player;
                 $entity->subjectShip = $ship;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -88,7 +88,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningPlayer = $player;
                 $entity->subjectRank = $rank;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -100,7 +100,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningShip = $ship;
                 $entity->subjectPort = $port;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -112,7 +112,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectShip = $ship;
                 $entity->value = $oldName;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -124,7 +124,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningShip = $ship;
                 $entity->subjectPort = $port;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -136,7 +136,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectCrate = $crate;
                 $entity->actioningPlayer = $reservedForPlayer;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -149,7 +149,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectCrate = $crate;
                 $entity->actioningShip = $ship;
                 return $entity;
-            }
+            },
         );
     }
 
@@ -191,7 +191,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         $entity = new Event(
             $this->dateTimeFactory->now(),
-            $eventType
+            $eventType,
         );
 
         $entity = $values($entity);

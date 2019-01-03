@@ -15,7 +15,7 @@ class CrateRepository extends AbstractEntityRepository
 
         $crate = new Crate(
             $crateContents->contents,
-            $crateContents->value
+            $crateContents->value,
         );
         $crate->reservedFor = $reservedForPlayer;
 
@@ -30,7 +30,7 @@ class CrateRepository extends AbstractEntityRepository
 
         $crate = new Crate(
             $crateContents->contents,
-            $crateContents->value
+            $crateContents->value,
         );
 
         $this->getEntityManager()->persist($crate);

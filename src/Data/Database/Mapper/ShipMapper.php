@@ -18,7 +18,7 @@ class ShipMapper extends Mapper
             (int)$item['strength'],
             $this->getOwner($item),
             $this->getShipClass($item),
-            $this->getLocation($item)
+            $this->getLocation($item),
         );
     }
 

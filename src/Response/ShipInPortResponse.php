@@ -43,7 +43,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $location,
             $rankStatus,
             $totalCrateValue,
-            $groupTokenKey
+            $groupTokenKey,
         );
         $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($port);
         $data['events'] = $this->eventsService->findLatestForPort($port);

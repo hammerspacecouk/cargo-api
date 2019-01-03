@@ -30,9 +30,9 @@ class EmailsService
 
         // todo - use twig
         $body = <<<EMAIL
-<p>This link will work for 1 hour and will log you in once</p>
-<p><a href="$url">$url</a></p>
-EMAIL;
+            <p>This link will work for 1 hour and will log you in once</p>
+            <p><a href="$url">$url</a></p>
+        EMAIL;
 
         $this->send($emailAddress, 'Login link', $body);
     }
@@ -42,11 +42,11 @@ EMAIL;
         $message = new Swift_Message(
             $title,
             $body,
-            self::EMAIL_MIME_TYPE
+            self::EMAIL_MIME_TYPE,
         );
         $message->addFrom(
             $this->applicationConfig->getEmailFromAddress(),
-            $this->applicationConfig->getEmailFromName()
+            $this->applicationConfig->getEmailFromName(),
         );
         $message->addTo((string)$to);
 

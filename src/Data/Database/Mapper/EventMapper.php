@@ -24,7 +24,7 @@ class EventMapper extends Mapper
             $this->getRank($item['subjectRank']),
             $this->getShip($item['subjectShip']),
             $this->getPort($item['subjectPort']),
-            $this->getCrate($item['subjectCrate'])
+            $this->getCrate($item['subjectCrate']),
         );
         return $domainEntity;
     }

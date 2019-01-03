@@ -28,7 +28,7 @@ class CratesService extends AbstractService
         $crateContents = $this->entityManager->getCrateTypeRepo()->getRandomCrateContents();
         $crate = new DbCrate(
             $crateContents->contents,
-            $crateContents->value
+            $crateContents->value,
         );
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
@@ -82,12 +82,12 @@ class CratesService extends AbstractService
             $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
             $crate->getId(),
             $port->getId(),
-            $ship->getId()
+            $ship->getId(),
         ));
         return new PickupCrateToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now()),
         );
     }
 
@@ -101,12 +101,12 @@ class CratesService extends AbstractService
             $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
             $crate->getId(),
             $port->getId(),
-            $ship->getId()
+            $ship->getId(),
         ));
         return new DropCrateToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now()),
         );
     }
 
@@ -188,7 +188,7 @@ class CratesService extends AbstractService
         $crateLocations = $this->entityManager->getCrateLocationRepo()->getOnShipsInPortBefore(
             $since,
             $limit,
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
         $total = count($crateLocations);
 

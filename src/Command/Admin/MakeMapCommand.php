@@ -129,7 +129,7 @@ class MakeMapCommand extends Command
         \file_put_contents($outputPath, $this->buildSvg(
             $lines,
             $ports,
-            $viewBox
+            $viewBox,
         ));
         $output->writeln('');
         $output->writeln('Done. Map available at ' . \realpath($outputPath));
@@ -172,7 +172,7 @@ class MakeMapCommand extends Command
         array $lines,
         array $ports,
         string $viewBox
-    ) {
+    ): string {
         $lineSvgs = \implode('', \array_map(function (array $line) {
             return '<line x1="' .
                 $line[0] . '" y1="' .
@@ -195,12 +195,12 @@ class MakeMapCommand extends Command
         }, $ports));
 
         return <<<SVG
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="$viewBox">
-    $lineSvgs
-    $hexSvgs
-    $texts
-</svg>
-SVG;
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="$viewBox">
+                $lineSvgs
+                $hexSvgs
+                $texts
+            </svg>
+        SVG;
     }
 
     private function getHexPoints($x, $y): string

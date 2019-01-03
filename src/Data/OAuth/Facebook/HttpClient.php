@@ -37,7 +37,7 @@ class HttpClient implements FacebookHttpClientInterface
         return new GraphRawResponse(
             $responseHeaders,
             $responseBody,
-            $httpStatusCode
+            $httpStatusCode,
         );
     }
 }

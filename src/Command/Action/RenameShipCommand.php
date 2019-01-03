@@ -55,7 +55,7 @@ class RenameShipCommand extends Command
             sprintf(
                 'Renamed ship %s to %s',
                 $data->shipId,
-                $data->newName
+                $data->newName,
             )
         );
     }

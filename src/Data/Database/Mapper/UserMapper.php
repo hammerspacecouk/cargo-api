@@ -21,7 +21,7 @@ class UserMapper extends Mapper
             $item['queryHash'] !== null,
             $item['createdAt'],
             $this->mapHomePort($item),
-            $this->mapRank($item)
+            $this->mapRank($item),
         );
         return $domainEntity;
     }
@@ -47,7 +47,7 @@ class UserMapper extends Mapper
         return new Score(
             (int)$item['score'],
             (int)$item['scoreRate'],
-            $item['scoreCalculationTime']
+            $item['scoreCalculationTime'],
         );
     }
 }

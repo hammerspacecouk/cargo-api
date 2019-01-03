@@ -48,7 +48,7 @@ class LoginEmailAction extends AbstractLoginAction
             $authenticationService,
             $flashData,
             $usersService,
-            $logger
+            $logger,
         );
         $this->emailsService = $emailsService;
     }

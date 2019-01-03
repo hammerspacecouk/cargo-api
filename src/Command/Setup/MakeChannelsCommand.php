@@ -126,7 +126,7 @@ class MakeChannelsCommand extends Command
     {
         $port = $this->entityManager->getPortRepo()->getByID(
             Uuid::fromString($inputString),
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
         if ($port) {
             return $port;
@@ -142,7 +142,7 @@ class MakeChannelsCommand extends Command
 
         $rank = $this->entityManager->getPlayerRankRepo()->getByID(
             Uuid::fromString($inputString),
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
         if ($rank) {
             return $rank;

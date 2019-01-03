@@ -36,7 +36,7 @@ class ShipLocationsService extends AbstractService
         $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired(
             $since,
             $limit,
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
         $total = count($locations);
 
@@ -69,7 +69,7 @@ class ShipLocationsService extends AbstractService
         $owner = $usersRepo->getByID($ownerId, Query::HYDRATE_OBJECT);
         $alreadyVisited = $portVisitRepo->existsForPortAndUser(
             $destinationPort->id,
-            $ownerId
+            $ownerId,
         );
         $makeNewCrate = null;
         // if this was their first travel from the home (visits = 1) we're going to make a new crate
@@ -82,11 +82,11 @@ class ShipLocationsService extends AbstractService
             $ship->id,
             $currentLocation->channel->distance,
             $currentLocation->entryTime,
-            $currentLocation->exitTime
+            $currentLocation->exitTime,
         );
         $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID(
             $ship->id,
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
 
         $this->entityManager->transactional(function () use (
@@ -97,7 +97,7 @@ class ShipLocationsService extends AbstractService
             $owner,
             $crateLocations,
             $delta,
-            $makeNewCrate
+            $makeNewCrate,
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;

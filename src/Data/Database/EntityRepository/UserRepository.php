@@ -30,7 +30,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             $colour->getHex(),
             $rotationSteps,
             $homePort,
-            $initialRank
+            $initialRank,
         );
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();

@@ -44,7 +44,7 @@ abstract class AbstractPortAction extends AbstractAction
         return $this->shipInPortResponse->getResponseData(
             $shipWithLocation->getOwner(),
             $shipWithLocation,
-            $shipWithLocation->getLocation()
+            $shipWithLocation->getLocation(),
         );
     }
 

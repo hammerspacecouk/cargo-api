@@ -24,9 +24,7 @@ class UsedActionTokenRepository extends AbstractEntityRepository implements Clea
         UuidInterface $tokenId,
         DateTimeImmutable $expiryTime
     ): void {
-        $entity = new UsedActionToken(
-            $expiryTime
-        );
+        $entity = new UsedActionToken($expiryTime);
         $entity->id = $tokenId;
         $entity->uuid = (string)$tokenId;
         $em = $this->getEntityManager();

@@ -93,7 +93,7 @@ class CrateLocationRepository extends AbstractEntityRepository
         $location = new CrateLocation(
             $crate,
             null,
-            $ship
+            $ship,
         );
 
         $this->getEntityManager()->persist($location);
@@ -105,7 +105,7 @@ class CrateLocationRepository extends AbstractEntityRepository
         $location = new CrateLocation(
             $crate,
             $port,
-            null
+            null,
         );
 
         $this->getEntityManager()->persist($location);

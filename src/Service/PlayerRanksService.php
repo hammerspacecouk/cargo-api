@@ -75,7 +75,7 @@ class PlayerRanksService extends AbstractService
             $currentRank,
             $previousRank,
             $nextRank,
-            $acknowledgeToken
+            $acknowledgeToken,
         );
     }
 }

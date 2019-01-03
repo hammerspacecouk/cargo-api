@@ -28,7 +28,7 @@ class ShipHealthService extends ShipsService
             $token->getUserId(),
             $token->getShipId(),
             $token->getPercent(),
-            $token->getCost()
+            $token->getCost(),
         );
         $this->tokenHandler->markAsUsed($token->getOriginalToken());
         return $newHealth;
@@ -42,7 +42,7 @@ class ShipHealthService extends ShipsService
             $user->getId(),
             $ship->getId(),
             Costs::SMALL_HEALTH_INCREASE,
-            Costs::SMALL_HEALTH
+            Costs::SMALL_HEALTH,
         );
     }
 
@@ -54,7 +54,7 @@ class ShipHealthService extends ShipsService
             $user->getId(),
             $ship->getId(),
             Costs::LARGE_HEALTH_INCREASE,
-            Costs::LARGE_HEALTH
+            Costs::LARGE_HEALTH,
         );
     }
 
@@ -68,7 +68,7 @@ class ShipHealthService extends ShipsService
             $shipId,
             $userId,
             $percent,
-            $cost
+            $cost,
         ));
         return new Transaction(
             $cost,
@@ -78,7 +78,7 @@ class ShipHealthService extends ShipsService
                 TokenProvider::getActionPath(ShipHealthToken::class, $this->dateTimeFactory->now())
             ),
             0,
-            $percent
+            $percent,
         );
     }
 

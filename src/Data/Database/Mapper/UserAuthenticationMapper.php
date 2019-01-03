@@ -15,7 +15,7 @@ class UserAuthenticationMapper extends Mapper
             $item['originalCreationTime'],
             $item['lastUsed'],
             $item['expiry'],
-            $this->getUser($item)
+            $this->getUser($item),
         );
         return $domainEntity;
     }

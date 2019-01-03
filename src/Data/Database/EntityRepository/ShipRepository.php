@@ -54,13 +54,13 @@ class ShipRepository extends AbstractEntityRepository
         $ship = new Ship(
             $shipName,
             $starterShipClass,
-            $owner
+            $owner,
         );
         $this->getEntityManager()->persist($ship);
 
         $this->getEntityManager()->getEventRepo()->logNewShip(
             $ship,
-            $owner
+            $owner,
         );
 
         $this->getEntityManager()->flush();

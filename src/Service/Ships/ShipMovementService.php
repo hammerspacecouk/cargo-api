@@ -31,12 +31,12 @@ class ShipMovementService extends ShipsService
             $channel->getId(),
             $owner->getId(),
             $reverseDirection,
-            $journeyTime
+            $journeyTime,
         ));
         return new MoveShipToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now()),
         );
     }
 
@@ -72,7 +72,7 @@ class ShipMovementService extends ShipsService
             $exitTime,
             $reversed,
             $delta,
-            $token
+            $token,
         ) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getShipLocationRepo()->exitLocation($ship);

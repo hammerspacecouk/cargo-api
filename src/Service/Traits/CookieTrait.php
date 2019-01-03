@@ -21,7 +21,7 @@ trait CookieTrait
             '/',
             $this->applicationConfig->getCookieScope(),
             false, // secureCookie - todo - be true as often as possible
-            true // httpOnly
+            true, // httpOnly
         );
     }
 }

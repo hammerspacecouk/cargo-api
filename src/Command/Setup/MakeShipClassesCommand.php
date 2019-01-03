@@ -115,7 +115,7 @@ class MakeShipClassesCommand extends Command
     {
         $rank = $this->entityManager->getPlayerRankRepo()->getByID(
             Uuid::fromString($inputString),
-            Query::HYDRATE_OBJECT
+            Query::HYDRATE_OBJECT,
         );
         if ($rank) {
             return $rank;

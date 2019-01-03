@@ -80,7 +80,7 @@ class FlashDataStore
     {
         $token = $this->tokenProvider->makeToken(...FlashDataToken::make(
             $this->data,
-            $this->messages
+            $this->messages,
         ));
 
         return new Cookie(
@@ -90,7 +90,7 @@ class FlashDataStore
             '/',
             $this->applicationConfig->getCookieScope(),
             false, // secureCookie - todo - be true as often as possible
-            true // httpOnly
+            true, // httpOnly
         );
     }
 

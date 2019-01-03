@@ -20,7 +20,7 @@ class ChannelMapper extends Mapper
             new Bearing($item['bearing']),
             $item['distance'],
             $item['minimumStrength'],
-            $this->getMinimumEntryRank($item)
+            $this->getMinimumEntryRank($item),
         );
     }
 

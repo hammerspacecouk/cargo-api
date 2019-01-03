@@ -67,7 +67,7 @@ class FleetResponse
     {
         $renameToken = $this->shipNameService->getRequestShipNameTransaction(
             $user->getId(),
-            $ship->getId()
+            $ship->getId(),
         );
 
         return [

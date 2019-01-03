@@ -15,7 +15,7 @@ class CrateMapper extends Mapper
             $item['id'],
             $item['contents'],
             $item['value'],
-            $this->getLocation($item)
+            $this->getLocation($item),
         );
     }
 

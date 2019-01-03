@@ -143,7 +143,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             null,
             $channel,
-            $entryTime
+            $entryTime,
         );
 
         $location->exitTime = $exitTime;
@@ -160,7 +160,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             $port,
             null,
-            $this->dateTimeFactory->now()
+            $this->dateTimeFactory->now(),
         );
         $this->getEntityManager()->persist($location);
 

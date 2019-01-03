@@ -85,7 +85,7 @@ class UsersService extends AbstractService
     {
         $token = $this->tokenHandler->makeToken(...FlashDataToken::make(
             ['login' => true],
-            []
+            [],
         ));
         return new FlashDataToken($token->getJsonToken(), (string)$token);
     }
@@ -130,7 +130,7 @@ class UsersService extends AbstractService
     {
         $token = $this->tokenHandler->makeToken(...DeleteAccountToken::make(
             $userId,
-            $stage
+            $stage,
         ));
         return new DeleteAccountToken($token->getJsonToken(), (string)$token);
     }
@@ -163,7 +163,7 @@ class UsersService extends AbstractService
     ): AcknowledgePromotionToken {
         return new AcknowledgePromotionToken(
             $this->tokenHandler->parseTokenFromString($tokenString, false),
-            $tokenString
+            $tokenString,
         );
     }
 
@@ -248,7 +248,7 @@ class UsersService extends AbstractService
         return \bin2hex(\sodium_hex2bin(\hash_hmac(
             'sha256',
             $inputContent,
-            $this->applicationConfig->getApplicationSecret()
+            $this->applicationConfig->getApplicationSecret(),
         )));
     }
 
