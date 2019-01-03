@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Action;
 
 use App\Controller\Actions\RenameShipAction;
+use function App\Functions\DateTimes\jsonDecode;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,13 +50,13 @@ class RenameShipCommand extends Command
         $response = $this->renameShipAction->__invoke($request);
 
         $this->logger->info('Parsing response');
-        $data = json_decode($response->getContent());
+        $data = jsonDecode($response->getContent());
 
         $output->writeln(
             sprintf(
                 'Renamed ship %s to %s',
-                $data->shipId,
-                $data->newName,
+                $data['shipId'],
+                $data['newName'],
             )
         );
     }

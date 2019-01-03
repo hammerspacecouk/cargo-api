@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
-use function App\Functions\DateTimes\toMutableDateTime;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\EntityManager;
 use App\Domain\Exception\InvalidTokenException;
@@ -90,7 +89,7 @@ class TokenProvider
         $parser = (new Parser())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
             // Adding rules to be checked against the token
-            ->addRule(new NotExpired(toMutableDateTime($this->dateTimeFactory->now())))
+            ->addRule(new NotExpired(\DateTime::createFromImmutable($this->dateTimeFactory->now())))
             ->setPurpose(Purpose::local())
             // Only allow version 2
             ->setAllowedVersions(ProtocolCollection::v2());

@@ -6,6 +6,7 @@ namespace App\Controller\Actions;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\TokenException;
+use function App\Functions\DateTimes\jsonDecode;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,7 +71,7 @@ abstract class AbstractAction
         if ($request->getContentType() !== 'json') {
             throw new BadRequestHttpException('Must be submitted as JSON');
         }
-        $data = \json_decode($request->getContent(), true);
+        $data = jsonDecode($request->getContent());
         if (!$data) {
             throw new BadRequestHttpException('Must be submitted as valid JSON');
         }

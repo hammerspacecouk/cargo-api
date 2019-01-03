@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure;
 
+use function App\Functions\DateTimes\jsonDecode;
 use Aws\Credentials\CredentialProvider;
 use Aws\Credentials\EcsCredentialProvider;
 use Aws\Ssm\SsmClient;
@@ -37,9 +38,9 @@ class ParameterFetcher
 
         $cacheFile = $cacheDir . '/param-cache' . $version . '.json';
         if (file_exists($cacheFile)) {
-            $data = json_decode(file_get_contents($cacheFile));
-            if ($data->expires > $now->getTimestamp()) {
-                $this->populate((array)$data->vars);
+            $data = jsonDecode(file_get_contents($cacheFile));
+            if ($data['expires'] > $now->getTimestamp()) {
+                $this->populate((array)$data['vars']);
                 return;
             }
         }

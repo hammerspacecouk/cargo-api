@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token;
 
+use function App\Functions\DateTimes\jsonDecode;
+
 class FlashDataToken extends AbstractToken
 {
     private const KEY_DATA = 'da';
@@ -18,13 +20,13 @@ class FlashDataToken extends AbstractToken
         ]);
     }
 
-    public function getData()
+    public function getData(): array
     {
-        return \json_decode($this->token->get(self::KEY_DATA), true);
+        return jsonDecode($this->token->get(self::KEY_DATA));
     }
 
-    public function getMessages()
+    public function getMessages(): array
     {
-        return \json_decode($this->token->get(self::KEY_MESSAGES), true);
+        return jsonDecode($this->token->get(self::KEY_MESSAGES));
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Action;
 
 use App\Controller\Actions\RequestShipNameAction;
+use function App\Functions\DateTimes\jsonDecode;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -62,10 +63,10 @@ class RequestShipNameCommand extends Command
         $response = $this->action->__invoke($request);
 
         $this->logger->info('Parsing response');
-        $data = json_decode($response->getContent());
+        $data = jsonDecode($response->getContent());
 
-        $output->writeln('Name Offered: ' . $data->nameOffered);
+        $output->writeln('Name Offered: ' . $data['nameOffered']);
         $output->writeln('Action token: ');
-        $output->writeln($data->action->token);
+        $output->writeln($data['action']['token']);
     }
 }
