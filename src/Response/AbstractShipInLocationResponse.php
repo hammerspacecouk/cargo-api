@@ -15,6 +15,7 @@ use App\Service\EventsService;
 use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\ShipsService;
+use App\Service\UsersService;
 
 abstract class AbstractShipInLocationResponse
 {
@@ -26,6 +27,7 @@ abstract class AbstractShipInLocationResponse
     protected $channelsService;
     protected $algorithmService;
     protected $shipMovementService;
+    protected $usersService;
 
     public function __construct(
         AlgorithmService $algorithmService,
@@ -35,7 +37,8 @@ abstract class AbstractShipInLocationResponse
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipMovementService $shipMovementService,
-        ShipsService $shipsService
+        ShipsService $shipsService,
+        UsersService $usersService
     ) {
         $this->playerRanksService = $playerRanksService;
         $this->cratesService = $cratesService;
@@ -45,6 +48,7 @@ abstract class AbstractShipInLocationResponse
         $this->channelsService = $channelsService;
         $this->algorithmService = $algorithmService;
         $this->shipMovementService = $shipMovementService;
+        $this->usersService = $usersService;
     }
 
     public function getResponseData(
@@ -63,6 +67,7 @@ abstract class AbstractShipInLocationResponse
             'events' => [],
             'playerScore' => $user->getScore(),
             'playerRankStatus' => $rankStatus,
+            'hint' => null,
         ];
         return $this->getResponseDataForLocation($baseData, $user, $ship, $shipInLocation, $rankStatus);
     }

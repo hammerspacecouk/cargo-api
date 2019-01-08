@@ -10,8 +10,10 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Service\ShipsService;
+use DateInterval;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class ShipMovementService extends ShipsService
 {
@@ -32,20 +34,21 @@ class ShipMovementService extends ShipsService
             $owner->getId(),
             $reverseDirection,
             $journeyTime,
-        ));
+            ));
         return new MoveShipToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now()),
-        );
+            );
     }
 
-    public function useMoveShipToken(
-        MoveShipToken $token
-    ): ShipLocation {
-        $shipId = $token->getShipId();
-        $channelId = $token->getChannelId();
-        $reversed = $token->isReversed();
+    public function moveShip(
+        UuidInterface $shipId,
+        UuidInterface $channelId,
+        bool $reversed,
+        DateInterval $journeyTime,
+        MoveShipToken $token = null
+    ) {
         $now = $this->dateTimeFactory->now();
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
@@ -59,9 +62,7 @@ class ShipMovementService extends ShipsService
             throw new \InvalidArgumentException('No such channel');
         }
 
-        $exitTime = $now->add(
-            new \DateInterval('PT' . $token->getJourneyTime() . 'S')
-        );
+        $exitTime = $now->add($journeyTime);
 
         $delta = $this->calculateDelta($shipId, $channel->distance, $now, $exitTime);
 
@@ -89,9 +90,12 @@ class ShipMovementService extends ShipsService
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, $delta);
 
-            $this->logger->info('Marking token as used');
 
-            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+            if ($token) {
+                $this->logger->info('Marking token as used');
+                $this->tokenHandler->markAsUsed($token->getOriginalToken());
+            }
+
             $this->logger->notice(sprintf(
                 '[DEPARTURE] Ship: %s, Channel: %s, Reversed: %s',
                 (string)$ship->id,
@@ -104,6 +108,18 @@ class ShipMovementService extends ShipsService
             $shipId
         );
         return $this->mapperFactory->createShipLocationMapper()->getShipLocation($newLocation);
+    }
+
+    public function useMoveShipToken(
+        MoveShipToken $token
+    ): ShipLocation {
+        return $this->moveShip(
+            $token->getShipId(),
+            $token->getChannelId(),
+            $token->isReversed(),
+            $token->getJourneyTime(),
+            $token
+        );
     }
 
     public function parseMoveShipToken(

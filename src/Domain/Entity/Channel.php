@@ -39,13 +39,19 @@ class Channel extends Entity implements \JsonSerializable
         return $this->origin;
     }
 
-    public function getDestination(): Port
+    public function getDestination(Port $startingPort = null): Port
     {
+        if ($startingPort && $this->isReversed($startingPort)) {
+            return $this->origin;
+        }
         return $this->destination;
     }
 
-    public function getBearing(): Bearing
+    public function getBearing(Port $startingPort = null): Bearing
     {
+        if ($startingPort && $this->isReversed($startingPort)) {
+            return $this->bearing->getOpposite();
+        }
         return $this->bearing;
     }
 
@@ -73,5 +79,10 @@ class Channel extends Entity implements \JsonSerializable
             );
         }
         return $this->minimumRank;
+    }
+
+    public function isReversed(Port $startingPort)
+    {
+        return !$this->getOrigin()->equals($startingPort);
     }
 }

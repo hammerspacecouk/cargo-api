@@ -50,6 +50,9 @@ class User extends AbstractEntity
      */
     public $lastRankSeen;
 
+    /** @ORM\Column(type="json_array") */
+    public $activeEffects;
+
     public function __construct(
         ?string $queryHash,
         ?string $ipHash,

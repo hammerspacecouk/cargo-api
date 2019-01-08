@@ -13,6 +13,7 @@ use App\Domain\ValueObject\Message\Ok;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\EmailsService;
+use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,11 +42,13 @@ class LoginEmailAction extends AbstractLoginAction
         AuthenticationService $authenticationService,
         FlashDataStore $flashData,
         UsersService $usersService,
+        ShipsService $shipsService,
         LoggerInterface $logger
     ) {
         parent::__construct(
             $applicationConfig,
             $authenticationService,
+            $shipsService,
             $flashData,
             $usersService,
             $logger,

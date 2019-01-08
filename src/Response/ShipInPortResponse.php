@@ -10,6 +10,7 @@ use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
+use App\Domain\ValueObject\Direction;
 use App\Domain\ValueObject\PlayerRankStatus;
 use Ramsey\Uuid\Uuid;
 
@@ -40,7 +41,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $port,
             $ship,
             $user,
-            $location,
             $rankStatus,
             $totalCrateValue,
             $groupTokenKey,
@@ -97,7 +97,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Port $port,
         Ship $ship,
         User $user,
-        ShipInPort $location,
         PlayerRankStatus $rankStatus,
         int $totalCrateValue,
         string $groupTokenKey
@@ -109,48 +108,41 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $directions = Bearing::getEmptyBearingsList();
 
         foreach ($channels as $channel) {
-            $bearing = $channel->getBearing()->getValue();
-            $destination = $channel->getDestination();
-            $reverseDirection = false;
-            if (!$channel->getOrigin()->equals($port)) {
-                $bearing = $channel->getBearing()->getOpposite();
-                $destination = $channel->getOrigin();
-                $reverseDirection = true;
-            }
-
-            $bearing = Bearing::getRotatedBearing((string)$bearing, $user->getRotationSteps());
+            $bearing = Bearing::getRotatedBearing(
+                $channel->getBearing($port)->getValue(),
+                $user->getRotationSteps()
+            );
 
             $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
                 $channel->getDistance(),
                 $ship,
-                $rankStatus
+                $user->getRank()
             );
 
-            $minimumRank = $channel->getMinimumRank();
-            $meetsRequiredRank = $minimumRank ? $rankStatus->getCurrentRank()->meets($minimumRank) : true;
-            $meetsMinimumStrength = $ship->meetsStrength($channel->getMinimumStrength());
+            $directionDetail = new Direction(
+                $channel->getDestination($port),
+                $channel,
+                $rankStatus->getCurrentRank(),
+                $ship,
+                $journeyTimeSeconds,
+                $this->algorithmService->getTotalEarnings($totalCrateValue, $channel->getDistance()),
+            );
 
             $token = null;
-
-            if ($meetsRequiredRank && $meetsMinimumStrength) {
+            if ($directionDetail->isAllowedToEnter()) {
                 $token = $this->shipMovementService->getMoveShipToken(
                     $ship,
                     $channel,
                     $user,
-                    $reverseDirection,
+                    $channel->isReversed($port),
                     $journeyTimeSeconds,
                     $groupTokenKey
                 );
             }
 
             $directions[$bearing] = [
-                'destination' => $destination,
-                'distanceUnit' => $channel->getDistance(),
-                'earnings' => $this->algorithmService->getTotalEarnings($totalCrateValue, $channel->getDistance()),
-                'journeyTimeSeconds' => $journeyTimeSeconds,
                 'action' => $token,
-                'minimumRank' => !$meetsRequiredRank ? $minimumRank : null,
-                'minimumStrength' => !$meetsMinimumStrength ? $channel->getMinimumStrength() : null,
+                'detail' => $directionDetail,
             ];
         }
 

@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\User as DbUser;
+use App\Data\Database\EntityRepository\HintRepository;
 use App\Data\Database\Mapper\UserMapper;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Domain\ValueObject\Token\FlashDataToken;
@@ -118,6 +120,15 @@ class UsersService extends AbstractService
             $ipHash = $this->makeContentHash($ipAddress);
         }
         return $this->newPlayer(null, $ipHash);
+    }
+
+    public function getUserHint(User $user, PlayerRankStatus $playerRankStatus): string
+    {
+        if (!$user->hasEmailAddress()) {
+            return HintRepository::ANON_HINT;
+        }
+        return $this->entityManager->getHintRepo()
+            ->getRandomForRankThreshold($playerRankStatus->getPortsVisited());
     }
 
     public function canUserDelete(User $user): bool

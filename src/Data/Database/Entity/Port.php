@@ -32,6 +32,9 @@ class Port extends AbstractEntity
      */
     public $cluster;
 
+    /** @ORM\Column(type="json_array") */
+    public $activeEffects;
+
     public function __construct(
         string $name,
         ?Cluster $cluster,

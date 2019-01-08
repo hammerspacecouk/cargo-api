@@ -122,6 +122,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\Event::class);
     }
 
+    public function getHintRepo(): EntityRepository\HintRepository
+    {
+        return $this->getRepository(Entity\Hint::class);
+    }
+
     public function getPlayerRankRepo(): EntityRepository\PlayerRankRepository
     {
         return $this->getRepository(Entity\PlayerRank::class);

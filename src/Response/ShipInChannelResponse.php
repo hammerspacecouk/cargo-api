@@ -18,6 +18,7 @@ class ShipInChannelResponse extends AbstractShipInLocationResponse
         PlayerRankStatus $rankStatus
     ): array {
         $data['channel'] = $location;
+        $data['hint'] = $this->usersService->getUserHint($user, $rankStatus);
         return $data;
     }
 }

@@ -34,14 +34,13 @@ class CratesService extends AbstractService
         $this->entityManager->flush();
     }
 
-    // todo makeNewGoalCrate()
-
-    public function findInPortForUser(Port $port, User $user): array
+    public function findInPortForUser(Port $port, User $user, $limit = 10): array
     {
         $results = $this->entityManager->getCrateLocationRepo()
             ->findWithCrateForPortIdAndUserId(
                 $port->getId(),
-                $user->getId()
+                $user->getId(),
+                $limit
             );
 
         $mapper = $this->mapperFactory->createCrateMapper();

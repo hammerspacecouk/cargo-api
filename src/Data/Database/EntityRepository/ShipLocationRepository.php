@@ -186,6 +186,28 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         }, $qb->getQuery()->getArrayResult());
     }
 
+    public function getInPortOfCapacity(
+        DateTimeImmutable $before,
+        int $capacity,
+        int $limit,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
+            ->join('tbl.port', 'port')
+            ->join('tbl.ship', 'ship')
+            ->join('ship.owner', 'player')
+            ->join('player.lastRankSeen', 'rank')
+            ->join('ship.shipClass', 'shipClass')
+            ->where('tbl.isCurrent = 1')
+            ->andWhere('shipClass.capacity = :capacity')
+            ->andWhere('tbl.entryTime <= :before')
+            ->setMaxResults($limit)
+            ->setParameter('before', $before)
+            ->setParameter('capacity', $capacity);
+        return $qb->getQuery()->getResult($resultType);
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeInactiveBefore($now);

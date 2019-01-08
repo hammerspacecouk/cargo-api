@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\PlayerRankStatus;
 
@@ -15,7 +16,7 @@ class AlgorithmService extends AbstractService
     public function getJourneyTime(
         int $distanceUnits,
         Ship $ship,
-        PlayerRankStatus $rankStatus
+        PlayerRank $playerRank
     ): int {
         // base time is the longest without modifications (except really slow ships)
         $time = $this->applicationConfig->getDistanceMultiplier() * $distanceUnits;
@@ -24,8 +25,7 @@ class AlgorithmService extends AbstractService
         $time *= $ship->getShipClass()->getSpeedMultiplier();
 
         // earlier classes are faster
-        $applicableClass = $rankStatus->getNextRank() ?? $rankStatus->getCurrentRank();
-        $time *= $applicableClass->getSpeedMultiplier();
+        $time *= $playerRank->getSpeedMultiplier();
 
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
     }

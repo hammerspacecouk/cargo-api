@@ -4,11 +4,14 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
+use function App\Functions\Strings\startsWith;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Service\AuthenticationService;
+use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -24,11 +27,13 @@ class AbstractLoginAction
     protected $authenticationService;
     protected $flashData;
     protected $usersService;
+    protected $shipsService;
     protected $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
+        ShipsService $shipsService,
         FlashDataStore $flashData,
         UsersService $usersService,
         LoggerInterface $logger
@@ -38,6 +43,7 @@ class AbstractLoginAction
         $this->flashData = $flashData;
         $this->usersService = $usersService;
         $this->logger = $logger;
+        $this->shipsService = $shipsService;
     }
 
     // todo - method to remove any previously set authentication_tokens if you try to login again
@@ -76,8 +82,18 @@ class AbstractLoginAction
     protected function getLoginResponseForUser(User $user): RedirectResponse
     {
         $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
+        $url = $this->getRedirectUrl();
 
-        $response = new RedirectResponse($this->getRedirectUrl());
+        // if this is a brand new user, send them to their first ship
+        if ($user->getScore()->getScore() === 0) { // new users have no score (cheap check)
+            /** @var Ship[] $ships */
+            $ships = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1);
+            if (isset($ships[0])) {
+                $url = $this->applicationConfig->getWebHostname() . '/play/' . $ships[0]->getId();
+            }
+        }
+
+        $response = new RedirectResponse($url);
         $response->headers->setCookie($cookie);
 
         return $response;
@@ -90,7 +106,7 @@ class AbstractLoginAction
         $home = $host . '/';
         $login = $host . '/login';
 
-        if (!$redirectUrl || $redirectUrl === $home || \strpos($redirectUrl, $login) === 0) {
+        if (!$redirectUrl || $redirectUrl === $home || startsWith($login, (string)$redirectUrl)) {
             // don't send logged in users back to home or login. send them straight to the action
             $redirectUrl = $host . '/play';
         }

@@ -18,6 +18,7 @@ class CrateLocationRepository extends AbstractEntityRepository
     public function findWithCrateForPortIdAndUserId(
         UuidInterface $portId,
         UuidInterface $userId,
+        int $limit = 10,
         $resultType = Query::HYDRATE_ARRAY
     ): array {
         $qb = $this->createQueryBuilder('tbl')
@@ -29,7 +30,9 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->andWhere('c.reservedFor IS NULL OR c.reservedFor = :userID')
             ->setParameter('portID', $portId->getBytes())
             ->setParameter('userID', $userId->getBytes())
-            ->orderBy('c.value', 'DESC');
+            ->setMaxResults($limit)
+            ->orderBy('c.isGoal', 'DESC')
+            ->addOrderBy('c.value', 'DESC');
         return $qb->getQuery()->getResult($resultType);
     }
 

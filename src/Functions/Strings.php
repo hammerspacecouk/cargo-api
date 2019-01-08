@@ -14,3 +14,14 @@ function shortHash(string $input, int $length = 4): string
 {
     return \substr(\sha1($input), 0, $length);
 }
+
+/**
+ * Says if a string begins with another string
+ * @param string $needle
+ * @param string $haystack
+ * @return bool
+ */
+function startsWith(string $needle, string $haystack): bool
+{
+    return \strpos($haystack, $needle) === 0;
+}

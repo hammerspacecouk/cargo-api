@@ -41,7 +41,6 @@ class Channel extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
-     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     public $minimumEntryRank;
 

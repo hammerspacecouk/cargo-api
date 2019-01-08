@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use DateInterval;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -33,26 +34,26 @@ class MoveShipToken extends AbstractActionToken
 
     public function getShipId(): UuidInterface
     {
-            return Uuid::fromString($this->token->get(self::KEY_SHIP));
+        return Uuid::fromString($this->token->get(self::KEY_SHIP));
     }
 
     public function getChannelId(): UuidInterface
     {
-            return Uuid::fromString($this->token->get(self::KEY_CHANNEL));
+        return Uuid::fromString($this->token->get(self::KEY_CHANNEL));
     }
 
     public function getOwnerId(): UuidInterface
     {
-            return Uuid::fromString($this->token->get(self::KEY_OWNER));
+        return Uuid::fromString($this->token->get(self::KEY_OWNER));
     }
 
     public function isReversed(): bool
     {
-            return $this->token->get(self::KEY_REVERSED);
+        return $this->token->get(self::KEY_REVERSED);
     }
 
-    public function getJourneyTime(): int
+    public function getJourneyTime(): DateInterval
     {
-            return $this->token->get(self::KEY_JOURNEY_TIME);
+        return new DateInterval('PT' . $this->token->get(self::KEY_JOURNEY_TIME) . 'S');
     }
 }

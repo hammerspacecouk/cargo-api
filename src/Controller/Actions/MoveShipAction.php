@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Actions;
 
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
+use App\Response\ShipInChannelResponse;
 use App\Service\Ships\ShipMovementService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
@@ -12,6 +13,10 @@ class MoveShipAction extends AbstractAction
 {
     private $shipMovementService;
     private $usersService;
+    /**
+     * @var ShipInChannelResponse
+     */
+    private $shipInChannelResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -21,11 +26,13 @@ class MoveShipAction extends AbstractAction
     public function __construct(
         ShipMovementService $shipMovementService,
         UsersService $usersService,
+        ShipInChannelResponse $shipInChannelResponse,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
         $this->shipMovementService = $shipMovementService;
         $this->usersService = $usersService;
+        $this->shipInChannelResponse = $shipInChannelResponse;
     }
 
     // general status and stats of the game as a whole
@@ -35,19 +42,15 @@ class MoveShipAction extends AbstractAction
         $newChannelLocation = $this->shipMovementService->useMoveShipToken($moveShipToken);
 
         // send back the new state of the ship in the channel and the new state of the user
-        $data = [
-            'port' => null,
-            'channel' => $newChannelLocation,
-            'directions' => null,
-            'shipsInLocation' => null,
-            'events' => null,
-        ];
-
         $user = $this->usersService->getById($moveShipToken->getOwnerId());
         if (!$user) {
             throw new \RuntimeException('Something went very wrong. User was not found');
         }
-        $data['playerScore'] = $user->getScore();
-        return $data;
+
+        return $this->shipInChannelResponse->getResponseData(
+            $user,
+            $this->shipMovementService->getByID($moveShipToken->getShipId()),
+            $newChannelLocation
+        );
     }
 }

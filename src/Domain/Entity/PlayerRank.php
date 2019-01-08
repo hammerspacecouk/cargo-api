@@ -42,6 +42,11 @@ class PlayerRank extends Entity implements \JsonSerializable
         return $this->threshold;
     }
 
+    public function isTutorial(): bool
+    {
+        return $this->threshold === 0;
+    }
+
     public function getEmblem(?Colour $playerColour): string
     {
         $emblem = $this->emblem;

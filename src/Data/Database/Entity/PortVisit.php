@@ -15,7 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\UniqueConstraint(name="port_visit_unique", columns={"player_id", "port_id"})
  *     }
  * )
- * todo - support a INSERT IF NOT EXISTS query
  */
 class PortVisit extends AbstractEntity
 {
@@ -34,6 +33,9 @@ class PortVisit extends AbstractEntity
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $firstVisited;
 
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
+    public $lastVisited;
+
     public function __construct(
         User $player,
         Port $port,
@@ -43,5 +45,7 @@ class PortVisit extends AbstractEntity
         $this->player = $player;
         $this->port = $port;
         $this->firstVisited = $firstVisited;
+        // if you're making a new one 'first' and 'last' are the same
+        $this->lastVisited = $firstVisited;
     }
 }

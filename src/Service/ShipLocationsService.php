@@ -5,6 +5,9 @@ namespace App\Service;
 
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Domain\Entity\Port;
+use App\Domain\Entity\ShipLocation;
+use App\Domain\Entity\User;
 use App\Service\Ships\DeltaTrait;
 use DateInterval;
 use DateTimeImmutable;
@@ -21,12 +24,7 @@ class ShipLocationsService extends AbstractService
         int $page = 1
     ): array {
         $locations = $this->entityManager->getShipLocationRepo()->getLatest($limit, $this->getOffset($limit, $page));
-
-        $mapper = $this->mapperFactory->createShipLocationMapper();
-
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getShipLocation($result);
-        }, $locations);
+        return $this->mapMany($locations);
     }
 
     public function processOldestExpired(
@@ -57,6 +55,31 @@ class ShipLocationsService extends AbstractService
         return $this->entityManager->getShipLocationRepo()->removeInactiveBefore($before);
     }
 
+    public function getStagnantProbes(
+        DateTimeImmutable $before,
+        int $limit
+    ): array {
+        $results = $this->entityManager->getShipLocationRepo()
+            ->getInPortOfCapacity(
+                $before->sub(new DateInterval(self::AUTO_MOVE_TIME)),
+                0,
+                $limit
+            );
+        return $this->mapMany($results);
+    }
+
+    public function getLatestVisitTimeForPort(User $user, Port $port): ?DateTimeImmutable
+    {
+        $visit = $this->entityManager->getPortVisitRepo()->getForPortAndUser(
+            $port->getId(),
+            $user->getId(),
+        );
+        if ($visit) {
+            return $visit['lastVisited'];
+        }
+        return null;
+    }
+
     private function moveShipFromChannelToPort(DbShipLocation $currentLocation): void
     {
         $ship = $currentLocation->ship;
@@ -67,13 +90,14 @@ class ShipLocationsService extends AbstractService
 
         $ownerId = $ship->owner->id;
         $owner = $usersRepo->getByID($ownerId, Query::HYDRATE_OBJECT);
-        $alreadyVisited = $portVisitRepo->existsForPortAndUser(
+        $portVisit = $portVisitRepo->getForPortAndUser(
             $destinationPort->id,
             $ownerId,
+            Query::HYDRATE_OBJECT,
         );
         $makeNewCrate = null;
         // if this was their first travel from the home (visits = 1) we're going to make a new crate
-        if (!$alreadyVisited && $portVisitRepo->countForPlayerId($ownerId) === 1) {
+        if (!$portVisit && $portVisitRepo->countForPlayerId($ownerId) === 1) {
             $makeNewCrate = true;
         }
 
@@ -93,7 +117,7 @@ class ShipLocationsService extends AbstractService
             $currentLocation,
             $ship,
             $destinationPort,
-            $alreadyVisited,
+            $portVisit,
             $owner,
             $crateLocations,
             $delta,
@@ -106,9 +130,7 @@ class ShipLocationsService extends AbstractService
             $this->entityManager->getShipLocationRepo()->makeInPort($ship, $destinationPort);
 
             // add this port to the list of visited ports for this user
-            if (!$alreadyVisited) {
-                $this->entityManager->getPortVisitRepo()->recordVisit($owner, $destinationPort);
-            }
+            $this->entityManager->getPortVisitRepo()->recordVisit($portVisit, $owner, $destinationPort);
 
             // move all the crates to the port
             foreach ($crateLocations as $crateLocation) {
@@ -135,17 +157,13 @@ class ShipLocationsService extends AbstractService
         });
     }
 
-    public function autoMoveShips(
-        DateTimeImmutable $before,
-        int $limit
-    ): int {
-        // find ships of capacity 0 that have been sitting in a port for a while
+    private function mapMany($results)
+    {
+        $mapper = $this->mapperFactory->createShipLocationMapper();
 
-        // for each of them, find all the possible directions they can use
-
-        // of the possible directions, find which ones the ship is allowed to travel
-        // of the remaining directions, find one which the player has NOT been to before
-        // if not found, choose the one the player hasn't been to most recently
+        return \array_map(function ($result) use ($mapper) {
+            return $mapper->getShipLocation($result);
+        }, $results);
     }
 
     // todo - move location based methods from ShipsService into here - maybe
