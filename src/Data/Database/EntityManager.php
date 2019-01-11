@@ -117,6 +117,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\Dictionary::class);
     }
 
+    public function getEffectRepo(): EntityRepository\EffectRepository
+    {
+        return $this->getRepository(Entity\Effect::class);
+    }
+
     public function getEventRepo(): EntityRepository\EventRepository
     {
         return $this->getRepository(Entity\Event::class);

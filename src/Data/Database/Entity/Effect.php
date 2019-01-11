@@ -14,9 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Effect extends AbstractEntity
 {
-    // todo - enum
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="enum_effects") */
     public $type;
+
     /** @ORM\Column(type="text") */
     public $name;
 
@@ -29,7 +29,6 @@ class Effect extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $purchaseCost;
 
-    // todo - is nullable = true the default or not?
     /** @ORM\Column(type="integer", nullable=true) */
     public $duration;
 

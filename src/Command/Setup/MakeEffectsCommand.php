@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
-use App\Data\Database\Entity\Hint;
+use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeHintsCommand extends Command
+class MakeEffectsCommand extends Command
 {
     private $entityManager;
 
@@ -30,8 +29,8 @@ class MakeHintsCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:init:make-hints')
-            ->setDescription('One off command for populating hints data')
+            ->setName('game:init:make-effects')
+            ->setDescription('One off command for populating effects data')
             ->addArgument(
                 'inputList',
                 InputArgument::REQUIRED,
@@ -43,7 +42,7 @@ class MakeHintsCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $output->writeln('Making the hints');
+        $output->writeln('Making the effects');
 
         $filePath = $input->getArgument('inputList');
         $sourceData = csvToArray($filePath);
@@ -66,35 +65,41 @@ class MakeHintsCommand extends Command
     private function handleRow(array $data): void
     {
         $id = Uuid::fromString($data['uuid']);
-        $text = $data['text'];
+        $type = $data['type'];
+        $name = $data['name'];
+        $description = $data['description'];
+        $svg = $data['svg'];
+        $purchaseCost = (int)$data['purchaseCost'];
+        $duration = empty($data['duration']) ? (int)$data['duration'] : null;
 
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
 
-        $this->makeOrUpdateEntity($id, $text, $minimumRank);
-    }
-
-    private function makeOrUpdateEntity(
-        UuidInterface $id,
-        string $text,
-        ?PlayerRank $playerRank
-    ): void {
-        /** @var Hint $entity */
-        $entity = $this->entityManager->getChannelRepo()->getByID($id, Query::HYDRATE_OBJECT);
+        /** @var Effect $entity */
+        $entity = $this->entityManager->getEffectRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
         if ($entity) {
-            $entity->text = $text;
-            $entity->minimumRank = $playerRank;
+            $entity->type = $type;
+            $entity->name = $name;
+            $entity->description = $description;
+            $entity->svg = $svg;
+            $entity->purchaseCost = $purchaseCost;
+            $entity->duration = $duration;
+            $entity->minimumRank = $minimumRank;
         } else {
-            $entity = new Hint(
-                $text
+            $entity = new Effect(
+                $type,
+                $name,
+                $description,
+                $svg,
+                $purchaseCost
             );
-            $entity->minimumRank = $playerRank;
+            $entity->duration = $duration;
+            $entity->minimumRank = $minimumRank;
             $entity->id = $id;
         }
 
         $this->entityManager->persist($entity);
     }
-
 
     private function getPlayerRank(string $inputString): ?PlayerRank
     {

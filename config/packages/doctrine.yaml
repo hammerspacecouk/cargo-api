@@ -29,7 +29,10 @@ doctrine:
         types:
             datetime_microsecond:
                 class: App\Data\Database\Types\DateTimeMicrosecondType
-
+            enum_effects:
+                class: App\Data\Database\Types\EnumEffectsType
+        mapping_types:
+            enum: string
 
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'

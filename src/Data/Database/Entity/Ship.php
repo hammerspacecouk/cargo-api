@@ -35,9 +35,6 @@ class Ship extends AbstractEntity
      */
     public $shipClass;
 
-    /** @ORM\Column(type="json_array") */
-    public $activeEffects;
-
     public function __construct(
         string $name,
         ShipClass $shipClass,
