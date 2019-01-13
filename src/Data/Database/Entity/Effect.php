@@ -20,6 +20,9 @@ class Effect extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $name;
 
+    /** @ORM\Column(type="integer") */
+    public $orderNumber;
+
     /** @ORM\Column(type="text") */
     public $description;
 

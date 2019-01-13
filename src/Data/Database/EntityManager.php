@@ -167,6 +167,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\UsedActionToken::class);
     }
 
+    public function getUserEffectRepo(): EntityRepository\UserEffectRepository
+    {
+        return $this->getRepository(Entity\UserEffect::class);
+    }
+
     public function getUserRepo(): EntityRepository\UserRepository
     {
         return $this->getRepository(Entity\User::class);

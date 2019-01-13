@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace App\Controller\Play;
 
 use App\Controller\UserAuthenticationTrait;
+use App\Response\UpgradesResponse;
 use App\Service\AuthenticationService;
-use App\Service\PlayerRanksService;
-use App\Service\ShipsService;
-use App\Service\UpgradesService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +19,7 @@ class UpgradesAction
     protected $authenticationService;
 
     private $logger;
-    private $upgradesService;
+    private $upgradesResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -34,12 +32,12 @@ class UpgradesAction
 
     public function __construct(
         AuthenticationService $authenticationService,
-        UpgradesService $upgradesService,
+        UpgradesResponse $upgradesResponse,
         LoggerInterface $logger
     ) {
         $this->authenticationService = $authenticationService;
         $this->logger = $logger;
-        $this->upgradesService = $upgradesService;
+        $this->upgradesResponse = $upgradesResponse;
     }
 
     public function __invoke(
@@ -48,13 +46,9 @@ class UpgradesAction
         $this->logger->debug(__CLASS__);
         $user = $this->getUser($request, $this->authenticationService);
 
-        $data = [
-            'ships' => $this->upgradesService->getAvailableShipsForUser($user),
-            'repairs' => [],
-            'weapons' => [],
-            'navigation' => [],
-        ];
-
-        return $this->userResponse(new JsonResponse($data), $this->authenticationService);
+        return $this->userResponse(
+            new JsonResponse($this->upgradesResponse->getResponseDataForUser($user)),
+            $this->authenticationService
+        );
     }
 }

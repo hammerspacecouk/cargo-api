@@ -16,6 +16,11 @@ class MapperFactory
         return new CrateMapper($this);
     }
 
+    public function createEffectMapper(): EffectMapper
+    {
+        return new EffectMapper($this);
+    }
+
     public function createEventMapper(): EventMapper
     {
         return new EventMapper($this);

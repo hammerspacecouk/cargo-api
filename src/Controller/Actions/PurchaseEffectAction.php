@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
+use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Response\UpgradesResponse;
 use App\Service\UpgradesService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
-class PurchaseShipAction extends AbstractAction
+class PurchaseEffectAction extends AbstractAction
 {
     private $upgradesService;
     private $usersService;
@@ -17,7 +17,7 @@ class PurchaseShipAction extends AbstractAction
 
     public static function getRouteDefinition(): array
     {
-        return self::buildRouteDefinition(PurchaseShipToken::class);
+        return self::buildRouteDefinition(PurchaseEffectToken::class);
     }
 
     public function __construct(
@@ -35,10 +35,11 @@ class PurchaseShipAction extends AbstractAction
     // general status and stats of the game as a whole
     public function invoke(string $tokenString): array
     {
-        $purchaseShipToken = $this->upgradesService->parsePurchaseShipToken($tokenString);
-        $message = $this->upgradesService->usePurchaseShipToken($purchaseShipToken);
+        // todo - and how to decide individual effects
+        $purchaseEffectToken = $this->upgradesService->parsePurchaseEffectToken($tokenString);
+        $message = $this->upgradesService->usePurchaseEffectToken($purchaseEffectToken);
 
-        $user = $this->usersService->getById($purchaseShipToken->getOwnerId());
+        $user = $this->usersService->getById($purchaseEffectToken->getOwnerId());
         if (!$user) {
             throw new \RuntimeException('Something went very wrong. User was not found');
         }

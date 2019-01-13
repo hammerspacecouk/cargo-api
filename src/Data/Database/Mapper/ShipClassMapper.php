@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Mapper;
 
-use App\Domain\Entity\PlayerRank;
+use App\Data\Database\Mapper\Traits\MinimumRankTrait;
 use App\Domain\Entity\ShipClass;
 
 class ShipClassMapper extends Mapper
 {
+    use MinimumRankTrait;
+
     public function getShipClass(array $item): ShipClass
     {
         $domainEntity = new ShipClass(
@@ -22,13 +24,5 @@ class ShipClassMapper extends Mapper
             $this->getMinimumRank($item),
         );
         return $domainEntity;
-    }
-
-    private function getMinimumRank(?array $item): ?PlayerRank
-    {
-        if (isset($item['minimumRank'])) {
-            return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['minimumRank']);
-        }
-        return null;
     }
 }

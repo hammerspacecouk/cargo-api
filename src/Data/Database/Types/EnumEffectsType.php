@@ -14,7 +14,7 @@ class EnumEffectsType extends Type
     public const TYPE_DEFENCE = 'DEFENCE';
     public const TYPE_TRAVEL = 'TRAVEL';
 
-    private const ALL_TYPES = [
+    public const ALL_TYPES = [
       self::TYPE_DEFENCE,
       self::TYPE_OFFENCE,
       self::TYPE_TRAVEL,

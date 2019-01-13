@@ -49,6 +49,7 @@ $actions = [
     Controller\Actions\AddHealthAction::class,
     Controller\Actions\MoveShipAction::class,
     Controller\Actions\PurchaseShipAction::class,
+    Controller\Actions\PurchaseEffectAction::class,
     Controller\Actions\RenameShipAction::class,
     Controller\Actions\RequestShipNameAction::class,
     Controller\Actions\PortActions\DropCrateAction::class,

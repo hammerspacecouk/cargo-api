@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
+use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
+use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
 use App\Domain\ValueObject\Transaction;
 use Doctrine\ORM\Query;
@@ -15,9 +17,6 @@ class UpgradesService extends AbstractService
 {
     public function getAvailableShipsForUser(User $user): array
     {
-        $userWithRank = $this->entityManager->getUserRepo()->findWithLastSeenRank($user->getId());
-        $rank = $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($userWithRank['lastRankSeen']);
-
         // get the full list, then blank out any that aren't met by the rank
         $allClasses = $this->entityManager->getShipClassRepo()->getList();
 
@@ -25,9 +24,9 @@ class UpgradesService extends AbstractService
         $shipCountsByClassId = $this->entityManager->getShipRepo()->countClassesForUserId($user->getId());
 
         $mapper = $this->mapperFactory->createShipClassMapper();
-        return array_map(function ($result) use ($user, $mapper, $rank, $shipCountsByClassId): ?Transaction {
+        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): ?Transaction {
             $mapped = $mapper->getShipClass($result);
-            if (!$rank->meets($mapped->getMinimumRank())) {
+            if (!$user->getRank()->meets($mapped->getMinimumRank())) {
                 return null;
             }
 
@@ -49,6 +48,21 @@ class UpgradesService extends AbstractService
                 $mapped
             );
         }, $allClasses);
+    }
+
+    public function getAvailableWeaponsForUser(User $user): array
+    {
+        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
+    }
+
+    public function getAvailableDefenceForUser(User $user): array
+    {
+        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
+    }
+
+    public function getAvailableTravelAbilitiesForUser(User $user): array
+    {
+        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
     }
 
     public function parsePurchaseShipToken(
@@ -94,5 +108,35 @@ class UpgradesService extends AbstractService
         }
 
         return new Ok($shipName . ' was launched at ' . $userEntity->homePort->name);
+    }
+
+    private function getAvailableEffectTypeForUser(User $user, string $type): array
+    {
+        // get the full list, then blank out any that aren't met by the rank
+        $allWeapons = $this->entityManager->getEffectRepo()->getAllByType($type);
+
+        $mapper = $this->mapperFactory->createEffectMapper();
+        return array_map(function ($result) use ($user, $mapper): ?Transaction {
+            $mapped = $mapper->getEffect($result);
+            if (!$user->getRank()->meets($mapped->getMinimumRank())) {
+                return null;
+            }
+
+            $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
+                $user->getId(),
+                $mapped->getId()
+            ));
+
+            return new Transaction(
+                $mapped->getPurchaseCost(),
+                new PurchaseEffectToken(
+                    $rawToken->getJsonToken(),
+                    (string)$rawToken,
+                    TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
+                ),
+                $this->entityManager->getUserEffectRepo()->countForUserId($mapped->getId(), $user->getId()),
+                $mapped
+            );
+        }, $allWeapons);
     }
 }
