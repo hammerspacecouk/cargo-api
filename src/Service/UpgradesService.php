@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
-use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
@@ -50,19 +49,39 @@ class UpgradesService extends AbstractService
         }, $allClasses);
     }
 
-    public function getAvailableWeaponsForUser(User $user): array
+    public function getAvailableEffectsForUser(User $user): array
     {
-        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
-    }
+        // get the full list, then blank out any that aren't met by the rank
+        $allWeapons = $this->entityManager->getEffectRepo()->getAll();
 
-    public function getAvailableDefenceForUser(User $user): array
-    {
-        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
-    }
+        $mapper = $this->mapperFactory->createEffectMapper();
+        return array_map(function ($result) use ($user, $mapper): ?Transaction {
+            $mapped = $mapper->getEffect($result);
+            if (!$user->getRank()->meets($mapped->getMinimumRank())) {
+                return null;
+            }
 
-    public function getAvailableTravelAbilitiesForUser(User $user): array
-    {
-        return $this->getAvailableEffectTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
+            $purchaseToken = null;
+            if ($mapped->canBePurchased()) {
+                $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
+                    $user->getId(),
+                    $mapped->getId(),
+                    $mapped->getPurchaseCost(),
+                ));
+                $purchaseToken = new PurchaseEffectToken(
+                    $rawToken->getJsonToken(),
+                    (string)$rawToken,
+                    TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
+                );
+            }
+
+            return new Transaction(
+                $mapped->getPurchaseCost(),
+                $purchaseToken,
+                $this->entityManager->getUserEffectRepo()->countForUserId($mapped->getId(), $user->getId()),
+                $mapped
+            );
+        }, $allWeapons);
     }
 
     public function parsePurchaseShipToken(
@@ -110,33 +129,30 @@ class UpgradesService extends AbstractService
         return new Ok($shipName . ' was launched at ' . $userEntity->homePort->name);
     }
 
-    private function getAvailableEffectTypeForUser(User $user, string $type): array
+    public function parsePurchaseEffectToken(string $tokenString): PurchaseEffectToken
     {
-        // get the full list, then blank out any that aren't met by the rank
-        $allWeapons = $this->entityManager->getEffectRepo()->getAllByType($type);
-
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return array_map(function ($result) use ($user, $mapper): ?Transaction {
-            $mapped = $mapper->getEffect($result);
-            if (!$user->getRank()->meets($mapped->getMinimumRank())) {
-                return null;
-            }
-
-            $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
-                $user->getId(),
-                $mapped->getId()
-            ));
-
-            return new Transaction(
-                $mapped->getPurchaseCost(),
-                new PurchaseEffectToken(
-                    $rawToken->getJsonToken(),
-                    (string)$rawToken,
-                    TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
-                ),
-                $this->entityManager->getUserEffectRepo()->countForUserId($mapped->getId(), $user->getId()),
-                $mapped
-            );
-        }, $allWeapons);
+        return new PurchaseEffectToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
+
+    public function usePurchaseEffectToken(PurchaseEffectToken $purchaseEffectToken): void
+    {
+        $userEntity = $this->entityManager->getUserRepo()
+            ->getByID($purchaseEffectToken->getOwnerId(), Query::HYDRATE_OBJECT);
+        $effectEntity = $this->entityManager->getEffectRepo()
+            ->getByID($purchaseEffectToken->getEffectId(), Query::HYDRATE_OBJECT);
+
+        $this->entityManager->transactional(function() use ($userEntity, $effectEntity, $purchaseEffectToken) {
+
+            // add to effect to the user's effects list
+            $this->entityManager->getUserEffectRepo()->createNew($effectEntity, $userEntity);
+
+            // update the user's balance
+            $this->consumeCredits($userEntity, $purchaseEffectToken->getCost());
+
+            // consume the token
+            $this->tokenHandler->markAsUsed($purchaseEffectToken->getOriginalToken());
+
+        });
+    }
+
 }

@@ -14,8 +14,8 @@ class Transaction implements \JsonSerializable
     private $item;
 
     public function __construct(
-        int $cost,
-        AbstractActionToken $token,
+        int $cost = null,
+        AbstractActionToken $token = null,
         int $currentCount = 0,
         $item = null
     ) {

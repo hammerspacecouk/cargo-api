@@ -22,7 +22,7 @@ class UserEffect extends AbstractEntity
     /** @ORM\Column(type="datetime_microsecond") */
     public $collectedAt;
 
-    /** @ORM\Column(type="datetime_microsecond") */
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $usedAt;
 
     /**

@@ -17,7 +17,7 @@ abstract class Effect extends Entity implements \JsonSerializable
         UuidInterface $id,
         string $name,
         string $description,
-        int $cost,
+        int $cost = null,
         PlayerRank $minimumRank = null
     ) {
         parent::__construct($id);
@@ -45,7 +45,12 @@ abstract class Effect extends Entity implements \JsonSerializable
         return $this->description;
     }
 
-    public function getPurchaseCost(): int
+    public function canBePurchased(): bool
+    {
+        return $this->cost !== null;
+    }
+
+    public function getPurchaseCost(): ?int
     {
         return $this->cost;
     }

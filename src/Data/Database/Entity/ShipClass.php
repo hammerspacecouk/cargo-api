@@ -3,17 +3,23 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use App\Data\Database\Entity\Traits\OrderNumberTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipClassRepository")
  * @ORM\Table(
  *     name="ship_classes",
- *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"}
+ *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
+ *     indexes={
+ *      @ORM\Index(name="ship_class_order", columns={"order_number"})
+ *     })
  * )})
  */
 class ShipClass extends AbstractEntity
 {
+    use OrderNumberTrait;
+
     /** @ORM\Column(type="text") */
     public $name;
 
@@ -25,9 +31,6 @@ class ShipClass extends AbstractEntity
 
     /** @ORM\Column(type="boolean") */
     public $autoNavigate = false;
-
-    /** @ORM\Column(type="integer", unique=true) */
-    public $orderNumber;
 
     /** @ORM\Column(type="integer") */
     public $capacity;

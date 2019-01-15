@@ -31,7 +31,7 @@ class UsersService extends AbstractService
         UuidInterface $uuid
     ): ?User {
         return $this->mapSingle(
-            $this->entityManager->getUserRepo()->getByID($uuid)
+            $this->entityManager->getUserRepo()->findWithLastSeenRank($uuid)
         );
     }
 

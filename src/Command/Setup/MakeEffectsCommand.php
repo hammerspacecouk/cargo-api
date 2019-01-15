@@ -66,11 +66,16 @@ class MakeEffectsCommand extends Command
     {
         $id = Uuid::fromString($data['uuid']);
         $type = $data['type'];
+        if (empty($type)) {
+            return;
+        }
+
         $name = $data['name'];
+        $orderNumber = (int)$data['orderNumber'];
         $description = $data['description'];
         $svg = $data['svg'];
-        $purchaseCost = (int)$data['purchaseCost'];
-        $duration = empty($data['duration']) ? (int)$data['duration'] : null;
+        $purchaseCost = !empty($data['purchaseCost']) ? (int)$data['purchaseCost'] : null;
+        $duration = !empty($data['duration']) ? (int)$data['duration'] : null;
 
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
 
@@ -80,6 +85,7 @@ class MakeEffectsCommand extends Command
         if ($entity) {
             $entity->type = $type;
             $entity->name = $name;
+            $entity->orderNumber = $orderNumber;
             $entity->description = $description;
             $entity->svg = $svg;
             $entity->purchaseCost = $purchaseCost;
@@ -89,10 +95,11 @@ class MakeEffectsCommand extends Command
             $entity = new Effect(
                 $type,
                 $name,
+                $orderNumber,
                 $description,
-                $svg,
-                $purchaseCost
+                $svg
             );
+            $entity->purchaseCost = $purchaseCost;
             $entity->duration = $duration;
             $entity->minimumRank = $minimumRank;
             $entity->id = $id;

@@ -5,6 +5,7 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Crate;
+use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\Event;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
@@ -63,6 +64,18 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             function (Event $entity) use ($player, $homePort) {
                 $entity->actioningPlayer = $player;
                 $entity->subjectPort = $homePort;
+                return $entity;
+            },
+        );
+    }
+
+    public function logNewPlayerEffect(User $player, Effect $effect): Event
+    {
+        return $this->log(
+            DomainEvent::ACTION_PLAYER_EFFECT,
+            function (Event $entity) use ($effect, $player) {
+                $entity->value = $effect->name;
+                $entity->actioningPlayer = $player;
                 return $entity;
             },
         );
@@ -128,7 +141,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
-    public function logNewCrate(Crate $crate, User $reservedForPlayer)
+    public function logNewCrate(Crate $crate, User $reservedForPlayer): Event
     {
         return $this->log(
             DomainEvent::ACTION_CRATE_NEW,
@@ -140,7 +153,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
-    public function logCratePickup(Crate $crate, Ship $ship, Port $port)
+    public function logCratePickup(Crate $crate, Ship $ship, Port $port): Event
     {
         return $this->log(
             DomainEvent::ACTION_CRATE_PICKUP,

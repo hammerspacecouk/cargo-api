@@ -20,9 +20,7 @@ class UpgradesResponse
     {
         return [
             'ships' => $this->upgradesService->getAvailableShipsForUser($user),
-            'defence' => $this->upgradesService->getAvailableDefenceForUser($user),
-            'weapons' => $this->upgradesService->getAvailableWeaponsForUser($user),
-            'navigation' => $this->upgradesService->getAvailableTravelAbilitiesForUser($user),
+            'effects' => $this->upgradesService->getAvailableEffectsForUser($user),
         ];
     }
 }

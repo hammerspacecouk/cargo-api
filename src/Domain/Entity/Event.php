@@ -13,6 +13,7 @@ class Event extends Entity implements \JsonSerializable
     public const ACTION_CRATE_PICKUP = 'crate_pickup';
 
     public const ACTION_PLAYER_NEW = 'player_new';
+    public const ACTION_PLAYER_EFFECT = 'player_effect';
     public const ACTION_PLAYER_PROMOTION = 'player_promotion';
 
     public const ACTION_SHIP_NEW = 'ship_new';
