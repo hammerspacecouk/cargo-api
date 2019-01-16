@@ -9,9 +9,9 @@ class EffectRepository extends AbstractEntityRepository
 {
     private const CACHE_LIFETIME = 60 * 60 * 4;
 
-    public function getAll(): array
+    public function getAll(int $type = Query::HYDRATE_ARRAY): array
     {
-        $cacheKey = __CLASS__ . __METHOD__;
+        $cacheKey = __CLASS__ . __METHOD__ . $type;
         if ($data = $this->cache->get($cacheKey)) {
             return $data;
         }
@@ -21,7 +21,7 @@ class EffectRepository extends AbstractEntityRepository
             ->join('tbl.minimumRank', 'minimumRank')
             ->orderBy('tbl.orderNumber', 'ASC');
 
-        $data = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+        $data = $qb->getQuery()->getResult($type);
 
         $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
 

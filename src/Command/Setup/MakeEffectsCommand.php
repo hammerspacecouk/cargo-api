@@ -76,6 +76,7 @@ class MakeEffectsCommand extends Command
         $svg = $data['svg'];
         $purchaseCost = !empty($data['purchaseCost']) ? (int)$data['purchaseCost'] : null;
         $duration = !empty($data['duration']) ? (int)$data['duration'] : null;
+        $oddsOfWinning = (int)$data['oddsOfWinning'];
 
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
 
@@ -87,6 +88,7 @@ class MakeEffectsCommand extends Command
             $entity->name = $name;
             $entity->orderNumber = $orderNumber;
             $entity->description = $description;
+            $entity->oddsOfWinning = $oddsOfWinning;
             $entity->svg = $svg;
             $entity->purchaseCost = $purchaseCost;
             $entity->duration = $duration;
@@ -97,6 +99,7 @@ class MakeEffectsCommand extends Command
                 $name,
                 $orderNumber,
                 $description,
+                $oddsOfWinning,
                 $svg
             );
             $entity->purchaseCost = $purchaseCost;

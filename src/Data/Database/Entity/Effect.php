@@ -29,6 +29,9 @@ class Effect extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $description;
 
+    /** @ORM\Column(type="integer") */
+    public $oddsOfWinning;
+
     /** @ORM\Column(type="text") */
     public $svg;
 
@@ -48,6 +51,7 @@ class Effect extends AbstractEntity
         string $name,
         int $orderNumber,
         string $description,
+        int $oddsOfWinning,
         string $svg
     ) {
         parent::__construct();
@@ -56,5 +60,6 @@ class Effect extends AbstractEntity
         $this->description = $description;
         $this->svg = $svg;
         $this->orderNumber = $orderNumber;
+        $this->oddsOfWinning = $oddsOfWinning;
     }
 }
