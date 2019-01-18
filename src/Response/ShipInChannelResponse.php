@@ -6,19 +6,24 @@ namespace App\Response;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\PlayerRankStatus;
 
 class ShipInChannelResponse extends AbstractShipInLocationResponse
 {
-    public function getResponseDataForLocation(
-        array $data,
+    public function getResponseData(
         User $user,
         Ship $ship,
         ShipLocation $location,
-        PlayerRankStatus $rankStatus
+        array $bonusEffects = null
     ): array {
+        $data = $this->getBaseData($user, $ship, $location);
+
         $data['channel'] = $location;
-        $data['hint'] = $this->usersService->getUserHint($user, $rankStatus);
+        $data['hint'] = $this->usersService->getUserHint($user);
+
+        if ($bonusEffects !== null) {
+            $data['bonus'] = $bonusEffects;
+        }
+
         return $data;
     }
 }

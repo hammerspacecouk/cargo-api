@@ -53,11 +53,6 @@ class UserEffectRepository extends AbstractEntityRepository
         );
         $this->getEntityManager()->persist($effect);
 
-        $this->getEntityManager()->getEventRepo()->logNewPlayerEffect(
-            $user,
-            $effectEntity,
-        );
-
         $this->getEntityManager()->flush();
 
         return $effect;

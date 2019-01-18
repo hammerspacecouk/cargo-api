@@ -13,7 +13,10 @@ class EffectsService extends AbstractService
     {
         $effectRepo = $this->entityManager->getEffectRepo();
 
-        $allEffectEntities = $effectRepo->getAll(Query::HYDRATE_OBJECT);
+        $allEffectEntities = $effectRepo->getAllAboveRankThreshold(
+            $user->getRank()->getThreshold(),
+            Query::HYDRATE_OBJECT
+        );
         $earnedEffects = \array_values(\array_filter($allEffectEntities, function (Effect $effect) {
             return \random_int(1, $effect->oddsOfWinning) === 1;
         }));

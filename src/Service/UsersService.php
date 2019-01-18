@@ -10,7 +10,6 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\EmailAddress;
-use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Domain\ValueObject\Token\FlashDataToken;
@@ -122,13 +121,13 @@ class UsersService extends AbstractService
         return $this->newPlayer(null, $ipHash);
     }
 
-    public function getUserHint(User $user, PlayerRankStatus $playerRankStatus): string
+    public function getUserHint(User $user): string
     {
         if (!$user->hasEmailAddress()) {
             return HintRepository::ANON_HINT;
         }
         return $this->entityManager->getHintRepo()
-            ->getRandomForRankThreshold($playerRankStatus->getPortsVisited());
+            ->getRandomForRankThreshold($user->getRank()->getThreshold());
     }
 
     public function canUserDelete(User $user): bool

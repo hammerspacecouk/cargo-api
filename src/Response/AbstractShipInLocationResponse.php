@@ -6,7 +6,6 @@ namespace App\Response;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\PlayerRankStatus;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AlgorithmService;
 use App\Service\ChannelsService;
@@ -51,12 +50,17 @@ abstract class AbstractShipInLocationResponse
         $this->usersService = $usersService;
     }
 
-    public function getResponseData(
+    abstract public function getResponseData(
+        User $user,
+        Ship $ship,
+        ShipLocation $shipInLocation
+    ): array;
+
+    protected function getBaseData(
         User $user,
         Ship $ship,
         ShipLocation $shipInLocation
     ): array {
-
         $rankStatus = $this->playerRanksService->getForUser($user);
         $baseData = [
             'ship' => $ship,
@@ -69,14 +73,6 @@ abstract class AbstractShipInLocationResponse
             'playerRankStatus' => $rankStatus,
             'hint' => null,
         ];
-        return $this->getResponseDataForLocation($baseData, $user, $ship, $shipInLocation, $rankStatus);
+        return $baseData;
     }
-
-    abstract protected function getResponseDataForLocation(
-        array $baseData,
-        User $user,
-        Ship $ship,
-        ShipLocation $shipInLocation,
-        PlayerRankStatus $rankStatus
-    ): array;
 }

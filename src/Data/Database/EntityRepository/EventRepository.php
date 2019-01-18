@@ -69,18 +69,6 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
-    public function logNewPlayerEffect(User $player, Effect $effect): Event
-    {
-        return $this->log(
-            DomainEvent::ACTION_PLAYER_EFFECT,
-            function (Event $entity) use ($effect, $player) {
-                $entity->value = $effect->name;
-                $entity->actioningPlayer = $player;
-                return $entity;
-            },
-        );
-    }
-
     public function logNewShip(Ship $ship, User $player): Event
     {
         return $this->log(

@@ -48,13 +48,11 @@ class MoveShipAction extends AbstractAction
             throw new \RuntimeException('Something went very wrong. User was not found');
         }
 
-        return [
-            'shipResponse' => $this->shipInChannelResponse->getResponseData(
-                $user,
-                $this->shipMovementService->getByID($moveShipToken->getShipId()),
-                $newChannelLocation
-            ),
-            'earnedEffects' => $this->effectsService->addRandomEffectsForUser($user),
-        ];
+        return $this->shipInChannelResponse->getResponseData(
+            $user,
+            $this->shipMovementService->getByID($moveShipToken->getShipId()),
+            $newChannelLocation,
+            $this->effectsService->addRandomEffectsForUser($user)
+        );
     }
 }

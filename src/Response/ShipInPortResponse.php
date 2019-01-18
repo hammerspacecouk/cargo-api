@@ -11,21 +11,19 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Direction;
-use App\Domain\ValueObject\PlayerRankStatus;
 use Ramsey\Uuid\Uuid;
 
 class ShipInPortResponse extends AbstractShipInLocationResponse
 {
-    public function getResponseDataForLocation(
-        array $data,
+    public function getResponseData(
         User $user,
         Ship $ship,
-        ShipLocation $location,
-        PlayerRankStatus $rankStatus
+        ShipLocation $location
     ): array {
         if (!$location instanceof ShipInPort) {
             throw new \InvalidArgumentException('Location is not in a port');
         }
+        $data = $this->getBaseData($user, $ship, $location);
 
         $cratesOnShip = $this->cratesService->findForShip($ship);
         $totalCrateValue = \array_reduce($cratesOnShip, function (int $acc, Crate $crate) {
@@ -41,10 +39,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $port,
             $ship,
             $user,
-            $rankStatus,
             $totalCrateValue,
             $groupTokenKey,
-        );
+            );
         $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($port);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
@@ -97,7 +94,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Port $port,
         Ship $ship,
         User $user,
-        PlayerRankStatus $rankStatus,
         int $totalCrateValue,
         string $groupTokenKey
     ): array {
@@ -122,11 +118,11 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $directionDetail = new Direction(
                 $channel->getDestination($port),
                 $channel,
-                $rankStatus->getCurrentRank(),
+                $user->getRank(),
                 $ship,
                 $journeyTimeSeconds,
                 $this->algorithmService->getTotalEarnings($totalCrateValue, $channel->getDistance()),
-            );
+                );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
