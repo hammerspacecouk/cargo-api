@@ -32,6 +32,7 @@ class UserEffect extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $user;
 

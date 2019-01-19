@@ -31,6 +31,7 @@ class ActiveEffect extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $triggeredBy;
 
@@ -41,11 +42,13 @@ class ActiveEffect extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $appliesToShip;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     public $appliesToUser;
 
