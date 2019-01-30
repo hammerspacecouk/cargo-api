@@ -6,6 +6,7 @@ namespace App\Command\Setup;
 use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityManager;
+use function App\Functions\DateTimes\jsonDecode;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -76,6 +77,8 @@ class MakeEffectsCommand extends Command
         $svg = $data['svg'];
         $purchaseCost = !empty($data['purchaseCost']) ? (int)$data['purchaseCost'] : null;
         $duration = !empty($data['duration']) ? (int)$data['duration'] : null;
+        $count = !empty($data['count']) ? (int)$data['count'] : null;
+        $value = !empty($data['value']) ? jsonDecode($data['value']) : null;
         $oddsOfWinning = (int)$data['oddsOfWinning'];
 
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
@@ -90,8 +93,6 @@ class MakeEffectsCommand extends Command
             $entity->description = $description;
             $entity->oddsOfWinning = $oddsOfWinning;
             $entity->svg = $svg;
-            $entity->purchaseCost = $purchaseCost;
-            $entity->duration = $duration;
             $entity->minimumRank = $minimumRank;
         } else {
             $entity = new Effect(
@@ -100,23 +101,22 @@ class MakeEffectsCommand extends Command
                 $orderNumber,
                 $description,
                 $oddsOfWinning,
-                $svg
+                $svg,
+                $minimumRank
             );
-            $entity->purchaseCost = $purchaseCost;
-            $entity->duration = $duration;
-            $entity->minimumRank = $minimumRank;
             $entity->id = $id;
         }
+        $entity->uuid = (string)$id;
+        $entity->purchaseCost = $purchaseCost;
+        $entity->duration = $duration;
+        $entity->count = $count;
+        $entity->value = $value;
 
         $this->entityManager->persist($entity);
     }
 
-    private function getPlayerRank(string $inputString): ?PlayerRank
+    private function getPlayerRank(string $inputString): PlayerRank
     {
-        if (empty($inputString)) {
-            return null;
-        }
-
         $rank = $this->entityManager->getPlayerRankRepo()->getByID(
             Uuid::fromString($inputString),
             Query::HYDRATE_OBJECT,

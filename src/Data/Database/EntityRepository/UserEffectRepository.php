@@ -6,11 +6,13 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\User;
 use App\Data\Database\Entity\UserEffect;
+use function App\Functions\Arrays\groupByValue;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class UserEffectRepository extends AbstractEntityRepository
 {
+    // purposely only cached for this request
     private $userCache = [];
 
     public function countForUserId(UuidInterface $effectId, UuidInterface $userId): int
@@ -23,6 +25,16 @@ class UserEffectRepository extends AbstractEntityRepository
         }));
     }
 
+    public function getUniqueOfTypeForUserId(UuidInterface $userId, string $type): array
+    {
+        $allOfTypeForUser = \array_filter($this->getAllForUserId($userId), function($result) use ($type) {
+            return $result['effect']['type'] === $type;
+        });
+        return groupByValue($allOfTypeForUser, function ($result) {
+            return (string) $result['effect']['id'];
+        });
+    }
+
     private function getAllForUserId(UuidInterface $userId)
     {
         if (isset($this->userCache[$userId->toString()])) {
@@ -32,6 +44,7 @@ class UserEffectRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'effect')
             ->join('tbl.effect', 'effect')
+            ->where('tbl.usedAt IS NULL')
             ->andWhere('IDENTITY(tbl.user) = :userId')
             ->setParameter('userId', $userId->getBytes());
 
@@ -56,5 +69,14 @@ class UserEffectRepository extends AbstractEntityRepository
         $this->getEntityManager()->flush();
 
         return $effect;
+    }
+
+    public function useEffect(
+        UserEffect $effect
+    ): void {
+        $effect->usedAt = $this->dateTimeFactory->now();
+
+        $this->getEntityManager()->persist($effect);
+        $this->getEntityManager()->flush();
     }
 }

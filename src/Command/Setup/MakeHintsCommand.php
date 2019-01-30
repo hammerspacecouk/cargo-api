@@ -79,29 +79,26 @@ class MakeHintsCommand extends Command
         ?PlayerRank $playerRank
     ): void {
         /** @var Hint $entity */
-        $entity = $this->entityManager->getChannelRepo()->getByID($id, Query::HYDRATE_OBJECT);
+        $entity = $this->entityManager->getHintRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
         if ($entity) {
             $entity->text = $text;
             $entity->minimumRank = $playerRank;
         } else {
             $entity = new Hint(
-                $text
+                $text,
+                $playerRank
             );
-            $entity->minimumRank = $playerRank;
             $entity->id = $id;
         }
+        $entity->uuid = (string)$id;
 
         $this->entityManager->persist($entity);
     }
 
 
-    private function getPlayerRank(string $inputString): ?PlayerRank
+    private function getPlayerRank(string $inputString): PlayerRank
     {
-        if (empty($inputString)) {
-            return null;
-        }
-
         $rank = $this->entityManager->getPlayerRankRepo()->getByID(
             Uuid::fromString($inputString),
             Query::HYDRATE_OBJECT,

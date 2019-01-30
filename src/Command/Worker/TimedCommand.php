@@ -112,9 +112,12 @@ class TimedCommand extends AbstractWorkerCommand
 
             // of the remaining directions, find one which the player has NOT been to before
             /** @var Direction[] $nextOptions */
-            $nextOptions = \array_filter($directions, function (Direction $direction) {
-                return !$direction->hasVisited();
-            });
+//            $nextOptions = \array_filter($directions, function (Direction $direction) {
+//                return !$direction->hasVisited();
+//            });
+            // Use dumb selection for now. todo - navigation computer upgrade
+            $nextOptions = $directions;
+
             $direction = null;
             if (!empty($nextOptions)) {
                 $this->logger->info('Moving ship ' . $ship->getName() . ' to a new port');

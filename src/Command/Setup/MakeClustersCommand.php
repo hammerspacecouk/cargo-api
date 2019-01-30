@@ -68,6 +68,7 @@ class MakeClustersCommand extends Command
                 $entity = new Cluster($name);
                 $entity->id = $id;
             }
+            $entity->uuid = (string)$id;
 
             $this->entityManager->persist($entity);
             $progress->advance();

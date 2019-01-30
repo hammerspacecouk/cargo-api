@@ -24,7 +24,7 @@ class UpgradesAction
     public static function getRouteDefinition(): array
     {
         return [
-            static::class => new Route('/play/upgrades', [
+            static::class => new Route('/play/inventory', [
                 '_controller' => self::class,
             ]),
         ];

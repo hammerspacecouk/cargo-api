@@ -17,7 +17,6 @@ class Dictionary extends AbstractEntity
 {
     public const CONTEXT_SHIP_NAME_1 = 'SHIP_NAME_1';
     public const CONTEXT_SHIP_NAME_2 = 'SHIP_NAME_2';
-    public const CONTEXT_CRATE_CONTENTS = 'CRATE_CONTENTS';
 
     /** @ORM\Column(type="string", length=191) */
     public $word;

@@ -21,8 +21,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ActiveEffect extends AbstractEntity
 {
-    /** @ORM\Column(type="datetime_microsecond") */
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public $expiry;
+
+    /** @ORM\Column(type="integer", nullable=true) */
+    public $remainingCount;
 
     /**
      * @ORM\ManyToOne(targetEntity="Effect")
@@ -53,7 +56,8 @@ class ActiveEffect extends AbstractEntity
     public $appliesToUser;
 
     public function __construct(
-        Effect $effect,
+        ?Effect $effect,
+        ?int $remainingCount,
         DateTimeImmutable $expiry,
         User $triggeredBy
     ) {
@@ -61,5 +65,6 @@ class ActiveEffect extends AbstractEntity
         $this->effect = $effect;
         $this->expiry = $expiry;
         $this->triggeredBy = $triggeredBy;
+        $this->remainingCount = $remainingCount;
     }
 }

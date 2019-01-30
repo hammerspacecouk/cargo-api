@@ -48,7 +48,7 @@ class ShipMovementService extends ShipsService
         bool $reversed,
         DateInterval $journeyTime,
         MoveShipToken $token = null
-    ) {
+    ): ShipLocation {
         $now = $this->dateTimeFactory->now();
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);

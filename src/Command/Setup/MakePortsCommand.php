@@ -81,6 +81,7 @@ class MakePortsCommand extends Command
                 );
                 $entity->id = $id;
             }
+            $entity->uuid = (string)$id;
 
             $this->entityManager->persist($entity);
             $progress->advance();

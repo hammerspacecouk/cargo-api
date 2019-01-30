@@ -19,14 +19,15 @@ class Hint extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
-     * @ORM\JoinColumn(nullable=true)
      */
     public $minimumRank;
 
     public function __construct(
-        string $text
+        string $text,
+        PlayerRank $minimumRank
     ) {
         parent::__construct();
         $this->text = $text;
+        $this->minimumRank = $minimumRank;
     }
 }

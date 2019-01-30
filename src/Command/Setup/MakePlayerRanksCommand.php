@@ -28,7 +28,7 @@ class MakePlayerRanksCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('game:init:make-player-ranks')
+            ->setName('game:init:make-ranks')
             ->setDescription('One off command for populating player ranks table')
             ->addArgument(
                 'inputList',
@@ -72,6 +72,7 @@ class MakePlayerRanksCommand extends Command
                 );
                 $entity->id = $id;
             }
+            $entity->uuid = (string)$id;
 
             $this->entityManager->persist($entity);
 

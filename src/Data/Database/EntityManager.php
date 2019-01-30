@@ -82,6 +82,11 @@ class EntityManager extends EntityManagerDecorator
         return array_filter($results);
     }
 
+    public function getActiveEffectRepo(): EntityRepository\ActiveEffectRepository
+    {
+        return $this->getRepository(Entity\ActiveEffect::class);
+    }
+
     public function getAuthenticationTokenRepo(): EntityRepository\AuthenticationTokenRepository
     {
         return $this->getRepository(Entity\AuthenticationToken::class);

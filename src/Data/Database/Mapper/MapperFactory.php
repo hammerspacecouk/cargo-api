@@ -60,4 +60,9 @@ class MapperFactory
     {
         return new UserAuthenticationMapper($this);
     }
+
+    public function createUserEffectMapper(): UserEffectMapper
+    {
+        return new UserEffectMapper($this);
+    }
 }

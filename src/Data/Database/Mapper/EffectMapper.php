@@ -23,6 +23,15 @@ class EffectMapper extends Mapper
             case EnumEffectsType::TYPE_TRAVEL:
                 $effectClass = Effect\TravelEffect::class;
                 break;
+            case EnumEffectsType::TYPE_BLOCKADE:
+                $effectClass = Effect\BlockadeEffect::class;
+                break;
+            case EnumEffectsType::TYPE_SHIELD:
+                $effectClass = Effect\ShieldEffect::class;
+                break;
+            case EnumEffectsType::TYPE_SPECIAL:
+                $effectClass = Effect\SpecialEffect::class;
+                break;
             default:
                 throw new \InvalidArgumentException('Unknown type');
         }
@@ -31,6 +40,8 @@ class EffectMapper extends Mapper
             $item['name'],
             $item['description'],
             $item['purchaseCost'],
+            $item['duration'],
+            $item['count'],
             $this->getMinimumRank($item),
         );
     }

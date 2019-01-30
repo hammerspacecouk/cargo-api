@@ -35,16 +35,27 @@ class Effect extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $svg;
 
+    /** @ORM\Column(type="json", nullable=true) */
+    public $value;
+
     /** @ORM\Column(type="integer", nullable=true) */
     public $purchaseCost;
 
     /** @ORM\Column(type="integer", nullable=true) */
     public $duration;
 
+    /** @ORM\Column(type="integer", nullable=true) */
+    public $count;
+
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
     public $minimumRank;
+
+    /**
+     * @var PlayerRank
+     */
+    public $playerRank;
 
     public function __construct(
         string $type,
@@ -52,7 +63,8 @@ class Effect extends AbstractEntity
         int $orderNumber,
         string $description,
         int $oddsOfWinning,
-        string $svg
+        string $svg,
+        PlayerRank $playerRank
     ) {
         parent::__construct();
         $this->type = $type;
@@ -61,5 +73,6 @@ class Effect extends AbstractEntity
         $this->svg = $svg;
         $this->orderNumber = $orderNumber;
         $this->oddsOfWinning = $oddsOfWinning;
+        $this->playerRank = $playerRank;
     }
 }

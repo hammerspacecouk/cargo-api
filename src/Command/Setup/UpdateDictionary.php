@@ -19,7 +19,6 @@ class UpdateDictionary extends Command
     private const CONTEXT_MAP = [
         'shipName1' => Dictionary::CONTEXT_SHIP_NAME_1,
         'shipName2' => Dictionary::CONTEXT_SHIP_NAME_2,
-        'crateContents' => Dictionary::CONTEXT_CRATE_CONTENTS,
     ];
 
     private $entityManager;

@@ -50,7 +50,7 @@ abstract class AbstractToken
 
     public function __toString(): string
     {
-        return (string)\str_replace('v2.local.', '', $this->tokenString);
+        return \str_replace('v2.local.', '', $this->tokenString);
     }
 
     protected static function create(array $claims, UuidInterface $id = null): array
@@ -64,6 +64,15 @@ abstract class AbstractToken
             $tokenArgs[] = $id;
         }
         return $tokenArgs;
+    }
+
+    protected function getAnOptionalId(string $key): ?UuidInterface
+    {
+        $id = $this->token->get($key);
+        if (!empty($id)) {
+            return Uuid::fromString($id);
+        }
+        return null;
     }
 
     private function validateTokenType(JsonToken $token): void

@@ -12,12 +12,16 @@ abstract class Effect extends Entity implements \JsonSerializable
     private $name;
     private $description;
     private $cost;
+    private $durationSeconds;
+    private $hitCount;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         string $description,
         int $cost = null,
+        ?int $durationSeconds = null,
+        ?int $hitCount = null,
         PlayerRank $minimumRank = null
     ) {
         parent::__construct($id);
@@ -25,6 +29,8 @@ abstract class Effect extends Entity implements \JsonSerializable
         $this->name = $name;
         $this->cost = $cost;
         $this->description = $description;
+        $this->durationSeconds = $durationSeconds;
+        $this->hitCount = $hitCount;
     }
 
     public function jsonSerialize()
@@ -63,5 +69,15 @@ abstract class Effect extends Entity implements \JsonSerializable
             );
         }
         return $this->minimumRank;
+    }
+
+    public function getDurationSeconds(): ?int
+    {
+        return $this->durationSeconds;
+    }
+
+    public function getHitCount(): ?int
+    {
+        return $this->hitCount;
     }
 }
