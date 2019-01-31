@@ -11,6 +11,16 @@ function ensureArray($data): array
     return $data;
 }
 
+function find(callable $checkFunction, array $inputArray)
+{
+    foreach ($inputArray as $input) {
+        if ($checkFunction($input)) {
+            return $input;
+        }
+    }
+    return null;
+}
+
 function seedableRandomItem(array $array)
 {
     $max = \count($array) - 1;

@@ -7,12 +7,13 @@ use App\Data\Database\Entity\ActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
 use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
+use App\Domain\Entity\Effect;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
-use DateInterval;
+use function App\Functions\Arrays\find;
 use Doctrine\ORM\Query;
 
 class EffectsService extends AbstractService
@@ -21,32 +22,68 @@ class EffectsService extends AbstractService
 
     public function getShipDefenceOptions(Ship $ship, User $user): array
     {
+        $allEffects = $this->entityManager->getEffectRepo()->getTypeAboveRankThreshold(
+            EnumEffectsType::TYPE_DEFENCE,
+            $user->getRank()->getThreshold()
+        );
+        $mapper = $this->mapperFactory->createEffectMapper();
+        $allEffects = \array_map(function ($result) use ($mapper) {
+            return $mapper->getEffect($result);
+        }, $allEffects);
+
         $userEffects = $this->getDefenceEffectsForUser($user);
+        /** @var ActiveEffect[] $activeShipEffects */
+        $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
+            $ship->getId(),
+            Query::HYDRATE_OBJECT
+        );
 
-        // todo - show active effects first
+        $defenceOptions = \array_map(function (Effect $effect) use ($ship, $user, $activeShipEffects, $userEffects) {
+            $actionToken = null;
+            $hitsRemaining = null;
+            $expiry = null;
 
-        $defenceOptions = \array_map(function (UserEffect $userEffect) use ($ship, $user) {
-            $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
-                $userEffect->getId(),
-                $userEffect->getEffect()->getId(),
-                $user->getId(),
-                $ship->getId(),
-                null,
-                null,
-                $userEffect->getEffect()->getDurationSeconds(),
-                $userEffect->getEffect()->getHitCount(),
-            ));
-            return [
-                'actionToken' => new ShipDefenceEffectToken(
+            /** @var ActiveEffect|null $activeEffect */
+            $activeEffect = find(function(ActiveEffect $activeEffect) use ($effect) {
+                return $effect->getId()->equals($activeEffect->effect->id);
+            }, $activeShipEffects);
+
+
+            /** @var UserEffect|null $userEffect */
+            $userEffect = find(function(UserEffect $userEffect) use ($effect) {
+                return $effect->getId()->equals($userEffect->getEffect()->getId());
+            }, $userEffects);
+
+            // if it's in active effects. populate hitsRemaining or expiry
+            if ($activeEffect) {
+                $hitsRemaining = $activeEffect->remainingCount;
+                $expiry = $activeEffect->expiry ? $activeEffect->expiry->format('c') : null;
+            } elseif ($userEffect) {
+                // else if it's in userEffects, populate the action token
+                $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
+                    $userEffect->getId(),
+                    $userEffect->getEffect()->getId(),
+                    $user->getId(),
+                    $ship->getId(),
+                    null,
+                    null,
+                    $userEffect->getEffect()->getDurationSeconds(),
+                    $userEffect->getEffect()->getHitCount(),
+                    ));
+                $actionToken = new ShipDefenceEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
                     TokenProvider::getActionPath(ShipDefenceEffectToken::class, $this->dateTimeFactory->now())
-                ),
-                'effect' => $userEffect->getEffect(),
-                'hitsRemaining' => null,
-                'timeRemaining' => null,
+                );
+            }
+
+            return [
+                'actionToken' => $actionToken,
+                'effect' => $effect,
+                'hitsRemaining' => $hitsRemaining,
+                'expiry' => $expiry,
             ];
-        }, $userEffects);
+        }, $allEffects);
 
         return $defenceOptions;
     }
@@ -171,5 +208,15 @@ class EffectsService extends AbstractService
             );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
+    }
+
+    public function getActiveEffectsForShip(Ship $ship): array
+    {
+        $activeEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId());
+
+        $mapper = $this->mapperFactory->createEffectMapper();
+        return \array_map(function (array $activeEffect) use ($mapper) {
+            return $mapper->getEffect($activeEffect['effect']);
+        }, $activeEffects);
     }
 }

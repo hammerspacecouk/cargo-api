@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Response;
 
 use App\Domain\Entity\Crate;
+use App\Domain\Entity\Effect;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
@@ -42,12 +43,41 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $totalCrateValue,
             $groupTokenKey,
             );
-        $data['shipsInLocation'] = $this->shipsService->findAllActiveInPort($port);
+        $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
         $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $groupTokenKey);
         $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $groupTokenKey);
         return $data;
+    }
+
+    private function getShipsInPort(
+        Port $port,
+        Ship $currentShip
+    ): array {
+        $ships = \array_map(function(Ship $ship) use ($currentShip) {
+            // apply any required changes or filter them out (set to null)
+
+            // remove the current ship from view
+            if ($ship->getId()->equals($currentShip->getId())) {
+                return null;
+            }
+
+            // get active effects for this ship
+            $activeEffects = $this->effectsService->getActiveEffectsForShip($ship);
+            foreach ($activeEffects as $effect) {
+                /** @var Effect $effect */
+                if (($effect instanceof Effect\DefenceEffect) && $effect->isInvisible()) {
+                    return null;
+                }
+            }
+
+            return $ship;
+
+        }, $this->shipsService->findAllActiveInPort($port));
+
+        // remove any nulls (filtered out)
+        return \array_values(\array_filter($ships));
     }
 
     private function getCratesInPort(

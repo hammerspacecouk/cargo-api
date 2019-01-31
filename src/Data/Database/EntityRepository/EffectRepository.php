@@ -39,4 +39,18 @@ class EffectRepository extends AbstractEntityRepository
 
         return $qb->getQuery()->getResult($type);
     }
+
+    public function getTypeAboveRankThreshold(string $type, int $threshold, int $resultType = Query::HYDRATE_ARRAY): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'minimumRank')
+            ->join('tbl.minimumRank', 'minimumRank')
+            ->where('minimumRank.threshold <= :threshold')
+            ->andWhere('tbl.type = :type')
+            ->orderBy('tbl.orderNumber', 'ASC')
+            ->setParameter('type', $type)
+            ->setParameter('threshold', $threshold);
+
+        return $qb->getQuery()->getResult($resultType);
+    }
 }

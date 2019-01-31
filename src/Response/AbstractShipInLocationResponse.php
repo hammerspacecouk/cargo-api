@@ -10,6 +10,7 @@ use App\Infrastructure\ApplicationConfig;
 use App\Service\AlgorithmService;
 use App\Service\ChannelsService;
 use App\Service\CratesService;
+use App\Service\EffectsService;
 use App\Service\EventsService;
 use App\Service\PlayerRanksService;
 use App\Service\Ships\ShipMovementService;
@@ -21,6 +22,7 @@ abstract class AbstractShipInLocationResponse
     protected $playerRanksService;
     protected $cratesService;
     protected $applicationConfig;
+    protected $effectsService;
     protected $eventsService;
     protected $shipsService;
     protected $channelsService;
@@ -33,6 +35,7 @@ abstract class AbstractShipInLocationResponse
         ApplicationConfig $applicationConfig,
         ChannelsService $channelsService,
         CratesService $cratesService,
+        EffectsService $effectsService,
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipMovementService $shipMovementService,
@@ -48,6 +51,7 @@ abstract class AbstractShipInLocationResponse
         $this->algorithmService = $algorithmService;
         $this->shipMovementService = $shipMovementService;
         $this->usersService = $usersService;
+        $this->effectsService = $effectsService;
     }
 
     abstract public function getResponseData(
