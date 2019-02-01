@@ -27,6 +27,7 @@ class GenericApplyEffectToken extends AbstractActionToken
     }
 
     public static function make(
+        UuidInterface $tokenId,
         UuidInterface $userEffectId,
         UuidInterface $effectId,
         UuidInterface $triggeredById,
@@ -45,7 +46,7 @@ class GenericApplyEffectToken extends AbstractActionToken
             self::KEY_USER_ID => $appliesToUserId ? (string)$appliesToUserId : null,
             self::KEY_DURATION => $durationSeconds,
             self::KEY_HIT_COUNT => $hitCount,
-        ]);
+        ], $tokenId);
     }
 
     public function getUserEffectId(): UuidInterface

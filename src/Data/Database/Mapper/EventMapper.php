@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Crate;
+use App\Domain\Entity\Effect;
 use App\Domain\Entity\Event;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
@@ -25,6 +26,7 @@ class EventMapper extends Mapper
             $this->getShip($item['subjectShip']),
             $this->getPort($item['subjectPort']),
             $this->getCrate($item['subjectCrate']),
+            $this->getEffect($item['subjectEffect']),
         );
         return $domainEntity;
     }
@@ -65,6 +67,14 @@ class EventMapper extends Mapper
     {
         if ($data) {
             return $this->mapperFactory->createCrateMapper()->getCrate($data);
+        }
+        return null;
+    }
+
+    private function getEffect(?array $data): ?Effect
+    {
+        if ($data) {
+            return $this->mapperFactory->createEffectMapper()->getEffect($data);
         }
         return null;
     }

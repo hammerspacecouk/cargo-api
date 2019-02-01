@@ -34,7 +34,12 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
         $activeEffect->appliesToShip = $ship;
         $activeEffect->appliesToUser = $user;
 
-        // todo - log it!
+        $this->getEntityManager()->getEventRepo()->logUseEffect(
+            $effect,
+            $triggeredByUser,
+            $ship,
+            $port,
+        );
 
         $this->getEntityManager()->persist($activeEffect);
         $this->getEntityManager()->flush();

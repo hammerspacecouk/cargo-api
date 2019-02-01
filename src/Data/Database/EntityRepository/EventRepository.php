@@ -66,7 +66,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectPort = $homePort;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logNewShip(Ship $ship, User $player): Event
@@ -78,7 +78,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectShip = $ship;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logPromotion(User $player, PlayerRank $rank): Event
@@ -90,7 +90,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectRank = $rank;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logShipArrival(Ship $ship, Port $port): Event
@@ -102,7 +102,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectPort = $port;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logShipRename(Ship $ship, string $oldName): Event
@@ -114,7 +114,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->value = $oldName;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logShipDeparture(Ship $ship, Port $port): Event
@@ -126,7 +126,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectPort = $port;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logNewCrate(Crate $crate, User $reservedForPlayer): Event
@@ -138,7 +138,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningPlayer = $reservedForPlayer;
                 return $entity;
             },
-        );
+            );
     }
 
     public function logCratePickup(Crate $crate, Ship $ship, Port $port): Event
@@ -151,7 +151,25 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->actioningShip = $ship;
                 return $entity;
             },
-        );
+            );
+    }
+
+    public function logUseEffect(
+        Effect $effect,
+        User $actioningPlayer,
+        ?Ship $affectedShip = null,
+        ?Port $affectedPort = null
+    ): Event {
+        return $this->log(
+            DomainEvent::ACTION_EFFECT_USE,
+            function (Event $entity) use ($effect, $actioningPlayer, $affectedShip, $affectedPort) {
+                $entity->actioningPlayer = $actioningPlayer;
+                $entity->subjectEffect = $effect;
+                $entity->subjectPort = $affectedPort;
+                $entity->subjectShip = $affectedShip;
+                return $entity;
+            },
+            );
     }
 
     public function clean(\DateTimeImmutable $now): int
@@ -173,7 +191,8 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 'ship',
                 'shipOwner',
                 'port',
-                'crate'
+                'crate',
+                'effect',
             )
             ->leftJoin('tbl.actioningPlayer', 'actioningPlayer')
             ->leftJoin('tbl.actioningShip', 'actioningShip')
@@ -183,6 +202,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             ->leftJoin('ship.owner', 'shipOwner')
             ->leftJoin('tbl.subjectPort', 'port')
             ->leftJoin('tbl.subjectCrate', 'crate')
+            ->leftJoin('tbl.subjectEffect', 'effect')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->orderBy('tbl.time', 'DESC');
@@ -193,7 +213,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         $entity = new Event(
             $this->dateTimeFactory->now(),
             $eventType,
-        );
+            );
 
         $entity = $values($entity);
 

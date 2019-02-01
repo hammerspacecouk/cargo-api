@@ -10,6 +10,7 @@ use App\Domain\Exception\InvalidTokenException;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use ParagonIE\Paseto\Builder;
 use ParagonIE\Paseto\Exception\PasetoException;
 use ParagonIE\Paseto\JsonToken;
@@ -112,10 +113,15 @@ class TokenProvider
 
     public function markAsUsed(JsonToken $token): void
     {
-        $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
-            $this->uuidFromToken($token),
-            $this->expiryFromToken($token),
-        );
+        try {
+            $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
+                $this->uuidFromToken($token),
+                $this->expiryFromToken($token),
+                );
+        } catch (UniqueConstraintViolationException $e) {
+            // this should only happen if you tried to use two things simultaneously
+            throw new InvalidTokenException('Token has been invalidated');
+        }
     }
 
     private function uuidFromToken(

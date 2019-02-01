@@ -12,6 +12,8 @@ class Event extends Entity implements \JsonSerializable
     public const ACTION_CRATE_NEW = 'crate_new';
     public const ACTION_CRATE_PICKUP = 'crate_pickup';
 
+    public const ACTION_EFFECT_USE = 'effect_use';
+
     public const ACTION_PLAYER_NEW = 'player_new';
     public const ACTION_PLAYER_PROMOTION = 'player_promotion';
 
@@ -29,6 +31,7 @@ class Event extends Entity implements \JsonSerializable
     private $ship;
     private $port;
     private $crate;
+    private $effect;
 
     public function __construct(
         UuidInterface $id,
@@ -40,7 +43,8 @@ class Event extends Entity implements \JsonSerializable
         ?PlayerRank $rank,
         ?Ship $ship,
         ?Port $port,
-        ?Crate $crate
+        ?Crate $crate,
+        ?Effect $effect
     ) {
         parent::__construct($id);
         $this->action = $action;
@@ -52,6 +56,7 @@ class Event extends Entity implements \JsonSerializable
         $this->ship = $ship;
         $this->port = $port;
         $this->crate = $crate;
+        $this->effect = $effect;
     }
 
     public function jsonSerialize()
@@ -67,6 +72,7 @@ class Event extends Entity implements \JsonSerializable
             'ship' => $this->ship,
             'port' => $this->port,
             'crate' => $this->crate,
+            'effect' => $this->effect,
         ];
     }
 }

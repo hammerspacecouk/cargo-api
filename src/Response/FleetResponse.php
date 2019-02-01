@@ -18,6 +18,7 @@ class FleetResponse
     private $shipHealthService;
     private $shipNameService;
     private $effectsService;
+    private $uuidFactory;
 
     public function __construct(
         EffectsService $effectsService,
@@ -37,10 +38,8 @@ class FleetResponse
     {
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
 
-        $userEffects = $this->effectsService->getDefenceEffectsForUser($user);
-
-        $fleetShips = \array_map(function (Ship $ship) use ($user, $userEffects) {
-            return $this->mapShip($ship, $user, $userEffects);
+        $fleetShips = \array_map(function (Ship $ship) use ($user) {
+            return $this->mapShip($ship, $user);
         }, $allShips);
 
         // order the ships. At the top should be those that need attention.
@@ -69,7 +68,7 @@ class FleetResponse
         ];
     }
 
-    private function mapShip(Ship $ship, User $user, array $availableUserDefenceEffects): array
+    private function mapShip(Ship $ship, User $user): array
     {
         $renameToken = $this->shipNameService->getRequestShipNameTransaction(
             $user->getId(),

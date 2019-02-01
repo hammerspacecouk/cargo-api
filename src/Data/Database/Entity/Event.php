@@ -40,7 +40,7 @@ class Event extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true)
      */
     public $subjectRank;
 
@@ -52,7 +52,7 @@ class Event extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true)
      */
     public $subjectPort;
 
@@ -61,6 +61,12 @@ class Event extends AbstractEntity
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
     public $subjectCrate;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Effect")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    public $subjectEffect;
 
     public function __construct(
         \DateTimeImmutable $time,

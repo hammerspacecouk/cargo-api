@@ -15,6 +15,7 @@ use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use function App\Functions\Arrays\find;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 
 class EffectsService extends AbstractService
 {
@@ -61,6 +62,7 @@ class EffectsService extends AbstractService
             } elseif ($userEffect) {
                 // else if it's in userEffects, populate the action token
                 $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
+                    $this->uuidFactory->uuid5(Uuid::NIL, (string) $userEffect->getId()),
                     $userEffect->getId(),
                     $userEffect->getEffect()->getId(),
                     $user->getId(),
