@@ -13,7 +13,9 @@ use App\Domain\Entity\User;
 use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
+use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use function App\Functions\Arrays\find;
+use Doctrine\Common\Annotations\Annotation\Enum;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 
@@ -36,6 +38,7 @@ class EffectsService extends AbstractService
         /** @var ActiveEffect[] $activeShipEffects */
         $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
+            EnumEffectsType::TYPE_DEFENCE,
             Query::HYDRATE_OBJECT
         );
 
@@ -45,13 +48,13 @@ class EffectsService extends AbstractService
             $expiry = null;
 
             /** @var ActiveEffect|null $activeEffect */
-            $activeEffect = find(function(ActiveEffect $activeEffect) use ($effect) {
+            $activeEffect = find(function (ActiveEffect $activeEffect) use ($effect) {
                 return $effect->getId()->equals($activeEffect->effect->id);
             }, $activeShipEffects);
 
 
             /** @var UserEffect|null $userEffect */
-            $userEffect = find(function(UserEffect $userEffect) use ($effect) {
+            $userEffect = find(function (UserEffect $userEffect) use ($effect) {
                 return $effect->getId()->equals($userEffect->getEffect()->getId());
             }, $userEffects);
 
@@ -62,7 +65,7 @@ class EffectsService extends AbstractService
             } elseif ($userEffect) {
                 // else if it's in userEffects, populate the action token
                 $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
-                    $this->uuidFactory->uuid5(Uuid::NIL, (string) $userEffect->getId()),
+                    $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId()),
                     $userEffect->getId(),
                     $userEffect->getEffect()->getId(),
                     $user->getId(),
@@ -90,9 +93,79 @@ class EffectsService extends AbstractService
         return $defenceOptions;
     }
 
+    public function getShipTravelOptions(Ship $ship, User $user): array
+    {
+        $allEffects = $this->entityManager->getEffectRepo()->getTypeAboveRankThreshold(
+            EnumEffectsType::TYPE_TRAVEL,
+            $user->getRank()->getThreshold()
+        );
+        $mapper = $this->mapperFactory->createEffectMapper();
+        $allEffects = \array_map(function ($result) use ($mapper) {
+            return $mapper->getEffect($result);
+        }, $allEffects);
+
+        /** @var ActiveEffect[] $activeShipEffects */
+        $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
+            $ship->getId(),
+            EnumEffectsType::TYPE_TRAVEL,
+        );
+
+        if (!empty($activeTravelEffects)) {
+            return \array_map(function(array $activeEffect) use ($mapper) {
+                return [
+                    'isActive' => true,
+                    'effect' => $mapper->getEffect($activeEffect['effect']),
+                    'actionToken' => null,
+                ];
+            }, $activeTravelEffects);
+        }
+
+        $userEffects = $this->getTravelEffectsForUser($user);
+
+        $travelOptions = \array_map(function (Effect $effect) use ($ship, $user, $userEffects) {
+            $actionToken = null;
+
+            /** @var UserEffect|null $userEffect */
+            $userEffect = find(function (UserEffect $userEffect) use ($effect) {
+                return $effect->getId()->equals($userEffect->getEffect()->getId());
+            }, $userEffects);
+
+            // if it's in userEffects, populate the action token
+            if ($userEffect) {
+                $token = $this->tokenHandler->makeToken(...ShipTravelEffectToken::make(
+                    $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId()), // todo - all options should share the same key. prevent multiple tabs
+                    $userEffect->getId(),
+                    $userEffect->getEffect()->getId(),
+                    $user->getId(),
+                    $ship->getId(),
+                    null,
+                    null,
+                    ));
+                $actionToken = new ShipTravelEffectToken(
+                    $token->getJsonToken(),
+                    (string)$token,
+                    TokenProvider::getActionPath(ShipTravelEffectToken::class, $this->dateTimeFactory->now())
+                );
+            }
+
+            return [
+                'actionToken' => $actionToken,
+                'isActive' => false,
+                'effect' => $effect,
+            ];
+        }, $allEffects);
+
+        return $travelOptions;
+    }
+
     public function getDefenceEffectsForUser(User $user): array
     {
         return $this->getEffectsOfTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
+    }
+
+    public function getTravelEffectsForUser(User $user): array
+    {
+        return $this->getEffectsOfTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
     }
 
     public function addRandomEffectsForUser(User $user): array
@@ -207,7 +280,7 @@ class EffectsService extends AbstractService
                 $shipEntity,
                 $userEntity,
                 $portEntity,
-            );
+                );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }
@@ -220,5 +293,20 @@ class EffectsService extends AbstractService
         return \array_map(function (array $activeEffect) use ($mapper) {
             return $mapper->getEffect($activeEffect['effect']);
         }, $activeEffects);
+    }
+
+    public function getApplicableTravelEffectForShip(Ship $ship): ?Effect
+    {
+        /** @var ActiveEffect[] $activeShipEffects */
+        $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
+            $ship->getId(),
+            EnumEffectsType::TYPE_TRAVEL,
+        );
+        if (empty($activeTravelEffects)) {
+            return null;
+        }
+        // there should never be more than one, but just in case, we'll apply only the first one we find
+        $activeEffect = reset($activeTravelEffects);
+        return $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']);
     }
 }

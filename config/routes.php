@@ -53,6 +53,7 @@ $actions = [
     Controller\Actions\RenameShipAction::class,
     Controller\Actions\RequestShipNameAction::class,
     Controller\Actions\Effects\ApplyShipDefenceEffectAction::class,
+    Controller\Actions\Effects\ApplyShipTravelEffectAction::class,
     Controller\Actions\PortActions\DropCrateAction::class,
     Controller\Actions\PortActions\PickupCrateAction::class,
 ];

@@ -32,10 +32,13 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }, 0);
 
         // all buttons get the same key. This is so that they are all invalidated as soon as one is used.
-        $groupTokenKey = (string)Uuid::uuid4();
+        $groupTokenKey = (string)Uuid::uuid4(); // todo - calculate this from known IDs so you can't have two tabs open
+
+        $shipTravelOptions = $this->effectsService->getShipTravelOptions($ship, $user);
 
         $port = $location->getPort();
         $data['port'] = $port;
+        $data['travelOptions'] = $shipTravelOptions;
         $data['directions'] = $this->getDirectionsFromPort(
             $port,
             $ship,
@@ -66,7 +69,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             // get active effects for this ship
             $activeEffects = $this->effectsService->getActiveEffectsForShip($ship);
             foreach ($activeEffects as $effect) {
-                /** @var Effect $effect */
+                /** @var Effect|Effect\DefenceEffect $effect */
                 if (($effect instanceof Effect\DefenceEffect) && $effect->isInvisible()) {
                     return null;
                 }
@@ -133,6 +136,10 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $directions = Bearing::getEmptyBearingsList();
 
+        // get any active travel effects and send them into the algorithm service
+        /** @var Effect\TravelEffect $activeTravelEffect */
+        $activeTravelEffect = $this->effectsService->getApplicableTravelEffectForShip($ship);
+
         foreach ($channels as $channel) {
             $bearing = Bearing::getRotatedBearing(
                 $channel->getBearing($port)->getValue(),
@@ -142,7 +149,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
                 $channel->getDistance(),
                 $ship,
-                $user->getRank()
+                $user->getRank(),
+                $activeTravelEffect
             );
 
             $directionDetail = new Direction(
@@ -151,7 +159,11 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user->getRank(),
                 $ship,
                 $journeyTimeSeconds,
-                $this->algorithmService->getTotalEarnings($totalCrateValue, $channel->getDistance()),
+                $this->algorithmService->getTotalEarnings(
+                    $totalCrateValue,
+                    $channel->getDistance(),
+                    $activeTravelEffect
+                ),
                 );
 
             $token = null;

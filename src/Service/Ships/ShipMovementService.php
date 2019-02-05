@@ -64,7 +64,7 @@ class ShipMovementService extends ShipsService
 
         $exitTime = $now->add($journeyTime);
 
-        $delta = $this->calculateDelta($shipId, $channel->distance, $now, $exitTime);
+        $delta = $this->calculateDelta($shipId, $channel->distance, $now, $exitTime); // todo - use token value to calculate delta
 
         $this->entityManager->transactional(function () use (
             $ship,
@@ -84,7 +84,8 @@ class ShipMovementService extends ShipsService
                 $channel,
                 $now,
                 $exitTime,
-                $reversed
+                $reversed,
+                $delta
             );
 
             // update the users score

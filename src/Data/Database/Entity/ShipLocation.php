@@ -43,6 +43,9 @@ class ShipLocation extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $isCurrent = true;
 
+    /** @ORM\Column(type="integer", nullable=true) */
+    public $scoreDelta;
+
     /** @ORM\Column(type="boolean") */
     public $reverseDirection = false;
 

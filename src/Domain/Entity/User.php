@@ -19,6 +19,7 @@ class User extends Entity implements \JsonSerializable
     private $hasEmailAddress;
     private $playStartTime;
     private $playerRank;
+    private $permissionLevel;
 
     public function __construct(
         UuidInterface $id,
@@ -27,6 +28,7 @@ class User extends Entity implements \JsonSerializable
         Score $score,
         bool $hasEmailAddress,
         DateTimeImmutable $playStartTime,
+        int $permissionLevel,
         ?Port $homePort,
         ?PlayerRank $playerRank
     ) {
@@ -38,6 +40,7 @@ class User extends Entity implements \JsonSerializable
         $this->playStartTime = $playStartTime;
         $this->colour = $colour;
         $this->playerRank = $playerRank;
+        $this->permissionLevel = $permissionLevel;
     }
 
     public function jsonSerialize()
@@ -101,5 +104,10 @@ class User extends Entity implements \JsonSerializable
     public function getPlayStartTime(): DateTimeImmutable
     {
         return $this->playStartTime;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->permissionLevel === 100; // todo - other levels?
     }
 }

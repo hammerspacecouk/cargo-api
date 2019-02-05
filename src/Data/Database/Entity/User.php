@@ -30,6 +30,9 @@ class User extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
+    /** @ORM\Column(type="integer", nullable=false, options={"default":0}) */
+    public $permissionLevel = 0;
+
     /** @ORM\Column(type="bigint") */
     public $score = 0;
 

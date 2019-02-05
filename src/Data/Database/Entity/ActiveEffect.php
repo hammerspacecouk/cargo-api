@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ActiveEffect extends AbstractEntity
 {
-    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $expiry;
 
     /** @ORM\Column(type="integer", nullable=true) */

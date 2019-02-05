@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Domain\Entity\Port;
-use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Service\Ships\DeltaTrait;
 use DateInterval;
@@ -102,12 +101,8 @@ class ShipLocationsService extends AbstractService
         }
 
         // reverse the delta from this journey originally
-        $delta = -$this->calculateDelta(
-            $ship->id,
-            $currentLocation->channel->distance,
-            $currentLocation->entryTime,
-            $currentLocation->exitTime,
-        );
+        $delta = -$currentLocation->scoreDelta;
+
         $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID(
             $ship->id,
             Query::HYDRATE_OBJECT,

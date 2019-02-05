@@ -137,7 +137,8 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         Channel $channel,
         DateTimeImmutable $entryTime,
         DateTimeImmutable $exitTime,
-        bool $reverseDirection
+        bool $reverseDirection,
+        int $scoreDelta
     ): void {
         $location = new ShipLocation(
             $ship,
@@ -146,6 +147,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $entryTime,
         );
 
+        $location->scoreDelta = $scoreDelta;
         $location->exitTime = $exitTime;
         $location->reverseDirection = $reverseDirection;
         $this->getEntityManager()->persist($location);

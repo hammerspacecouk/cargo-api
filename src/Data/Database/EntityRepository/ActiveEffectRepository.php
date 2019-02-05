@@ -9,6 +9,7 @@ use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\User;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -24,6 +25,11 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
         ?User $user = null,
         ?Port $port = null
     ): ActiveEffect {
+        if (!$expiry) {
+            // everything will expire eventually. use it or lose it
+            $expiry = $this->dateTimeFactory->now()->add(new DateInterval('P3M'));
+        }
+
         $activeEffect = new ActiveEffect(
             $effect,
             $remainingCount,
@@ -48,6 +54,7 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
 
     public function findActiveForShipId(
         UuidInterface $shipId,
+        ?string $effectType = null,
         $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
@@ -57,6 +64,12 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
             ->andWhere('tbl.expiry > :now')
             ->setParameter('shipId', $shipId->getBytes())
             ->setParameter('now', $this->dateTimeFactory->now());
+
+        if ($effectType) {
+            $qb = $qb->andWhere('e.type = :type')
+                ->setParameter('type', $effectType);
+        }
+
         return $qb->getQuery()->getResult($resultType);
     }
 

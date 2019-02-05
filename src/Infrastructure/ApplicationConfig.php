@@ -20,6 +20,12 @@ class ApplicationConfig
     private $tokenPrivateKey;
     private $version;
     private $applicationSecret;
+    private $loginAnonEnabled;
+    private $loginGoogleEnabled;
+    private $loginFacebookEnabled;
+    private $loginTwitterEnabled;
+    private $loginMicrosoftEnabled;
+    private $loginEmailEnabled;
 
     public function __construct(
         string $environment,
@@ -32,6 +38,12 @@ class ApplicationConfig
         string $emailFromName,
         string $emailFromAddress,
         string $applicationSecret,
+        bool $loginAnonEnabled,
+        bool $loginGoogleEnabled,
+        bool $loginFacebookEnabled,
+        bool $loginTwitterEnabled,
+        bool $loginMicrosoftEnabled,
+        bool $loginEmailEnabled,
         string $tokenPrivateKey,
         ?string $version
     ) {
@@ -47,6 +59,12 @@ class ApplicationConfig
         $this->version = $version;
         $this->applicationSecret = $applicationSecret;
         $this->ipLifetimeSeconds = $ipLifetimeSeconds;
+        $this->loginAnonEnabled = $loginAnonEnabled;
+        $this->loginGoogleEnabled = $loginGoogleEnabled;
+        $this->loginFacebookEnabled = $loginFacebookEnabled;
+        $this->loginTwitterEnabled = $loginTwitterEnabled;
+        $this->loginMicrosoftEnabled = $loginMicrosoftEnabled;
+        $this->loginEmailEnabled = $loginEmailEnabled;
     }
 
     public function getEnvironment(): string
@@ -112,5 +130,35 @@ class ApplicationConfig
     public function getVersion(): string
     {
         return $this->version;
+    }
+
+    public function isLoginAnonEnabled(): bool
+    {
+        return $this->loginAnonEnabled;
+    }
+
+    public function isLoginGoogleEnabled(): bool
+    {
+        return $this->loginGoogleEnabled;
+    }
+
+    public function isLoginFacebookEnabled(): bool
+    {
+        return $this->loginFacebookEnabled;
+    }
+
+    public function isLoginTwitterEnabled(): bool
+    {
+        return $this->loginTwitterEnabled;
+    }
+
+    public function isLoginMicrosoftEnabled(): bool
+    {
+        return $this->loginMicrosoftEnabled;
+    }
+
+    public function isLoginEmailEnabled(): bool
+    {
+        return $this->loginEmailEnabled;
     }
 }

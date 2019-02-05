@@ -42,6 +42,7 @@ class EffectMapper extends Mapper
             $item['purchaseCost'],
             $item['duration'],
             $item['count'],
+            $item['value'],
             $this->getMinimumRank($item),
         );
     }

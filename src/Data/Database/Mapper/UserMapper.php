@@ -20,6 +20,7 @@ class UserMapper extends Mapper
             $this->mapScore($item),
             $item['queryHash'] !== null,
             $item['createdAt'],
+            $item['permissionLevel'],
             $this->mapHomePort($item),
             $this->mapRank($item),
         );
