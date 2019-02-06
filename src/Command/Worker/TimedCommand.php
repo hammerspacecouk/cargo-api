@@ -141,6 +141,7 @@ class TimedCommand extends AbstractWorkerCommand
                 $channel->getId(),
                 $channel->isReversed($port),
                 $direction->getJourneyTimeInterval(),
+                0, // auto-moved ships don't earn anything
             );
 
             $count++;

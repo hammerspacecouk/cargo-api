@@ -14,6 +14,8 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_REVERSED = 'rvsd';
     public const KEY_OWNER = 'own';
     public const KEY_JOURNEY_TIME = 'jt';
+    public const KEY_EARNINGS = 'ern';
+    public const KEY_EXPIRE_EFFECTS = 'eex';
 
     public static function make(
         UuidInterface $tokenId,
@@ -21,7 +23,9 @@ class MoveShipToken extends AbstractActionToken
         UuidInterface $channelId,
         UuidInterface $ownerId,
         bool $isReversed,
-        int $journeyTime
+        int $journeyTime,
+        int $earnings,
+        array $effectIdsToExpire
     ): array {
         return parent::create([
             self::KEY_SHIP => (string)$shipId,
@@ -29,6 +33,10 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_OWNER => (string)$ownerId,
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
+            self::KEY_EARNINGS => $earnings,
+            self::KEY_EXPIRE_EFFECTS => \array_map(function(UuidInterface $uuid) {
+                return (string)$uuid;
+            }, $effectIdsToExpire),
         ], $tokenId);
     }
 
@@ -55,5 +63,21 @@ class MoveShipToken extends AbstractActionToken
     public function getJourneyTime(): DateInterval
     {
         return new DateInterval('PT' . $this->token->get(self::KEY_JOURNEY_TIME) . 'S');
+    }
+
+    public function getEarnings(): int
+    {
+        return $this->token->get(self::KEY_EARNINGS);
+    }
+
+    /**
+     * @return UuidInterface[]
+     * @throws \ParagonIE\Paseto\Exception\PasetoException
+     */
+    public function getEffectIdsToExpire(): array
+    {
+        return \array_map(function(string $id) {
+            return Uuid::fromString($id);
+        }, $this->token->get(self::KEY_EXPIRE_EFFECTS));
     }
 }

@@ -9,6 +9,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
+use function App\Functions\Dates\intervalToSeconds;
 use App\Service\ShipsService;
 use DateInterval;
 use Doctrine\ORM\Query;
@@ -25,7 +26,9 @@ class ShipMovementService extends ShipsService
         User $owner,
         bool $reverseDirection,
         int $journeyTime,
-        string $tokenKey
+        int $earnings,
+        string $tokenKey,
+        array $activeEffectsToExpire
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
             $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
@@ -34,6 +37,8 @@ class ShipMovementService extends ShipsService
             $owner->getId(),
             $reverseDirection,
             $journeyTime,
+            $earnings,
+            $activeEffectsToExpire,
             ));
         return new MoveShipToken(
             $token->getJsonToken(),
@@ -47,7 +52,9 @@ class ShipMovementService extends ShipsService
         UuidInterface $channelId,
         bool $reversed,
         DateInterval $journeyTime,
-        MoveShipToken $token = null
+        int $earnings,
+        MoveShipToken $token = null,
+        array $effectIdsToExpire = []
     ): ShipLocation {
         $now = $this->dateTimeFactory->now();
 
@@ -64,7 +71,8 @@ class ShipMovementService extends ShipsService
 
         $exitTime = $now->add($journeyTime);
 
-        $delta = $this->calculateDelta($shipId, $channel->distance, $now, $exitTime); // todo - use token value to calculate delta
+        // delta is the earnings per second
+        $delta = (int)\ceil($earnings / intervalToSeconds($journeyTime));
 
         $this->entityManager->transactional(function () use (
             $ship,
@@ -73,7 +81,8 @@ class ShipMovementService extends ShipsService
             $exitTime,
             $reversed,
             $delta,
-            $token
+            $token,
+            $effectIdsToExpire
         ) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getShipLocationRepo()->exitLocation($ship);
@@ -91,6 +100,8 @@ class ShipMovementService extends ShipsService
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($ship->owner, $delta);
 
+            // expire effects
+            $this->entityManager->getActiveEffectRepo()->expireByIds($effectIdsToExpire);
 
             if ($token) {
                 $this->logger->info('Marking token as used');
@@ -119,7 +130,9 @@ class ShipMovementService extends ShipsService
             $token->getChannelId(),
             $token->isReversed(),
             $token->getJourneyTime(),
-            $token
+            $token->getEarnings(),
+            $token,
+            $token->getEffectIdsToExpire(),
         );
     }
 

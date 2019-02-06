@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\ActiveEffect;
+use App\Data\Database\Entity\ActiveEffect as DbActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
 use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
+use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
@@ -15,7 +16,6 @@ use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use function App\Functions\Arrays\find;
-use Doctrine\Common\Annotations\Annotation\Enum;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 
@@ -35,7 +35,7 @@ class EffectsService extends AbstractService
         }, $allEffects);
 
         $userEffects = $this->getDefenceEffectsForUser($user);
-        /** @var ActiveEffect[] $activeShipEffects */
+        /** @var DbActiveEffect[] $activeShipEffects */
         $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_DEFENCE,
@@ -47,8 +47,8 @@ class EffectsService extends AbstractService
             $hitsRemaining = null;
             $expiry = null;
 
-            /** @var ActiveEffect|null $activeEffect */
-            $activeEffect = find(function (ActiveEffect $activeEffect) use ($effect) {
+            /** @var DbActiveEffect|null $activeEffect */
+            $activeEffect = find(function (DbActiveEffect $activeEffect) use ($effect) {
                 return $effect->getId()->equals($activeEffect->effect->id);
             }, $activeShipEffects);
 
@@ -104,7 +104,7 @@ class EffectsService extends AbstractService
             return $mapper->getEffect($result);
         }, $allEffects);
 
-        /** @var ActiveEffect[] $activeShipEffects */
+        /** @var DbActiveEffect[] $activeShipEffects */
         $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
@@ -295,9 +295,9 @@ class EffectsService extends AbstractService
         }, $activeEffects);
     }
 
-    public function getApplicableTravelEffectForShip(Ship $ship): ?Effect
+    public function getApplicableTravelEffectForShip(Ship $ship): ?ActiveEffect
     {
-        /** @var ActiveEffect[] $activeShipEffects */
+        /** @var DbActiveEffect[] $activeShipEffects */
         $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
@@ -307,6 +307,9 @@ class EffectsService extends AbstractService
         }
         // there should never be more than one, but just in case, we'll apply only the first one we find
         $activeEffect = reset($activeTravelEffects);
-        return $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']);
+        return new ActiveEffect(
+            $activeEffect['id'],
+            $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']),
+        );
     }
 }

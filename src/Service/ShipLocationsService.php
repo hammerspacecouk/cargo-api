@@ -7,15 +7,12 @@ use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
-use App\Service\Ships\DeltaTrait;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 
 class ShipLocationsService extends AbstractService
 {
-    use DeltaTrait;
-
     private const AUTO_MOVE_TIME = 'PT1H';
 
     public function findLatest(
@@ -152,7 +149,7 @@ class ShipLocationsService extends AbstractService
         });
     }
 
-    private function mapMany($results)
+    private function mapMany($results): array
     {
         $mapper = $this->mapperFactory->createShipLocationMapper();
 
@@ -160,6 +157,4 @@ class ShipLocationsService extends AbstractService
             return $mapper->getShipLocation($result);
         }, $results);
     }
-
-    // todo - move location based methods from ShipsService into here - maybe
 }

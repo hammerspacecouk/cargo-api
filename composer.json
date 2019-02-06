@@ -7,6 +7,7 @@
         "files": [
             "src/Functions/Arrays.php",
             "src/Functions/Classes.php",
+            "src/Functions/Dates.php",
             "src/Functions/Json.php",
             "src/Functions/Numbers.php",
             "src/Functions/Strings.php",

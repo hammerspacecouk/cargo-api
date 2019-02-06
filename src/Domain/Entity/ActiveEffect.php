@@ -6,7 +6,7 @@ namespace App\Domain\Entity;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
 
-class UserEffect extends Entity
+class ActiveEffect extends Entity
 {
     private $effect;
 

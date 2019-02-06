@@ -9,7 +9,7 @@ use App\Domain\Entity\Ship;
 
 class AlgorithmService extends AbstractService
 {
-    private const MINIMUM_JOURNEY_TIME_SECONDS = 0;
+    private const MINIMUM_JOURNEY_TIME_SECONDS = 10;
 
     public const MINIMUM_EARNINGS_DISTANCE = 1/100;
 

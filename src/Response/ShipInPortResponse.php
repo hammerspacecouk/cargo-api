@@ -135,10 +135,16 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $channels = $this->channelsService->getAllLinkedToPort($port);
 
         $directions = Bearing::getEmptyBearingsList();
+        $effectsToExpire = [];
 
         // get any active travel effects and send them into the algorithm service
-        /** @var Effect\TravelEffect $activeTravelEffect */
-        $activeTravelEffect = $this->effectsService->getApplicableTravelEffectForShip($ship);
+        $activeEffect = $this->effectsService->getApplicableTravelEffectForShip($ship);
+        /** @var Effect\TravelEffect|null $activeTravelEffect */
+        $activeTravelEffect = null;
+        if ($activeEffect) {
+            $activeTravelEffect = $activeEffect->getEffect();
+            $effectsToExpire[] = $activeEffect->getId();
+        }
 
         foreach ($channels as $channel) {
             $bearing = Bearing::getRotatedBearing(
@@ -153,17 +159,19 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $activeTravelEffect
             );
 
+            $earnings = $this->algorithmService->getTotalEarnings(
+                $totalCrateValue,
+                $channel->getDistance(),
+                $activeTravelEffect
+            );
+
             $directionDetail = new Direction(
                 $channel->getDestination($port),
                 $channel,
                 $user->getRank(),
                 $ship,
                 $journeyTimeSeconds,
-                $this->algorithmService->getTotalEarnings(
-                    $totalCrateValue,
-                    $channel->getDistance(),
-                    $activeTravelEffect
-                ),
+                $earnings,
                 );
 
             $token = null;
@@ -174,7 +182,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $user,
                     $channel->isReversed($port),
                     $journeyTimeSeconds,
-                    $groupTokenKey
+                    $earnings,
+                    $groupTokenKey,
+                    $effectsToExpire,
                 );
             }
 

@@ -86,4 +86,22 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
     {
         return $this->removeExpired($now);
     }
+
+    public function expireByIds(array $effectIdsToExpire): void
+    {
+        $ids = \array_map(function (UuidInterface $uuid) {
+            return $uuid->getBytes();
+        }, $effectIdsToExpire);
+
+        $q = $this->getEntityManager()->createQuery(
+            'UPDATE ' . ActiveEffect::class . ' cl ' .
+            'SET ' .
+            'cl.expiry = :now, ' .
+            'cl.updatedAt = :now ' .
+            'WHERE cl.id IN (:ids)'
+        );
+        $q->setParameter('now', $this->dateTimeFactory->now());
+        $q->setParameter('ids', $ids);
+        $q->execute();
+    }
 }
