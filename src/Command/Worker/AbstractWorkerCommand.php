@@ -5,17 +5,18 @@ namespace App\Command\Worker;
 
 use App\Data\Database\EntityManager;
 use App\Infrastructure\DateTimeFactory;
-use DateInterval;
 use DateTimeImmutable;
+use Monolog\Handler\FingersCrossedHandler;
 use Psr\Log\LoggerInterface;
+use Monolog\Logger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractWorkerCommand extends Command
 {
-    protected const MAX_TTL = (3 * 60) - 1;
     protected const BATCH_SIZE = 100;
+    private const MAX_MEMORY_PERCENT = 90;
 
     protected $logger;
     protected $dateTimeFactory;
@@ -34,15 +35,21 @@ abstract class AbstractWorkerCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $workerName = static::class;
-        $this->logger->info("[WORKER] [$workerName] [STARTUP]");
-        $calcTimeStart = time();
-        $diff = 0;
+        \gc_enable();
 
-        while ($diff < static::MAX_TTL) {
-            // reset the time and the cache for each loop
+        $workerName = static::class;
+        $memoryLimit = \ini_get('memory_limit');
+        $memoryLimitBytes = $this->getMemoryLimitBytes($memoryLimit);
+
+        $this->logger->notice("[WORKER] [$workerName] [STARTUP]");
+        $this->logger->notice("[MEMORY_LIMIT] $memoryLimit");
+
+        // run forever (unless an exit condition is reached)
+        $usedMemory = 0;
+        $memoryPercent = 0;
+        while ($memoryPercent < self::MAX_MEMORY_PERCENT) {
+            // reset the time at the start each loop
             $now = $this->dateTimeFactory->now();
-            $this->entityManager->clear();
 
             // handle the batch
             $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format(DateTimeFactory::FULL)}");
@@ -53,9 +60,46 @@ abstract class AbstractWorkerCommand extends Command
             if ($processed < static::BATCH_SIZE) {
                 sleep(1);
             }
-            $diff = (time() - $calcTimeStart);
+
+            // cleanup/flush at the end of a loop
+            $this->entityManager->clear();
+            $this->flushLogger();
+            \gc_collect_cycles();
+
+            // check we're good on memory
+            $usedMemory = \memory_get_usage();
+            $memoryPercent = ($usedMemory / $memoryLimitBytes) * 100;
+            $this->logger->info("[MEMORY_USAGE_PERCENT] $memoryPercent");
         }
+        $this->logger->notice("[FINAL_MEMORY_USAGE] $usedMemory");
+        $this->logger->notice("[FINAL_MEMORY_USAGE_PERCENT] $memoryPercent");
         $this->logger->notice("[WORKER] [$workerName] [SHUTDOWN]");
+    }
+
+    private function flushLogger(): void
+    {
+        if ($this->logger instanceof Logger) {
+            $handlers = $this->logger->getHandlers();
+            foreach ($handlers as $handler) {
+                if ($handler instanceof FingersCrossedHandler) {
+                    $handler->close();
+                    $handler->clear();
+                }
+            }
+        }
+    }
+
+    private function getMemoryLimitBytes(string $memoryLimitString): int
+    {
+        if (\preg_match('/^(\d+)(.)$/', $memoryLimitString, $matches)) {
+            if ($matches[2] === 'M') {
+                return $matches[1] * 1024 * 1024;
+            }
+            if ($matches[2] === 'K') {
+                return $matches[1] * 1024;
+            }
+        }
+        throw new \RuntimeException('Could not calculate memory limit');
     }
 
     abstract protected function handle(DateTimeImmutable $now): int;
