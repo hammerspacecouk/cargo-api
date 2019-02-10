@@ -7,4 +7,13 @@ use App\Domain\Entity\Effect;
 
 class OffenceEffect extends Effect
 {
+    public function getDamage(): int
+    {
+        return $this->value['damage'];
+    }
+
+    public function affectsAllShips(): bool
+    {
+        return $this->value && $this->value['all'];
+    }
 }

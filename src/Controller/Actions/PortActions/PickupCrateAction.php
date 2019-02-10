@@ -5,7 +5,6 @@ namespace App\Controller\Actions\PortActions;
 
 use App\Domain\ValueObject\Token\Action\MoveCrate\AbstractMoveCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
-use Symfony\Component\HttpKernel\Exception\GoneHttpException;
 
 class PickupCrateAction extends AbstractPortAction
 {
@@ -16,12 +15,7 @@ class PickupCrateAction extends AbstractPortAction
 
     protected function parseToken(string $tokenString): AbstractMoveCrateToken
     {
-        $token = $this->cratesService->parsePickupCrateToken($tokenString);
-
-        if (!$this->cratesService->crateIsInPort($token->getCrateId(), $token->getPortId())) {
-            throw new GoneHttpException('Ship is no longer in this port'); // todo - handle on front end
-        }
-        return $token;
+        return $this->cratesService->parsePickupCrateToken($tokenString);
     }
 
     protected function useToken(AbstractMoveCrateToken $token): void
@@ -29,6 +23,7 @@ class PickupCrateAction extends AbstractPortAction
         if (!$token instanceof PickupCrateToken) {
             throw new \InvalidArgumentException('Wrong token type');
         }
+
         $this->cratesService->usePickupCrateToken($token);
     }
 }

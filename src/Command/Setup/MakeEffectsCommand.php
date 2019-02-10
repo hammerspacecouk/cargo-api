@@ -81,6 +81,11 @@ class MakeEffectsCommand extends Command
         $value = !empty($data['value']) ? jsonDecode($data['value']) : null;
         $oddsOfWinning = (int)$data['oddsOfWinning'];
 
+        if (!$oddsOfWinning) {
+            // this effect isn't ready. ignore it
+            return;
+        }
+
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
 
         /** @var Effect $entity */

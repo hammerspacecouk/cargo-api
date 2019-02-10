@@ -47,6 +47,7 @@ $actions = [
     // actions (uses token)
     Controller\Actions\AcknowledgePromotionAction::class,
     Controller\Actions\AddHealthAction::class,
+    Controller\Actions\ApplyOffenceEffectAction::class,
     Controller\Actions\MoveShipAction::class,
     Controller\Actions\PurchaseShipAction::class,
     Controller\Actions\PurchaseEffectAction::class,

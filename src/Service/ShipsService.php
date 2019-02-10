@@ -146,7 +146,10 @@ class ShipsService extends AbstractService
     public function findAllActiveInPort(Port $port): array
     {
         $results = $this->entityManager->getShipLocationRepo()->getActiveShipsForPortId($port->getId());
-        return $this->mapMany($results);
+        $mapper = $this->mapperFactory->createShipLocationMapper();
+        return array_map(function ($result) use ($mapper) {
+            return $mapper->getShipLocation($result);
+        }, $results);
     }
 
     private function attachLocationToShips(array $ships): array

@@ -171,21 +171,22 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         $this->getEntityManager()->flush();
     }
 
-    public function getActiveShipsForPortId(UuidInterface $portId)
-    {
+    public function getActiveShipsForPortId(
+        UuidInterface $portId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'player', 'shipClass', 'rank')
+            ->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
             ->join('tbl.ship', 'ship')
             ->join('ship.owner', 'player')
+            ->join('tbl.port', 'port')
             ->join('player.lastRankSeen', 'rank')
             ->join('ship.shipClass', 'shipClass')
             ->where('IDENTITY(tbl.port) = :portId')
             ->andWhere('tbl.isCurrent = 1')
             ->andWhere('ship.strength > 0')
             ->setParameter('portId', $portId->getBytes());
-        return \array_map(function (array $result) {
-            return $result['ship'];
-        }, $qb->getQuery()->getArrayResult());
+        return $qb->getQuery()->getResult($resultType);
     }
 
     public function getInPortOfCapacity(

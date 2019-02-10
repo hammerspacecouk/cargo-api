@@ -58,8 +58,10 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Port $port,
         Ship $currentShip
     ): array {
-        $ships = \array_map(function(Ship $ship) use ($currentShip) {
+
+        $ships = \array_map(function(ShipInPort $shipLocation) use ($currentShip, $port) {
             // apply any required changes or filter them out (set to null)
+            $ship = $shipLocation->getShip();
 
             // remove the current ship from view
             if ($ship->getId()->equals($currentShip->getId())) {
@@ -75,7 +77,20 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 }
             }
 
-            return $ship;
+            $offence = null;
+            // make offence effects (if it's not your own ship)
+            if (!$ship->getOwner()->equals($currentShip->getOwner())) {
+                $offence = $this->effectsService->getOffenceOptionsAtShip(
+                    $currentShip,
+                    $ship,
+                    $port
+                );
+            }
+
+            return [
+                'ship' => $ship,
+                'offence' => $offence,
+            ];
 
         }, $this->shipsService->findAllActiveInPort($port));
 

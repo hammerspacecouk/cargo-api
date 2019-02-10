@@ -15,6 +15,18 @@ class UserEffectRepository extends AbstractEntityRepository
     // purposely only cached for this request
     private $userCache = [];
 
+    public function getByIDWithEffect(
+        UuidInterface $uuid,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'effect')
+            ->where('tbl.id = :id')
+            ->join('tbl.effect', 'effect')
+            ->setParameter('id', $uuid->getBytes());
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
     public function countForUserId(UuidInterface $effectId, UuidInterface $userId): int
     {
         $all = $this->getAllForUserId($userId);

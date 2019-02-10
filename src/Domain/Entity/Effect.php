@@ -83,4 +83,9 @@ abstract class Effect extends Entity implements \JsonSerializable
     {
         return $this->hitCount;
     }
+
+    public function getValue(): ?array
+    {
+        return $this->value;
+    }
 }

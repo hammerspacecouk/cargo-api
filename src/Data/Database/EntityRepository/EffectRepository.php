@@ -40,8 +40,17 @@ class EffectRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($type);
     }
 
-    public function getTypeAboveRankThreshold(string $type, int $threshold, int $resultType = Query::HYDRATE_ARRAY): array
-    {
+    public function getTypeAboveRankThreshold(
+        string $type,
+        int $threshold,
+        int $resultType = Query::HYDRATE_ARRAY
+    ): array {
+        $cacheKey = __CLASS__ . __METHOD__ . $type . '-' . $threshold . '-' . $resultType;
+        $canCache = $resultType === Query::HYDRATE_ARRAY;
+        if ($canCache && $data = $this->cache->get($cacheKey)) {
+            return $data;
+        }
+
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'minimumRank')
             ->join('tbl.minimumRank', 'minimumRank')
@@ -51,6 +60,12 @@ class EffectRepository extends AbstractEntityRepository
             ->setParameter('type', $type)
             ->setParameter('threshold', $threshold);
 
-        return $qb->getQuery()->getResult($resultType);
+        $data = $qb->getQuery()->getResult($resultType);
+
+        if ($canCache) {
+            $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);
+        }
+
+        return $data;
     }
 }

@@ -17,7 +17,7 @@ class AlgorithmService extends AbstractService
         int $distanceUnits,
         Ship $ship,
         PlayerRank $playerRank,
-        ?TravelEffect $activeTravelEffect
+        ?TravelEffect $activeTravelEffect = null
     ): int {
         // base time is the longest without modifications (except really slow ships)
         $time = $this->applicationConfig->getDistanceMultiplier() * $distanceUnits;

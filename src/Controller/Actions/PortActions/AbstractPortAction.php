@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Actions\PortActions;
 
 use App\Controller\Actions\AbstractAction;
+use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\AbstractMoveCrateToken;
 use App\Response\ShipInPortResponse;
 use App\Service\CratesService;
@@ -32,20 +33,28 @@ abstract class AbstractPortAction extends AbstractAction
 
     public function invoke(string $tokenString): array
     {
-        // todo - handle GONE
+        $error = null;
         $token = $this->parseToken($tokenString);
-        $this->useToken($token);
+
+        try {
+            $this->useToken($token);
+        } catch (OutdatedMoveException $e) {
+            $error = $e->getMessage();
+        }
 
         $shipWithLocation = $this->shipsService->getByIDWithLocation($token->getShipId());
         if (!$shipWithLocation) {
             throw new BadRequestHttpException('Ship does not exist. Odd!?');
         }
 
-        return $this->shipInPortResponse->getResponseData(
-            $shipWithLocation->getOwner(),
-            $shipWithLocation,
-            $shipWithLocation->getLocation(),
-        );
+        return [
+            'data' => $this->shipInPortResponse->getResponseData(
+                $shipWithLocation->getOwner(),
+                $shipWithLocation,
+                $shipWithLocation->getLocation(),
+                ),
+            'error' => $error,
+        ];
     }
 
     abstract protected function parseToken(string $tokenString): AbstractMoveCrateToken;

@@ -11,6 +11,7 @@ use App\Domain\Entity\Crate;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
+use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use DateInterval;
@@ -127,6 +128,10 @@ class CratesService extends AbstractService
         $crateId = $token->getCrateId();
         $portId = $token->getPortId();
         $shipId = $token->getShipId();
+
+        if (!$this->crateIsInPort($crateId, $portId)) {
+            throw new OutdatedMoveException('Sorry, someone else got to that crate before you');
+        }
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);

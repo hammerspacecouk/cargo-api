@@ -172,6 +172,26 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             );
     }
 
+    public function logOffence(
+        Ship $attackingShip,
+        Port $inPort,
+        Ship $affectedShip,
+        Effect $effect,
+        int $damage
+    ) {
+        return $this->log(
+            DomainEvent::ACTION_EFFECT_OFFENCE,
+            function (Event $entity) use ($attackingShip, $affectedShip, $inPort, $effect, $damage) {
+                $entity->actioningShip = $attackingShip;
+                $entity->subjectShip = $affectedShip;
+                $entity->subjectPort = $inPort;
+                $entity->subjectEffect = $effect;
+                $entity->value = $damage;
+                return $entity;
+            },
+            );
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeOld($now);
