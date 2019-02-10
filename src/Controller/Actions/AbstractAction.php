@@ -26,7 +26,7 @@ abstract class AbstractAction
     protected static function buildRouteDefinition(string $tokenClass): array
     {
         $now = new \DateTimeImmutable();
-        // $yesterday = $now->sub(new \DateInterval('P1D')); -- todo - add back later
+        // todo - add back later something based on the date
         return [
             static::class => new Route(TokenProvider::getActionPath($tokenClass, $now), [
                 '_controller' => static::class,

@@ -39,9 +39,9 @@ class LoginTokenCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $emailAddress = $input->getArgument('email');
+        $emailAddressInput = $input->getArgument('email');
 
-        $emailAddress = new EmailAddress($emailAddress);
+        $emailAddress = new EmailAddress($emailAddressInput);
         $token = $this->authenticationService->makeEmailLoginToken($emailAddress);
 
         $output->writeln(

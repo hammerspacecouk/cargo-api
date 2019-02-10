@@ -32,4 +32,9 @@ class NullEntity implements
     {
         return null;
     }
+
+    public function isDangerous(): bool
+    {
+        return false;
+    }
 }

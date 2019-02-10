@@ -87,10 +87,9 @@ class ShipHealthService extends ShipsService
         UuidInterface $shipId,
         int $percent, // todo - this should not be percentage, as its too strong?
         int $cost
-    ): int
-    {
+    ): int {
         // get the ship and its class to determine health improvement
-        /** @var \App\Data\Database\Entity\Ship $ship */
+        /** @var \App\Data\Database\Entity\Ship|null $ship */
         $ship = $this->entityManager->getShipRepo()->getShipForOwnerId($shipId, $userId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('Ship supplied does not belong to owner supplied');
@@ -107,7 +106,7 @@ class ShipHealthService extends ShipsService
             $amountToAdd = $maxStrength - $currentStrength;
         }
 
-        $newStrength = $this->entityManager->transactional(function() use ($ship, $amountToAdd, $userEntity, $cost) {
+        $newStrength = $this->entityManager->transactional(function () use ($ship, $amountToAdd, $userEntity, $cost) {
             $newStrength = $this->entityManager->getShipRepo()->updateStrengthValue(
                 $ship,
                 (int)\ceil($amountToAdd)

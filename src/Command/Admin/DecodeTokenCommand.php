@@ -4,9 +4,6 @@ declare(strict_types=1);
 namespace App\Command\Admin;
 
 use App\Data\TokenProvider;
-use App\Domain\ValueObject\EmailAddress;
-use App\Infrastructure\ApplicationConfig;
-use App\Service\AuthenticationService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,7 +39,7 @@ class DecodeTokenCommand extends Command
         $token = $this->tokenProvider->parseTokenFromString($tokenString);
 
         $output->writeln(
-            \json_encode($token->getClaims(), JSON_PRETTY_PRINT)
+            \json_encode($token->getClaims(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
     }
 }

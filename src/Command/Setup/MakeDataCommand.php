@@ -101,4 +101,3 @@ class MakeDataCommand extends Command
         return new ArrayInput(['inputList' => $file]);
     }
 }
-

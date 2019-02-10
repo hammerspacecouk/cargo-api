@@ -39,11 +39,11 @@ class ShipHealthToken extends AbstractActionToken
 
     public function getPercent(): int
     {
-        return (int) $this->token->get(self::KEY_PERCENT);
+        return (int)$this->token->get(self::KEY_PERCENT);
     }
 
     public function getCost(): int
     {
-        return (int) $this->token->get(self::KEY_COST);
+        return (int)$this->token->get(self::KEY_COST);
     }
 }

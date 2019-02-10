@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use App\Infrastructure\ParameterFetcher;
 use App\Kernel;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
@@ -20,8 +19,6 @@ if (!isset($_SERVER['APP_ENV']) || $_SERVER['APP_ENV'] === 'dev') {
         );
     }
     (new Dotenv())->load(__DIR__ . '/../.env');
-} else {
-    (new ParameterFetcher($_SERVER['APP_ENV']))->load(__DIR__ . '/../.env.dist', __DIR__ . '/../var/cache');
 }
 
 if (($_SERVER['APP_DEBUG'] ?? ('prod' !== ($_SERVER['APP_ENV'] ?? 'dev')))) {

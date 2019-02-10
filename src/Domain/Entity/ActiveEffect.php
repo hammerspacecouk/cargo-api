@@ -25,6 +25,4 @@ class ActiveEffect extends Entity
         }
         return $this->effect;
     }
-
-
 }

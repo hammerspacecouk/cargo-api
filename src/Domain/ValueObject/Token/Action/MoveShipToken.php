@@ -35,7 +35,7 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
             self::KEY_EARNINGS => $earnings,
-            self::KEY_EXPIRE_EFFECTS => \array_map(function(UuidInterface $uuid) {
+            self::KEY_EXPIRE_EFFECTS => \array_map(function (UuidInterface $uuid) {
                 return (string)$uuid;
             }, $effectIdsToExpire),
         ], $tokenId);
@@ -77,7 +77,7 @@ class MoveShipToken extends AbstractActionToken
      */
     public function getEffectIdsToExpire(): array
     {
-        return \array_map(function(string $id) {
+        return \array_map(function (string $id) {
             return Uuid::fromString($id);
         }, $this->token->get(self::KEY_EXPIRE_EFFECTS));
     }

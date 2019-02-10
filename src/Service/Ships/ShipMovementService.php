@@ -33,8 +33,8 @@ class ShipMovementService extends ShipsService
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
             new TokenId($this->uuidFactory->uuid5(
                 'a08d1220-de3a-44e6-9a21-727b12dda668',
-                $currentLocation->toString()),
-            ),
+                $currentLocation->toString(),
+            )),
             $ship->getId(),
             $channel->getId(),
             $owner->getId(),
@@ -42,12 +42,12 @@ class ShipMovementService extends ShipsService
             $journeyTime,
             $earnings,
             $activeEffectsToExpire,
-            ));
+        ));
         return new MoveShipToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now()),
-            );
+        );
     }
 
     public function moveShip(

@@ -12,7 +12,8 @@ class EffectRepository extends AbstractEntityRepository
     public function getAll(int $type = Query::HYDRATE_ARRAY): array
     {
         $cacheKey = __CLASS__ . __METHOD__ . $type;
-        if ($data = $this->cache->get($cacheKey)) {
+        $data = $this->cache->get($cacheKey);
+        if ($data) {
             return $data;
         }
 
@@ -47,7 +48,8 @@ class EffectRepository extends AbstractEntityRepository
     ): array {
         $cacheKey = __CLASS__ . __METHOD__ . $type . '-' . $threshold . '-' . $resultType;
         $canCache = $resultType === Query::HYDRATE_ARRAY;
-        if ($canCache && $data = $this->cache->get($cacheKey)) {
+        $data = $this->cache->get($cacheKey);
+        if ($canCache && $data) {
             return $data;
         }
 

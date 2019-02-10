@@ -62,7 +62,7 @@ abstract class AbstractPortAction extends AbstractAction
                 $shipWithLocation->getOwner(),
                 $shipWithLocation,
                 $shipWithLocation->getLocation(),
-                ),
+            ),
             'error' => $error,
         ];
     }

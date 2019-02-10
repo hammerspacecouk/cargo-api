@@ -49,7 +49,7 @@ class MakeCrateTypesCommand extends Command
         }
 
         $output->writeln('Deleting previous crate types');
-        $this->entityManager->createQueryBuilder()->delete(CrateType::class,'c')->getQuery()->execute();
+        $this->entityManager->createQueryBuilder()->delete(CrateType::class, 'c')->getQuery()->execute();
 
         $output->writeln('Making new crate types');
 
@@ -60,7 +60,6 @@ class MakeCrateTypesCommand extends Command
         $progress->start();
 
         foreach ($inputData as $row) {
-
             $crateType = new CrateType(
                 $row['contents'],
                 (int)$row['abundance'],

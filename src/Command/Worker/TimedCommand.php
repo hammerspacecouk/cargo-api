@@ -87,7 +87,7 @@ class TimedCommand extends AbstractWorkerCommand
             $channels = $this->channelsService->getAllLinkedToPort($port);
 
             // make direction objects
-            $directions = \array_map(function(Channel $channel) use ($port, $player, $ship) {
+            $directions = \array_map(function (Channel $channel) use ($port, $player, $ship) {
                 $destination = $channel->getDestination($port);
 
                 return new Direction(
@@ -99,23 +99,20 @@ class TimedCommand extends AbstractWorkerCommand
                         $channel->getDistance(),
                         $ship,
                         $player->getRank(),
-                        ),
+                    ),
                     null,
                     $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),
                 );
             }, $channels);
 
             // of the possible directions, find which ones the ship is allowed to travel
-            $directions = \array_filter($directions, function(Direction $direction) {
-               return $direction->isAllowedToEnter();
+            $directions = \array_filter($directions, function (Direction $direction) {
+                return $direction->isAllowedToEnter();
             });
 
             // of the remaining directions, find one which the player has NOT been to before
             /** @var Direction[] $nextOptions */
-//            $nextOptions = \array_filter($directions, function (Direction $direction) {
-//                return !$direction->hasVisited();
-//            });
-            // Use dumb selection for now. todo - navigation computer upgrade
+            // Use dumb selection for now. todo - navigation computer upgrade that checks hasVisited()
             $nextOptions = $directions;
 
             $direction = null;

@@ -43,7 +43,7 @@ class AlgorithmService extends AbstractService
     {
         $value = $totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE);
         if ($activeTravelEffect) {
-         $value *= $activeTravelEffect->getEarningsMultiplier();
+            $value *= $activeTravelEffect->getEarningsMultiplier();
         }
         return (int)\round($value);
     }

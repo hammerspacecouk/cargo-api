@@ -21,7 +21,7 @@ class HintRepository extends AbstractEntityRepository
 
     private function getAllForThreshold(int $threshold): array
     {
-        return \array_filter($this->getAll(), function(array $hint) use ($threshold) {
+        return \array_filter($this->getAll(), function (array $hint) use ($threshold) {
             if (isset($hint['rank'])) {
                 return ($hint['rank']['threshold'] <= $threshold);
             }

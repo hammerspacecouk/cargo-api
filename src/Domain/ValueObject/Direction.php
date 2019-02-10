@@ -45,14 +45,14 @@ class Direction implements \JsonSerializable
 
     public function jsonSerialize()
     {
-       return [
-           'destination' => $this->destinationPort,
-           'distanceUnit' => $this->channel->getDistance(),
-           'earnings' => $this->earnings,
-           'journeyTimeSeconds' => $this->time,
-           'isAllowed' => $this->isAllowedToEnter(),
-           'denialReason' => $this->getDenialReason(),
-       ];
+        return [
+            'destination' => $this->destinationPort,
+            'distanceUnit' => $this->channel->getDistance(),
+            'earnings' => $this->earnings,
+            'journeyTimeSeconds' => $this->time,
+            'isAllowed' => $this->isAllowedToEnter(),
+            'denialReason' => $this->getDenialReason(),
+        ];
     }
 
     public function getChannel(): Channel

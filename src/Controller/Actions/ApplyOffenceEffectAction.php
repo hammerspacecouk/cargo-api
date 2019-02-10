@@ -55,12 +55,11 @@ class ApplyOffenceEffectAction extends AbstractAction
             $shipWithLocation->getOwner(),
             $shipWithLocation,
             $shipWithLocation->getLocation(),
-            );
+        );
 
         return [
             'data' => $data,
             'error' => $error,
         ];
     }
-
 }

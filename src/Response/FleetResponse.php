@@ -99,6 +99,4 @@ class FleetResponse
 
         return false;
     }
-
-
 }

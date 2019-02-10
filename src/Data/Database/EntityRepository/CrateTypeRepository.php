@@ -72,6 +72,4 @@ class CrateTypeRepository extends AbstractEntityRepository
         }
         return \end($crateType);
     }
-
-
 }

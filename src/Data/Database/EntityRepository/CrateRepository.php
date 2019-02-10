@@ -25,7 +25,8 @@ class CrateRepository extends AbstractEntityRepository
         return $crate;
     }
 
-    public function newRandomCrate(): Crate {
+    public function newRandomCrate(): Crate
+    {
         $crateContents = $this->getEntityManager()->getCrateTypeRepo()->getRandomCrateContents();
 
         $crate = new Crate(

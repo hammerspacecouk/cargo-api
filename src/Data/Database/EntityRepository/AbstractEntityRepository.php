@@ -28,7 +28,7 @@ abstract class AbstractEntityRepository extends EntityRepository
     protected $logger;
 
     /** @var EntityManager */
-    protected $_em;
+    protected $_em; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore -- must match parent
 
     /**
      * We are away from dependency injection via constructors territory, so we have to rely on the (risky) strategy

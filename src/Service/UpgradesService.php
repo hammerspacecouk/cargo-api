@@ -141,7 +141,7 @@ class UpgradesService extends AbstractService
         $effectEntity = $this->entityManager->getEffectRepo()
             ->getByID($purchaseEffectToken->getEffectId(), Query::HYDRATE_OBJECT);
 
-        $this->entityManager->transactional(function() use ($userEntity, $effectEntity, $purchaseEffectToken) {
+        $this->entityManager->transactional(function () use ($userEntity, $effectEntity, $purchaseEffectToken) {
 
             // add to effect to the user's effects list
             $this->entityManager->getUserEffectRepo()->createNew($effectEntity, $userEntity);
@@ -151,8 +151,6 @@ class UpgradesService extends AbstractService
 
             // consume the token
             $this->tokenHandler->markAsUsed($purchaseEffectToken->getOriginalToken());
-
         });
     }
-
 }

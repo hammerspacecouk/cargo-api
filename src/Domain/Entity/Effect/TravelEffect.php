@@ -17,7 +17,7 @@ class TravelEffect extends Effect
 
     public function isInstant(): bool
     {
-      return $this->value && $this->value['s'] === -1;
+        return $this->value && $this->value['s'] === -1;
     }
 
     public function getEarningsMultiplier(): ?int

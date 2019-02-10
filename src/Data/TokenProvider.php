@@ -122,7 +122,7 @@ class TokenProvider
                 $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
                     $id,
                     $this->expiryFromToken($token),
-                    );
+                );
             }
         } catch (UniqueConstraintViolationException $e) {
             // this should only happen if you tried to use two things simultaneously

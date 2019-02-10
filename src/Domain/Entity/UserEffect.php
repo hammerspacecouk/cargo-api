@@ -25,6 +25,4 @@ class UserEffect extends Entity
         }
         return $this->effect;
     }
-
-
 }

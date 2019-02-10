@@ -53,13 +53,14 @@ class EffectsService extends AbstractService
                 $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
                     new TokenId($this->uuidFactory->uuid5(
                         'b65f419b-ffe4-46dc-b61e-c9da6a82ffd9',
-                        (string)$userEffect->getId())),
+                        (string)$userEffect->getId()
+                    )),
                     $userEffect->getId(),
                     $playingShip->getId(),
                     $currentPort->getId(),
                     $effect->getDamage(),
                     $effect->affectsAllShips() ? null : $victimShip->getId(),
-                    ));
+                ));
                 $actionToken = new UseOffenceEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -71,7 +72,6 @@ class EffectsService extends AbstractService
                 'actionToken' => $actionToken,
                 'effect' => $effect,
             ];
-
         }, $allEffects);
     }
 
@@ -121,7 +121,7 @@ class EffectsService extends AbstractService
                     null,
                     $userEffect->getEffect()->getDurationSeconds(),
                     $userEffect->getEffect()->getHitCount(),
-                    ));
+                ));
                 $actionToken = new ShipDefenceEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -149,7 +149,7 @@ class EffectsService extends AbstractService
         $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
-            );
+        );
 
         if (!empty($activeTravelEffects)) {
             return \array_map(function (array $activeEffect) use ($mapper) {
@@ -184,7 +184,7 @@ class EffectsService extends AbstractService
                     $ship->getId(),
                     null,
                     null,
-                    ));
+                ));
                 $actionToken = new ShipTravelEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -248,7 +248,7 @@ class EffectsService extends AbstractService
                 $userEffectRepo->createNew(
                     $effectRepo->getByID($effect->id, Query::HYDRATE_OBJECT),
                     $userEntity,
-                    );
+                );
                 return $mapper->getEffect($effectRepo->getByID($effect->id));
             }, $earnedEffects);
         });
@@ -401,7 +401,7 @@ class EffectsService extends AbstractService
                 $shipEntity,
                 $userEntity,
                 $portEntity,
-                );
+            );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }
@@ -422,7 +422,7 @@ class EffectsService extends AbstractService
         $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
-            );
+        );
         if (empty($activeTravelEffects)) {
             return null;
         }
@@ -431,6 +431,6 @@ class EffectsService extends AbstractService
         return new ActiveEffect(
             $activeEffect['id'],
             $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']),
-            );
+        );
     }
 }

@@ -247,7 +247,8 @@ class UsersService extends AbstractService
             $this->entityManager->getConnection()->rollBack();
             throw $e;
         }
-        if ($user = $this->getById($player->id)) {
+        $user = $this->getById($player->id);
+        if ($user) {
             return $user;
         }
         throw new \RuntimeException('Could not create or fetch user');

@@ -32,7 +32,7 @@ class CratesService extends AbstractService
         $crate = new DbCrate(
             $crateContents->contents,
             $crateContents->value,
-            );
+        );
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
     }
@@ -104,12 +104,12 @@ class CratesService extends AbstractService
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
-            ));
+        ));
         return new PickupCrateToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now()),
-            );
+        );
     }
 
     public function getDropCrateToken(
@@ -125,12 +125,12 @@ class CratesService extends AbstractService
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
-            ));
+        ));
         return new DropCrateToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now()),
-            );
+        );
     }
 
     public function parsePickupCrateToken(
@@ -224,7 +224,7 @@ class CratesService extends AbstractService
             $since,
             $limit,
             Query::HYDRATE_OBJECT,
-            );
+        );
         $total = count($crateLocations);
 
         // put those crates back in the port

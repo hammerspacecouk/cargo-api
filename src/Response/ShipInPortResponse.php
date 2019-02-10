@@ -46,7 +46,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $user,
             $totalCrateValue,
             $location->getId(),
-            );
+        );
         $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
@@ -92,7 +92,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 'ship' => $ship,
                 'offence' => $offence,
             ];
-
         }, $this->shipsService->findAllActiveInPort($port));
 
         // remove any nulls (filtered out)
@@ -196,7 +195,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $ship,
                 $journeyTimeSeconds,
                 $earnings,
-                );
+            );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
@@ -209,7 +208,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $effectsToExpire,
-                    );
+                );
             }
 
             $directions[$bearing] = [
