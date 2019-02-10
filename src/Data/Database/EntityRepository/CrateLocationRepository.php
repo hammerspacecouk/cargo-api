@@ -67,6 +67,19 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
+    public function findMostRecentForShipID(
+        UuidInterface $shipId,
+        $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('IDENTITY(tbl.ship) = :ship')
+            ->orderBy('tbl.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('ship', $shipId->getBytes());
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
     public function getOnShipsInPortBefore(
         DateTimeImmutable $before,
         int $limit,

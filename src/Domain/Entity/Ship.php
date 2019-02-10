@@ -6,7 +6,7 @@ namespace App\Domain\Entity;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
 
-class Ship extends Entity implements \JsonSerializable, CrateLocation
+class Ship extends Entity implements \JsonSerializable
 {
     private $name;
     private $shipClass;
@@ -104,5 +104,10 @@ class Ship extends Entity implements \JsonSerializable, CrateLocation
             $data['location'] = $this->location;
         }
         return $data;
+    }
+
+    public function toHash()
+    {
+        return \sha1($this->id->toString());
     }
 }

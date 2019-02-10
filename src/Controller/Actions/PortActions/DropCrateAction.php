@@ -13,9 +13,9 @@ class DropCrateAction extends AbstractPortAction
         return self::buildRouteDefinition(DropCrateToken::class);
     }
 
-    protected function parseToken(string $tokenString): AbstractMoveCrateToken
+    protected function parseToken(string $tokenString, bool $confirmSingleUse = true): AbstractMoveCrateToken
     {
-        return $this->cratesService->parseDropCrateToken($tokenString);
+        return $this->cratesService->parseDropCrateToken($tokenString, $confirmSingleUse);
     }
 
     protected function useToken(AbstractMoveCrateToken $token): void

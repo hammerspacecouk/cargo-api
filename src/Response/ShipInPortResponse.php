@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Response;
 
 use App\Domain\Entity\Crate;
+use App\Domain\Entity\CrateLocation;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
@@ -12,7 +13,7 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Direction;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class ShipInPortResponse extends AbstractShipInLocationResponse
 {
@@ -31,8 +32,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             return $acc + $crate->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier());
         }, 0);
 
-        // all buttons get the same key. This is so that they are all invalidated as soon as one is used.
-        $groupTokenKey = (string)Uuid::uuid4(); // todo - calculate this from known IDs so you can't have two tabs open
+        $latestShipCrateLocation = $this->cratesService->getMostRecentCrateLocationForShip($ship);
+        $moveCrateKey = $latestShipCrateLocation ? $latestShipCrateLocation->toHash() : $ship->toHash();
 
         $shipTravelOptions = $this->effectsService->getShipTravelOptions($ship, $user);
 
@@ -44,13 +45,13 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $ship,
             $user,
             $totalCrateValue,
-            $groupTokenKey,
+            $location->getId(),
             );
         $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
-        $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $groupTokenKey);
-        $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $groupTokenKey);
+        $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
+        $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
         return $data;
     }
 
@@ -59,7 +60,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Ship $currentShip
     ): array {
 
-        $ships = \array_map(function(ShipInPort $shipLocation) use ($currentShip, $port) {
+        $ships = \array_map(function (ShipInPort $shipLocation) use ($currentShip, $port) {
             // apply any required changes or filter them out (set to null)
             $ship = $shipLocation->getShip();
 
@@ -103,18 +104,26 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Ship $ship,
         User $user,
         int $cratesAlreadyOnShip,
-        string $groupTokenKey
+        string $moveCrateGroupKey
     ): array {
         $cratesInPort = $this->cratesService->findInPortForUser($port, $user);
         $canAddMoreCrates = $ship->getShipClass()->getCapacity() > $cratesAlreadyOnShip;
 
-        return \array_map(function (Crate $crate) use ($ship, $port, $groupTokenKey, $canAddMoreCrates) {
+        return \array_map(function (CrateLocation $crateLocation) use (
+            $ship,
+            $port,
+            $canAddMoreCrates,
+            $moveCrateGroupKey
+        ) {
+            $crate = $crateLocation->getCrate();
+
             return [
                 'token' => $canAddMoreCrates ? $this->cratesService->getPickupCrateToken(
                     $crate,
                     $ship,
                     $port,
-                    $groupTokenKey
+                    $crateLocation->getId(),
+                    $moveCrateGroupKey
                 ) : null,
                 'crate' => $crate,
                 'valuePerLY' => $crate->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier()),
@@ -143,7 +152,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Ship $ship,
         User $user,
         int $totalCrateValue,
-        string $groupTokenKey
+        UuidInterface $currentLocation
     ): array {
 
         // find all channels for a port, with their bearing and distance
@@ -198,9 +207,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $channel->isReversed($port),
                     $journeyTimeSeconds,
                     $earnings,
-                    $groupTokenKey,
+                    $currentLocation,
                     $effectsToExpire,
-                );
+                    );
             }
 
             $directions[$bearing] = [

@@ -5,7 +5,7 @@ namespace App\Domain\Entity;
 
 use Ramsey\Uuid\UuidInterface;
 
-class Port extends Entity implements \JsonSerializable, CrateLocation
+class Port extends Entity implements \JsonSerializable
 {
     public const TOTAL_PORT_COUNT = 1000;
 

@@ -9,11 +9,11 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
+use App\Domain\ValueObject\TokenId;
 use function App\Functions\Dates\intervalToSeconds;
 use App\Service\ShipsService;
 use DateInterval;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class ShipMovementService extends ShipsService
@@ -27,11 +27,14 @@ class ShipMovementService extends ShipsService
         bool $reverseDirection,
         int $journeyTime,
         int $earnings,
-        string $tokenKey,
+        UuidInterface $currentLocation,
         array $activeEffectsToExpire
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
-            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
+            new TokenId($this->uuidFactory->uuid5(
+                'a08d1220-de3a-44e6-9a21-727b12dda668',
+                $currentLocation->toString()),
+            ),
             $ship->getId(),
             $channel->getId(),
             $owner->getId(),

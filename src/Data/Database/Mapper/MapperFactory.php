@@ -16,6 +16,11 @@ class MapperFactory
         return new CrateMapper($this);
     }
 
+    public function createCrateLocationMapper(): CrateLocationMapper
+    {
+        return new CrateLocationMapper($this);
+    }
+
     public function createEffectMapper(): EffectMapper
     {
         return new EffectMapper($this);

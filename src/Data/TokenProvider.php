@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Domain\Exception\InvalidTokenException;
+use App\Domain\ValueObject\Token\AbstractToken;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
+use App\Domain\ValueObject\TokenId;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\Database\EntityManager;
-use App\Domain\Exception\InvalidTokenException;
+use App\Domain\Exception\UsedTokenException;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
@@ -32,20 +35,17 @@ class TokenProvider
     private $dateTimeFactory;
     private $uuidFactory;
     private $entityManager;
-    private $logger;
 
     public function __construct(
         EntityManager $entityManager,
         DateTimeFactory $dateTimeFactory,
         UuidFactoryInterface $uuidFactory,
-        ApplicationConfig $applicationConfig,
-        LoggerInterface $logger
+        ApplicationConfig $applicationConfig
     ) {
         $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
         $this->dateTimeFactory = $dateTimeFactory;
         $this->uuidFactory = $uuidFactory;
-        $this->logger = $logger;
     }
 
     public static function getActionPath(string $tokenClass, DateTimeImmutable $dateTime): string
@@ -65,10 +65,12 @@ class TokenProvider
         array $claims,
         string $subject,
         string $expiryInterval,
-        UuidInterface $id = null
+        TokenId $tokenId = null
     ): Builder {
 
-        if (!$id) {
+        if ($tokenId) {
+            $id = (string)$tokenId;
+        } else {
             $id = $this->uuidFactory->uuid4();
         }
 
@@ -86,7 +88,7 @@ class TokenProvider
         string $tokenString,
         bool $confirmSingleUse = true
     ): JsonToken {
-        $tokenString = 'v2.local.' . $tokenString;
+        $tokenString = AbstractToken::TOKEN_HEADER . $tokenString;
         $parser = (new Parser())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
             // Adding rules to be checked against the token
@@ -104,30 +106,34 @@ class TokenProvider
         }
 
         if ($confirmSingleUse &&
-            $this->entityManager->getUsedActionTokenRepo()->hasBeenUsed($this->uuidFromToken($token))
+            $this->entityManager->getUsedActionTokenRepo()->hasBeenUsed($this->uuidsFromToken($token))
         ) {
-            throw new InvalidTokenException('Token has been invalidated');
+            throw new UsedTokenException('Token has been invalidated');
         }
         return $token;
     }
 
     public function markAsUsed(JsonToken $token): void
     {
+        /** @var UuidInterface[] $ids */
+        $ids = $this->uuidsFromToken($token);
         try {
-            $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
-                $this->uuidFromToken($token),
-                $this->expiryFromToken($token),
-                );
+            foreach ($ids as $id) {
+                $this->entityManager->getUsedActionTokenRepo()->markAsUsed(
+                    $id,
+                    $this->expiryFromToken($token),
+                    );
+            }
         } catch (UniqueConstraintViolationException $e) {
             // this should only happen if you tried to use two things simultaneously
-            throw new InvalidTokenException('Token has been invalidated');
+            throw new UsedTokenException('Token has been invalidated');
         }
     }
 
-    private function uuidFromToken(
+    private function uuidsFromToken(
         JsonToken $token
-    ): UuidInterface {
-        return Uuid::fromString($token->getJti());
+    ): array {
+        return TokenId::toIds($token->getJti());
     }
 
     private function expiryFromToken(

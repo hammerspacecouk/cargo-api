@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject\Token\Action\ApplyEffect;
 
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
+use App\Domain\ValueObject\TokenId;
 use function App\Functions\Strings\shortHash;
 use DateInterval;
 use Ramsey\Uuid\Uuid;
@@ -27,7 +28,7 @@ class GenericApplyEffectToken extends AbstractActionToken
     }
 
     public static function make(
-        UuidInterface $tokenId,
+        TokenId $tokenId,
         UuidInterface $userEffectId,
         UuidInterface $effectId,
         UuidInterface $triggeredById,

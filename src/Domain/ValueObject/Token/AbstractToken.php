@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token;
 
+use Abraham\TwitterOAuth\Token;
 use App\Domain\Exception\InvalidTokenException;
+use App\Domain\ValueObject\TokenId;
 use function App\Functions\Strings\shortHash;
 use DateTimeImmutable;
 use ParagonIE\Paseto\JsonToken;
@@ -13,6 +15,7 @@ use Ramsey\Uuid\UuidInterface;
 abstract class AbstractToken
 {
     public const EXPIRY = 'PT1H';
+    public const TOKEN_HEADER = 'v2.local.';
 
     protected $token;
     protected $tokenString;
@@ -29,7 +32,7 @@ abstract class AbstractToken
         $this->validateTokenType($token);
         $this->token = $token;
         $this->tokenString = $tokenString;
-        $this->id = Uuid::fromString($token->getJti());
+        $this->id = TokenId::fromString($token->getJti());
         $this->expiry = DateTimeImmutable::createFromMutable($token->getExpiration());
     }
 
@@ -38,7 +41,7 @@ abstract class AbstractToken
         return $this->token;
     }
 
-    public function getId(): UuidInterface
+    public function getId(): TokenId
     {
         return $this->id;
     }
@@ -50,10 +53,10 @@ abstract class AbstractToken
 
     public function __toString(): string
     {
-        return \str_replace('v2.local.', '', $this->tokenString);
+        return \str_replace(self::TOKEN_HEADER, '', $this->tokenString);
     }
 
-    protected static function create(array $claims, UuidInterface $id = null): array
+    protected static function create(array $claims, TokenId $id = null): array
     {
         $tokenArgs = [
             $claims,

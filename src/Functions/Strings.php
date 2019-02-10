@@ -25,3 +25,15 @@ function startsWith(string $needle, string $haystack): bool
 {
     return \strpos($haystack, $needle) === 0;
 }
+
+/**
+ * implode, but removing any nulls from the array first
+ * @param string $glue
+ * @param array $pieces
+ * @return string
+ */
+function filteredImplode(string $glue, array $pieces): string
+{
+    $pieces = \array_filter($pieces);
+    return \implode($glue, $pieces);
+}

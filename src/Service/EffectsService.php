@@ -20,6 +20,7 @@ use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
+use App\Domain\ValueObject\TokenId;
 use function App\Functions\Arrays\ensureArray;
 use function App\Functions\Arrays\find;
 use Doctrine\ORM\Query;
@@ -50,7 +51,9 @@ class EffectsService extends AbstractService
 
                 // else if it's in userEffects, populate the action token
                 $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
-                    $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId()), // todo - dedupe?
+                    new TokenId($this->uuidFactory->uuid5(
+                        'b65f419b-ffe4-46dc-b61e-c9da6a82ffd9',
+                        (string)$userEffect->getId())),
                     $userEffect->getId(),
                     $playingShip->getId(),
                     $currentPort->getId(),
@@ -107,7 +110,9 @@ class EffectsService extends AbstractService
             } elseif ($userEffect) {
                 // else if it's in userEffects, populate the action token
                 $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
-                    $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId()),
+                    new TokenId(
+                        $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId())
+                    ),
                     $userEffect->getId(),
                     $userEffect->getEffect()->getId(),
                     $user->getId(),
@@ -169,7 +174,9 @@ class EffectsService extends AbstractService
             // if it's in userEffects, populate the action token
             if ($userEffect) {
                 $token = $this->tokenHandler->makeToken(...ShipTravelEffectToken::make(
-                    $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId()),
+                    new TokenId(
+                        $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId())
+                    ),
                     // todo - all options should share the same key. prevent multiple tabs
                     $userEffect->getId(),
                     $userEffect->getEffect()->getId(),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\ValueObject\Token\Action\MoveCrate;
 
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
+use App\Domain\ValueObject\TokenId;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -14,7 +15,7 @@ abstract class AbstractMoveCrateToken extends AbstractActionToken
     private const KEY_SHIP_ID = 'si';
 
     public static function make(
-        UuidInterface $tokenId,
+        TokenId $tokenId,
         UuidInterface $crateId,
         UuidInterface $portId,
         UuidInterface $shipId

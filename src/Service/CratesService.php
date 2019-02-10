@@ -4,16 +4,18 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Crate as DbCrate;
-use App\Data\Database\Entity\CrateLocation;
-use App\Data\Database\Entity\ShipLocation;
+use App\Data\Database\Entity\CrateLocation as DbCrateLocation;
+use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Crate;
+use App\Domain\Entity\CrateLocation;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
+use App\Domain\ValueObject\TokenId;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -30,7 +32,7 @@ class CratesService extends AbstractService
         $crate = new DbCrate(
             $crateContents->contents,
             $crateContents->value,
-        );
+            );
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
     }
@@ -44,9 +46,9 @@ class CratesService extends AbstractService
                 $limit
             );
 
-        $mapper = $this->mapperFactory->createCrateMapper();
+        $mapper = $this->mapperFactory->createCrateLocationMapper();
         return array_map(function ($result) use ($mapper) {
-            return $mapper->getCrate($result['crate']);
+            return $mapper->getCrateLocation($result);
         }, $results);
     }
 
@@ -63,6 +65,21 @@ class CratesService extends AbstractService
         }, $results);
     }
 
+    public function getMostRecentCrateLocationForShip(Ship $ship): ?CrateLocation
+    {
+        $result = $this->entityManager->getCrateLocationRepo()
+            ->findMostRecentForShipID(
+                $ship->getId()
+            );
+
+        if (!$result) {
+            return null;
+        }
+
+        $mapper = $this->mapperFactory->createCrateLocationMapper();
+        return $mapper->getCrateLocation($result);
+    }
+
     public function crateIsInPort(UuidInterface $crateId, UuidInterface $portId): bool
     {
         return (bool)$this->entityManager->getCrateLocationRepo()
@@ -76,19 +93,23 @@ class CratesService extends AbstractService
         Crate $crate,
         Ship $ship,
         Port $port,
-        string $tokenKey
+        UuidInterface $crateLocationId,
+        string $groupKey
     ): PickupCrateToken {
         $token = $this->tokenHandler->makeToken(...PickupCrateToken::make(
-            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
+            new TokenId(
+                $crateLocationId,
+                $this->uuidFactory->uuid5('9af42da1-6bc4-4eec-9f7e-2cdc08ff095f', $groupKey),
+            ),
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
-        ));
+            ));
         return new PickupCrateToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now()),
-        );
+            );
     }
 
     public function getDropCrateToken(
@@ -98,28 +119,38 @@ class CratesService extends AbstractService
         string $tokenKey
     ): DropCrateToken {
         $token = $this->tokenHandler->makeToken(...DropCrateToken::make(
-            $this->uuidFactory->uuid5(Uuid::NIL, \sha1($tokenKey)),
+            new TokenId(
+                $this->uuidFactory->uuid5('5b9e3fd9-a513-43a6-9678-c813793f25cd', $tokenKey),
+            ),
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
-        ));
+            ));
         return new DropCrateToken(
             $token->getJsonToken(),
             (string)$token,
             TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now()),
-        );
+            );
     }
 
     public function parsePickupCrateToken(
-        string $tokenString
+        string $tokenString,
+        bool $confirmSingleUse = true
     ): PickupCrateToken {
-        return new PickupCrateToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        return new PickupCrateToken(
+            $this->tokenHandler->parseTokenFromString($tokenString, $confirmSingleUse),
+            $tokenString,
+        );
     }
 
     public function parseDropCrateToken(
-        string $tokenString
+        string $tokenString,
+        bool $confirmSingleUse = true
     ): DropCrateToken {
-        return new DropCrateToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        return new DropCrateToken(
+            $this->tokenHandler->parseTokenFromString($tokenString, $confirmSingleUse),
+            $tokenString,
+        );
     }
 
     public function usePickupCrateToken(
@@ -185,7 +216,7 @@ class CratesService extends AbstractService
     public function restoreHoardedBackToPort(
         DateTimeImmutable $now,
         int $limit
-    ):int {
+    ): int {
         $since = $now->sub(new DateInterval(self::MAX_TIME_TO_HOARD_CRATE));
 
         // fetch all crates that were put on a ship more than an hour ago, and that ship is still in port
@@ -193,20 +224,20 @@ class CratesService extends AbstractService
             $since,
             $limit,
             Query::HYDRATE_OBJECT,
-        );
+            );
         $total = count($crateLocations);
 
         // put those crates back in the port
         $this->logger->info('Putting ' . $total . ' crates back into the port');
         foreach ($crateLocations as $crateLocation) {
-            /** @var CrateLocation $crateLocation */
-            /** @var ShipLocation $shipLocation */
+            /** @var DbCrateLocation $crateLocation */
+            /** @var DbShipLocation $shipLocation */
             $shipLocation = $this->entityManager->getShipLocationRepo()->getCurrentForShipId(
                 $crateLocation->ship->id,
                 Query::HYDRATE_OBJECT
             );
 
-            $this->entityManager->transactional(function() use ($crateLocation, $shipLocation) {
+            $this->entityManager->transactional(function () use ($crateLocation, $shipLocation) {
                 $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);
                 $this->entityManager->getCrateLocationRepo()->makeInPort(
                     $crateLocation->crate,

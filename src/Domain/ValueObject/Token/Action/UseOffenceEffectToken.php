@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use App\Domain\ValueObject\TokenId;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -15,7 +16,7 @@ class UseOffenceEffectToken extends AbstractActionToken
     public const KEY_PORT_ID = 'pi';
 
     public static function make(
-        UuidInterface $tokenId,
+        TokenId $tokenId,
         UuidInterface $userEffectId,
         UuidInterface $playerShipId,
         UuidInterface $inPortId,

@@ -11,12 +11,14 @@ use Ramsey\Uuid\UuidInterface;
 class UsedActionTokenRepository extends AbstractEntityRepository implements CleanableInterface
 {
     public function hasBeenUsed(
-        UuidInterface $tokenId
+        array $tokenIds
     ): bool {
         $qb = $this->createQueryBuilder('tbl')
             ->select('count(tbl.id)')
-            ->where('tbl.id = :id')
-            ->setParameter('id', $tokenId->getBytes());
+            ->where('tbl.id IN (:id)')
+            ->setParameter('id', \array_map(function (UuidInterface $tokenId) {
+                return $tokenId->getBytes();
+            }, $tokenIds));
         return (bool)$qb->getQuery()->getSingleScalarResult();
     }
 

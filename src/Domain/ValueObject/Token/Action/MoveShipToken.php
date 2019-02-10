@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use App\Domain\ValueObject\TokenId;
 use DateInterval;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -18,7 +19,7 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_EXPIRE_EFFECTS = 'eex';
 
     public static function make(
-        UuidInterface $tokenId,
+        TokenId $tokenId,
         UuidInterface $shipId,
         UuidInterface $channelId,
         UuidInterface $ownerId,

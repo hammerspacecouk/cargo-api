@@ -13,9 +13,9 @@ class PickupCrateAction extends AbstractPortAction
         return self::buildRouteDefinition(PickupCrateToken::class);
     }
 
-    protected function parseToken(string $tokenString): AbstractMoveCrateToken
+    protected function parseToken(string $tokenString, bool $confirmSingleUse = true): AbstractMoveCrateToken
     {
-        return $this->cratesService->parsePickupCrateToken($tokenString);
+        return $this->cratesService->parsePickupCrateToken($tokenString, $confirmSingleUse);
     }
 
     protected function useToken(AbstractMoveCrateToken $token): void
