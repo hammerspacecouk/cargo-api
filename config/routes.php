@@ -10,6 +10,7 @@ $collection = new RouteCollection();
 $actions = [
     // home
     Controller\Home\IndexAction::class,
+    Controller\Home\ConfigAction::class,
     Controller\Home\EmblemAction::class,
     Controller\Home\StatusAction::class,
     Controller\Home\ShipClassImageAction::class,

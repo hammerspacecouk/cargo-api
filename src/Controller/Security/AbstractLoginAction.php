@@ -11,11 +11,13 @@ use function App\Functions\Strings\startsWith;
 use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Service\AuthenticationService;
+use App\Service\ConfigService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AbstractLoginAction
 {
@@ -29,10 +31,12 @@ class AbstractLoginAction
     protected $usersService;
     protected $shipsService;
     protected $logger;
+    private $configService;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
+        ConfigService $configService,
         ShipsService $shipsService,
         FlashDataStore $flashData,
         UsersService $usersService,
@@ -44,6 +48,7 @@ class AbstractLoginAction
         $this->usersService = $usersService;
         $this->logger = $logger;
         $this->shipsService = $shipsService;
+        $this->configService = $configService;
     }
 
     // todo - method to remove any previously set authentication_tokens if you try to login again
@@ -73,6 +78,15 @@ class AbstractLoginAction
             }
             $user = $this->usersService->addEmailToUser($currentSessionUser, $emailAddress);
         } else {
+
+
+            // START CODE FOR ALPHA PHASE - todo - remove for beta
+            if (!$this->configService->emailExistsInAlphaList((string)$emailAddress)) {
+                throw new BadRequestHttpException('You are not yet allowed in the alpha');
+            }
+            // END CODE FOR ALPHA PHASE - todo - remove for beta
+
+
             $user = $this->usersService->getOrCreateByEmailAddress($emailAddress);
         }
 

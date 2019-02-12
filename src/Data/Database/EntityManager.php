@@ -106,6 +106,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\Cluster::class);
     }
 
+    public function getConfigRepo(): EntityRepository\ConfigRepository
+    {
+        return $this->getRepository(Entity\Config::class);
+    }
+
     public function getCrateRepo(): EntityRepository\CrateRepository
     {
         return $this->getRepository(Entity\Crate::class);
