@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\CrateType;
 use App\Data\Database\EntityManager;
 use InvalidArgumentException;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeCrateTypesCommand extends Command
+class MakeCrateTypesCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -24,7 +24,7 @@ class MakeCrateTypesCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-crate-types')
@@ -42,7 +42,7 @@ class MakeCrateTypesCommand extends Command
     ) {
         $output->writeln('Fetching source data');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
 
         if (!\file_exists($filePath)) {
             throw new InvalidArgumentException('Not a valid file path');

@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakePortsCommand extends Command
+class MakePortsCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -25,7 +25,7 @@ class MakePortsCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-ports')
@@ -43,7 +43,7 @@ class MakePortsCommand extends Command
     ) {
         $output->writeln('Making or updating the ports');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -62,7 +62,7 @@ class MakePortsCommand extends Command
                 $cluster = $this->entityManager->getClusterRepo()->getByID($clusterId, Query::HYDRATE_OBJECT);
             }
 
-            /** @var Port $entity */
+            /** @var Port|null $entity */
             $entity = $this->entityManager->getPortRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
             if ($entity) {
@@ -81,7 +81,7 @@ class MakePortsCommand extends Command
                 );
                 $entity->id = $id;
             }
-            $entity->uuid = (string)$id;
+            $entity->uuid = $id->toString();
 
             $this->entityManager->persist($entity);
             $progress->advance();

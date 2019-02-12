@@ -19,6 +19,6 @@ class Messages implements \JsonSerializable
 
     public function __toString()
     {
-        return \base64_encode(\json_encode($this->jsonSerialize()));
+        return \base64_encode(\json_encode($this->jsonSerialize(), JSON_THROW_ON_ERROR));
     }
 }

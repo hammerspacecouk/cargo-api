@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Hint;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeHintsCommand extends Command
+class MakeHintsCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -27,7 +27,7 @@ class MakeHintsCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-hints')
@@ -45,7 +45,7 @@ class MakeHintsCommand extends Command
     ) {
         $output->writeln('Making the hints');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -76,9 +76,9 @@ class MakeHintsCommand extends Command
     private function makeOrUpdateEntity(
         UuidInterface $id,
         string $text,
-        ?PlayerRank $playerRank
+        PlayerRank $playerRank
     ): void {
-        /** @var Hint $entity */
+        /** @var Hint|null $entity */
         $entity = $this->entityManager->getHintRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
         if ($entity) {
@@ -91,7 +91,7 @@ class MakeHintsCommand extends Command
             );
             $entity->id = $id;
         }
-        $entity->uuid = (string)$id;
+        $entity->uuid = $id->toString();
 
         $this->entityManager->persist($entity);
     }

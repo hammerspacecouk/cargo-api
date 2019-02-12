@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 trait UserAuthenticationTrait
 {
-    /** @var UserAuthentication */
+    /** @var UserAuthentication|null */
     private $userAuthentication;
 
     protected function getUser(

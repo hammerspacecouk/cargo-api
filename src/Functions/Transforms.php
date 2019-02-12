@@ -7,28 +7,28 @@ use InvalidArgumentException;
 
 function csvToArray(string $filename): array
 {
-    if (!file_exists($filename) || !is_readable($filename)) {
+    if (!\file_exists($filename) || !\is_readable($filename)) {
         throw new InvalidArgumentException('File path not able to be opened');
     }
     $header = null;
     $data = [];
 
-    $handle = fopen($filename, "r");
+    $handle = \fopen($filename, 'rb');
     if (!$handle) {
         throw new InvalidArgumentException('File path not able to be opened');
     }
 
-    $row = fgetcsv($handle);
-    while ($row !== false) {
+    $row = \fgetcsv($handle);
+    while ($row) {
         if (!$header) {
             $header = $row;
         } else {
-            $data[] = array_combine($header, $row);
+            $data[] = \array_combine($header, $row);
         }
         // next line
-        $row = fgetcsv($handle);
+        $row = \fgetcsv($handle);
     }
-    fclose($handle);
+    \fclose($handle);
     return $data;
 }
 

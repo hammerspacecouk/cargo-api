@@ -39,12 +39,12 @@ class GenericApplyEffectToken extends AbstractActionToken
         ?int $hitCount = null
     ): array {
         return parent::create([
-            self::KEY_EFFECT_ID => (string)$effectId,
-            self::KEY_USER_EFFECT_ID => (string)$userEffectId,
-            self::KEY_TRIGGERED_BY_ID => (string)$triggeredById,
-            self::KEY_SHIP_ID => $appliesToShipId ? (string)$appliesToShipId : null,
-            self::KEY_PORT_ID => $appliesToPortId ? (string)$appliesToPortId : null,
-            self::KEY_USER_ID => $appliesToUserId ? (string)$appliesToUserId : null,
+            self::KEY_EFFECT_ID => $effectId->toString(),
+            self::KEY_USER_EFFECT_ID => $userEffectId->toString(),
+            self::KEY_TRIGGERED_BY_ID => $triggeredById->toString(),
+            self::KEY_SHIP_ID => $appliesToShipId ? $appliesToShipId->toString() : null,
+            self::KEY_PORT_ID => $appliesToPortId ? $appliesToPortId->toString() : null,
+            self::KEY_USER_ID => $appliesToUserId ? $appliesToUserId->toString() : null,
             self::KEY_DURATION => $durationSeconds,
             self::KEY_HIT_COUNT => $hitCount,
         ], $tokenId);

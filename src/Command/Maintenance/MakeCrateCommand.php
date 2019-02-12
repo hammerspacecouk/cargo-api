@@ -18,7 +18,7 @@ class MakeCrateCommand extends Command
         $this->cratesService = $cratesService;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:maintenance:make-crate')

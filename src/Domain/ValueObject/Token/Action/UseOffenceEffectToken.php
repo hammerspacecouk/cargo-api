@@ -24,11 +24,11 @@ class UseOffenceEffectToken extends AbstractActionToken
         ?UuidInterface $victimShipId // null means applies to all
     ): array {
         return parent::create([
-            self::KEY_USER_EFFECT_ID => (string)$userEffectId,
-            self::KEY_SHIP_ID => (string)$playerShipId,
-            self::KEY_PORT_ID => (string)$inPortId,
+            self::KEY_USER_EFFECT_ID => $userEffectId->toString(),
+            self::KEY_SHIP_ID => $playerShipId->toString(),
+            self::KEY_PORT_ID => $inPortId->toString(),
             self::KEY_DAMAGE => $damage,
-            self::KEY_VICTIM_ID => $victimShipId ? (string)$victimShipId : null,
+            self::KEY_VICTIM_ID => $victimShipId ? $victimShipId->toString() : null,
         ], $tokenId);
     }
 

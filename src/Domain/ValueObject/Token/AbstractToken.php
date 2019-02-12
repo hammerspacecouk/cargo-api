@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token;
 
-use Abraham\TwitterOAuth\Token;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\TokenId;
 use function App\Functions\Strings\shortHash;

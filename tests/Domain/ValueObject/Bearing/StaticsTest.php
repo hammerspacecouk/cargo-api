@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace Tests\App\Domain\ValueObject\Bearing;
 
 use App\Domain\ValueObject\Bearing;
+use PHPUnit\Framework\Assert;
 
 class StaticsTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetInitialRandomNumber(): void
     {
-        $this->markTestSkipped('Randomness comes later');
+        Assert::markTestSkipped('Randomness comes later');
         $maxAttempts = 1000;
         $attempts = 0;
         $found = [];
@@ -26,19 +27,19 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
         }
 
         if ($attempts === $maxAttempts) {
-            $this->fail(
+            Assert::fail(
                 'Not all the possible steps were generated after ' . $maxAttempts . '. Did it lose randomness?'
             );
         }
 
         ksort($found);
-        $this->assertSame([0, 1, 2, 3, 4, 5], array_keys($found));
+        Assert::assertSame([0, 1, 2, 3, 4, 5], array_keys($found));
     }
 
     public function testGetEmptyBearingList(): void
     {
         $bearings = Bearing::getEmptyBearingsList();
-        $this->assertSame([
+        Assert::assertSame([
             'NW' => null,
             'NE' => null,
             'E' => null,
@@ -52,7 +53,7 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
     public function testGetRotatedBearing(string $input, int $steps, string $expectedOutput): void
     {
         $output = Bearing::getRotatedBearing($input, $steps);
-        $this->assertSame($expectedOutput, $output);
+        Assert::assertSame($expectedOutput, $output);
     }
 
     public function dataForRotatedBearing(): \Generator

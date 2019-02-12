@@ -37,29 +37,28 @@ class Cache implements CacheInterface
         return $value;
     }
 
-    public function set($key, $value, $ttl = null)
+    public function set($key, $value, $ttl = null): bool
     {
         $key = $this->sanitiseKey($key);
-
-        $this->logger->debug('Caching ' . $key . ' for ' . $ttl . ' seconds');
+        $this->logger->debug('Caching ' . $key);
         return $this->adapter->set($key, $value, $ttl);
     }
 
-    public function delete($key)
+    public function delete($key): bool
     {
         $key = $this->sanitiseKey($key);
         $this->logger->debug('Deleting cache key ' . $key);
         return $this->adapter->delete($key);
     }
 
-    public function has($key)
+    public function has($key): bool
     {
         $key = $this->sanitiseKey($key);
         $this->logger->debug('Checking cache key ' . $key);
         return $this->adapter->has($key);
     }
 
-    public function clear()
+    public function clear(): bool
     {
         $this->logger->debug('Clearing cache');
         return $this->adapter->clear();

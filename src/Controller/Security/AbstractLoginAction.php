@@ -89,7 +89,7 @@ class AbstractLoginAction
             /** @var Ship[] $ships */
             $ships = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1);
             if (isset($ships[0])) {
-                $url = $this->applicationConfig->getWebHostname() . '/play/' . $ships[0]->getId();
+                $url = $this->applicationConfig->getWebHostname() . '/play/' . $ships[0]->getId()->toString();
             }
         }
 

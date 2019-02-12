@@ -18,9 +18,9 @@ class PurchaseEffectToken extends AbstractActionToken
         ?int $cost
     ): array {
         return parent::create([
-            self::KEY_EFFECT => (string)$effectId,
-            self::KEY_OWNER => (string)$ownerId,
-            self::KEY_COST => (string)$cost,
+            self::KEY_EFFECT => $effectId->toString(),
+            self::KEY_OWNER => $ownerId->toString(),
+            self::KEY_COST => $cost,
         ]);
     }
 
@@ -36,6 +36,6 @@ class PurchaseEffectToken extends AbstractActionToken
 
     public function getCost(): ?int
     {
-        return (int)$this->token->get(self::KEY_COST);
+        return $this->token->get(self::KEY_COST);
     }
 }

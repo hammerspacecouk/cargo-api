@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
-use Symfony\Component\Console\Command\Command;
+use App\Command\AbstractCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MakeDataCommand extends Command
+class MakeDataCommand extends AbstractCommand
 {
     private $playerRanksCommand;
     private $makeShipClassesCommand;
@@ -44,7 +44,7 @@ class MakeDataCommand extends Command
         $this->updateDictionary = $updateDictionary;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-data')
@@ -60,7 +60,7 @@ class MakeDataCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $folderPath = $input->getArgument('inputFolder');
+        $folderPath = $this->getStringArgument($input, 'inputFolder');
 
         // assumes files of a specific name in the input folder
         // run in the right order

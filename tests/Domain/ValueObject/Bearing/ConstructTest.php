@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\App\Domain\ValueObject\Bearing;
 
 use App\Domain\ValueObject\Bearing;
+use PHPUnit\Framework\Assert;
 
 class ConstructTest extends \PHPUnit\Framework\TestCase
 {
@@ -18,14 +19,13 @@ class ConstructTest extends \PHPUnit\Framework\TestCase
     {
         $bearing = new Bearing($input);
 
-        $this->assertSame($input, $bearing->getValue());
-        $this->assertSame($input, $bearing->jsonSerialize());
-        $this->assertSame($input, (string)$bearing);
+        Assert::assertSame($input, $bearing->getValue());
+        Assert::assertSame($input, $bearing->jsonSerialize());
+        Assert::assertSame($input, (string)$bearing);
 
         $opposite = $bearing->getOpposite();
-        $this->assertInstanceOf(Bearing::class, $opposite);
 
-        $this->assertSame($expectedOpposite, (string)$opposite);
+        Assert::assertSame($expectedOpposite, (string)$opposite);
     }
 
     public function valuesDataProvider(): \Generator

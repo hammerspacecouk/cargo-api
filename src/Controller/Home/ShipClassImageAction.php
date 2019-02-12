@@ -5,7 +5,6 @@ namespace App\Controller\Home;
 
 use App\Controller\IDRequestTrait;
 use App\Service\Ships\ShipClassService;
-use App\Service\ShipsService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

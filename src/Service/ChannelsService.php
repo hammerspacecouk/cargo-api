@@ -25,7 +25,10 @@ class ChannelsService extends AbstractService
         }, $results);
     }
 
-    /** @return Channel[] */
+    /**
+     * @param Port $port
+     * @return Channel[]
+     */
     public function getAllLinkedToPort(Port $port): array
     {
         $qb = $this->getQueryBuilder(DbChannel::class)

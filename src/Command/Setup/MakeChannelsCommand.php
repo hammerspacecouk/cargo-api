@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
@@ -11,7 +12,6 @@ use App\Domain\ValueObject\Bearing;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeChannelsCommand extends Command
+class MakeChannelsCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -29,7 +29,7 @@ class MakeChannelsCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-channels')
@@ -47,7 +47,7 @@ class MakeChannelsCommand extends Command
     ) {
         $output->writeln('Making the channels between ports');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -97,7 +97,7 @@ class MakeChannelsCommand extends Command
         int $minimumStrength,
         ?PlayerRank $minimumEntryRank
     ): void {
-        /** @var Channel $entity */
+        /** @var Channel|null $entity */
         $entity = $this->entityManager->getChannelRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
         if ($entity) {
@@ -118,7 +118,7 @@ class MakeChannelsCommand extends Command
             );
             $entity->id = $id;
         }
-        $entity->uuid = (string)$id;
+        $entity->uuid = $id->toString();
 
         $this->entityManager->persist($entity);
     }

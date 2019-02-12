@@ -17,7 +17,7 @@ class RenameShipToken extends AbstractActionToken
     ): array {
         return parent::create([
             self::KEY_SHIP_NAME => $shipName,
-            self::KEY_SHIP_ID => (string)$shipId,
+            self::KEY_SHIP_ID => $shipId->toString(),
         ]);
     }
 

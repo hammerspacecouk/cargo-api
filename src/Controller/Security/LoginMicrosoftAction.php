@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Domain\ValueObject\EmailAddress;
+use League\OAuth2\Client\Token\AccessToken;
 use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
 use Stevenmaguire\OAuth2\Client\Provider\MicrosoftResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -47,6 +48,7 @@ class LoginMicrosoftAction extends AbstractLoginAction
             throw new BadRequestHttpException('No state');
         }
 
+        /** @var AccessToken $token */
         $token = $client->getAccessToken('authorization_code', [
             'code' => $code,
         ]);
@@ -55,7 +57,7 @@ class LoginMicrosoftAction extends AbstractLoginAction
         $user = $client->getResourceOwner($token);
         $email = $user->getEmail();
 
-        if (empty($email)) {
+        if ($email === null) {
             throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
         }
 

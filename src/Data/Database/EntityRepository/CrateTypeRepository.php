@@ -70,6 +70,6 @@ class CrateTypeRepository extends AbstractEntityRepository
                 return $crateType;
             }
         }
-        return \end($crateType);
+        return \end($crateTypes);
     }
 }

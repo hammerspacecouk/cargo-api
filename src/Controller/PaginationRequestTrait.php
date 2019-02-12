@@ -14,7 +14,7 @@ trait PaginationRequestTrait
         $page = $request->get('page', 1);
 
         // must be an integer string
-        if (strval(intval($page)) !== strval($page) || $page < 1) {
+        if ((string)(int)$page !== (string)$page || (int)$page < 1) {
             throw new BadRequestHttpException('Invalid page value');
         }
         return (int)$page;

@@ -16,8 +16,8 @@ class AcknowledgePromotionToken extends AbstractActionToken
         UuidInterface $rankId
     ): array {
         return parent::create([
-            self::KEY_USER_ID => (string)$userId,
-            self::KEY_RANK_SEEN => (string)$rankId,
+            self::KEY_USER_ID => $userId->toString(),
+            self::KEY_RANK_SEEN => $rankId->toString(),
         ]);
     }
 

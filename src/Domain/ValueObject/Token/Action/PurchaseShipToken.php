@@ -16,8 +16,8 @@ class PurchaseShipToken extends AbstractActionToken
         UuidInterface $shipClassId
     ): array {
         return parent::create([
-            self::KEY_SHIP_CLASS => (string)$shipClassId,
-            self::KEY_OWNER => (string)$ownerId,
+            self::KEY_SHIP_CLASS => $shipClassId->toString(),
+            self::KEY_OWNER => $ownerId->toString(),
         ]);
     }
 

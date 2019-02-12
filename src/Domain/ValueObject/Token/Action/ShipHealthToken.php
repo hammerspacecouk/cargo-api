@@ -20,8 +20,8 @@ class ShipHealthToken extends AbstractActionToken
         int $cost
     ): array {
         return parent::create([
-            self::KEY_SHIP_ID => (string)$shipId,
-            self::KEY_USER_ID => (string)$userId,
+            self::KEY_SHIP_ID => $shipId->toString(),
+            self::KEY_USER_ID => $userId->toString(),
             self::KEY_PERCENT => $percent,
             self::KEY_COST => $cost,
         ]);

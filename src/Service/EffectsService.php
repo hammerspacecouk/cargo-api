@@ -53,7 +53,7 @@ class EffectsService extends AbstractService
                 $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
                     new TokenId($this->uuidFactory->uuid5(
                         'b65f419b-ffe4-46dc-b61e-c9da6a82ffd9',
-                        (string)$userEffect->getId()
+                        $userEffect->getId()->toString()
                     )),
                     $userEffect->getId(),
                     $playingShip->getId(),
@@ -111,7 +111,7 @@ class EffectsService extends AbstractService
                 // else if it's in userEffects, populate the action token
                 $token = $this->tokenHandler->makeToken(...ShipDefenceEffectToken::make(
                     new TokenId(
-                        $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId())
+                        $this->uuidFactory->uuid5(Uuid::NIL, $userEffect->getId()->toString())
                     ),
                     $userEffect->getId(),
                     $userEffect->getEffect()->getId(),
@@ -175,7 +175,7 @@ class EffectsService extends AbstractService
             if ($userEffect) {
                 $token = $this->tokenHandler->makeToken(...ShipTravelEffectToken::make(
                     new TokenId(
-                        $this->uuidFactory->uuid5(Uuid::NIL, (string)$userEffect->getId())
+                        $this->uuidFactory->uuid5(Uuid::NIL, $userEffect->getId()->toString())
                     ),
                     // todo - all options should share the same key. prevent multiple tabs
                     $userEffect->getId(),
@@ -312,7 +312,7 @@ class EffectsService extends AbstractService
         $actioningShipEntity = $this->entityManager->getShipRepo()
             ->getByID($applyEffectToken->getShipId(), Query::HYDRATE_OBJECT);
 
-        /** @var DbShip $affectedShips */
+        /** @var DbShip[] $affectedShips */
         $affectedShips = \array_map(function (ShipLocation $shipInPort) {
             return $shipInPort->ship;
         }, ensureArray($shipsInPort));

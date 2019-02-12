@@ -147,7 +147,7 @@ class UpgradesService extends AbstractService
             $this->entityManager->getUserEffectRepo()->createNew($effectEntity, $userEntity);
 
             // update the user's balance
-            $this->consumeCredits($userEntity, $purchaseEffectToken->getCost());
+            $this->consumeCredits($userEntity, (int)$purchaseEffectToken->getCost());
 
             // consume the token
             $this->tokenHandler->markAsUsed($purchaseEffectToken->getOriginalToken());

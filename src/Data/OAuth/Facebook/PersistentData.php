@@ -20,7 +20,7 @@ class PersistentData implements PersistentDataInterface
         return $this->dataHandler->get($key);
     }
 
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         $this->dataHandler->set($key, $value);
     }

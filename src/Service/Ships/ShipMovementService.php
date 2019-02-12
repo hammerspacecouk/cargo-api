@@ -18,8 +18,6 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipMovementService extends ShipsService
 {
-    use DeltaTrait;
-
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
@@ -66,7 +64,7 @@ class ShipMovementService extends ShipsService
             throw new \InvalidArgumentException('No such ship');
         }
 
-        /** @var \App\Data\Database\Entity\Channel $channel */
+        /** @var \App\Data\Database\Entity\Channel|null $channel */
         $channel = $this->entityManager->getChannelRepo()->getByID($channelId, Query::HYDRATE_OBJECT);
         if (!$channel) {
             throw new \InvalidArgumentException('No such channel');

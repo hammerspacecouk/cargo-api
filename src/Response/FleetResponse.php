@@ -18,7 +18,6 @@ class FleetResponse
     private $shipHealthService;
     private $shipNameService;
     private $effectsService;
-    private $uuidFactory;
 
     public function __construct(
         EffectsService $effectsService,

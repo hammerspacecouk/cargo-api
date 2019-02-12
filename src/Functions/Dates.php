@@ -7,5 +7,5 @@ use DateInterval;
 
 function intervalToSeconds(DateInterval $interval): int
 {
-    return ($interval->days * 3600 * 24) + ($interval->h * 3600) + ($interval->i * 60) + $interval->s;
+    return (int)(($interval->days * 3600 * 24) + ($interval->h * 3600) + ($interval->i * 60) + $interval->s);
 }

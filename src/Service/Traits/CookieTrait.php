@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service\Traits;
 
+use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Cookie;
 
@@ -10,14 +11,15 @@ trait CookieTrait
 {
     private function makeCookie(string $content, string $name, ?DateTimeImmutable $expire): Cookie
     {
-        if (!$expire) {
-            $expire = 0; // session cookie
+        $expireValue = 0; // session cookie
+        if ($expire) {
+            $expireValue = $expire;
         }
 
         return new Cookie(
             $name,
             $content,
-            $expire,
+            $expireValue,
             '/',
             $this->applicationConfig->getCookieScope(),
             false, // secureCookie - todo - be true as often as possible

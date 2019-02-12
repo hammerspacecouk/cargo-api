@@ -35,9 +35,8 @@ class PurchaseEffectAction extends AbstractAction
     // general status and stats of the game as a whole
     public function invoke(string $tokenString): array
     {
-        // todo - and how to decide individual effects
         $purchaseEffectToken = $this->upgradesService->parsePurchaseEffectToken($tokenString);
-        $message = $this->upgradesService->usePurchaseEffectToken($purchaseEffectToken);
+        $this->upgradesService->usePurchaseEffectToken($purchaseEffectToken);
 
         $user = $this->usersService->getById($purchaseEffectToken->getOwnerId());
         if (!$user) {
@@ -46,7 +45,6 @@ class PurchaseEffectAction extends AbstractAction
 
         // send back the new state of the upgrades
         $data = [
-            'message' => $message,
             'newScore' => $user->getScore(),
             'upgrades' => $this->upgradesResponse->getResponseDataForUser($user),
         ];

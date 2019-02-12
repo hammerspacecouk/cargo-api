@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace App\Command\Admin;
 
+use App\Command\AbstractCommand;
 use App\Domain\Entity\Channel;
 use App\Domain\ValueObject\Bearing;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\ChannelsService;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class MakeMapCommand extends Command
+class MakeMapCommand extends AbstractCommand
 {
     private const HEXAGON_WIDTH = 60;
 
@@ -27,7 +27,7 @@ class MakeMapCommand extends Command
         $this->channelsService = $channelsService;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:admin:map')
@@ -43,7 +43,7 @@ class MakeMapCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $code = $input->getArgument('passcode');
+        $code = $this->getStringArgument($input, 'passcode');
         if ($code !== $this->applicationConfig->getApplicationSecret()) {
             $output->writeln('Invalid code. Aborting');
         }
@@ -58,14 +58,18 @@ class MakeMapCommand extends Command
 
         // handle the first row separately to mark the centre
         $firstChannel = \array_shift($channels);
+        if (!$firstChannel) {
+            throw new \InvalidArgumentException('No channels');
+        }
+
         $firstPort = $firstChannel->getOrigin();
         $secondPort = $firstChannel->getDestination();
 
-        $ports[(string)$firstPort->getId()] = [$firstPort, 0, 0];
+        $ports[$firstPort->getId()->toString()] = [$firstPort, 0, 0];
 
         [$endX, $endY] = $this->relativeCoords(0, 0, $firstChannel->getBearing(), $firstChannel->getDistance());
 
-        $ports[(string)$secondPort->getId()] = [$secondPort, $endX, $endY];
+        $ports[$secondPort->getId()->toString()] = [$secondPort, $endX, $endY];
 
         $limits = $this->limits($endX, $endY);
         $lines[] = [0, 0, $endX, $endY];
@@ -77,26 +81,23 @@ class MakeMapCommand extends Command
         // now loop the rest
         while (!empty($channels)) {
             foreach ($channels as $i => $channel) {
-                $originId = (string)$channel->getOrigin()->getId();
-                $destinationId = (string)$channel->getDestination()->getId();
+                $originId = $channel->getOrigin()->getId()->toString();
+                $destinationId = $channel->getDestination()->getId()->toString();
                 if (isset($ports[$originId])) {
                     $reversed = false;
-                    $startX = $ports[$originId][1];
-                    $startY = $ports[$originId][2];
+                    [,$startX,$startY] = $ports[$originId];
                     $end = $channel->getDestination();
                 } elseif (isset($ports[$destinationId])) {
                     $reversed = true;
-                    $startX = $ports[$destinationId][1];
-                    $startY = $ports[$destinationId][2];
+                    [,$startX,$startY] = $ports[$destinationId];
                     $end = $channel->getOrigin();
                 } else {
                     continue;
                 }
 
-                $endId = (string)$end->getId();
+                $endId = $end->getId()->toString();
                 if (isset($ports[$endId])) {
-                    $endX = $ports[$endId][1];
-                    $endY = $ports[$endId][2];
+                    [,$endX,$endY] = $ports[$endId];
                 } else {
                     // calculate and make it
                     [$endX, $endY] = $this->relativeCoords(
@@ -150,7 +151,7 @@ class MakeMapCommand extends Command
         return [$endX, $endY];
     }
 
-    private function limits($newX, $newY, $limits = [0, 0, 0, 0])
+    private function limits($newX, $newY, $limits = [0, 0, 0, 0]): array
     {
         // sX, sY, bX, bY
         if ($newX < $limits[0]) {

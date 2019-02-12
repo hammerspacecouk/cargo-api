@@ -1,8 +1,11 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
 parameters:
+    doctrine:
+        repositoryClass: App\Data\Database\EntityRepository\AbstractEntityRepository
     ignoreErrors:
-        # PHPStan does not recognise PHPUnit MockObjects as being a child of the object it mocked
-        # Therefore, we'll tell PHPStan to ignore errors that say something other than a PHPUnit Mock was expected
-        - '# PHPUnit\\Framework\\MockObject\\MockObject#'
-        # We can't use proper dependency injection for the EntityRepository so
-        # there is a workaround, which doesn't exactly match the docblock
-        - '# Doctrine\\ORM\\EntityRepository::\$_em#'
+        # I need to allow my entity manager decorator to override the default one
+        - '#Return type \(App\\Data\\Database\\EntityManager\) of method App\\Data\\Database\\EntityRepository\\AbstractEntityRepository::getEntityManager\(\)#'
+        # getXRepo() methods are *designed* to make the return type more specific so will not match ObjectRepository
+        - '#but returns App\\Data\\Database\\EntityRepository\\AbstractEntityRepository#'

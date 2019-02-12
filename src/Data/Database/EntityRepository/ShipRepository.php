@@ -31,7 +31,7 @@ class ShipRepository extends AbstractEntityRepository
         UuidInterface $shipId,
         string $newName
     ): void {
-        /** @var Ship $ship */
+        /** @var Ship|null $ship */
         $ship = $this->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
@@ -80,14 +80,14 @@ class ShipRepository extends AbstractEntityRepository
         $mappedResults = [];
         foreach ($results as $result) {
             $uuid = Uuid::fromBytes($result['scID']);
-            $mappedResults[(string)$uuid] = (int)$result['cnt'];
+            $mappedResults[$uuid->toString()] = (int)$result['cnt'];
         }
         return $mappedResults;
     }
 
     public function updateStrengthValue(Ship $ship, int $strengthDelta = 0): int
     {
-        $newStrength = $ship->strength + $strengthDelta;
+        $newStrength = (int)($ship->strength + $strengthDelta);
         if ($newStrength < 0) {
             $newStrength = 0;
         }

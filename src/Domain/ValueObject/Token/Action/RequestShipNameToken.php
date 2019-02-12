@@ -16,8 +16,8 @@ class RequestShipNameToken extends AbstractActionToken
         UuidInterface $userId
     ): array {
         return parent::create([
-            self::KEY_SHIP_ID => (string)$shipId,
-            self::KEY_USER_ID => (string)$userId,
+            self::KEY_SHIP_ID => $shipId->toString(),
+            self::KEY_USER_ID => $userId->toString(),
         ]);
     }
 

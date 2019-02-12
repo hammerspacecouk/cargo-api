@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Cluster;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeClustersCommand extends Command
+class MakeClustersCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -26,7 +26,7 @@ class MakeClustersCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-clusters')
@@ -44,7 +44,7 @@ class MakeClustersCommand extends Command
     ) {
         $output->writeln('Making or updating the clusters');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -59,7 +59,7 @@ class MakeClustersCommand extends Command
                 continue;
             }
 
-            /** @var Port $entity */
+            /** @var Port|null $entity */
             $entity = $this->entityManager->getClusterRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
             if ($entity) {
@@ -68,7 +68,7 @@ class MakeClustersCommand extends Command
                 $entity = new Cluster($name);
                 $entity->id = $id;
             }
-            $entity->uuid = (string)$id;
+            $entity->uuid = $id->toString();
 
             $this->entityManager->persist($entity);
             $progress->advance();

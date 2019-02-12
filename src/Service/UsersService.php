@@ -205,7 +205,7 @@ class UsersService extends AbstractService
             $seed = \crc32(\sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
         } else {
             // email based users will get the same outcome for that same email
-            $seed = \crc32($queryHash);
+            $seed = \crc32((string)$queryHash);
         }
         \mt_srand($seed);
 
@@ -277,13 +277,5 @@ class UsersService extends AbstractService
             return null;
         }
         return $this->getMapper()->getUser($result);
-    }
-
-    /**
-     * @return User[]
-     */
-    private function mapMany(array $results): array
-    {
-        return \array_map(['self', 'mapSingle'], $results);
     }
 }

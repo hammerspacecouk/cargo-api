@@ -5,13 +5,11 @@ namespace App\Controller\Actions;
 
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Service\Ships\ShipNameService;
-use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
 class RequestShipNameAction extends AbstractAction
 {
-    private $shipsService;
     private $shipNameService;
     private $usersService;
 
@@ -21,14 +19,12 @@ class RequestShipNameAction extends AbstractAction
     }
 
     public function __construct(
-        ShipsService $shipsService,
         ShipNameService $shipNameService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
         $this->shipNameService = $shipNameService;
-        $this->shipsService = $shipsService;
         $this->usersService = $usersService;
     }
 

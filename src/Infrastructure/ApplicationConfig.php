@@ -119,7 +119,11 @@ class ApplicationConfig
 
     public function getTokenPrivateKey(): SymmetricKey
     {
-        return new SymmetricKey(\hex2bin($this->tokenPrivateKey));
+        $keyBin = \hex2bin($this->tokenPrivateKey);
+        if (!$keyBin) {
+            throw new \RuntimeException('Private key cannot be converted to binary');
+        }
+        return new SymmetricKey($keyBin);
     }
 
     public function getApplicationSecret(): string

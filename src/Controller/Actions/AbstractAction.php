@@ -71,7 +71,7 @@ abstract class AbstractAction
         if ($request->getContentType() !== 'json') {
             throw new BadRequestHttpException('Must be submitted as JSON');
         }
-        $data = jsonDecode($request->getContent());
+        $data = jsonDecode((string)$request->getContent());
         if (!$data) {
             throw new BadRequestHttpException('Must be submitted as valid JSON');
         }
@@ -92,7 +92,7 @@ abstract class AbstractAction
         return $response;
     }
 
-    protected function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR)
+    protected function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
     {
         $data = [
             'error' => $message,

@@ -19,7 +19,6 @@ use App\Domain\ValueObject\TokenId;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class CratesService extends AbstractService
@@ -246,17 +245,5 @@ class CratesService extends AbstractService
             });
         }
         return $total;
-    }
-
-    /**
-     * @param array $results
-     * @return Crate[]
-     */
-    private function mapMany(array $results): array
-    {
-        $mapper = $this->mapperFactory->createCrateMapper();
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getCrate($result);
-        }, $results);
     }
 }

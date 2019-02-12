@@ -41,7 +41,7 @@ class FlashDataStore
         return $value;
     }
 
-    public function set(string $key, $value)
+    public function set(string $key, $value): void
     {
         $this->data[$key] = $value;
     }
@@ -85,7 +85,7 @@ class FlashDataStore
 
         return new Cookie(
             self::COOKIE_NAME,
-            (string)(new FlashDataToken($token->getJsonToken(), (string)$token)),
+            (string)new FlashDataToken($token->getJsonToken(), (string)$token),
             0,
             '/',
             $this->applicationConfig->getCookieScope(),

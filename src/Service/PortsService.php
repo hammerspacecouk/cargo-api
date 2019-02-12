@@ -23,12 +23,11 @@ class PortsService extends AbstractService
         );
     }
 
-    public function countAll()
+    public function countAll(): int
     {
         $qb = $this->getQueryBuilder(DbPort::class)
             ->where(self::TBL . '.isOpen = true')
             ->select('count(1)');
-        ;
 
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
@@ -76,10 +75,13 @@ class PortsService extends AbstractService
     }
 
     /**
+     * @param array $results
      * @return Port[]
      */
     private function mapMany(array $results): array
     {
-        return array_map(['self', 'mapSingle'], $results);
+        return array_map(function ($result) {
+            return $this->mapSingle($result);
+        }, $results);
     }
 }

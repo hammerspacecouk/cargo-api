@@ -3,15 +3,15 @@ declare(strict_types=1);
 
 namespace App\Command\Admin;
 
+use App\Command\AbstractCommand;
 use App\Domain\ValueObject\EmailAddress;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class LoginTokenCommand extends Command
+class LoginTokenCommand extends AbstractCommand
 {
     private $authenticationService;
     private $applicationConfig;
@@ -23,7 +23,7 @@ class LoginTokenCommand extends Command
         $this->applicationConfig = $applicationConfig;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:admin:token')
@@ -39,7 +39,7 @@ class LoginTokenCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $emailAddressInput = $input->getArgument('email');
+        $emailAddressInput = $this->getStringArgument($input, 'email');
 
         $emailAddress = new EmailAddress($emailAddressInput);
         $token = $this->authenticationService->makeEmailLoginToken($emailAddress);

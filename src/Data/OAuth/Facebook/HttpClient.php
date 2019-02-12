@@ -17,7 +17,7 @@ class HttpClient implements FacebookHttpClientInterface
         $this->client = $client;
     }
 
-    public function send($url, $method, $body, array $headers, $timeOut)
+    public function send($url, $method, $body, array $headers, $timeOut): GraphRawResponse
     {
         $request = new GuzzleHttp\Psr7\Request($method, $url, $headers, $body);
         try {

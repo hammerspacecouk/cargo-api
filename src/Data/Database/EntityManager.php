@@ -35,7 +35,7 @@ class EntityManager extends EntityManagerDecorator
         $this->applicationConfig = $applicationConfig;
     }
 
-    public function persist($entity)
+    public function persist($entity): void
     {
         /** @var AbstractEntity $entity */
 
@@ -70,6 +70,10 @@ class EntityManager extends EntityManagerDecorator
     public function getAll()
     {
         $entityFiles = \scandir(__DIR__ . '/Entity/', SCANDIR_SORT_NONE);
+        if (!$entityFiles) {
+            return false;
+        }
+
         $results = \array_map(function ($className) {
             $fullEntityName = __NAMESPACE__ . '\\Entity\\' . \str_replace('.php', '', $className);
             if (\class_exists($fullEntityName) && \is_subclass_of($fullEntityName, AbstractEntity::class)) {

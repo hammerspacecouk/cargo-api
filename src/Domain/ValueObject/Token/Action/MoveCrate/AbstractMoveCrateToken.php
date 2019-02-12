@@ -21,9 +21,9 @@ abstract class AbstractMoveCrateToken extends AbstractActionToken
         UuidInterface $shipId
     ): array {
         return parent::create([
-            self::KEY_CRATE_ID => (string)$crateId,
-            self::KEY_PORT_ID => (string)$portId,
-            self::KEY_SHIP_ID => (string)$shipId,
+            self::KEY_CRATE_ID => $crateId->toString(),
+            self::KEY_PORT_ID => $portId->toString(),
+            self::KEY_SHIP_ID => $shipId->toString(),
         ], $tokenId);
     }
 

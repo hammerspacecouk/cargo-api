@@ -52,7 +52,7 @@ class DeleteAction
         if ($request->getMethod() !== 'POST') {
             throw new MethodNotAllowedHttpException(['POST']);
         }
-        $token = $request->get('token', null);
+        $token = $request->get('token');
         if ($token === null) {
             throw new BadRequestHttpException('Missing Token Parameter');
         }

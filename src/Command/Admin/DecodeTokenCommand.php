@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Command\Admin;
 
+use App\Command\AbstractCommand;
 use App\Data\TokenProvider;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DecodeTokenCommand extends Command
+class DecodeTokenCommand extends AbstractCommand
 {
     private $tokenProvider;
 
@@ -19,7 +19,7 @@ class DecodeTokenCommand extends Command
         $this->tokenProvider = $tokenProvider;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:admin:decode')
@@ -35,7 +35,7 @@ class DecodeTokenCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $tokenString = $input->getArgument('tokenString');
+        $tokenString = $this->getStringArgument($input, 'tokenString');
         $token = $this->tokenProvider->parseTokenFromString($tokenString);
 
         $output->writeln(

@@ -7,7 +7,6 @@ namespace App\Functions\DateTimes;
  * A json_decode with this application's preferred settings
  * @param string $jsonString
  * @return array
- * @throws \JsonException
  */
 function jsonDecode(string $jsonString): array
 {

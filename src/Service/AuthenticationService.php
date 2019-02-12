@@ -204,9 +204,9 @@ class AuthenticationService extends AbstractService
             'sha256',
             \json_encode([
                 $secret,
-                (string)$userId,
+                $userId->toString(),
                 $expiry->getTimestamp(),
-            ]),
+            ], JSON_THROW_ON_ERROR),
             $this->applicationConfig->getTokenPrivateKey()->encode(),
         );
     }

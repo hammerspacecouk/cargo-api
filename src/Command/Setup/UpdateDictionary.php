@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Dictionary;
 use App\Data\Database\EntityManager;
 use InvalidArgumentException;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class UpdateDictionary extends Command
+class UpdateDictionary extends AbstractCommand
 {
     private const CONTEXT_MAP = [
         'shipName1' => Dictionary::CONTEXT_SHIP_NAME_1,
@@ -29,7 +29,7 @@ class UpdateDictionary extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:update-dictionary')
@@ -52,8 +52,8 @@ class UpdateDictionary extends Command
     ) {
         $output->writeln('Fetching source data');
 
-        $filePath = $input->getArgument('inputList');
-        $context = $input->getArgument('context');
+        $filePath = $this->getStringArgument($input, 'inputList');
+        $context = $this->getStringArgument($input, 'context');
 
         if (!\array_key_exists($context, self::CONTEXT_MAP)) {
             throw new InvalidArgumentException('Not a valid context');

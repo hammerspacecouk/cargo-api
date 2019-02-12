@@ -29,14 +29,14 @@ class MoveShipToken extends AbstractActionToken
         array $effectIdsToExpire
     ): array {
         return parent::create([
-            self::KEY_SHIP => (string)$shipId,
-            self::KEY_CHANNEL => (string)$channelId,
-            self::KEY_OWNER => (string)$ownerId,
+            self::KEY_SHIP => $shipId->toString(),
+            self::KEY_CHANNEL => $channelId->toString(),
+            self::KEY_OWNER => $ownerId->toString(),
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
             self::KEY_EARNINGS => $earnings,
             self::KEY_EXPIRE_EFFECTS => \array_map(function (UuidInterface $uuid) {
-                return (string)$uuid;
+                return $uuid->toString();
             }, $effectIdsToExpire),
         ], $tokenId);
     }

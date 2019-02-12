@@ -23,7 +23,7 @@ abstract class Message implements \JsonSerializable
         ];
     }
 
-    public function getWeighting()
+    public function getWeighting(): int
     {
         return static::WEIGHTING;
     }

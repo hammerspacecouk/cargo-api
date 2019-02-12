@@ -57,7 +57,7 @@ class LoginFacebookAction extends AbstractLoginAction
         if ($accessToken === null) {
             if ($helper->getError()) {
                 $this->logger->error($helper->getErrorReason() . $helper->getErrorDescription());
-                throw new UnauthorizedHttpException($helper->getError());
+                throw new UnauthorizedHttpException((string)$helper->getError());
             }
             throw new BadRequestHttpException();
         }

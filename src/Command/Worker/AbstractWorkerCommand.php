@@ -33,13 +33,13 @@ abstract class AbstractWorkerCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         \gc_enable();
 
         $workerName = static::class;
         $memoryLimit = \ini_get('memory_limit');
-        $memoryLimitBytes = $this->getMemoryLimitBytes($memoryLimit);
+        $memoryLimitBytes = $this->getMemoryLimitBytes((string)$memoryLimit);
 
         $this->logger->notice("[WORKER] [$workerName] [STARTUP]");
         $this->logger->notice("[MEMORY_LIMIT] $memoryLimit");
@@ -74,6 +74,8 @@ abstract class AbstractWorkerCommand extends Command
         $this->logger->notice("[FINAL_MEMORY_USAGE] $usedMemory");
         $this->logger->notice("[FINAL_MEMORY_USAGE_PERCENT] $memoryPercent");
         $this->logger->notice("[WORKER] [$workerName] [SHUTDOWN]");
+
+        return 0;
     }
 
     private function flushLogger(): void
@@ -93,10 +95,10 @@ abstract class AbstractWorkerCommand extends Command
     {
         if (\preg_match('/^(\d+)(.)$/', $memoryLimitString, $matches)) {
             if ($matches[2] === 'M') {
-                return $matches[1] * 1024 * 1024;
+                return (int)($matches[1] * 1024 * 1024);
             }
             if ($matches[2] === 'K') {
-                return $matches[1] * 1024;
+                return (int)($matches[1] * 1024);
             }
         }
         throw new \RuntimeException('Could not calculate memory limit');

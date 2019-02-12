@@ -32,7 +32,7 @@ class FlashDataSubscriber implements EventSubscriberInterface
         $headers->setCookie($this->dataStore->makeCookie());
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [

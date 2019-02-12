@@ -52,7 +52,7 @@ class PlayerRank extends Entity implements \JsonSerializable
         $emblem = $this->emblem;
         if ($playerColour) {
             $targetColour = 'fefefe';
-            $emblem = \str_replace($targetColour, $playerColour, $this->emblem);
+            $emblem = \str_replace($targetColour, (string)$playerColour, $this->emblem);
         }
         return $emblem;
     }

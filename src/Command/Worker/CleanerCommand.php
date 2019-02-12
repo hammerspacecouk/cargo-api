@@ -43,6 +43,6 @@ class CleanerCommand extends AbstractWorkerCommand
             $this->logger->notice('[CLEANER CLEANED] ' . \get_class($repo) . ' ' . $done);
             $total += $done;
         }
-        return $total;
+        return (int)$total;
     }
 }

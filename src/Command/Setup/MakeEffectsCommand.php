@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\EntityManager;
 use function App\Functions\DateTimes\jsonDecode;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeEffectsCommand extends Command
+class MakeEffectsCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -27,7 +27,7 @@ class MakeEffectsCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-effects')
@@ -45,7 +45,7 @@ class MakeEffectsCommand extends Command
     ) {
         $output->writeln('Making the effects');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -88,7 +88,7 @@ class MakeEffectsCommand extends Command
 
         $minimumRank = $this->getPlayerRank($data['minimumRankId']);
 
-        /** @var Effect $entity */
+        /** @var Effect|null $entity */
         $entity = $this->entityManager->getEffectRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
         if ($entity) {
@@ -111,7 +111,7 @@ class MakeEffectsCommand extends Command
             );
             $entity->id = $id;
         }
-        $entity->uuid = (string)$id;
+        $entity->uuid = $id->toString();
         $entity->purchaseCost = $purchaseCost;
         $entity->duration = $duration;
         $entity->count = $count;

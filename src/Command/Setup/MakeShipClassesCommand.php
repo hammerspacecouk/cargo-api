@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace App\Command\Setup;
 
+use App\Command\AbstractCommand;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\Database\EntityManager;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use function App\Functions\Transforms\csvToArray;
 
-class MakeShipClassesCommand extends Command
+class MakeShipClassesCommand extends AbstractCommand
 {
     private $entityManager;
 
@@ -26,7 +26,7 @@ class MakeShipClassesCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('game:init:make-ship-classes')
@@ -44,7 +44,7 @@ class MakeShipClassesCommand extends Command
     ) {
         $output->writeln('Making the classes');
 
-        $filePath = $input->getArgument('inputList');
+        $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
         $progress = new ProgressBar($output, count($sourceData));
@@ -68,7 +68,7 @@ class MakeShipClassesCommand extends Command
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
             $svg = trim($data['svg']);
-            /** @var ShipClass $entity */
+            /** @var ShipClass|null $entity */
             $entity = $this->entityManager->getShipClassRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
             if ($entity) {
@@ -99,7 +99,7 @@ class MakeShipClassesCommand extends Command
                 );
                 $entity->id = $id;
             }
-            $entity->uuid = (string)$id;
+            $entity->uuid = $id->toString();
 
             $this->entityManager->persist($entity);
             $progress->advance();

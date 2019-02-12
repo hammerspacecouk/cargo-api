@@ -10,6 +10,7 @@ use App\Domain\ValueObject\Message\Error;
 use App\Domain\ValueObject\Message\Info;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Message\Warning;
+use PHPUnit\Framework\Assert;
 
 class FlashDataStoreTest extends \PHPUnit\Framework\TestCase
 {
@@ -29,7 +30,7 @@ class FlashDataStoreTest extends \PHPUnit\Framework\TestCase
 
         $result = $store->readMessages();
 
-        $this->assertSame(
+        Assert::assertSame(
             [
                 $message5,
                 $message2,
@@ -42,6 +43,6 @@ class FlashDataStoreTest extends \PHPUnit\Framework\TestCase
         );
 
         // check that it was wiped out after read
-        $this->assertEmpty($store->readMessages());
+        Assert::assertEmpty($store->readMessages());
     }
 }

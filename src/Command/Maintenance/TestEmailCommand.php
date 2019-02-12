@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace App\Command\Maintenance;
 
+use App\Command\AbstractCommand;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Swift_Message;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TestEmailCommand extends Command
+class TestEmailCommand extends AbstractCommand
 {
     private $applicationConfig;
     private $mailer;
@@ -33,7 +33,7 @@ class TestEmailCommand extends Command
         $this->logger = $logger;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('maintenance:test-email')
@@ -51,7 +51,7 @@ class TestEmailCommand extends Command
     ) {
         $this->logger->debug(__CLASS__);
 
-        $emailAddress = $input->getArgument('recipient');
+        $emailAddress = $this->getStringArgument($input, 'recipient');
         $output->writeln('Sending to ' . $emailAddress);
 
         $message = new Swift_Message(

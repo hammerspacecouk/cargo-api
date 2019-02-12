@@ -32,6 +32,6 @@ abstract class AbstractEntity
     public function __construct()
     {
         $this->id = Uuid::uuid4();
-        $this->uuid = (string)$this->id;
+        $this->uuid = $this->id->toString();
     }
 }

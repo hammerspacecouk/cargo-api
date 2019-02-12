@@ -54,6 +54,8 @@ class EventsService extends AbstractService
      */
     private function mapMany(array $results): array
     {
-        return \array_map(['self', 'mapSingle'], $results);
+        return array_map(function ($result) {
+            return $this->mapSingle($result);
+        }, $results);
     }
 }

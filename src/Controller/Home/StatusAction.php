@@ -84,7 +84,7 @@ class StatusAction
             $this->cache->set($key, $cacheValue, 60);
             $out = $this->cache->get($key);
             if ($out !== $cacheValue) {
-                throw new \Exception('Cache value was corrupted. Expected ' . $cacheValue . ', got: ' . $out);
+                throw new \RuntimeException('Cache value was corrupted. Expected ' . $cacheValue . ', got: ' . $out);
             }
             return true;
         } catch (\Throwable $e) {

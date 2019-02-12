@@ -6,7 +6,6 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\EntityManager;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Psr\Log\LoggerInterface;
@@ -30,12 +29,11 @@ abstract class AbstractEntityRepository extends EntityRepository
     /** @var EntityManager */
     protected $_em; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore -- must match parent
 
-    /**
+    /*
      * We are away from dependency injection via constructors territory, so we have to rely on the (risky) strategy
      * of having setters for these. Everything is safe and predictable as long as repositories are only EVER called
      * via our custom EntityManager and ALL entities have a repository which extends this class
      */
-
     public function setApplicationConfig(ApplicationConfig $config): void
     {
         $this->applicationConfig = $config;
@@ -56,7 +54,7 @@ abstract class AbstractEntityRepository extends EntityRepository
         $this->logger = $logger;
     }
 
-    public function setEntityManager(EntityManagerInterface $em): void
+    public function setEntityManager(EntityManager $em): void
     {
         $this->_em = $em;
     }
@@ -80,6 +78,7 @@ abstract class AbstractEntityRepository extends EntityRepository
         $query->execute();
     }
 
+    /** @noinspection SenselessMethodDuplicationInspection */
     protected function getEntityManager(): EntityManager
     {
         return $this->_em;
