@@ -7,6 +7,7 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\EntityRepository\HintRepository;
 use App\Data\Database\Mapper\UserMapper;
 use App\Domain\Entity\User;
+use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\EmailAddress;
@@ -82,20 +83,23 @@ class UsersService extends AbstractService
         return $this->newPlayer($queryHash, null);
     }
 
-    public function getLoginToken(): FlashDataToken
+    public function getLoginToken(string $type): FlashDataToken
     {
         $token = $this->tokenHandler->makeToken(...FlashDataToken::make(
-            ['login' => true],
+            ['login' => $type],
             [],
         ));
         return new FlashDataToken($token->getJsonToken(), (string)$token);
     }
 
-    public function verifyLoginToken(string $tokenString): bool
+    public function verifyLoginToken(string $tokenString, string $type): bool
     {
         // will throw if the token is expired or invalid
         $token = new FlashDataToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
-        return $token->getData()['login'];
+        if ($token->getData()['login'] === $type) {
+            return true;
+        }
+        throw new InvalidTokenException('Unexpected token type');
     }
 
     public function allowedToMakeAnonymousUser(?string $ipAddress): bool

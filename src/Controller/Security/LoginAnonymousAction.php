@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Route;
 
 class LoginAnonymousAction extends AbstractLoginAction
 {
+    public const TOKEN_TYPE = 'loginAnon';
+
     public static function getRouteDefinition(): array
     {
         return [
@@ -32,7 +34,7 @@ class LoginAnonymousAction extends AbstractLoginAction
     ): RedirectResponse {
         $loginToken = $request->get('loginToken', '');
         try {
-            $this->usersService->verifyLoginToken($loginToken);
+            $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE);
         } catch (TokenException $exception) {
             $query = '?messages=' . new Messages([new Error($exception->getMessage())]);
             return new RedirectResponse(

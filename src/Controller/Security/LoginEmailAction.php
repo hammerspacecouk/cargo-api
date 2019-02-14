@@ -12,6 +12,7 @@ use App\Domain\ValueObject\Message\Messages;
 use App\Domain\ValueObject\Message\Ok;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
+use App\Service\ConfigService;
 use App\Service\EmailsService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
@@ -25,6 +26,8 @@ use Symfony\Component\Routing\Route;
 
 class LoginEmailAction extends AbstractLoginAction
 {
+    public const TOKEN_TYPE = 'loginEmail';
+
     private $emailsService;
 
     public static function getRouteDefinition(): array
@@ -40,6 +43,7 @@ class LoginEmailAction extends AbstractLoginAction
         EmailsService $emailsService,
         ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
+        ConfigService $configService,
         FlashDataStore $flashData,
         UsersService $usersService,
         ShipsService $shipsService,
@@ -48,6 +52,7 @@ class LoginEmailAction extends AbstractLoginAction
         parent::__construct(
             $applicationConfig,
             $authenticationService,
+            $configService,
             $shipsService,
             $flashData,
             $usersService,
@@ -69,7 +74,7 @@ class LoginEmailAction extends AbstractLoginAction
                 $this->logger->notice('[LOGIN] [EMAIL]');
                 return $this->processLogin($request, $token);
             }
-            if ($target && $this->usersService->verifyLoginToken($loginToken)) {
+            if ($target && $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE)) {
                 $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
                 return $this->sendEmail($request, $target);
             }
