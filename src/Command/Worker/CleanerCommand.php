@@ -6,19 +6,28 @@ namespace App\Command\Worker;
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\EntityManager;
 use App\Infrastructure\DateTimeFactory;
-use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 
 use function App\Functions\Classes\whoImplements;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class CleanerCommand extends AbstractWorkerCommand
+class CleanerCommand extends Command
 {
+    private $entityManager;
+    private $dateTimeFactory;
+    private $logger;
+
     public function __construct(
         EntityManager $entityManager,
         DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
-        parent::__construct($dateTimeFactory, $entityManager, $logger);
+        parent::__construct();
+        $this->entityManager = $entityManager;
+        $this->dateTimeFactory = $dateTimeFactory;
+        $this->logger = $logger;
     }
 
     protected function configure(): void
@@ -31,18 +40,33 @@ class CleanerCommand extends AbstractWorkerCommand
             );
     }
 
-    protected function handle(DateTimeImmutable $now): int
+
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
+        $start = microtime(true);
+        $now = $this->dateTimeFactory->now();
+
+        $this->logger->notice('[WORKER] [CLEANER] [STARTUP]');
+
         $list = whoImplements(CleanableInterface::class, $this->entityManager->getAll());
         $this->logger->info('[CLEANER ACTIVE] ' . \count($list) . ' Cleaners');
 
-        $total = 0;
         foreach ($list as $repo) {
             /** @var CleanableInterface $repo */
             $done = $repo->clean($now);
-            $this->logger->notice('[CLEANER CLEANED] ' . \get_class($repo) . ' ' . $done);
-            $total += $done;
+            $msg = '[CLEANER_CLEANED] ' . \get_class($repo) . ' ' . $done;
+            if ($done) {
+                // only log if we actually did something
+                $this->logger->notice($msg);
+            } else {
+                $this->logger->info($msg);
+            }
         }
-        return (int)$total;
+
+        $this->logger->notice(
+            '[WORKER] [CLEANER] [SHUTDOWN] ' . (string)\ceil((microtime(true) - $start) * 1000) . 'ms'
+        );
+
+        return 0;
     }
 }

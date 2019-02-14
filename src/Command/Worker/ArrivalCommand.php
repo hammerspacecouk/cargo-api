@@ -9,7 +9,7 @@ use App\Service\ShipLocationsService;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 
-class ArrivalCommand extends AbstractWorkerCommand
+class ArrivalCommand extends ContinuousWorkerCommand
 {
     private $locationsService;
 
