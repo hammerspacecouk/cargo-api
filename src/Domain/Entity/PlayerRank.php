@@ -66,4 +66,9 @@ class PlayerRank extends Entity implements \JsonSerializable
     {
         return $this->threshold >= $minimumRank->getThreshold();
     }
+
+    public function getEmblemHash(): string
+    {
+        return \md5($this->emblem); // used as a cache buster. needs to be quick, not secure
+    }
 }

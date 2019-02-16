@@ -62,7 +62,10 @@ class User extends Entity implements \JsonSerializable
 
     public function getEmblemPath(): string
     {
-        return '/emblem/' . $this->getRank()->getId()->toString() . '-' . $this->getColour() . '.svg';
+        return '/emblem/' . $this->getRank()->getId()->toString() .
+            '-' . $this->getRank()->getEmblemHash() .
+            '-' . $this->getColour() .
+            '.svg';
     }
 
     public function getRotationSteps()

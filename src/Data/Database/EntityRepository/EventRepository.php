@@ -205,6 +205,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             ->select(
                 'tbl',
                 'actioningPlayer',
+                'actioningPlayerRank',
                 'actioningShip',
                 'actioningShipOwner',
                 'playerRank',
@@ -215,6 +216,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 'effect',
             )
             ->leftJoin('tbl.actioningPlayer', 'actioningPlayer')
+            ->leftJoin('actioningPlayer.lastRankSeen', 'actioningPlayerRank')
             ->leftJoin('tbl.actioningShip', 'actioningShip')
             ->leftJoin('actioningShip.owner', 'actioningShipOwner')
             ->leftJoin('tbl.subjectRank', 'playerRank')

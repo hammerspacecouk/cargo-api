@@ -39,8 +39,12 @@ class PlayerRanksService extends AbstractService
         $previousRank = null;
         $currentRank = null;
         $nextRank = null;
+        $olderRanks = [];
         foreach ($allRanks as $rank) {
             if ($rank->getThreshold() <= $portVisitCount) {
+                if ($previousRank) {
+                    \array_unshift($olderRanks, $previousRank);
+                }
                 $previousRank = $currentRank;
                 $currentRank = $rank;
                 continue;
@@ -75,6 +79,7 @@ class PlayerRanksService extends AbstractService
             $currentRank,
             $previousRank,
             $nextRank,
+            $olderRanks,
             $acknowledgeToken,
         );
     }

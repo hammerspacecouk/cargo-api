@@ -19,10 +19,11 @@ class EmblemAction
     public static function getRouteDefinition(): array
     {
         return [
-            self::class => new Route('/emblem/{uuid}-{colour}.svg', [
+            self::class => new Route('/emblem/{uuid}-{hash}-{colour}.svg', [
                 '_controller' => self::class,
             ], [
                 'uuid' => Uuid::VALID_PATTERN,
+                'hash' => '^[0-9a-f]{32}$',
                 'colour' => '^[0-9a-f]{6}$',
             ]),
         ];

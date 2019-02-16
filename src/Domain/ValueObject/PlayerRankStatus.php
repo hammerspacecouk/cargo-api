@@ -13,12 +13,14 @@ class PlayerRankStatus implements \JsonSerializable
     private $nextRank;
     private $previousRank;
     private $acknowledgePromotionToken;
+    private $olderRanks;
 
     public function __construct(
         int $portsVisited,
         PlayerRank $currentRank,
         PlayerRank $previousRank = null,
         PlayerRank $nextRank = null,
+        array $olderRanks = [],
         AcknowledgePromotionToken $acknowledgePromotionToken = null
     ) {
         $this->portsVisited = $portsVisited;
@@ -26,6 +28,7 @@ class PlayerRankStatus implements \JsonSerializable
         $this->nextRank = $nextRank;
         $this->previousRank = $previousRank;
         $this->acknowledgePromotionToken = $acknowledgePromotionToken;
+        $this->olderRanks = $olderRanks;
     }
 
     public function jsonSerialize(): array
@@ -36,6 +39,7 @@ class PlayerRankStatus implements \JsonSerializable
             'levelProgress' => $this->getLevelProgress(),
             'currentRank' => $this->currentRank,
             'previousRank' => $this->previousRank,
+            'olderRanks' => $this->olderRanks,
             'nextRank' => $this->nextRank,
         ];
     }
