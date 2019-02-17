@@ -29,6 +29,14 @@ class EffectRepository extends AbstractEntityRepository
         return $data;
     }
 
+    public function getAllByDisplayType(string $type): array
+    {
+        return \array_values(\array_filter($this->getAll(), function($result) use ($type) {
+            return $result['displayGroup'] === $type;
+        }));
+    }
+
+
     public function getAllAboveRankThreshold(int $threshold, int $type = Query::HYDRATE_ARRAY): array
     {
         $qb = $this->createQueryBuilder('tbl')

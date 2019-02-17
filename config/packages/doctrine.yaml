@@ -31,6 +31,8 @@ doctrine:
                 class: App\Data\Database\Types\DateTimeMicrosecondType
             enum_effects:
                 class: App\Data\Database\Types\EnumEffectsType
+            enum_effect_display_group:
+                class: App\Data\Database\Types\EnumEffectsDisplayGroupType
         mapping_types:
             enum: string
 

@@ -49,10 +49,10 @@ class UpgradesService extends AbstractService
         }, $allClasses);
     }
 
-    public function getAvailableEffectsForUser(User $user): array
+    public function getAvailableEffectsByDisplayTypeForUser(User $user, string $type): array
     {
         // get the full list, then blank out any that aren't met by the rank
-        $allWeapons = $this->entityManager->getEffectRepo()->getAll();
+        $allEffectsGrouped = $this->entityManager->getEffectRepo()->getAllByDisplayType($type);
 
         $mapper = $this->mapperFactory->createEffectMapper();
         return array_map(function ($result) use ($user, $mapper): ?Transaction {
@@ -81,7 +81,7 @@ class UpgradesService extends AbstractService
                 $this->entityManager->getUserEffectRepo()->countForUserId($mapped->getId(), $user->getId()),
                 $mapped
             );
-        }, $allWeapons);
+        }, $allEffectsGrouped);
     }
 
     public function parsePurchaseShipToken(

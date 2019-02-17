@@ -12,7 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="effects",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={
- *      @ORM\Index(name="effect_order", columns={"order_number"})
+ *      @ORM\Index(name="effect_order", columns={"order_number"}),
+ *      @ORM\Index(name="effect_display_group", columns={"display_group"})
  *     })
  * )})
  */
@@ -22,6 +23,9 @@ class Effect extends AbstractEntity
 
     /** @ORM\Column(type="enum_effects") */
     public $type;
+
+    /** @ORM\Column(type="enum_effect_display_group") */
+    public $displayGroup;
 
     /** @ORM\Column(type="text") */
     public $name;
@@ -60,6 +64,7 @@ class Effect extends AbstractEntity
     public function __construct(
         string $type,
         string $name,
+        string $displayGroup,
         int $orderNumber,
         string $description,
         int $oddsOfWinning,
@@ -74,5 +79,6 @@ class Effect extends AbstractEntity
         $this->orderNumber = $orderNumber;
         $this->oddsOfWinning = $oddsOfWinning;
         $this->playerRank = $playerRank;
+        $this->displayGroup = $displayGroup;
     }
 }

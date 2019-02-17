@@ -72,6 +72,7 @@ class MakeEffectsCommand extends AbstractCommand
         }
 
         $name = $data['name'];
+        $displayGroup = $data['displayGroup'];
         $orderNumber = (int)$data['orderNumber'];
         $description = $data['description'];
         $svg = $data['svg'];
@@ -94,6 +95,7 @@ class MakeEffectsCommand extends AbstractCommand
         if ($entity) {
             $entity->type = $type;
             $entity->name = $name;
+            $entity->displayGroup = $displayGroup;
             $entity->orderNumber = $orderNumber;
             $entity->description = $description;
             $entity->oddsOfWinning = $oddsOfWinning;
@@ -103,6 +105,7 @@ class MakeEffectsCommand extends AbstractCommand
             $entity = new Effect(
                 $type,
                 $name,
+                $displayGroup,
                 $orderNumber,
                 $description,
                 $oddsOfWinning,
