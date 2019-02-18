@@ -46,6 +46,7 @@ class ShipClass extends Entity implements \JsonSerializable
             'name' => $this->getName(),
             'description' => $this->getDescription(),
             'capacity' => $this->getCapacity(),
+            'strength' => $this->strength,
             'image' => $this->getImagePath(),
         ];
     }
