@@ -77,6 +77,11 @@ class ShipClass extends Entity implements \JsonSerializable
         return $this->capacity;
     }
 
+    public function isProbe(): bool
+    {
+        return $this->capacity === 0;
+    }
+
     public function getSpeedMultiplier(): float
     {
         return $this->speedMultiplier;

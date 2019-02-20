@@ -13,11 +13,12 @@ class EventsService extends AbstractService
     private $eventMapper;
 
     /**
+     * @param int $limit
      * @return Event[]
      */
-    public function findAllLatest(): array
+    public function findAllLatest(int $limit = 25): array
     {
-        return $this->mapMany($this->entityManager->getEventRepo()->getAllLatest());
+        return $this->mapMany($this->entityManager->getEventRepo()->getAllLatest($limit));
     }
 
     /**

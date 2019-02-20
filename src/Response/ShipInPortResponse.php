@@ -46,7 +46,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $user,
             $totalCrateValue,
             $location->getId(),
-        );
+            );
         $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
@@ -79,8 +79,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             }
 
             $offence = null;
-            // make offence effects (if it's not your own ship)
-            if (!$ship->getOwner()->equals($currentShip->getOwner())) {
+            // make offence effects if all of the following are satisfied:
+            // - it's not your own ship
+            // - this ship is not a probe
+            // - the current port is not a safe haven
+            if (
+                !$port->isSafeHaven() &&
+                !$currentShip->getShipClass()->isProbe() &&
+                !$ship->getOwner()->equals($currentShip->getOwner())
+            ) {
                 $offence = $this->effectsService->getOffenceOptionsAtShip(
                     $currentShip,
                     $ship,
@@ -195,7 +202,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $ship,
                 $journeyTimeSeconds,
                 $earnings,
-            );
+                );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
@@ -208,7 +215,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $effectsToExpire,
-                );
+                    );
             }
 
             $directions[$bearing] = [

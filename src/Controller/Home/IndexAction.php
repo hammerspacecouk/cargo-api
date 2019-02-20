@@ -32,7 +32,7 @@ class IndexAction
         return new JsonResponse([
             'status' => 'ok',
             'messages' => $flashDataStore->readMessages(),
-            'events' => $eventsService->findAllLatest(),
+            'events' => $eventsService->findAllLatest(5),
         ]);
     }
 }
