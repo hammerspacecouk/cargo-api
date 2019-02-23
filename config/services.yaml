@@ -11,6 +11,10 @@ services:
         public: false       # Allows optimizing the container by removing unused services; this also means
                             # fetching services directly from the container via $container->get() won't work.
                             # The best practice is to be explicit about your dependencies anyway.
+        bind:
+            $googleOauthClientId: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+            $googleOauthClientSecret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -52,12 +56,6 @@ services:
             - '%env(LOGIN_EMAIL)%'
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(APP_VERSION)%'
-
-    Google_Client:
-        class: Google_Client
-        arguments:
-            - client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
-              client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
 
     Facebook\Facebook:
         class: Facebook\Facebook

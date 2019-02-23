@@ -80,9 +80,6 @@
     "facebook/graph-sdk": {
         "version": "5.6.2"
     },
-    "firebase/php-jwt": {
-        "version": "v5.0.0"
-    },
     "google/apiclient": {
         "version": "2.0",
         "recipe": {
@@ -115,6 +112,9 @@
     },
     "league/oauth2-client": {
         "version": "2.3.0"
+    },
+    "league/oauth2-google": {
+        "version": "3.0.1"
     },
     "monolog/monolog": {
         "version": "1.23.0"
