@@ -1,5 +1,5 @@
 # ARG BASED REPO won't work until the docker version is updated. Use explict repo for now
-FROM 226925275209.dkr.ecr.us-east-1.amazonaws.com/php-base-image:latest
+FROM 323441517494.dkr.ecr.eu-west-2.amazonaws.com/php-base-image:latest
 
 # todo - USER command for www-data. Can I haz non-priviledged containers?
 
