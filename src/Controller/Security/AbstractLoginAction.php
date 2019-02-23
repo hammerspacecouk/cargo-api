@@ -78,8 +78,6 @@ class AbstractLoginAction
             }
             $user = $this->usersService->addEmailToUser($currentSessionUser, $emailAddress);
         } else {
-
-
             // START CODE FOR ALPHA PHASE - todo - remove for beta
             if (!$this->configService->emailExistsInAlphaList((string)$emailAddress)) {
                 throw new BadRequestHttpException('You are not yet allowed in the alpha');

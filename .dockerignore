@@ -1,3 +1,8 @@
 .git
-vendor
 build
+infrastructure
+tests
+vendor/monolog/*/tests
+vendor/paragonie/*/tests
+vendor/symfony/*/Tests
+vendor/twig/*/test

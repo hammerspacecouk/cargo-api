@@ -22,6 +22,10 @@ RUN chmod +x bin/*
 # Install deps production
 RUN composer install --optimize-autoloader --no-dev --prefer-dist --no-scripts
 
+# todo cache warm
+
+# todo - remove composer
+
 # Allow to volume to share
 VOLUME /var/www /etc/nginx/conf.d
 

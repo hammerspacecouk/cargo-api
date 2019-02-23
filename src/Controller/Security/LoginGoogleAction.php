@@ -84,7 +84,6 @@ class LoginGoogleAction extends AbstractLoginAction
         ]);
 
         if (!$code) {
-
             $this->logger->notice('[LOGIN REQUEST] [GOOGLE]');
             $this->setReturnAddress($request);
             return new RedirectResponse($provider->getAuthorizationUrl());
@@ -96,7 +95,7 @@ class LoginGoogleAction extends AbstractLoginAction
         $this->logger->notice('[LOGIN] [GOOGLE]');
         /** @var AccessToken $token */
         $token = $provider->getAccessToken('authorization_code', [
-            'code' => $code
+            'code' => $code,
         ]);
         try {
             /** @var GoogleUser $ownerDetails */

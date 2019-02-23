@@ -46,7 +46,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $user,
             $totalCrateValue,
             $location->getId(),
-            );
+        );
         $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
@@ -83,8 +83,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             // - it's not your own ship
             // - this ship is not a probe
             // - the current port is not a safe haven
-            if (
-                !$port->isSafeHaven() &&
+            if (!$port->isSafeHaven() &&
                 !$currentShip->getShipClass()->isProbe() &&
                 !$ship->getOwner()->equals($currentShip->getOwner())
             ) {
@@ -202,7 +201,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $ship,
                 $journeyTimeSeconds,
                 $earnings,
-                );
+            );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
@@ -215,7 +214,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $effectsToExpire,
-                    );
+                );
             }
 
             $directions[$bearing] = [

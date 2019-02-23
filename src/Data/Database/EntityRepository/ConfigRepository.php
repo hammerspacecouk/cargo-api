@@ -28,5 +28,4 @@ class ConfigRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($result);
         $this->getEntityManager()->flush();
     }
-
 }

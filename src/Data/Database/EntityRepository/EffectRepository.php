@@ -31,7 +31,7 @@ class EffectRepository extends AbstractEntityRepository
 
     public function getAllByDisplayType(string $type): array
     {
-        return \array_values(\array_filter($this->getAll(), function($result) use ($type) {
+        return \array_values(\array_filter($this->getAll(), function ($result) use ($type) {
             return $result['displayGroup'] === $type;
         }));
     }

@@ -11,50 +11,50 @@ Parameters:
   GitHubUser:
     Type: String
 
-  AlphaStackName:
-    Type: String
-
-  BetaStackName:
-    Type: String
-
-  ProdStackName:
-    Type: String
+#  AlphaStackName:
+#    Type: String
+#
+#  BetaStackName:
+#    Type: String
+#
+#  ProdStackName:
+#    Type: String
 
   TemplateBucket:
     Type: String
 
-  AlphaALBStack:
-    Type: String
-
-  AlphaClusterStack:
-    Type: String
-
-  AlphaDesiredTaskCount:
-    Type: Number
-    Default: 1
-
-  NginxImageTag:
-    Type: String
-    Default: latest
+#  AlphaALBStack:
+#    Type: String
+#
+#  AlphaClusterStack:
+#    Type: String
+#
+#  AlphaDesiredTaskCount:
+#    Type: Number
+#    Default: 1
+#
+#  NginxImageTag:
+#    Type: String
+#    Default: latest
 
 
 Resources:
   Repository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: planet-cargo-api
+      RepositoryName: cargo-api
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
             "rules": [
                 {
                     "rulePriority": 1,
-                    "description": "Expire images older than 14 days",
+                    "description": "Expire images older than 30 days",
                     "selection": {
                         "tagStatus": "untagged",
                         "countType": "sinceImagePushed",
                         "countUnit": "days",
-                        "countNumber": 14
+                        "countNumber": 30
                     },
                     "action": {
                         "type": "expire"

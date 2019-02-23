@@ -47,11 +47,10 @@ class PlayerRanksService extends AbstractService
                 }
                 $previousRank = $currentRank;
                 $currentRank = $rank;
-                continue;
+            } else {
+                $nextRank = $rank; // can only run once, when ranks no longer match
+                break;
             }
-
-            $nextRank = $rank; // can only run once, when ranks no longer match
-            break;
         }
 
         $hasAcknowledgedPromotion = false;

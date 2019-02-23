@@ -111,10 +111,10 @@ class TimedCommand extends Command
                         $channel->getDistance(),
                         $ship,
                         $player->getRank(),
-                        ),
+                    ),
                     null,
                     $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),
-                    );
+                );
             }, $channels);
 
             // of the possible directions, find which ones the ship is allowed to travel
