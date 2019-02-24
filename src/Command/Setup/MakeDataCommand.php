@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/* phpcs:ignoreFile */
 class MakeDataCommand extends AbstractCommand
 {
     private $playerRanksCommand;
@@ -63,12 +64,11 @@ class MakeDataCommand extends AbstractCommand
     ) {
         $mapUrl = $this->getStringArgument($input, 'inputMapUrl');
 
-        $data = \file_get_contents($mapUrl);
-        if (!$data) {
-            throw new \RuntimeException('Could not fetch map');
-        }
-        $map = jsonDecode($data);
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('GET', $mapUrl);
+        $map = jsonDecode($res->getBody()->getContents());
 
+        var_dump($map);die;
 
         // assumes files of a specific name in the input folder
         // run in the right order
