@@ -12,7 +12,8 @@
             "src/Functions/Numbers.php",
             "src/Functions/Strings.php",
             "src/Functions/Transforms.php"
-        ]
+        ],
+        "exclude-from-classmap": ["/tests/", "/src/Data/Database/Migrations"]
     },
     "autoload-dev": {
         "psr-4": { "Tests\\App\\": "tests/" }

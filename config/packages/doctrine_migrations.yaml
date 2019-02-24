@@ -1,7 +1,7 @@
 doctrine_migrations:
-    dir_name: "%kernel.project_dir%/src/Data/Database/Migration"
+    dir_name: "%kernel.project_dir%/src/Data/Database/Migrations"
     # namespace is arbitrary but should be different from App\Migrations
     # as migrations classes should NOT be autoloaded
-    namespace: DatabaseMigrations
+    namespace: App\Data\Database\Migrations
     table_name: migration_versions
     name: Application Migrations
