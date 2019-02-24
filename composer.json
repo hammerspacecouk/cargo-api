@@ -68,6 +68,12 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "tests": [
+            "@test",
+            "@cs",
+            "@stan",
+            "@loc"
+        ],
         "test": "phpunit",
         "loc": "phploc public src tests bin",
         "cbf": "phpcbf public src tests bin",

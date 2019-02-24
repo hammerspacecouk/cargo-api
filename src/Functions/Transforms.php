@@ -12,7 +12,11 @@ function csvToArray(string $filename): array
 
     if (filter_var($filename, FILTER_VALIDATE_URL)) {
         $handle = \tmpfile();
-        \fwrite($handle, file_get_contents($filename));
+        $sourceData = \file_get_contents($filename);
+        if (!$sourceData || !$handle) {
+            throw new \RuntimeException('Could not get data');
+        }
+        \fwrite($handle, $sourceData);
         \fseek($handle, 0);
     } else {
         if (!\file_exists($filename) || !\is_readable($filename)) {

@@ -193,9 +193,7 @@ Resources:
                 - composer install --prefer-dist --no-scripts
             build:
               commands:
-                - composer cs
-                - composer stan
-                - composer test
+                - composer tests
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/php-base-image:latest

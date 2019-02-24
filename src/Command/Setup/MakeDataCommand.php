@@ -63,7 +63,11 @@ class MakeDataCommand extends AbstractCommand
     ) {
         $mapUrl = $this->getStringArgument($input, 'inputMapUrl');
 
-        $map = jsonDecode(file_get_contents($mapUrl));
+        $data = \file_get_contents($mapUrl);
+        if (!$data) {
+            throw new \RuntimeException('Could not fetch map');
+        }
+        $map = jsonDecode($data);
 
 
         // assumes files of a specific name in the input folder
@@ -87,8 +91,10 @@ class MakeDataCommand extends AbstractCommand
         $this->makeEffectsCommand->run($this->getInput($map['Effects']), $output);
 
         $output->writeln('CrateContents: ' . $map['CrateContents']);
-        $this->makeCrateTypesCommand->run($this->getInput(
-            $map['CrateContents']),
+        $this->makeCrateTypesCommand->run(
+            $this->getInput(
+                $map['CrateContents']
+            ),
             $output
         );
         $output->writeln('Hints: ' . $map['Hints']);
