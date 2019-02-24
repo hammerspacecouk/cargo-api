@@ -7,13 +7,20 @@ use InvalidArgumentException;
 
 function csvToArray(string $filename): array
 {
-    if (!\file_exists($filename) || !\is_readable($filename)) {
-        throw new InvalidArgumentException('File path not able to be opened');
-    }
     $header = null;
     $data = [];
 
-    $handle = \fopen($filename, 'rb');
+    if (filter_var($filename, FILTER_VALIDATE_URL)) {
+        $handle = \tmpfile();
+        \fwrite($handle, file_get_contents($filename));
+        \fseek($handle, 0);
+    } else {
+        if (!\file_exists($filename) || !\is_readable($filename)) {
+            throw new InvalidArgumentException('File path not able to be opened');
+        }
+        $handle = \fopen($filename, 'rb');
+    }
+
     if (!$handle) {
         throw new InvalidArgumentException('File path not able to be opened');
     }

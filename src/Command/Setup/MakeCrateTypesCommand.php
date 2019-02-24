@@ -44,16 +44,13 @@ class MakeCrateTypesCommand extends AbstractCommand
 
         $filePath = $this->getStringArgument($input, 'inputList');
 
-        if (!\file_exists($filePath)) {
-            throw new InvalidArgumentException('Not a valid file path');
-        }
+        $inputData = csvToArray($filePath);
 
         $output->writeln('Deleting previous crate types');
         $this->entityManager->createQueryBuilder()->delete(CrateType::class, 'c')->getQuery()->execute();
 
         $output->writeln('Making new crate types');
 
-        $inputData = csvToArray($filePath);
         $total = \count($inputData);
 
         $progress = new ProgressBar($output, $total);

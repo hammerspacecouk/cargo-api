@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Command\AbstractCommand;
+use function App\Functions\DateTimes\jsonDecode;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,9 +51,9 @@ class MakeDataCommand extends AbstractCommand
             ->setName('game:init:make-data')
             ->setDescription('One off command for populating all data at once')
             ->addArgument(
-                'inputFolder',
+                'inputMapUrl',
                 InputArgument::REQUIRED,
-                'Folder containing all the csv files'
+                'URL to JSON file containing a map to the rest of the csv files'
             );
     }
 
@@ -60,33 +61,52 @@ class MakeDataCommand extends AbstractCommand
         InputInterface $input,
         OutputInterface $output
     ) {
-        $folderPath = $this->getStringArgument($input, 'inputFolder');
+        $mapUrl = $this->getStringArgument($input, 'inputMapUrl');
+
+        $map = jsonDecode(file_get_contents($mapUrl));
+
 
         // assumes files of a specific name in the input folder
         // run in the right order
-        $this->playerRanksCommand->run($this->getInput($folderPath . '/Source Dataset - PlayerRank.csv'), $output);
-        $this->makeShipClassesCommand->run($this->getInput($folderPath . '/Source Dataset - ShipClass.csv'), $output);
-        $this->makeClustersCommand->run($this->getInput($folderPath . '/Source Dataset - Cluster.csv'), $output);
-        $this->makePortsCommand->run($this->getInput($folderPath . '/Source Dataset - Port.csv'), $output);
-        $this->makeChannelsCommand->run($this->getInput($folderPath . '/Source Dataset - Channel.csv'), $output);
-        $this->makeEffectsCommand->run($this->getInput($folderPath . '/Source Dataset - Effects.csv'), $output);
-        $this->makeCrateTypesCommand->run(
-            $this->getInput($folderPath . '/Source Dataset - CrateContents.csv'),
+        $output->writeln('PlayerRank: ' . $map['PlayerRank']);
+        $this->playerRanksCommand->run($this->getInput($map['PlayerRank']), $output);
+
+        $output->writeln('ShipClass: ' . $map['ShipClass']);
+        $this->makeShipClassesCommand->run($this->getInput($map['ShipClass']), $output);
+
+        $output->writeln('Cluster: ' . $map['Cluster']);
+        $this->makeClustersCommand->run($this->getInput($map['Cluster']), $output);
+
+        $output->writeln('Port: ' . $map['Port']);
+        $this->makePortsCommand->run($this->getInput($map['Port']), $output);
+
+        $output->writeln('Channel: ' . $map['Channel']);
+        $this->makeChannelsCommand->run($this->getInput($map['Channel']), $output);
+
+        $output->writeln('Effects: ' . $map['Effects']);
+        $this->makeEffectsCommand->run($this->getInput($map['Effects']), $output);
+
+        $output->writeln('CrateContents: ' . $map['CrateContents']);
+        $this->makeCrateTypesCommand->run($this->getInput(
+            $map['CrateContents']),
             $output
         );
-        $this->makeHintsCommand->run($this->getInput($folderPath . '/Source Dataset - Hints.csv'), $output);
+        $output->writeln('Hints: ' . $map['Hints']);
+        $this->makeHintsCommand->run($this->getInput($map['Hints']), $output);
 
+        $output->writeln('DictionaryShipName1: ' . $map['DictionaryShipName1']);
         $this->updateDictionary->run(
             new ArrayInput([
-                'inputList' => $folderPath . '/Source Dataset - Dictionary - shipName1.csv',
+                'inputList' => $map['DictionaryShipName1'],
                 'context' => 'shipName1',
             ]),
             $output
         );
 
+        $output->writeln('DictionaryShipName2: ' . $map['DictionaryShipName2']);
         $this->updateDictionary->run(
             new ArrayInput([
-                'inputList' => $folderPath . '/Source Dataset - Dictionary - shipName2.csv',
+                'inputList' => $map['DictionaryShipName2'],
                 'context' => 'shipName2',
             ]),
             $output

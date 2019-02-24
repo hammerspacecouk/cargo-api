@@ -58,13 +58,9 @@ class UpdateDictionary extends AbstractCommand
         if (!\array_key_exists($context, self::CONTEXT_MAP)) {
             throw new InvalidArgumentException('Not a valid context');
         }
-        if (!\file_exists($filePath)) {
-            throw new InvalidArgumentException('Not a valid file path');
-        }
+        $inputData = csvToArray($filePath);
 
         $context = self::CONTEXT_MAP[$context];
-
-        $inputData = csvToArray($filePath);
 
         $output->writeln('Preparing to update dictionary');
 
