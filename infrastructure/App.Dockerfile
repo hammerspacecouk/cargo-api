@@ -11,8 +11,8 @@ ARG ENV=prod
 ENV APP_ENV=$ENV
 
 # Setup the application
-RUN chown -R www-data:www-data /var/www/.
-COPY --chown=www-data:www-data . /var/www
+COPY . /var/www
+RUN chown -R www-data:www-data /var/www
 
 WORKDIR /var/www
 
