@@ -4,4 +4,4 @@ FROM nginx:alpine
 ARG TAG=latest
 #FROM nginx:${TAG}
 
-COPY ./infrastructure/conf/nginx /etc/nginx/conf.d/
+COPY ./conf/nginx /etc/nginx/conf.d/
