@@ -16,6 +16,7 @@ class Kernel extends BaseKernel
 
     public const ENV_DEV = 'dev';
     public const ENV_ALPHA = 'alpha';
+    public const ENV_MIGRATIONS = 'migrations';
     public const ENV_BETA = 'beta';
     public const ENV_PROD = 'prod';
 

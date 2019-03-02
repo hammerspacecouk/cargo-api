@@ -2,6 +2,38 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     ip_hash_lifetime_seconds: 3600
+    # Adds a fallback parameters if the env var is not set.
+    # This allows you to run cache:warmup even if your
+    # environment variables are not available yet.
+    # You should not need to change this value.
+    env(OAUTH_GOOGLE_CLIENT_ID): ''
+    env(OAUTH_GOOGLE_CLIENT_SECRET): ''
+    env(OAUTH_FACEBOOK_APP_ID): ''
+    env(OAUTH_FACEBOOK_APP_SECRET): ''
+    env(OAUTH_TWITTER_API_KEY): ''
+    env(OAUTH_TWITTER_API_SECRET): ''
+    env(OAUTH_MICROSOFT_APP_ID): ''
+    env(OAUTH_MICROSOFT_APP_SECRET): ''
+    env(OAUTH_MICROSOFT_APP_REDIRECT): ''
+    env(CONFIG_HOSTNAME_API): ''
+    env(CONFIG_HOSTNAME_WEB): ''
+    env(CONFIG_COOKIE_SCOPE): ''
+    env(CONFIG_MAX_IP_USERS): 0
+    env(CONFIG_DISTANCE_MULTIPLIER): 0
+    env(MAILER_FROM_NAME): ''
+    env(MAILER_FROM_ADDRESS): ''
+    env(APP_SECRET): ''
+    env(LOGIN_ANON): false
+    env(LOGIN_GOOGLE): false
+    env(LOGIN_FACEBOOK): false
+    env(LOGIN_TWITTER): false
+    env(LOGIN_MICROSOFT): false
+    env(LOGIN_EMAIL): false
+    env(TOKEN_PRIVATE_KEY): ''
+    env(APP_VERSION): ''
+    env(MAILER_HOST): ''
+    env(MAILER_USERNAME): ''
+    env(MAILER_PASSWORD): ''
 
 services:
     # default configuration for services in *this* file
@@ -45,8 +77,8 @@ services:
             - '%env(CONFIG_MAX_IP_USERS)%'
             - '%ip_hash_lifetime_seconds%'
             - '%env(CONFIG_DISTANCE_MULTIPLIER)%'
-            - "%env(MAILER_FROM_NAME)%"
-            - "%env(MAILER_FROM_ADDRESS)%"
+            - '%env(MAILER_FROM_NAME)%'
+            - '%env(MAILER_FROM_ADDRESS)%'
             - '%env(APP_SECRET)%'
             - '%env(LOGIN_ANON)%'
             - '%env(LOGIN_GOOGLE)%'

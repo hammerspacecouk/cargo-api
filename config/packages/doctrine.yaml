@@ -9,18 +9,7 @@ doctrine:
     dbal:
         driver:   pdo_mysql
         server_version: 5.6
-        host:     "%env(DB_WRITE_HOST)%"
-        port:     "%env(DB_PORT)%"
-        dbname:   "%env(DB_NAME)%"
-        user:     "%env(DB_WRITE_USER)%"
-        password: "%env(DB_WRITE_PASSWORD)%"
-        slaves:
-            slave1:
-                host:     "%env(DB_READ_HOST)%"
-                port:     "%env(DB_PORT)%"
-                dbname:   "%env(DB_NAME)%"
-                user:     "%env(DB_READ_USER)%"
-                password: "%env(DB_READ_PASSWORD)%"
+        url: "%env(DATABASE_URL)%"
         charset: utf8mb4
         default_table_options:
             charset: utf8mb4

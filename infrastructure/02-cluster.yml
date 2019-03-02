@@ -101,7 +101,6 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:${MigrationsImageTag}
           Cpu: 64
           Memory: 128
-          Essential: true
           Environment:
             - Name: APP_VERSION
               Value: !Ref MigrationsImageTag

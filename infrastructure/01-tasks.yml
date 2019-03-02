@@ -1,0 +1,291 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Task definitions for running the API
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - alpha
+      - beta
+      - prod
+    Default: prod
+
+  ECSRepository:
+    Type: String
+
+  NginxImageTag:
+    Type: String
+    Default: nginx:alpine
+
+Resources:
+
+  CloudWatchPHP:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${Environment}-cargo-api-php
+      RetentionInDays: 30
+
+  CloudWatchNginx:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${Environment}-cargo-api-nginx
+      RetentionInDays: 30
+
+  TaskDefinitionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+  TaskExecutionRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-ECR
+      Roles:
+        - !Ref TaskExecutionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource:
+              - "*"
+          - Effect: Allow
+            Action:
+              - ssm:GetParameterHistory
+              - ssm:GetParameter
+              - ssm:GetParameters
+              - ssm:GetParametersByPath
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
+
+  APITaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-api
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_VERSION
+              Value: "latest" # todo - how to get this?
+            - Name: ENV
+              Value: !Ref Environment
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: arrivals
+        - Name: cargo-api-nginx
+            Image: !Ref NginxImageTag
+            Cpu: 64
+            Memory: 128
+            Essential: true
+            Environment:
+              - Name: APP_ENV
+                Value: !Ref Environment
+            Links:
+              - cargo-api-php
+            PortMappings:
+              - ContainerPort: 80
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: !Sub ${CloudWatchNginx}
+                awslogs-region: !Sub ${AWS::Region}
+                awslogs-stream-prefix: cargo-ecs-nginx
+            VolumesFrom:
+              - SourceContainer: cargo-api-php
+                ReadOnly: true
+
+  ArrivalsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-arrivals
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_VERSION
+              Value: "latest" # todo - how to get this?
+            - Name: ENV
+              Value: !Ref Environment
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: arrivals
+          Command:
+            - "bin/console"
+            - "game:worker:arrival"
+
+  CleanerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-cleaner
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_VERSION
+              Value: "latest" # todo - how to get this?
+            - Name: ENV
+              Value: !Ref Environment
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: cleaner
+          Command:
+            - "bin/console"
+            - "game:worker:cleaner"
+
+  MigrationsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-migrations
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_VERSION
+              Value: "latest" # todo - how to get this?
+
+            - Name: ENV
+              Value: !Ref Environment
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: migrations
+          Command:
+            - "bin/console"
+            - "doctrine:migrations:migrate"
+            - "-n"
+
+  TimedTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-timed
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_VERSION
+              Value: "latest" # todo - how to get this?
+
+            - Name: ENV
+              Value: !Ref Environment
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: timed
+          Command:
+            - "bin/console"
+            - "game:worker:timed"
+
+Outputs:
+  APITask:
+    Value: !Ref APITaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-APITask
+
+  ArrivalsTask:
+    Value: !Ref ArrivalsTaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-ArrivalsTask
+
+  CleanerTask:
+    Value: !Ref CleanerTaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-CleanerTask
+
+  MigrationsTask:
+    Value: !Ref MigrationsTaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-MigrationsTask
+
+  TimedTask:
+    Value: !Ref TimedTaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-TimedTask
+
