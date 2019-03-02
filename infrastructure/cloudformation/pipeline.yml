@@ -11,38 +11,35 @@ Parameters:
   GitHubUser:
     Type: String
 
-#  AlphaStackName:
-#    Type: String
-#
-#  BetaStackName:
-#    Type: String
-#
-#  ProdStackName:
-#    Type: String
-
-  TemplateBucket:
-    Type: String
-
-#  AlphaALBStack:
-#    Type: String
-#
-#  AlphaClusterStack:
-#    Type: String
-#
-#  AlphaDesiredTaskCount:
-#    Type: Number
-#    Default: 1
-#
-#  NginxImageTag:
-#    Type: String
-#    Default: latest
-
-
 Resources:
   Repository:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: cargo-api
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+                {
+                    "rulePriority": 1,
+                    "description": "Expire images older than 30 days",
+                    "selection": {
+                        "tagStatus": "untagged",
+                        "countType": "sinceImagePushed",
+                        "countUnit": "days",
+                        "countNumber": 30
+                    },
+                    "action": {
+                        "type": "expire"
+                    }
+                }
+            ]
+          }
+
+  NginxRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: cargo-api-nginx
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -127,6 +124,16 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
+              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${NginxRepository}
+                Effect: Allow
+                Action:
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
               - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/php-base-image
                 Effect: Allow
                 Action:
@@ -153,8 +160,6 @@ Resources:
             Statement:
               - Resource:
                   - !Sub arn:aws:s3:::${ArtifactBucket}/*
-                  - !Sub arn:aws:s3:::${TemplateBucket}
-                  - !Sub arn:aws:s3:::${TemplateBucket}/*
                 Effect: Allow
                 Action:
                   - s3:PutObject
@@ -222,7 +227,7 @@ Resources:
                 - TAG=r$(date +%F-%H%M%S-%N)
             build:
               commands:
-                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO} --build-arg TAG=latest .
+                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO} --build-arg TAG=latest -f infrastructure/App.Dockerfile .
                 - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
             post_build:
               commands:
@@ -243,6 +248,40 @@ Resources:
           - Name: REPOSITORY_URI
             Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
       Name: "planet-cargo-api-build"
+      ServiceRole: !Ref CodeBuildServiceRole
+
+  CodeBuildNginxImage:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - $(aws ecr get-login)
+                - TAG=r$(date +%F-%H%M%S-%N)
+            build:
+              commands:
+                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg TAG=latest -f infrastructure/Nginx.Dockerfile .
+                - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
+            post_build:
+              commands:
+                - docker push ${REPOSITORY_URI}:latest
+                - docker push ${REPOSITORY_URI}:${TAG}
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/docker:1.12.1"
+        Type: "LINUX_CONTAINER"
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${NginxRepository}
+      Name: "planet-cargo-api-nginx-build"
       ServiceRole: !Ref CodeBuildServiceRole
 
   Pipeline:
@@ -269,7 +308,6 @@ Resources:
                 OAuthToken: !Ref GitHubToken
               OutputArtifacts:
                 - Name: App
-              RunOrder: 1
 #            - Name: ECSServiceTemplate
 #              ActionTypeId:
 #                Category: Source
@@ -298,7 +336,7 @@ Resources:
               RunOrder: 2
         - Name: Build
           Actions:
-            - Name: Build
+            - Name: BuildPhp
               ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -310,7 +348,17 @@ Resources:
                 - Name: App
               OutputArtifacts:
                 - Name: BuildOutput
-              RunOrder: 2
+            - Name: BuildNginx
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildNginxImage
+              InputArtifacts:
+                - Name: App
+              OutputArtifacts: []
 #        - Name: Deploy
 #          Actions:
 #            - Name: DeployAlpha

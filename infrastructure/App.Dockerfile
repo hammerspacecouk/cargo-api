@@ -11,8 +11,6 @@ ARG ENV=prod
 ENV APP_ENV=$ENV
 
 # Setup the application (todo -  --chown=www-data:www-data)
-# todo - move nginx config into its own Dockerfile
-COPY ./nginx /etc/nginx/conf.d/
 COPY . /var/www
 
 WORKDIR /var/www
