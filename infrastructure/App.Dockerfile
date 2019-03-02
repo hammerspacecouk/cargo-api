@@ -10,8 +10,9 @@ ARG TAG=latest
 ARG ENV=prod
 ENV APP_ENV=$ENV
 
-# Setup the application (todo -  --chown=www-data:www-data)
-COPY . /var/www
+# Setup the application
+RUN chown -R www-data:www-data /var/www/.
+COPY --chown=www-data:www-data . /var/www
 
 WORKDIR /var/www
 
