@@ -14,9 +14,8 @@ Parameters:
   ECSRepository:
     Type: String
 
-  NginxImageTag:
+  ECSNginxRepository:
     Type: String
-    Default: nginx:alpine
 
 Resources:
 
@@ -105,6 +104,7 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
           Cpu: 64
           Memory: 128
+          Essential: true
           Environment:
             - Name: APP_VERSION
               Value: "latest" # todo - how to get this?
@@ -115,29 +115,23 @@ Resources:
             Options:
               awslogs-group: !Sub ${CloudWatchPHP}
               awslogs-region: !Sub ${AWS::Region}
-              awslogs-stream-prefix: arrivals
-# todo - build an nginx base image
-#        - Name: cargo-api-nginx
-#          Image: !Ref NginxImageTag
-#          Cpu: 64
-#          Memory: 128
-#          Essential: true
-#          Environment:
-#            - Name: APP_ENV
-#              Value: !Ref Environment
-#          Links:
-#            - cargo-api-php
-#          PortMappings:
-#            - ContainerPort: 80
-#          LogConfiguration:
-#            LogDriver: awslogs
-#            Options:
-#              awslogs-group: !Sub ${CloudWatchNginx}
-#              awslogs-region: !Sub ${AWS::Region}
-#              awslogs-stream-prefix: cargo-ecs-nginx
-#          VolumesFrom:
-#            - SourceContainer: cargo-api-php
-#              ReadOnly: true
+              awslogs-stream-prefix: api
+        - Name: cargo-api-nginx
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSNginxRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Essential: true
+          Environment:
+            - Name: APP_ENV
+              Value: !Ref Environment
+          PortMappings:
+            - ContainerPort: 80
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchNginx}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: nginx
 
   ArrivalsTaskDefinition:
     Type: AWS::ECS::TaskDefinition

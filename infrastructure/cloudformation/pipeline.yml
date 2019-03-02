@@ -266,7 +266,7 @@ Resources:
                 - TAG=r$(date +%F-%H%M%S-%N)
             build:
               commands:
-                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg TAG=latest -f infrastructure/Nginx.Dockerfile .
+                - docker build -t ${REPOSITORY_URI} --build-arg TAG=latest -f infrastructure/Nginx.Dockerfile .
                 - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
             post_build:
               commands:
