@@ -18,14 +18,14 @@ WORKDIR /var/www
 # Ensure executables and permissions
 RUN chmod +x bin/*
 
-# Install deps production, then clear composers cache and warm the application cache, before removing composer
+# Install deps production, clear some space and warm cache (last step)
 RUN composer install --optimize-autoloader --apcu-autoloader --no-dev --prefer-dist --no-scripts --no-suggest --no-progress && \
     composer clear-cache && \
-    bin/console cache:warm --env=prod && \
-    rm /usr/bin/composer
-
-# Allow the volume to share
-VOLUME /var/www /etc/nginx/conf.d
+    rm /usr/bin/composer && \
+    rm -rf vendor/*/*/tests/ && \
+    rm -rf vendor/*/*/Tests/ && \
+    rm -rf vendor/*/*/test/ && \
+    bin/console cache:warm --env=prod
 
 # Ensure the environment is injected on startup
 RUN wget -O /tmp/ssm-parent.tar.gz https://github.com/springload/ssm-parent/releases/download/v1.1.2/ssm-parent_1.1.2_linux_amd64.tar.gz && \
