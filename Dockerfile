@@ -33,7 +33,7 @@ VOLUME /var/www /etc/nginx/conf.d
 RUN wget -O /tmp/ssm-parent.tar.gz https://github.com/springload/ssm-parent/releases/download/v1.1.2/ssm-parent_1.1.2_linux_amd64.tar.gz && \
     tar xvf /tmp/ssm-parent.tar.gz && mv ssm-parent /sbin/ssm-parent && rm /tmp/ssm-parent.tar.gz
 
-ENTRYPOINT ["/sbin/ssm-parent", "run", "-e", "-p", "/$PROJECT/$ENV/", "-r",  "--"]
+ENTRYPOINT ["/sbin/ssm-parent", "run", "-e", "--plain-path", "/$PROJECT/$ENV/", "-r",  "--"]
 
 CMD ["php-fpm"]
 
