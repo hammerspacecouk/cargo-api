@@ -12,7 +12,6 @@ ENV APP_ENV=$ENV
 
 # Setup the application
 COPY . /var/www
-RUN chown -R www-data:www-data /var/www
 
 WORKDIR /var/www
 
@@ -27,6 +26,8 @@ RUN composer install --optimize-autoloader --apcu-autoloader --no-dev --prefer-d
     rm -rf vendor/*/*/Tests/ && \
     rm -rf vendor/*/*/test/ && \
     bin/console cache:warm --env=prod
+
+RUN chown -R www-data:www-data /var/www
 
 # Ensure the environment is injected on startup
 RUN wget -O /tmp/ssm-parent.tar.gz https://github.com/springload/ssm-parent/releases/download/v1.1.2/ssm-parent_1.1.2_linux_amd64.tar.gz && \

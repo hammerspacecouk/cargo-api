@@ -110,6 +110,8 @@ Resources:
               Value: "latest" # todo - how to get this?
             - Name: ENV
               Value: !Ref Environment
+            - Name: APP_ENV
+              Value: !Ref Environment
           LogConfiguration:
             LogDriver: awslogs
             Options:
