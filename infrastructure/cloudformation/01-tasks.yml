@@ -3,6 +3,9 @@ Description: >
   Task definitions for running the API
 
 Parameters:
+  ParamStoreNamespace:
+    Type: String
+
   Environment:
     Type: String
     AllowedValues:
@@ -106,12 +109,10 @@ Resources:
           Memory: 128
           Essential: true
           Environment:
-            - Name: APP_VERSION
-              Value: "latest" # todo - how to get this?
-            - Name: ENV
-              Value: !Ref Environment
             - Name: APP_ENV
               Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${ParamStoreNamespace}/${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -152,10 +153,10 @@ Resources:
           Cpu: 64
           Memory: 128
           Environment:
-            - Name: APP_VERSION
-              Value: "latest" # todo - how to get this?
-            - Name: ENV
+            - Name: APP_ENV
               Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${ParamStoreNamespace}/${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -183,10 +184,10 @@ Resources:
           Cpu: 64
           Memory: 128
           Environment:
-            - Name: APP_VERSION
-              Value: "latest" # todo - how to get this?
-            - Name: ENV
+            - Name: APP_ENV
               Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${ParamStoreNamespace}/${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -214,11 +215,10 @@ Resources:
           Cpu: 64
           Memory: 128
           Environment:
-            - Name: APP_VERSION
-              Value: "latest" # todo - how to get this?
-
-            - Name: ENV
+            - Name: APP_ENV
               Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${ParamStoreNamespace}/${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -248,11 +248,10 @@ Resources:
           Cpu: 64
           Memory: 128
           Environment:
-            - Name: APP_VERSION
-              Value: "latest" # todo - how to get this?
-
-            - Name: ENV
+            - Name: APP_ENV
               Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${ParamStoreNamespace}/${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:

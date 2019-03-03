@@ -11,6 +11,12 @@ Parameters:
   GitHubUser:
     Type: String
 
+  ClusterName:
+    Type: String
+
+  ServiceName:
+    Type: String
+
 Resources:
   Repository:
     Type: AWS::ECR::Repository
@@ -60,30 +66,6 @@ Resources:
             ]
           }
 
-  CloudFormationExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Path: /
-      AssumeRolePolicyDocument: |
-        {
-            "Statement": [{
-                "Effect": "Allow",
-                "Principal": { "Service": [ "cloudformation.amazonaws.com" ]},
-                "Action": [ "sts:AssumeRole" ]
-            }]
-        }
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Resource: "*"
-                Effect: Allow
-                Action:
-                  - ecs:*
-                  - ecr:*
-                  - iam:*
-
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -101,45 +83,44 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Resource: "*"
+              - Sid: LogsPolicy
+                Resource: "*"
                 Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                  - ecr:GetAuthorizationToken
-              - Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
+              - Sid: S3Policy
+                Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
                 Effect: Allow
                 Action:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+              - Sid: EcrReadPolicy
+                Resource: "*"
                 Effect: Allow
                 Action:
+                  - ecr:GetAuthorizationToken
                   - ecr:GetDownloadUrlForLayer
                   - ecr:BatchGetImage
                   - ecr:BatchCheckLayerAvailability
+              - Sid: EcrPushPhpPolicy
+                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+                Effect: Allow
+                Action:
                   - ecr:PutImage
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${NginxRepository}
+              - Sid: EcrPushNginxPolicy
+                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${NginxRepository}
                 Effect: Allow
                 Action:
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                  - ecr:BatchCheckLayerAvailability
                   - ecr:PutImage
                   - ecr:InitiateLayerUpload
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/php-base-image
-                Effect: Allow
-                Action:
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                  - ecr:BatchCheckLayerAvailability
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -158,21 +139,26 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Resource:
-                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+              - Sid: S3ArtifactsPolicy
+                Resource: !Sub arn:aws:s3:::${ArtifactBucket}/*
                 Effect: Allow
                 Action:
                   - s3:PutObject
                   - s3:GetObject
                   - s3:GetObjectVersion
                   - s3:GetBucketVersioning
-              - Resource: "*"
+              - Sid: CodeBuildPolicy
+                Resource: "*"
                 Effect: Allow
                 Action:
                   - codebuild:StartBuild
                   - codebuild:BatchGetBuilds
-                  - cloudformation:*
                   - iam:PassRole
+              - Sid: EcsDeployPolicy
+                Resource: "*"
+                Effect: Allow
+                Action:
+                  - ecs:*
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
@@ -224,18 +210,20 @@ Resources:
             pre_build:
               commands:
                 - $(aws ecr get-login)
-                - TAG=r$(date +%F-%H%M%S-%N)
+                - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+                - TAG=r$(date +%F-%H%M%S)-${COMMIT_HASH}
             build:
               commands:
-                - docker build -t ${REPOSITORY_URI} --build-arg ENV=build --build-arg REPO=${BASE_REPO} --build-arg TAG=latest -f infrastructure/App.Dockerfile .
+                - docker build -t ${REPOSITORY_URI} --build-arg APP_VERSION=${TAG} --build-arg ENV=prod --build-arg BASE_REPO=${BASE_REPO} --build-arg TAG=latest -f infrastructure/App.Dockerfile .
                 - docker tag ${REPOSITORY_URI}:latest ${REPOSITORY_URI}:${TAG}
             post_build:
               commands:
                 - docker push ${REPOSITORY_URI}:latest
                 - docker push ${REPOSITORY_URI}:${TAG}
-                - printf '{"tag":"%s"}' $TAG > build.json
+                - echo Writing image definitions file...
+                - printf '[{"name":"cargo-api-php","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > imagedefinitions.json
           artifacts:
-            files: build.json
+            files: imagedefinitions.json
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"
         Image: "aws/codebuild/docker:1.12.1"
@@ -308,18 +296,6 @@ Resources:
                 OAuthToken: !Ref GitHubToken
               OutputArtifacts:
                 - Name: App
-#            - Name: ECSServiceTemplate
-#              ActionTypeId:
-#                Category: Source
-#                Owner: AWS
-#                Version: 1
-#                Provider: S3
-#              OutputArtifacts:
-#                - Name: Template
-#              RunOrder: 1
-#              Configuration:
-#                S3Bucket: !Ref TemplateBucket
-#                S3ObjectKey: api/templates.zip
         - Name: Test
           Actions:
             - Name: Test
@@ -359,35 +335,21 @@ Resources:
               InputArtifacts:
                 - Name: App
               OutputArtifacts: []
-#        - Name: Deploy
-#          Actions:
-#            - Name: DeployAlpha
-#              ActionTypeId:
-#                Category: Deploy
-#                Owner: AWS
-#                Version: 1
-#                Provider: CloudFormation
-#              Configuration:
-#                ChangeSetName: Deploy
-#                ActionMode: CREATE_UPDATE
-#                StackName: !Ref AlphaStackName
-#                Capabilities: CAPABILITY_NAMED_IAM
-#                TemplatePath: Template::03-ecs-service.yml
-#                RoleArn: !GetAtt CloudFormationExecutionRole.Arn
-#                ParameterOverrides: !Sub |
-#                  {
-#                    "ImageTag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] },
-#                    "ALBStack": "${AlphaALBStack}",
-#                    "ClusterStack": "${AlphaClusterStack}",
-#                    "DesiredTaskCount": "${AlphaDesiredTaskCount}",
-#                    "ECSRepository": "${Repository}",
-#                    "Environment": "alpha",
-#                    "NginxImageTag": "${NginxImageTag}"
-#                  }
-#              InputArtifacts:
-#                - Name: Template
-#                - Name: BuildOutput
-#              RunOrder: 3
+        - Name: DeployAlpha
+          Actions:
+            - Name: DeployAlpha
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: ECS
+              Configuration:
+                ClusterName: !Ref ClusterName
+                ServiceName: !Ref ServiceName
+                FileName: "imagedefinitions.json"
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
 
 
 Outputs:
