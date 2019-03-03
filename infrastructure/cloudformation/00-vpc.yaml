@@ -180,39 +180,44 @@ Outputs:
     Description: VPC of the base network
     Value: !Ref VPC
     Export:
-      Name: !Sub ${AWS::StackName}
+      Name: !Sub ${AWS::StackName}::VPC
   PublicSubnetA:
     Description: First Public Subnet
     Value: !Ref PublicSubnetA
     Export:
-      Name: !Sub ${AWS::StackName}-PublicSubnetA
+      Name: !Sub ${AWS::StackName}::PublicSubnetA
   PublicSubnetB:
     Description: Second Public Subnet
     Value: !Ref PublicSubnetB
     Export:
-      Name: !Sub ${AWS::StackName}-PublicSubnetB
+      Name: !Sub ${AWS::StackName}::PublicSubnetB
   PublicSubnetC:
     Description: Third Public Subnet
     Value: !Ref PublicSubnetC
     Export:
-      Name: !Sub ${AWS::StackName}-PublicSubnetC
+      Name: !Sub ${AWS::StackName}::PublicSubnetC
   PrivateSubnetA:
     Description: First Private Subnet
     Value: !Ref PrivateSubnetA
     Export:
-      Name: !Sub ${AWS::StackName}-PrivateSubnetA
+      Name: !Sub ${AWS::StackName}::PrivateSubnetA
   PrivateSubnetB:
     Description: Second Private Subnet
     Value: !Ref PrivateSubnetB
     Export:
-      Name: !Sub ${AWS::StackName}-PrivateSubnetB
+      Name: !Sub ${AWS::StackName}::PrivateSubnetB
   PrivateSubnetC:
     Description: Third Private Subnet
     Value: !Ref PrivateSubnetC
     Export:
-      Name: !Sub ${AWS::StackName}-PrivateSubnetC
-  DbSubnetGroup:
-    Description: Third Private Subnet
-    Value: !Ref DBSubnetGroup
+      Name: !Sub ${AWS::StackName}::PrivateSubnetC
+  DBSecurityGroup:
+    Description: Security Group to talk to the Database
+    Value: !Ref DBSecurityGroup
     Export:
-      Name: !Sub ${AWS::StackName}-DBSubnetGroup
+      Name: !Sub ${AWS::StackName}::DBSecurityGroup
+  OutWebSecurityGroup:
+    Description: Security Group to talk to outside web
+    Value: !Ref OutWebSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}::OutWebSecurityGroup

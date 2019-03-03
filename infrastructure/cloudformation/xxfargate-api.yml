@@ -85,79 +85,7 @@ Resources:
             Resource:
               - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${ECSRepository}
 
-  Vpc:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'true'
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ecs-vpc-${AWS::StackName}
-  PublicSubnetAz1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref Vpc
-      CidrBlock: 10.0.0.0/24
-      AvailabilityZone: !Select
-         - 0
-         - Fn::GetAZs:
-             !Ref AWS::Region
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ecs-${AWS::StackName}-public-subnet1
-  PublicSubnetAz2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref Vpc
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !Select
-         - 1
-         - Fn::GetAZs:
-             !Ref AWS::Region
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ecs-${AWS::StackName}-public-subnet2
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ecs-${AWS::StackName}-internet-gateway
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref Vpc
-      InternetGatewayId: !Ref InternetGateway
-  RouteViaIgw:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref Vpc
-      Tags:
-        -
-          Key: Name
-          Value: !Sub ecs-${AWS::StackName}-route-table
-  PublicRouteViaIgw:
-    Type: AWS::EC2::Route
-    DependsOn: AttachGateway
-    Properties:
-      RouteTableId: !Ref RouteViaIgw
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-  PublicSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnetAz1
-      RouteTableId: !Ref RouteViaIgw
-  PublicSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnetAz2
-      RouteTableId: !Ref RouteViaIgw
+
 
   EcsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -179,18 +107,6 @@ Resources:
     Type: AWS::ECS::Cluster
     Properties:
       ClusterName: !Sub ${Environment}-api
-
-  CloudWatchPHP:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${Environment}-api-php
-      RetentionInDays: 30
-
-  CloudWatchNginx:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${Environment}-api-nginx
-      RetentionInDays: 30
 
   FargateService:
       Type: AWS::ECS::Service

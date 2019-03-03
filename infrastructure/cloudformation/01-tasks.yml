@@ -266,25 +266,25 @@ Outputs:
   APITask:
     Value: !Ref APITaskDefinition
     Export:
-      Name: !Sub ${AWS::StackName}-APITask
+      Name: !Sub ${AWS::StackName}::APITask
 
   ArrivalsTask:
     Value: !Ref ArrivalsTaskDefinition
     Export:
-      Name: !Sub ${AWS::StackName}-ArrivalsTask
+      Name: !Sub ${AWS::StackName}::ArrivalsTask
 
   CleanerTask:
     Value: !Ref CleanerTaskDefinition
     Export:
-      Name: !Sub ${AWS::StackName}-CleanerTask
+      Name: !Sub ${AWS::StackName}::CleanerTask
 
   MigrationsTask:
     Value: !Ref MigrationsTaskDefinition
     Export:
-      Name: !Sub ${AWS::StackName}-MigrationsTask
+      Name: !Sub ${AWS::StackName}::MigrationsTask
 
   TimedTask:
     Value: !Ref TimedTaskDefinition
     Export:
-      Name: !Sub ${AWS::StackName}-TimedTask
+      Name: !Sub ${AWS::StackName}::TimedTask
 

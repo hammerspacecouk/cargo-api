@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  Setup the API cluster to put services and tasks in
+  Setup the API cluster and services
 
 Parameters:
   Environment:
@@ -11,190 +11,98 @@ Parameters:
       - prod
     Default: prod
 
-  ECSRepository:
+  ClusterNamePrefix:
+    Type: String
+    Default: cargo-api
+
+  TasksStack:
     Type: String
 
-  MigrationsImageTag:
-    Type: String
-    Default: latest
+  SecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
 
 Resources:
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Ref AWS::StackName
+      ClusterName: !Sub ${ClusterNamePrefix}-${Environment}
 
-  CloudWatchPHP:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${Environment}-cargo-api-php
-      RetentionInDays: 30
-
-  TaskDefinitionRole:
+  ECSServiceRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: /
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
             Principal:
               Service:
-                - ecs-tasks.amazonaws.com
+                - ecs.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
 
-
-  TaskExecutionRole:
+  FargateExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       AssumeRolePolicyDocument:
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
+            Sid: 'ECS'
             Principal:
               Service:
                 - ecs-tasks.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: /
+      Path: "/cfn/"
 
-  TaskExecutionRolePolicies:
-    Type: AWS::IAM::Policy
+  APIService:
+    Type: AWS::ECS::Service
     Properties:
-      PolicyName: !Sub ${AWS::StackName}-ECR
-      Roles:
-        - !Ref TaskExecutionRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - ecr:GetAuthorizationToken
-              - ecr:BatchCheckLayerAvailability
-              - ecr:GetDownloadUrlForLayer
-              - ecr:BatchGetImage
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - "*"
-          - Effect: Allow
-            Action:
-              - ssm:GetParameterHistory
-              - ssm:GetParameter
-              - ssm:GetParameters
-              - ssm:GetParametersByPath
-            Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
+      Cluster: !Ref Cluster
+      ServiceName: api
+      LaunchType: 'FARGATE'
+      DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 0
+      TaskDefinition:
+        Fn::ImportValue: !Sub "${TasksStack}::APITask"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: !Ref SecurityGroups
+          Subnets: !Ref Subnets
 
-  MigrationsTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
+  ArrivalsService:
+    Type: AWS::ECS::Service
     Properties:
-      TaskRoleArn: !Ref TaskDefinitionRole
-      ExecutionRoleArn: !Ref TaskExecutionRole
-      Family: !Sub ${AWS::StackName}-migrations
-      RequiresCompatibilities:
-        - FARGATE
-      Cpu: 256
-      Memory: 1024
-      NetworkMode: awsvpc
-      ContainerDefinitions:
-        - Name: cargo-api-php
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:${MigrationsImageTag}
-          Cpu: 64
-          Memory: 128
-          Environment:
-            - Name: APP_VERSION
-              Value: !Ref MigrationsImageTag
-            - Name: APP_ENV
-              Value: !Ref Environment
-            - Name: APP_SECRET
-              Value: !Sub /planet-cargo/${Environment}/APP_SECRET
-            - Name: CONFIG_COOKIE_SCOPE
-              Value: !Sub /planet-cargo/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLIER
-              Value: !Sub /planet-cargo/${Environment}/CONFIG_DISTANCE_MULTIPLIER
-            - Name: CONFIG_HOSTNAME_API
-              Value: !Sub /planet-cargo/${Environment}/CONFIG_HOSTNAME_API
-            - Name: CONFIG_HOSTNAME_WEB
-              Value: !Sub /planet-cargo/${Environment}/CONFIG_HOSTNAME_WEB
-            - Name: CONFIG_MAX_IP_USERS
-              Value: !Sub /planet-cargo/${Environment}/CONFIG_MAX_IP_USERS
-            - Name: DB_WRITE_HOST
-              Value: !Sub /planet-cargo/${Environment}/DB_WRITE_HOST
-            - Name: DB_READ_HOST
-              Value: !Sub /planet-cargo/${Environment}/DB_READ_HOST
-            - Name: DB_PORT
-              Value: !Sub /planet-cargo/${Environment}/DB_PORT
-            - Name: DB_NAME
-              Value: !Sub /planet-cargo/${Environment}/DB_NAME
-            - Name: DB_WRITE_USER
-              Value: !Sub /planet-cargo/${Environment}/DB_DDL_USER # For migrations only
-            - Name: DB_WRITE_PASSWORD
-              Value: !Sub /planet-cargo/${Environment}/DB_DDL_PASSWORD # For migrations only
-            - Name: DB_READ_USER
-              Value: !Sub /planet-cargo/${Environment}/DB_READ_USER
-            - Name: DB_READ_PASSWORD
-              Value: !Sub /planet-cargo/${Environment}/DB_READ_PASSWORD
-            - Name: TOKEN_PRIVATE_KEY
-              Value: !Sub /planet-cargo/${Environment}/TOKEN_PRIVATE_KEY
-            - Name: OAUTH_GOOGLE_CLIENT_ID
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_GOOGLE_CLIENT_ID
-            - Name: OAUTH_GOOGLE_CLIENT_SECRET
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
-            - Name: OAUTH_FACEBOOK_APP_ID
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_FACEBOOK_APP_ID
-            - Name: OAUTH_FACEBOOK_APP_SECRET
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_FACEBOOK_APP_SECRET
-            - Name: OAUTH_TWITTER_API_KEY
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_TWITTER_API_KEY
-            - Name: OAUTH_TWITTER_API_SECRET
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_TWITTER_API_SECRET
-            - Name: OAUTH_MICROSOFT_APP_ID
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_MICROSOFT_APP_ID
-            - Name: OAUTH_MICROSOFT_APP_SECRET
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_MICROSOFT_APP_SECRET
-            - Name: OAUTH_MICROSOFT_APP_REDIRECT
-              Value: !Sub /planet-cargo/${Environment}/OAUTH_MICROSOFT_APP_REDIRECT
-            - Name: LOGIN_ANON
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_ANON
-            - Name: LOGIN_GOOGLE
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_GOOGLE
-            - Name: LOGIN_FACEBOOK
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_FACEBOOK
-            - Name: LOGIN_TWITTER
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_TWITTER
-            - Name: LOGIN_MICROSOFT
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_MICROSOFT
-            - Name: LOGIN_EMAIL
-              Value: !Sub /planet-cargo/${Environment}/LOGIN_EMAIL
-            - Name: MAILER_HOST
-              Value: !Sub /planet-cargo/${Environment}/MAILER_HOST
-            - Name: MAILER_FROM_NAME
-              Value: !Sub /planet-cargo/${Environment}/MAILER_FROM_NAME
-            - Name: MAILER_FROM_ADDRESS
-              Value: !Sub /planet-cargo/${Environment}/MAILER_FROM_ADDRESS
-            - Name: MAILER_USERNAME
-              Value: !Sub /planet-cargo/${Environment}/MAILER_USERNAME
-            - Name: MAILER_PASSWORD
-              Value: !Sub /planet-cargo/${Environment}/MAILER_PASSWORD
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Sub ${CloudWatchPHP}
-              awslogs-region: !Sub ${AWS::Region}
-              awslogs-stream-prefix: migrations
-          Command:
-            - "bin/console"
-            - "doctrine:migrations:migrate"
-            - "-n"
+      Cluster: !Ref Cluster
+      ServiceName: arrivals
+      LaunchType: 'FARGATE'
+      DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
+      TaskDefinition:
+        Fn::ImportValue: !Sub "${TasksStack}::ArrivalsTask"
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: !Ref SecurityGroups
+          Subnets: !Ref Subnets
+
+    # todo - scheduled tasks for cleaner and timed
 
 Outputs:
-  Cluster:
+  ClusterName:
     Value: !Ref Cluster
     Export:
-      Name: !Sub ${AWS::StackName}-Cluster
-
-  MigrationsTask:
-    Value: !Ref MigrationsTaskDefinition
-    Export:
-      Name: !Sub ${AWS::StackName}-MigrationsTask
+      Name: !Sub ${AWS::StackName}::ClusterName
 

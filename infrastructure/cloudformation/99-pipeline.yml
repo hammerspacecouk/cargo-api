@@ -11,7 +11,10 @@ Parameters:
   GitHubUser:
     Type: String
 
-  ClusterName:
+  ClusterStackAlpha:
+    Type: String
+
+  ClusterStackProd:
     Type: String
 
   ServiceName:
@@ -335,21 +338,40 @@ Resources:
               InputArtifacts:
                 - Name: App
               OutputArtifacts: []
+        # todo - step to run migrations
         - Name: DeployToAlpha
           Actions:
-            - Name: DeployToAlpha
+            - Name: DeployAPI
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
                 Version: 1
                 Provider: ECS
               Configuration:
-                ClusterName: !Ref ClusterName
-                ServiceName: !Ref ServiceName
+                ClusterName:
+                  Fn::ImportValue: !Sub "${ClusterStack}::ClusterName"
+                ServiceName: api
                 FileName: "imagedefinitions.json"
               InputArtifacts:
                 - Name: BuildOutput
               RunOrder: 1
+            - Name: DeployArrivals
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: ECS
+              Configuration:
+                ClusterName:
+                  Fn::ImportValue: !Sub "${ClusterStack}::ClusterName"
+                ServiceName: arrivals
+                FileName: "imagedefinitions.json"
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+        # todo - manual button press (eventually a automatic sanity test suite)
+        # todo - run prod migrations
+        # todo - deploy prod images
 
 
 Outputs:

@@ -40,48 +40,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
 
-  TaskDefinitionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-
-  TaskDefinitionRolePolicies:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub "planet-cargo-ssm-${Environment}"
-      Roles:
-        - !Ref TaskDefinitionRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - ssm:GetParameterHistory
-              - ssm:GetParameter
-              - ssm:GetParameters
-              - ssm:GetParametersByPath
-            Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/planet-cargo/${Environment}/*
-
-  CloudWatchNginx:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${Environment}-planet-cargo-api-nginx
-      RetentionInDays: 30
-
-  CloudWatchPHP:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub ${Environment}-planet-cargo-api-php
-      RetentionInDays: 30
 
   Service:
     Type: AWS::ECS::Service

@@ -55,7 +55,7 @@ class StatusAction
             'environment' => $this->applicationConfig->getEnvironment(),
             'cache' => $this->getCacheStatus(),
             'maxScore' => PHP_INT_MAX,
-            'release' => 'PreArctan',
+            'release' => 'Alpha',
             'version' => $this->applicationConfig->getVersion(),
             'distanceMultiplier' => $this->applicationConfig->getDistanceMultiplier(),
             'schema' => $this->getMigrationStatus(),

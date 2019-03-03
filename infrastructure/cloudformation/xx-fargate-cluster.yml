@@ -250,60 +250,7 @@ Resources:
                 FromPort: !Ref SecurityIngressFromPort
                 ToPort: !Ref SecurityIngressToPort
                 CidrIp: !Ref SecurityIngressCidrIp
-    EcsInstanceLc:
-        Condition: LaunchInstances
-        Type: AWS::AutoScaling::LaunchConfiguration
-        Properties:
-            ImageId: !Ref EcsAmiId
-            InstanceType: !Ref EcsInstanceType
-            AssociatePublicIpAddress: true
-            IamInstanceProfile: !Ref IamRoleInstanceProfile
-            KeyName: !If [ CreateEC2LCWithKeyPair, !Ref KeyName, !Ref "AWS::NoValue" ]
-            SecurityGroups: [ !If [ CreateNewSecurityGroup, !Ref EcsSecurityGroup, !Ref SecurityGroupId ] ]
-            BlockDeviceMappings: !If
-                - CreateEbsVolume
-                -
-                    - DeviceName: !Ref DeviceName
-                      Ebs:
-                          VolumeSize: !Ref EbsVolumeSize
-                          VolumeType: !Ref EbsVolumeType
-                - !Ref "AWS::NoValue"
-            UserData: !If
-                - SetEndpointToECSAgent
-                - Fn::Base64: !Sub |
-                      #!/bin/bash
-                      echo ECS_CLUSTER=${EcsClusterName} >> /etc/ecs/ecs.config
-                      echo ECS_BACKEND_HOST=${EcsEndpoint} >> /etc/ecs/ecs.config
-                - Fn::Base64: !Sub |
-                      #!/bin/bash
-                      echo ECS_CLUSTER=${EcsClusterName} >> /etc/ecs/ecs.config
-    EcsInstanceAsg:
-        Condition: LaunchInstances
-        Type: AWS::AutoScaling::AutoScalingGroup
-        Properties:
-            VPCZoneIdentifier: !If
-                - CreateSubnet1
-                - !If
-                    - CreateSubnet2
-                    - !If
-                        - CreateSubnet3
-                        - [ !Sub "${PubSubnetAz1}, ${PubSubnetAz2}, ${PubSubnetAz3}" ]
-                        - [ !Sub "${PubSubnetAz1}, ${PubSubnetAz2}" ]
-                    - [ !Sub "${PubSubnetAz1}" ]
-                - !Ref SubnetIds
-            LaunchConfigurationName: !Ref EcsInstanceLc
-            MinSize: '0'
-            MaxSize: !Ref AsgMaxSize
-            DesiredCapacity: !Ref AsgMaxSize
-            Tags:
-                -
-                    Key: Name
-                    Value: !Sub "ECS Instance - ${AWS::StackName}"
-                    PropagateAtLaunch: 'true'
-                -
-                    Key: Description
-                    Value: "This instance is the part of the Auto Scaling group which was created through ECS Console"
-                    PropagateAtLaunch: 'true'
+
 Outputs:
     EcsInstanceAsgName:
         Condition: LaunchInstances
