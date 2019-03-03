@@ -5,6 +5,7 @@ FROM ${BASE_REPO}:${TAG}
 
 ARG APP_VERSION=latest
 ENV APP_VERSION=$APP_VERSION
+ENV APP_ENV=prod
 
 # Setup the application
 COPY . /var/www
