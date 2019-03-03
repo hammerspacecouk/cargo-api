@@ -335,9 +335,9 @@ Resources:
               InputArtifacts:
                 - Name: App
               OutputArtifacts: []
-        - Name: DeployAlpha
+        - Name: DeployToAlpha
           Actions:
-            - Name: DeployAlpha
+            - Name: DeployToAlpha
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
