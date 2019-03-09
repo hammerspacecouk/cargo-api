@@ -17,9 +17,6 @@ Parameters:
   ClusterStackProd:
     Type: String
 
-  ServiceName:
-    Type: String
-
 Resources:
   Repository:
     Type: AWS::ECR::Repository
@@ -349,7 +346,7 @@ Resources:
                 Provider: ECS
               Configuration:
                 ClusterName:
-                  Fn::ImportValue: !Sub "${ClusterStack}::ClusterName"
+                  Fn::ImportValue: !Sub "${ClusterStackAlpha}::ClusterName"
                 ServiceName: api
                 FileName: "imagedefinitions.json"
               InputArtifacts:
@@ -363,12 +360,13 @@ Resources:
                 Provider: ECS
               Configuration:
                 ClusterName:
-                  Fn::ImportValue: !Sub "${ClusterStack}::ClusterName"
+                  Fn::ImportValue: !Sub "${ClusterStackAlpha}::ClusterName"
                 ServiceName: arrivals
                 FileName: "imagedefinitions.json"
               InputArtifacts:
                 - Name: BuildOutput
               RunOrder: 1
+        # todo - deploy scheduled task updates
         # todo - manual button press (eventually a automatic sanity test suite)
         # todo - run prod migrations
         # todo - deploy prod images

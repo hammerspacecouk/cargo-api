@@ -8,6 +8,13 @@ use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
 
 class ApplicationConfig
 {
+    private const LOGIN_ANON = 0b000001;
+    private const LOGIN_EMAIL = 0b0000100;
+    private const LOGIN_GOOGLE = 0b000100;
+    private const LOGIN_FACEBOOK = 0b001000;
+    private const LOGIN_TWITTER = 0b010000;
+    private const LOGIN_MICROSOFT = 0b100000;
+
     private $environment;
     private $hostnameApi;
     private $hostnameWeb;
@@ -38,12 +45,7 @@ class ApplicationConfig
         string $emailFromName,
         string $emailFromAddress,
         string $applicationSecret,
-        bool $loginAnonEnabled,
-        bool $loginGoogleEnabled,
-        bool $loginFacebookEnabled,
-        bool $loginTwitterEnabled,
-        bool $loginMicrosoftEnabled,
-        bool $loginEmailEnabled,
+        string $loginFlags,
         string $tokenPrivateKey,
         ?string $version
     ) {
@@ -59,12 +61,14 @@ class ApplicationConfig
         $this->version = $version;
         $this->applicationSecret = $applicationSecret;
         $this->ipLifetimeSeconds = $ipLifetimeSeconds;
-        $this->loginAnonEnabled = $loginAnonEnabled;
-        $this->loginGoogleEnabled = $loginGoogleEnabled;
-        $this->loginFacebookEnabled = $loginFacebookEnabled;
-        $this->loginTwitterEnabled = $loginTwitterEnabled;
-        $this->loginMicrosoftEnabled = $loginMicrosoftEnabled;
-        $this->loginEmailEnabled = $loginEmailEnabled;
+
+        $flags = \bindec($loginFlags);
+        $this->loginAnonEnabled = (bool)($flags & self::LOGIN_ANON);
+        $this->loginGoogleEnabled = (bool)($flags & self::LOGIN_GOOGLE);
+        $this->loginFacebookEnabled = (bool)($flags & self::LOGIN_FACEBOOK);
+        $this->loginTwitterEnabled = (bool)($flags & self::LOGIN_TWITTER);
+        $this->loginMicrosoftEnabled = (bool)($flags & self::LOGIN_MICROSOFT);
+        $this->loginEmailEnabled = (bool)($flags & self::LOGIN_EMAIL);
     }
 
     public function getEnvironment(): string

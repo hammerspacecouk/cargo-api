@@ -23,12 +23,7 @@ parameters:
     env(MAILER_FROM_NAME): ''
     env(MAILER_FROM_ADDRESS): ''
     env(APP_SECRET): ''
-    env(LOGIN_ANON): false
-    env(LOGIN_GOOGLE): false
-    env(LOGIN_FACEBOOK): false
-    env(LOGIN_TWITTER): false
-    env(LOGIN_MICROSOFT): false
-    env(LOGIN_EMAIL): false
+    env(LOGIN_FLAGS): '000000'
     env(TOKEN_PRIVATE_KEY): ''
     env(APP_VERSION): ''
     env(MAILER_HOST): ''
@@ -80,12 +75,7 @@ services:
             - '%env(MAILER_FROM_NAME)%'
             - '%env(MAILER_FROM_ADDRESS)%'
             - '%env(APP_SECRET)%'
-            - '%env(LOGIN_ANON)%'
-            - '%env(LOGIN_GOOGLE)%'
-            - '%env(LOGIN_FACEBOOK)%'
-            - '%env(LOGIN_TWITTER)%'
-            - '%env(LOGIN_MICROSOFT)%'
-            - '%env(LOGIN_EMAIL)%'
+            - '%env(LOGIN_FLAGS)%'
             - '%env(TOKEN_PRIVATE_KEY)%'
             - '%env(APP_VERSION)%'
 

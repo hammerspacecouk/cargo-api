@@ -1,0 +1,60 @@
+Resources:
+  ApiPHPRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: api-php
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+                {
+                    "rulePriority": 1,
+                    "description": "Expire images older than 30 days",
+                    "selection": {
+                        "tagStatus": "untagged",
+                        "countType": "sinceImagePushed",
+                        "countUnit": "days",
+                        "countNumber": 30
+                    },
+                    "action": {
+                        "type": "expire"
+                    }
+                }
+            ]
+          }
+
+  ApiNginxRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: api-nginx
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+                {
+                    "rulePriority": 1,
+                    "description": "Expire images older than 30 days",
+                    "selection": {
+                        "tagStatus": "untagged",
+                        "countType": "sinceImagePushed",
+                        "countUnit": "days",
+                        "countNumber": 30
+                    },
+                    "action": {
+                        "type": "expire"
+                    }
+                }
+            ]
+          }
+
+Outputs:
+  ApiPHPRepository:
+    Description: The ECR for the API PHP
+    Value: !Ref ApiPHPRepository
+    Export:
+      Name: !Sub "${AWS::StackName}::ApiPHPRepository"
+  ApiNginxRepository:
+    Description: The ECR for the API Nginx
+    Value: !Ref ApiNginxRepository
+    Export:
+      Name: !Sub "${AWS::StackName}::ApiNginxRepository"

@@ -3,8 +3,6 @@ Description: >
   Task definitions for running the API
 
 Parameters:
-  ParamStoreNamespace:
-    Type: String
 
   Environment:
     Type: String
@@ -112,7 +110,7 @@ Resources:
             - Name: APP_ENV
               Value: !Ref Environment
             - Name: PARAM_PATH
-              Value: !Sub ${ParamStoreNamespace}/${Environment}
+              Value: !Sub ${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -156,7 +154,7 @@ Resources:
             - Name: APP_ENV
               Value: !Ref Environment
             - Name: PARAM_PATH
-              Value: !Sub ${ParamStoreNamespace}/${Environment}
+              Value: !Sub ${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -187,7 +185,7 @@ Resources:
             - Name: APP_ENV
               Value: !Ref Environment
             - Name: PARAM_PATH
-              Value: !Sub ${ParamStoreNamespace}/${Environment}
+              Value: !Sub ${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -218,7 +216,7 @@ Resources:
             - Name: APP_ENV
               Value: !Ref Environment
             - Name: PARAM_PATH
-              Value: !Sub ${ParamStoreNamespace}/${Environment}
+              Value: !Sub ${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -251,7 +249,7 @@ Resources:
             - Name: APP_ENV
               Value: !Ref Environment
             - Name: PARAM_PATH
-              Value: !Sub ${ParamStoreNamespace}/${Environment}
+              Value: !Sub ${Environment}
           LogConfiguration:
             LogDriver: awslogs
             Options:
