@@ -175,6 +175,24 @@ Resources:
         - Key: Name
           Value: !Sub ${AWS::StackName}-OutWebSecurityGroup
 
+  InWebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http from outside world
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}-InWebSecurityGroup
+
 Outputs:
   VPC:
     Description: VPC of the base network
@@ -216,6 +234,11 @@ Outputs:
     Value: !Ref DBSecurityGroup
     Export:
       Name: !Sub ${AWS::StackName}::DBSecurityGroup
+  InWebSecurityGroup:
+    Description: Security Group to talk to outside web
+    Value: !Ref InWebSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}::InWebSecurityGroup
   OutWebSecurityGroup:
     Description: Security Group to talk to outside web
     Value: !Ref OutWebSecurityGroup

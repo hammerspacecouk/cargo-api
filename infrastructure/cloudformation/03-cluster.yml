@@ -30,45 +30,13 @@ Resources:
     Properties:
       ClusterName: !Sub ${ClusterNamePrefix}-${Environment}
 
-  ECSServiceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Path: /
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ecs.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
-
-  FargateExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Sid: 'ECS'
-            Principal:
-              Service:
-                - ecs-tasks.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/cfn/"
-
   APIService:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref Cluster
       ServiceName: api
       LaunchType: 'FARGATE'
-      DesiredCount: 1
+      DesiredCount: 0
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 0
@@ -86,7 +54,7 @@ Resources:
       Cluster: !Ref Cluster
       ServiceName: arrivals
       LaunchType: 'FARGATE'
-      DesiredCount: 1
+      DesiredCount: 0
       DeploymentConfiguration:
         MaximumPercent: 100
         MinimumHealthyPercent: 0

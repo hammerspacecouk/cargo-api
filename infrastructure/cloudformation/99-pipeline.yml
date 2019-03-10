@@ -18,53 +18,6 @@ Parameters:
     Type: String
 
 Resources:
-  Repository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: cargo-api
-      LifecyclePolicy:
-        LifecyclePolicyText: |
-          {
-            "rules": [
-                {
-                    "rulePriority": 1,
-                    "description": "Expire images older than 30 days",
-                    "selection": {
-                        "tagStatus": "untagged",
-                        "countType": "sinceImagePushed",
-                        "countUnit": "days",
-                        "countNumber": 30
-                    },
-                    "action": {
-                        "type": "expire"
-                    }
-                }
-            ]
-          }
-
-  NginxRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: cargo-api-nginx
-      LifecyclePolicy:
-        LifecyclePolicyText: |
-          {
-            "rules": [
-                {
-                    "rulePriority": 1,
-                    "description": "Expire images older than 30 days",
-                    "selection": {
-                        "tagStatus": "untagged",
-                        "countType": "sinceImagePushed",
-                        "countUnit": "days",
-                        "countNumber": 30
-                    },
-                    "action": {
-                        "type": "expire"
-                    }
-                }
-            ]
-          }
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -101,12 +54,19 @@ Resources:
                 Resource: "*"
                 Effect: Allow
                 Action:
-                  - ecr:GetAuthorizationToken
+                  - ecr:GetLifecyclePolicyPreview
                   - ecr:GetDownloadUrlForLayer
+                  - ecr:GetAuthorizationToken
+                  - ecr:ListTagsForResource
+                  - ecr:ListImages
                   - ecr:BatchGetImage
+                  - ecr:DescribeImages
+                  - ecr:DescribeRepositories
                   - ecr:BatchCheckLayerAvailability
+                  - ecr:GetRepositoryPolicy
+                  - ecr:GetLifecyclePolicy
               - Sid: EcrPushPhpPolicy
-                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${Repository}
+                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/api-php
                 Effect: Allow
                 Action:
                   - ecr:PutImage
@@ -114,7 +74,7 @@ Resources:
                   - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
               - Sid: EcrPushNginxPolicy
-                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${NginxRepository}
+                Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/api-nginx
                 Effect: Allow
                 Action:
                   - ecr:PutImage
@@ -181,7 +141,7 @@ Resources:
             pre_build:
               commands:
                 - echo Installing composer dependencies...
-                - composer install --prefer-dist --no-scripts
+                - composer install --prefer-dist --no-scripts --no-progress --no-suggest
             build:
               commands:
                 - composer tests
@@ -194,7 +154,7 @@ Resources:
             Value: !Ref AWS::Region
           - Name: APP_ENV
             Value: build
-      Name: "planet-cargo-api-test"
+      Name: "api-test"
       ServiceRole: !Ref CodeBuildServiceRole
 
   CodeBuildProjectImage:
@@ -234,8 +194,8 @@ Resources:
           - Name: BASE_REPO
             Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/php-base-image
           - Name: REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
-      Name: "planet-cargo-api-build"
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/api-php
+      Name: "api-php-build"
       ServiceRole: !Ref CodeBuildServiceRole
 
   CodeBuildNginxImage:
@@ -268,14 +228,14 @@ Resources:
           - Name: AWS_DEFAULT_REGION
             Value: !Ref AWS::Region
           - Name: REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${NginxRepository}
-      Name: "planet-cargo-api-nginx-build"
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/api-nginx
+      Name: "api-nginx-build"
       ServiceRole: !Ref CodeBuildServiceRole
 
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: planet-cargo-api
+      Name: api-pipeline
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
