@@ -1,12 +1,9 @@
 # docker-compose file for local dev only
 version: "3"
 
-
 services:
   cargo-api-php:
     image: planet-cargo-base-php:latest
-    links:
-      - cargo-db
     volumes:
       - .:/var/www
     working_dir: /var/www
@@ -15,13 +12,11 @@ services:
 
   cargo-api-nginx:
     image: nginx:alpine
-    links:
-      - cargo-api-php
     ports:
       - 8080:80
     volumes:
       - .:/var/www
-      - ./nginx:/etc/nginx/conf.d
+      - ./conf/docker-nginx:/etc/nginx/conf.d
 
   cargo-db:
     image: mysql:5.6
