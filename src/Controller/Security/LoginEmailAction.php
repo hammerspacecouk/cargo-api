@@ -67,16 +67,16 @@ class LoginEmailAction extends AbstractLoginAction
         $this->logger->debug(__CLASS__);
         $token = $request->get('token');
         $target = $request->get('target');
-        $loginToken = $request->get('loginToken', '');
 
         try {
+            if ($target && $this->usersService->verifyLoginToken($token, self::TOKEN_TYPE)) {
+                $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
+                return $this->sendEmail($request, $target);
+            }
+
             if ($token) {
                 $this->logger->notice('[LOGIN] [EMAIL]');
                 return $this->processLogin($request, $token);
-            }
-            if ($target && $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE)) {
-                $this->logger->notice('[LOGIN REQUEST] [EMAIL]');
-                return $this->sendEmail($request, $target);
             }
         } catch (TokenException | InvalidEmailAddressException | BadRequestHttpException $e) {
             $query = '?messages=' . new Messages([new Error($e->getMessage())]);

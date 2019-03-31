@@ -32,13 +32,33 @@ class LoginOptions implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        return [
-            'anon' => $this->loginAnonToken ? (string)$this->loginAnonToken : null,
-            'email' => $this->loginEmailToken ? (string)$this->loginEmailToken : null,
-            'facebook' => $this->facebook,
-            'google' => $this->google,
-            'microsoft' => $this->microsoft,
-            'twitter' => $this->twitter,
-        ];
+        $data = [];
+        if ($this->loginAnonToken) {
+            $data['anon'] = [
+                'path' => '/login/anonymous',
+                'token' => (string)$this->loginAnonToken,
+            ];
+        }
+        if ($this->loginEmailToken) {
+            $data['email'] = [
+                'path' => '/login/email',
+                'token' => (string)$this->loginEmailToken,
+            ];
+        }
+
+        if ($this->facebook) {
+            $data['facebook'] = '/login/facebook';
+        }
+        if ($this->google) {
+            $data['google'] = '/login/google';
+        }
+        if ($this->microsoft) {
+            $data['microsoft'] = '/login/microsoft';
+        }
+        if ($this->twitter) {
+            $data['twitter'] = '/login/twitter';
+        }
+
+        return $data;
     }
 }

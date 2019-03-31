@@ -3,8 +3,12 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
+use App\Controller\Security\LoginAnonymousAction;
+use App\Controller\Security\LoginEmailAction;
 use App\Controller\UserAuthenticationTrait;
+use App\Domain\ValueObject\LoginOptions;
 use App\Domain\ValueObject\SessionState;
+use App\Infrastructure\ApplicationConfig;
 use App\Response\FleetResponse;
 use App\Service\AuthenticationService;
 use App\Service\PlayerRanksService;
@@ -38,6 +42,7 @@ class IndexAction
     }
 
     public function __construct(
+        ApplicationConfig $applicationConfig,
         AuthenticationService $authenticationService,
         PlayerRanksService $playerRanksService,
         UsersService $usersService,
@@ -47,21 +52,43 @@ class IndexAction
         $this->usersService = $usersService;
         $this->playerRanksService = $playerRanksService;
         $this->fleetResponse = $fleetResponse;
+        $this->applicationConfig = $applicationConfig;
     }
 
     public function __invoke(
         Request $request
     ): Response {
-        $user = $this->getUser($request, $this->authenticationService);
+        $user = $this->getUserIfExists($request, $this->authenticationService);
+        $fleet = null;
 
-        $state = new SessionState(
-            $user,
-            $this->playerRanksService->getForUser($user),
-        );
+        if ($user) {
+            $sessionState = new SessionState(
+                $user,
+                $this->playerRanksService->getForUser($user)
+            );
+            $fleet = $this->fleetResponse->getResponseDataForUser($user);
+        } else {
+            $loginOptions = new LoginOptions(
+                $this->applicationConfig->isLoginAnonEnabled() ?
+                    $this->usersService->getLoginToken(LoginAnonymousAction::TOKEN_TYPE) : null,
+                $this->applicationConfig->isLoginEmailEnabled() ?
+                    $this->usersService->getLoginToken(LoginEmailAction::TOKEN_TYPE) : null,
+                $this->applicationConfig->isLoginFacebookEnabled(),
+                $this->applicationConfig->isLoginGoogleEnabled(),
+                $this->applicationConfig->isLoginMicrosoftEnabled(),
+                $this->applicationConfig->isLoginTwitterEnabled(),
+                );
+
+            $sessionState = new SessionState(
+                null,
+                null,
+                $loginOptions,
+                );
+        }
 
         $data = [
-            'sessionState' => $state,
-            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
+            'sessionState' => $sessionState,
+            'fleet' => $fleet,
         ];
 
         return $this->userResponse(new JsonResponse($data), $this->authenticationService);

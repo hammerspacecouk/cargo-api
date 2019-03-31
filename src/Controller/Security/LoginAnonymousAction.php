@@ -32,7 +32,7 @@ class LoginAnonymousAction extends AbstractLoginAction
     public function __invoke(
         Request $request
     ): RedirectResponse {
-        $loginToken = $request->get('loginToken', '');
+        $loginToken = $request->get('token', '');
         try {
             $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE);
         } catch (TokenException $exception) {
