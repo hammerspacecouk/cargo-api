@@ -28,14 +28,14 @@ class TokenId
      */
     public static function toIds(string $tokenIdString): array
     {
-        return \array_map(function (string $idString) {
+        return \array_map(static function (string $idString) {
             return Uuid::fromString($idString);
         }, \explode(self::SEPARATOR, $tokenIdString));
     }
 
     public static function fromString(string $idsString): TokenId
     {
-        return new self(...\array_map(function (string $id) {
+        return new self(...\array_map(static function (string $id) {
             return Uuid::fromString($id);
         }, \explode('/', $idsString)));
     }

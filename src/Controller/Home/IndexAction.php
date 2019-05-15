@@ -25,7 +25,7 @@ class IndexAction
 
         // todo - public cache headers
         return new JsonResponse([
-            'events' => $eventsService->findAllLatest(5),
+            'events' => $eventsService->findAllLatest(15),
         ]);
     }
 }

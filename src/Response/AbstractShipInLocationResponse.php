@@ -13,7 +13,9 @@ use App\Service\CratesService;
 use App\Service\EffectsService;
 use App\Service\EventsService;
 use App\Service\PlayerRanksService;
+use App\Service\Ships\ShipHealthService;
 use App\Service\Ships\ShipMovementService;
+use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 
@@ -29,6 +31,8 @@ abstract class AbstractShipInLocationResponse
     protected $algorithmService;
     protected $shipMovementService;
     protected $usersService;
+    protected $shipNameService;
+    protected $shipHealthService;
 
     public function __construct(
         AlgorithmService $algorithmService,
@@ -39,7 +43,9 @@ abstract class AbstractShipInLocationResponse
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
         ShipMovementService $shipMovementService,
+        ShipNameService $shipNameService,
         ShipsService $shipsService,
+        ShipHealthService $shipHealthService,
         UsersService $usersService
     ) {
         $this->playerRanksService = $playerRanksService;
@@ -52,6 +58,8 @@ abstract class AbstractShipInLocationResponse
         $this->shipMovementService = $shipMovementService;
         $this->usersService = $usersService;
         $this->effectsService = $effectsService;
+        $this->shipNameService = $shipNameService;
+        $this->shipHealthService = $shipHealthService;
     }
 
     abstract public function getResponseData(
@@ -76,6 +84,15 @@ abstract class AbstractShipInLocationResponse
             'playerScore' => $user->getScore(),
             'playerRankStatus' => $rankStatus,
             'hint' => null,
+            'renameToken' => $this->shipNameService->getRequestShipNameTransaction(
+                $user->getId(),
+                $ship->getId(),
+            ),
+            'health' => [
+                $this->shipHealthService->getSmallHealthTransaction($user, $ship),
+                $this->shipHealthService->getLargeHealthTransaction($user, $ship),
+            ],
+            'defenceOptions' => $this->effectsService->getShipDefenceOptions($ship, $user),
         ];
         return $baseData;
     }

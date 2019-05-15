@@ -63,6 +63,8 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->join('tbl.crate', 'crate')
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
+            ->orderBy('crate.isGoal', 'ASC')
+            ->addOrderBy('crate.value', 'ASC')
             ->setParameter('ship', $shipId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }

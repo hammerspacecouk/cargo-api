@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Domain\Entity\ShipInChannel;
 use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
-use App\Response\ShipInChannelResponse;
-use App\Response\ShipInPortResponse;
+use App\Response\ShipInLocationResponse;
 use App\Service\AuthenticationService;
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
@@ -37,8 +34,7 @@ class ShipAction
     private $eventsService;
     private $cratesService;
     private $applicationConfig;
-    private $shipInPortResponse;
-    private $shipInChannelResponse;
+    private $shipInLocationResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -54,15 +50,13 @@ class ShipAction
     public function __construct(
         AuthenticationService $authenticationService,
         ShipsService $shipsService,
-        ShipInChannelResponse $shipInChannelResponse,
-        ShipInPortResponse $shipInPortResponse,
+        ShipInLocationResponse $shipInLocationResponse,
         LoggerInterface $logger
     ) {
         $this->authenticationService = $authenticationService;
         $this->shipsService = $shipsService;
         $this->logger = $logger;
-        $this->shipInPortResponse = $shipInPortResponse;
-        $this->shipInChannelResponse = $shipInChannelResponse;
+        $this->shipInLocationResponse = $shipInLocationResponse;
     }
 
     public function __invoke(
@@ -71,23 +65,8 @@ class ShipAction
         $this->logger->debug(__CLASS__);
         $user = $this->getUser($request, $this->authenticationService);
         $ship = $this->getShipWithLocation($request, $user);
-        $location = $ship->getLocation();
 
-        if ($location instanceof ShipInPort) {
-            $response = $this->shipInPortResponse->getResponseData(
-                $user,
-                $ship,
-                $location
-            );
-        } elseif ($location instanceof ShipInChannel) {
-            $response = $this->shipInChannelResponse->getResponseData(
-                $user,
-                $ship,
-                $location
-            );
-        } else {
-            throw new \RuntimeException('Unknown location');
-        }
+        $response = $this->shipInLocationResponse->getResponseData($user, $ship);
         return $this->userResponse(new JsonResponse($response), $this->authenticationService);
     }
 

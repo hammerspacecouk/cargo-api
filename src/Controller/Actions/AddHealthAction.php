@@ -4,16 +4,19 @@ declare(strict_types=1);
 namespace App\Controller\Actions;
 
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
-use App\Response\FleetResponse;
+use App\Response\ShipInLocationResponse;
 use App\Service\Ships\ShipHealthService;
+use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AddHealthAction extends AbstractAction
 {
     private $shipHealthService;
     private $usersService;
-    private $fleetResponse;
+    private $shipInLocationResponse;
+    private $shipsService;
 
     public static function getRouteDefinition(): array
     {
@@ -23,13 +26,15 @@ class AddHealthAction extends AbstractAction
     public function __construct(
         ShipHealthService $shipHealthService,
         UsersService $usersService,
-        FleetResponse $fleetResponse,
+        ShipsService $shipsService,
+        ShipInLocationResponse $shipInLocationResponse,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
         $this->shipHealthService = $shipHealthService;
         $this->usersService = $usersService;
-        $this->fleetResponse = $fleetResponse;
+        $this->shipInLocationResponse = $shipInLocationResponse;
+        $this->shipsService = $shipsService;
     }
 
     // general status and stats of the game as a whole
@@ -41,13 +46,13 @@ class AddHealthAction extends AbstractAction
         $this->shipHealthService->useShipHealthToken($token);
 
         $user = $this->usersService->getById($token->getUserId());
-        if (!$user) {
+        $ship = $this->shipsService->getByIDWithLocation($token->getShipId());
+        if (!$user || !$ship) {
             throw new \RuntimeException('Something went very wrong here');
         }
 
         return [
-            'newScore' => $user->getScore(),
-            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
+            'data' => $this->shipInLocationResponse->getResponseData($user, $ship),
         ];
     }
 }

@@ -27,13 +27,28 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
         $data = $this->getBaseData($user, $ship, $location);
 
-        $cratesOnShip = $this->cratesService->findForShip($ship);
-        $totalCrateValue = \array_reduce($cratesOnShip, function (int $acc, Crate $crate) {
-            return $acc + $crate->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier());
-        }, 0);
+        $crateLocationsOnShip = $this->cratesService->findForShip($ship);
 
-        $latestShipCrateLocation = $this->cratesService->getMostRecentCrateLocationForShip($ship);
-        $moveCrateKey = $latestShipCrateLocation ? $latestShipCrateLocation->toHash() : $ship->toHash();
+        // find the total value and generate a key based on the current crates on the ship,
+        // so an action can only be done once. Then break out the crates from the location
+        $cratesOnShip = [];
+        $totalCrateValue = 0;
+        $moveCrateKey = '';
+
+        foreach ($crateLocationsOnShip as $crateLocation) {
+            $crate = $crateLocation->getCrate();
+            $moveCrateKey .= $crateLocation->toHash();
+
+            $totalCrateValue += $crate->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier());
+            $cratesOnShip[] = $crate;
+        }
+
+        // if there are no crates the moveCrateKey will end up with a previous key, so we'll find a key from the most
+        // recent location, even if it's no longer current.
+        if (empty($moveCrateKey)) {
+            $latestShipCrateLocation = $this->cratesService->getMostRecentCrateLocationForShip($ship);
+            $moveCrateKey = $latestShipCrateLocation ? $latestShipCrateLocation->toHash() : $ship->toHash();
+        }
 
         $shipTravelOptions = $this->effectsService->getShipTravelOptions($ship, $user);
 
@@ -46,7 +61,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $user,
             $totalCrateValue,
             $location->getId(),
-        );
+            );
         $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
@@ -201,7 +216,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $ship,
                 $journeyTimeSeconds,
                 $earnings,
-            );
+                );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
@@ -214,7 +229,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $effectsToExpire,
-                );
+                    );
             }
 
             $directions[$bearing] = [

@@ -10,19 +10,19 @@ class ShipHealthToken extends AbstractActionToken
 {
     public const KEY_SHIP_ID = 'si';
     public const KEY_USER_ID = 'ui';
-    public const KEY_PERCENT = 'pc';
+    public const KEY_AMOUNT = 'am';
     public const KEY_COST = 'co';
 
     public static function make(
         UuidInterface $shipId,
         UuidInterface $userId,
-        int $percent,
+        int $amount,
         int $cost
     ): array {
         return parent::create([
             self::KEY_SHIP_ID => $shipId->toString(),
             self::KEY_USER_ID => $userId->toString(),
-            self::KEY_PERCENT => $percent,
+            self::KEY_AMOUNT => $amount,
             self::KEY_COST => $cost,
         ]);
     }
@@ -37,9 +37,9 @@ class ShipHealthToken extends AbstractActionToken
         return Uuid::fromString($this->token->get(self::KEY_USER_ID));
     }
 
-    public function getPercent(): int
+    public function getAmount(): int
     {
-        return (int)$this->token->get(self::KEY_PERCENT);
+        return (int)$this->token->get(self::KEY_AMOUNT);
     }
 
     public function getCost(): int

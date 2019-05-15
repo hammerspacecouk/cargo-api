@@ -36,7 +36,7 @@ class DecodeTokenCommand extends AbstractCommand
         OutputInterface $output
     ) {
         $tokenString = $this->getStringArgument($input, 'tokenString');
-        $token = $this->tokenProvider->parseTokenFromString($tokenString);
+        $token = $this->tokenProvider->parseTokenFromString($tokenString, false);
 
         $output->writeln(
             \json_encode($token->getClaims(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)

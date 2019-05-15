@@ -14,7 +14,7 @@ class Costs
 
     // health
     public const SMALL_HEALTH = 500;
-    public const SMALL_HEALTH_INCREASE = 30;
+    public const SMALL_HEALTH_INCREASE = 100;
     public const LARGE_HEALTH = 1500;
-    public const LARGE_HEALTH_INCREASE = 100;
+    public const LARGE_HEALTH_INCREASE = 500;
 }

@@ -13,7 +13,6 @@ class RenameShipAction extends AbstractAction
 {
     private $shipsService;
     private $shipNameService;
-    private $fleetResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -23,13 +22,11 @@ class RenameShipAction extends AbstractAction
     public function __construct(
         ShipsService $shipsService,
         ShipNameService $shipNameService,
-        FleetResponse $fleetResponse,
         LoggerInterface $logger
     ) {
         parent::__construct($logger);
         $this->shipNameService = $shipNameService;
         $this->shipsService = $shipsService;
-        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole
@@ -46,7 +43,6 @@ class RenameShipAction extends AbstractAction
 
         return [
             'ship' => $ship,
-            'fleet' => $this->fleetResponse->getResponseDataForUser($ship->getOwner()),
         ];
     }
 }

@@ -5,32 +5,20 @@ namespace App\Response;
 
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
-use App\Service\EffectsService;
 use App\Service\EventsService;
-use App\Service\Ships\ShipHealthService;
-use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
 
 class FleetResponse
 {
     private $eventsService;
     private $shipsService;
-    private $shipHealthService;
-    private $shipNameService;
-    private $effectsService;
 
     public function __construct(
-        EffectsService $effectsService,
         EventsService $eventsService,
-        ShipsService $shipsService,
-        ShipHealthService $shipHealthService,
-        ShipNameService $shipNameService
+        ShipsService $shipsService
     ) {
         $this->eventsService = $eventsService;
         $this->shipsService = $shipsService;
-        $this->shipHealthService = $shipHealthService;
-        $this->shipNameService = $shipNameService;
-        $this->effectsService = $effectsService;
     }
 
     public function getResponseDataForUser(User $user): array
@@ -38,13 +26,13 @@ class FleetResponse
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
 
         $fleetShips = \array_map(function (Ship $ship) use ($user) {
-            return $this->mapShip($ship, $user);
+            return $this->mapShip($ship);
         }, $allShips);
 
         // order the ships. At the top should be those that need attention.
         // At the bottom should be the destroyed ships
         // the rest should be ordered by name
-        \usort($fleetShips, function ($a, $b) {
+        \usort($fleetShips, static function ($a, $b) {
             /** @var Ship $shipA */
             $shipA = $a['ship'];
             /** @var Ship $shipB */
@@ -67,22 +55,11 @@ class FleetResponse
         ];
     }
 
-    private function mapShip(Ship $ship, User $user): array
+    private function mapShip(Ship $ship): array
     {
-        $renameToken = $this->shipNameService->getRequestShipNameTransaction(
-            $user->getId(),
-            $ship->getId(),
-        );
-
         return [
             'ship' => $ship,
             'needsAttention' => $this->shipNeedsAttention($ship),
-            'defenceOptions' => $this->effectsService->getShipDefenceOptions($ship, $user),
-            'renameToken' => $renameToken,
-            'health' => [
-                $this->shipHealthService->getSmallHealthTransaction($user, $ship),
-                $this->shipHealthService->getLargeHealthTransaction($user, $ship),
-            ],
         ];
     }
 

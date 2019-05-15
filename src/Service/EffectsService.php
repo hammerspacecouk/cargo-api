@@ -40,7 +40,7 @@ class EffectsService extends AbstractService
         return \array_map(function (Effect $effect) use ($playingShip, $userEffects, $victimShip, $currentPort) {
 
             /** @var UserEffect|null $userEffect */
-            $userEffect = find(function (UserEffect $userEffect) use ($effect) {
+            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
                 return $effect->getId()->equals($userEffect->getEffect()->getId());
             }, $userEffects);
 
@@ -77,7 +77,7 @@ class EffectsService extends AbstractService
 
     public function getShipDefenceOptions(Ship $ship, User $user): array
     {
-        $allEffects = $this->getAvailableEffectsOfTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
+        $allEffects = $this->getAvailableEffectsOfType(EnumEffectsType::TYPE_DEFENCE);
 
         $userEffects = $this->getDefenceEffectsForUser($user);
         /** @var DbActiveEffect[] $activeShipEffects */
@@ -92,14 +92,19 @@ class EffectsService extends AbstractService
             $hitsRemaining = null;
             $expiry = null;
 
+            if (!$user->getRank()->meets($effect->getMinimumRank())) {
+                // not yet at the level to show this, so empty space
+                return null;
+            }
+
             /** @var DbActiveEffect|null $activeEffect */
-            $activeEffect = find(function (DbActiveEffect $activeEffect) use ($effect) {
+            $activeEffect = find(static function (DbActiveEffect $activeEffect) use ($effect) {
                 return $effect->getId()->equals($activeEffect->effect->id);
             }, $activeShipEffects);
 
 
             /** @var UserEffect|null $userEffect */
-            $userEffect = find(function (UserEffect $userEffect) use ($effect) {
+            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
                 return $effect->getId()->equals($userEffect->getEffect()->getId());
             }, $userEffects);
 
@@ -137,6 +142,10 @@ class EffectsService extends AbstractService
             ];
         }, $allEffects);
 
+        // temporary until there are more defence options - todo - make more options then remove
+        $defenceOptions[] = null;
+        $defenceOptions[] = null;
+        $defenceOptions[] = null;
         return $defenceOptions;
     }
 
@@ -152,7 +161,7 @@ class EffectsService extends AbstractService
         );
 
         if (!empty($activeTravelEffects)) {
-            return \array_map(function (array $activeEffect) use ($mapper) {
+            return \array_map(static function (array $activeEffect) use ($mapper) {
                 return [
                     'isActive' => true,
                     'effect' => $mapper->getEffect($activeEffect['effect']),
@@ -167,7 +176,7 @@ class EffectsService extends AbstractService
             $actionToken = null;
 
             /** @var UserEffect|null $userEffect */
-            $userEffect = find(function (UserEffect $userEffect) use ($effect) {
+            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
                 return $effect->getId()->equals($userEffect->getEffect()->getId());
             }, $userEffects);
 
@@ -225,7 +234,7 @@ class EffectsService extends AbstractService
             $user->getRank()->getThreshold(),
             Query::HYDRATE_OBJECT
         );
-        $earnedEffects = \array_values(\array_filter($allEffectEntities, function (DbEffect $effect) {
+        $earnedEffects = \array_values(\array_filter($allEffectEntities, static function (DbEffect $effect) {
             return !empty($effect->oddsOfWinning) && \random_int(1, $effect->oddsOfWinning) === 1;
         }));
 
@@ -237,14 +246,14 @@ class EffectsService extends AbstractService
         $userEffectRepo = $this->entityManager->getUserEffectRepo();
         $mapper = $this->mapperFactory->createEffectMapper();
 
-        return $this->entityManager->transactional(function () use (
+        return $this->entityManager->transactional(static function () use (
             $effectRepo,
             $userEntity,
             $userEffectRepo,
             $earnedEffects,
             $mapper
         ) {
-            return \array_map(function (DbEffect $effect) use ($effectRepo, $userEffectRepo, $userEntity, $mapper) {
+            return \array_map(static function (DbEffect $effect) use ($effectRepo, $userEffectRepo, $userEntity, $mapper) {
                 $userEffectRepo->createNew(
                     $effectRepo->getByID($effect->id, Query::HYDRATE_OBJECT),
                     $userEntity,
@@ -261,7 +270,16 @@ class EffectsService extends AbstractService
             $user->getRank()->getThreshold()
         );
         $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(function ($result) use ($mapper) {
+        return \array_map(static function ($result) use ($mapper) {
+            return $mapper->getEffect($result);
+        }, $allEffects);
+    }
+
+    private function getAvailableEffectsOfType(string $type): array
+    {
+        $allEffects = $this->entityManager->getEffectRepo()->getByType($type);
+        $mapper = $this->mapperFactory->createEffectMapper();
+        return \array_map(static function ($result) use ($mapper) {
             return $mapper->getEffect($result);
         }, $allEffects);
     }
@@ -275,7 +293,7 @@ class EffectsService extends AbstractService
         }
 
         $mapper = $this->mapperFactory->createUserEffectMapper();
-        $results = \array_map(function ($result) use ($mapper) {
+        $results = \array_map(static function ($result) use ($mapper) {
             return $mapper->getUserEffect($result);
         }, $this->entityManager->getUserEffectRepo()->getUniqueOfTypeForUserId($user->getId(), $type));
         $this->userEffectsCache[$cacheKey] = $results;
@@ -295,7 +313,7 @@ class EffectsService extends AbstractService
 
         $victimShipId = $applyEffectToken->getVictimShipId();
         if ($victimShipId) {
-            $shipsInPort = find(function (ShipLocation $shipInPort) use ($victimShipId) {
+            $shipsInPort = find(static function (ShipLocation $shipInPort) use ($victimShipId) {
                 return $shipInPort->ship->id->equals($victimShipId);
             }, $shipsInPort);
         }
@@ -313,7 +331,7 @@ class EffectsService extends AbstractService
             ->getByID($applyEffectToken->getShipId(), Query::HYDRATE_OBJECT);
 
         /** @var DbShip[] $affectedShips */
-        $affectedShips = \array_map(function (ShipLocation $shipInPort) {
+        $affectedShips = \array_map(static function (ShipLocation $shipInPort) {
             return $shipInPort->ship;
         }, ensureArray($shipsInPort));
 
@@ -411,7 +429,7 @@ class EffectsService extends AbstractService
         $activeEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId());
 
         $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(function (array $activeEffect) use ($mapper) {
+        return \array_map(static function (array $activeEffect) use ($mapper) {
             return $mapper->getEffect($activeEffect['effect']);
         }, $activeEffects);
     }

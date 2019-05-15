@@ -46,11 +46,14 @@ class CratesService extends AbstractService
             );
 
         $mapper = $this->mapperFactory->createCrateLocationMapper();
-        return array_map(function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getCrateLocation($result);
         }, $results);
     }
 
+    /**
+     * @return CrateLocation[]
+     */
     public function findForShip(Ship $ship): array
     {
         $results = $this->entityManager->getCrateLocationRepo()
@@ -58,9 +61,9 @@ class CratesService extends AbstractService
                 $ship->getId()
             );
 
-        $mapper = $this->mapperFactory->createCrateMapper();
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getCrate($result['crate']);
+        $mapper = $this->mapperFactory->createCrateLocationMapper();
+        return array_map(static function ($result) use ($mapper) {
+            return $mapper->getCrateLocation($result);
         }, $results);
     }
 
@@ -236,6 +239,7 @@ class CratesService extends AbstractService
                 Query::HYDRATE_OBJECT
             );
 
+            // todo - event log should cover hoarding
             $this->entityManager->transactional(function () use ($crateLocation, $shipLocation) {
                 $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);
                 $this->entityManager->getCrateLocationRepo()->makeInPort(

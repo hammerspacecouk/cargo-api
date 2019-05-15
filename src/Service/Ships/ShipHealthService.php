@@ -27,7 +27,7 @@ class ShipHealthService extends ShipsService
         $newHealth = $this->updateHealth(
             $token->getUserId(),
             $token->getShipId(),
-            $token->getPercent(),
+            $token->getAmount(),
             $token->getCost(),
         );
         $this->tokenHandler->markAsUsed($token->getOriginalToken());
@@ -38,6 +38,15 @@ class ShipHealthService extends ShipsService
         User $user,
         Ship $ship
     ): Transaction {
+        if ($ship->getStrengthPercent() === 100) {
+            return new Transaction(
+                Costs::SMALL_HEALTH_INCREASE,
+                null,
+                0,
+                Costs::SMALL_HEALTH,
+            );
+        }
+
         return $this->getShipHealthTransaction(
             $user->getId(),
             $ship->getId(),
@@ -50,6 +59,15 @@ class ShipHealthService extends ShipsService
         User $user,
         Ship $ship
     ): Transaction {
+        if ($ship->getStrengthPercent() === 100) {
+            return new Transaction(
+                Costs::LARGE_HEALTH_INCREASE,
+                null,
+                0,
+                Costs::LARGE_HEALTH,
+            );
+        }
+
         return $this->getShipHealthTransaction(
             $user->getId(),
             $ship->getId(),
@@ -61,13 +79,13 @@ class ShipHealthService extends ShipsService
     private function getShipHealthTransaction(
         UuidInterface $userId,
         UuidInterface $shipId,
-        int $percent,
+        int $amount,
         int $cost
     ): Transaction {
         $token = $this->tokenHandler->makeToken(...ShipHealthToken::make(
             $shipId,
             $userId,
-            $percent,
+            $amount,
             $cost,
         ));
         return new Transaction(
@@ -78,14 +96,14 @@ class ShipHealthService extends ShipsService
                 TokenProvider::getActionPath(ShipHealthToken::class, $this->dateTimeFactory->now())
             ),
             0,
-            $percent,
+            $amount,
         );
     }
 
     private function updateHealth(
         UuidInterface $userId,
         UuidInterface $shipId,
-        int $percent, // todo - this should not be percentage, as its too strong?
+        int $amountToAdd,
         int $cost
     ): int {
         // get the ship and its class to determine health improvement
@@ -99,7 +117,6 @@ class ShipHealthService extends ShipsService
         $userEntity = $userRepo->getByID($userId, Query::HYDRATE_OBJECT);
 
         $maxStrength = $ship->shipClass->strength;
-        $amountToAdd = ($percent / 100) * $maxStrength;
         $currentStrength = $ship->strength;
 
         if (($currentStrength + $amountToAdd) > $maxStrength) {
@@ -115,6 +132,6 @@ class ShipHealthService extends ShipsService
             return $newStrength;
         });
 
-        return $newStrength;
+        return (int)\ceil(($newStrength / $maxStrength) * 100);
     }
 }
