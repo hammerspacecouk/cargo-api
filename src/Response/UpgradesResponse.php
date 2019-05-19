@@ -21,28 +21,6 @@ class UpgradesResponse
     {
         return [
             'ships' => $this->upgradesService->getAvailableShipsForUser($user),
-            'effects' => [
-                'travel' =>
-                    $this->upgradesService->getAvailableEffectsByDisplayTypeForUser(
-                        $user,
-                        EnumEffectsDisplayGroupType::TYPE_TRAVEL
-                    ),
-                'defence' =>
-                    $this->upgradesService->getAvailableEffectsByDisplayTypeForUser(
-                        $user,
-                        EnumEffectsDisplayGroupType::TYPE_DEFENCE
-                    ),
-                'offence' =>
-                    $this->upgradesService->getAvailableEffectsByDisplayTypeForUser(
-                        $user,
-                        EnumEffectsDisplayGroupType::TYPE_OFFENCE
-                    ),
-                'special' =>
-                    $this->upgradesService->getAvailableEffectsByDisplayTypeForUser(
-                        $user,
-                        EnumEffectsDisplayGroupType::TYPE_SPECIAL
-                    ),
-            ],
         ];
     }
 }

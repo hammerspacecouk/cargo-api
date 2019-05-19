@@ -39,6 +39,7 @@ abstract class Effect extends Entity implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
         ];

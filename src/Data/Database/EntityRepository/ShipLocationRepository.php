@@ -185,6 +185,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->where('IDENTITY(tbl.port) = :portId')
             ->andWhere('tbl.isCurrent = 1')
             ->andWhere('ship.strength > 0')
+            ->orderBy('ship.strength', 'DESC')
             ->setParameter('portId', $portId->getBytes());
         return $qb->getQuery()->getResult($resultType);
     }

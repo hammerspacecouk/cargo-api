@@ -17,6 +17,7 @@ use App\Service\Ships\ShipHealthService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
+use App\Service\UpgradesService;
 use App\Service\UsersService;
 
 abstract class AbstractShipInLocationResponse
@@ -33,6 +34,7 @@ abstract class AbstractShipInLocationResponse
     protected $usersService;
     protected $shipNameService;
     protected $shipHealthService;
+    protected $upgradesService;
 
     public function __construct(
         AlgorithmService $algorithmService,
@@ -46,6 +48,7 @@ abstract class AbstractShipInLocationResponse
         ShipNameService $shipNameService,
         ShipsService $shipsService,
         ShipHealthService $shipHealthService,
+        UpgradesService $upgradesService,
         UsersService $usersService
     ) {
         $this->playerRanksService = $playerRanksService;
@@ -60,6 +63,7 @@ abstract class AbstractShipInLocationResponse
         $this->effectsService = $effectsService;
         $this->shipNameService = $shipNameService;
         $this->shipHealthService = $shipHealthService;
+        $this->upgradesService = $upgradesService;
     }
 
     abstract public function getResponseData(
@@ -80,6 +84,7 @@ abstract class AbstractShipInLocationResponse
             'port' => null,
             'channel' => null,
             'directions' => null,
+            'purchaseOptions' => null,
             'events' => [],
             'playerScore' => $user->getScore(),
             'playerRankStatus' => $rankStatus,
@@ -92,7 +97,7 @@ abstract class AbstractShipInLocationResponse
                 $this->shipHealthService->getSmallHealthTransaction($user, $ship),
                 $this->shipHealthService->getLargeHealthTransaction($user, $ship),
             ],
-            'defenceOptions' => $this->effectsService->getShipDefenceOptions($ship, $user),
+            'tacticalOptions' => $this->effectsService->getShipDefenceOptions($ship, $user),
         ];
         return $baseData;
     }

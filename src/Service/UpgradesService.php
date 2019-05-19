@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
 use App\Data\TokenProvider;
+use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
@@ -49,10 +50,12 @@ class UpgradesService extends AbstractService
         }, $allClasses);
     }
 
-    public function getAvailableEffectsByDisplayTypeForUser(User $user, string $type): array
+    public function getAvailableEffectsByDisplayTypeForUserAndPort(User $user, Port $port, string $type): array
     {
+        // todo - use $port to reduce the list
+
         // get the full list, then blank out any that aren't met by the rank
-        $allEffectsGrouped = $this->entityManager->getEffectRepo()->getAllByDisplayType($type);
+        $allEffectsGrouped = $this->entityManager->getEffectRepo()->getAllPurchasableByDisplayType($type);
 
         $mapper = $this->mapperFactory->createEffectMapper();
         return array_map(function ($result) use ($user, $mapper): ?Transaction {
@@ -62,18 +65,16 @@ class UpgradesService extends AbstractService
             }
 
             $purchaseToken = null;
-            if ($mapped->canBePurchased()) {
-                $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
-                    $user->getId(),
-                    $mapped->getId(),
-                    $mapped->getPurchaseCost(),
-                ));
-                $purchaseToken = new PurchaseEffectToken(
-                    $rawToken->getJsonToken(),
-                    (string)$rawToken,
-                    TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
-                );
-            }
+            $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
+                $user->getId(),
+                $mapped->getId(),
+                $mapped->getPurchaseCost(),
+            ));
+            $purchaseToken = new PurchaseEffectToken(
+                $rawToken->getJsonToken(),
+                (string)$rawToken,
+                TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
+            );
 
             return new Transaction(
                 $mapped->getPurchaseCost(),

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Response;
 
+use App\Data\Database\Types\EnumEffectsDisplayGroupType;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\CrateLocation;
 use App\Domain\Entity\Effect;
@@ -54,7 +55,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $port = $location->getPort();
         $data['port'] = $port;
-        $data['travelOptions'] = $shipTravelOptions;
+        $data['tacticalOptions'] = \array_merge($shipTravelOptions, $data['tacticalOptions']);
         $data['directions'] = $this->getDirectionsFromPort(
             $port,
             $ship,
@@ -67,8 +68,12 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
         $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
+
+        $data['purchaseOptions'] = $this->getPurchaseOptionsForPort($user, $port);
         return $data;
     }
+
+
 
     private function getShipsInPort(
         Port $port,
@@ -239,5 +244,31 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         return $directions;
+    }
+
+    private function getPurchaseOptionsForPort(User $user, Port $port): array
+    {
+        return \array_merge(
+            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
+                $user,
+                $port,
+                EnumEffectsDisplayGroupType::TYPE_TRAVEL
+            ),
+            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
+                $user,
+                $port,
+                EnumEffectsDisplayGroupType::TYPE_DEFENCE
+            ),
+            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
+                $user,
+                $port,
+                EnumEffectsDisplayGroupType::TYPE_OFFENCE
+            ),
+            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
+                $user,
+                $port,
+                EnumEffectsDisplayGroupType::TYPE_SPECIAL
+            ),
+        );
     }
 }
