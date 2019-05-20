@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Port;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
@@ -50,15 +51,19 @@ class UpgradesService extends AbstractService
         }, $allClasses);
     }
 
-    public function getAvailableEffectsByDisplayTypeForUserAndPort(User $user, Port $port, string $type): array
-    {
+    public function getAvailableEffectsByDisplayTypeForUserAndPort(
+        User $user,
+        Port $port,
+        Ship $ship,
+        string $type
+    ): array {
         // todo - use $port to reduce the list
 
         // get the full list, then blank out any that aren't met by the rank
         $allEffectsGrouped = $this->entityManager->getEffectRepo()->getAllPurchasableByDisplayType($type);
 
         $mapper = $this->mapperFactory->createEffectMapper();
-        return array_map(function ($result) use ($user, $mapper): ?Transaction {
+        return array_map(function ($result) use ($user, $ship, $mapper): ?Transaction {
             $mapped = $mapper->getEffect($result);
             if (!$user->getRank()->meets($mapped->getMinimumRank())) {
                 return null;
@@ -68,6 +73,7 @@ class UpgradesService extends AbstractService
             $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
                 $user->getId(),
                 $mapped->getId(),
+                $ship->getId(),
                 $mapped->getPurchaseCost(),
             ));
             $purchaseToken = new PurchaseEffectToken(

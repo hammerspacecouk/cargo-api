@@ -69,7 +69,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
         $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
 
-        $data['purchaseOptions'] = $this->getPurchaseOptionsForPort($user, $port);
+        $data['purchaseOptions'] = $this->getPurchaseOptionsForPort($user, $port, $ship);
         return $data;
     }
 
@@ -246,27 +246,31 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         return $directions;
     }
 
-    private function getPurchaseOptionsForPort(User $user, Port $port): array
+    private function getPurchaseOptionsForPort(User $user, Port $port, Ship $ship): array
     {
         return \array_merge(
             $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
                 $user,
                 $port,
+                $ship,
                 EnumEffectsDisplayGroupType::TYPE_TRAVEL
             ),
             $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
                 $user,
                 $port,
+                $ship,
                 EnumEffectsDisplayGroupType::TYPE_DEFENCE
             ),
             $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
                 $user,
                 $port,
+                $ship,
                 EnumEffectsDisplayGroupType::TYPE_OFFENCE
             ),
             $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
                 $user,
                 $port,
+                $ship,
                 EnumEffectsDisplayGroupType::TYPE_SPECIAL
             ),
         );

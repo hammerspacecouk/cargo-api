@@ -9,7 +9,6 @@ use App\Service\Ships\ShipHealthService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AddHealthAction extends AbstractAction
 {
