@@ -35,9 +35,16 @@ class EffectsService extends AbstractService
         $user = $playingShip->getOwner();
 
         $allEffects = $this->getAvailableEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
-        $userEffects = $this->getOffenceEffectsForUser($user);
+        $userEffects = $this->getOffenceEffectsOwnedByUser($user);
+        $countsOfType = $this->getCountsOfType($userEffects);
 
-        return \array_map(function (Effect $effect) use ($playingShip, $userEffects, $victimShip, $currentPort) {
+        return \array_map(function (Effect $effect) use (
+            $playingShip,
+            $userEffects,
+            $victimShip,
+            $currentPort,
+            $countsOfType
+        ) {
 
             /** @var UserEffect|null $userEffect */
             $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
@@ -60,7 +67,7 @@ class EffectsService extends AbstractService
                     $currentPort->getId(),
                     $effect->getDamage(),
                     $effect->affectsAllShips() ? null : $victimShip->getId(),
-                ));
+                    ));
                 $actionToken = new UseOffenceEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -71,6 +78,7 @@ class EffectsService extends AbstractService
             return [
                 'actionToken' => $actionToken,
                 'effect' => $effect,
+                'currentCount' => $countsOfType[$effect->getId()->toString()] ?? 0,
             ];
         }, $allEffects);
     }
@@ -79,7 +87,9 @@ class EffectsService extends AbstractService
     {
         $allEffects = $this->getAvailableEffectsOfType(EnumEffectsType::TYPE_DEFENCE);
 
-        $userEffects = $this->getDefenceEffectsForUser($user);
+        $userEffects = $this->getDefenceEffectsOwnedByUser($user);
+        $countsOfType = $this->getCountsOfType($userEffects);
+
         /** @var DbActiveEffect[] $activeShipEffects */
         $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
@@ -87,7 +97,13 @@ class EffectsService extends AbstractService
             Query::HYDRATE_OBJECT
         );
 
-        $defenceOptions = \array_map(function (Effect $effect) use ($ship, $user, $activeShipEffects, $userEffects) {
+        $defenceOptions = \array_map(function (Effect $effect) use (
+            $ship,
+            $user,
+            $activeShipEffects,
+            $userEffects,
+            $countsOfType
+        ) {
             $actionToken = null;
             $hitsRemaining = null;
             $expiry = null;
@@ -126,7 +142,7 @@ class EffectsService extends AbstractService
                     null,
                     $userEffect->getEffect()->getDurationSeconds(),
                     $userEffect->getEffect()->getHitCount(),
-                ));
+                    ));
                 $actionToken = new ShipDefenceEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -138,7 +154,9 @@ class EffectsService extends AbstractService
                 'actionToken' => $actionToken,
                 'effect' => $effect,
                 'hitsRemaining' => $hitsRemaining,
+                'currentCount' => $countsOfType[$effect->getId()->toString()] ?? 0,
                 'expiry' => $expiry,
+                'isActive' => $expiry || $hitsRemaining,
             ];
         }, $allEffects);
 
@@ -152,36 +170,43 @@ class EffectsService extends AbstractService
     public function getShipTravelOptions(Ship $ship, User $user): array
     {
         $allEffects = $this->getAvailableEffectsOfTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
-        $mapper = $this->mapperFactory->createEffectMapper();
 
-        /** @var DbActiveEffect[] $activeShipEffects */
-        $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
+        $activeTravelEffectsMap = [];
+        foreach ($this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
-        );
-
-        if (!empty($activeTravelEffects)) {
-            return \array_map(static function (array $activeEffect) use ($mapper) {
-                return [
-                    'isActive' => true,
-                    'effect' => $mapper->getEffect($activeEffect['effect']),
-                    'actionToken' => null,
-                ];
-            }, $activeTravelEffects);
+            Query::HYDRATE_OBJECT
+        ) as $activeEffect) {
+            /** @var DbActiveEffect $activeEffect */
+            $activeTravelEffectsMap[$activeEffect->effect->id->toString()] = true;
         }
 
-        $userEffects = $this->getTravelEffectsForUser($user);
+        $hasActiveTravelEffects = !empty($activeTravelEffectsMap);
 
-        $travelOptions = \array_map(function (Effect $effect) use ($ship, $user, $userEffects) {
+        $effectsOwnedByUser = $this->getTravelEffectsOwnedByUser($user);
+
+        $travelOptions = \array_map(function (Effect $effect) use (
+            $ship,
+            $user,
+            $effectsOwnedByUser,
+            $activeTravelEffectsMap,
+            $hasActiveTravelEffects
+        ) {
             $actionToken = null;
 
+            $allOwnedOfThisEffect = \array_filter($effectsOwnedByUser,
+                static function (UserEffect $userEffect) use ($effect) {
+                    return $effect->getId()->equals($userEffect->getEffect()->getId());
+                });
+            $countOfEffect = \count($allOwnedOfThisEffect);
             /** @var UserEffect|null $userEffect */
-            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
-                return $effect->getId()->equals($userEffect->getEffect()->getId());
-            }, $userEffects);
+            $userEffect = null;
+            if ($countOfEffect) {
+                $userEffect = reset($allOwnedOfThisEffect);
+            }
 
-            // if it's in userEffects, populate the action token
-            if ($userEffect) {
+            // if it's in effectsOwnedByUser (and another one isn't already active), populate the action token
+            if ($userEffect && !$hasActiveTravelEffects) {
                 $token = $this->tokenHandler->makeToken(...ShipTravelEffectToken::make(
                     new TokenId(
                         $this->uuidFactory->uuid5(Uuid::NIL, $userEffect->getId()->toString())
@@ -193,7 +218,7 @@ class EffectsService extends AbstractService
                     $ship->getId(),
                     null,
                     null,
-                ));
+                    ));
                 $actionToken = new ShipTravelEffectToken(
                     $token->getJsonToken(),
                     (string)$token,
@@ -203,7 +228,8 @@ class EffectsService extends AbstractService
 
             return [
                 'actionToken' => $actionToken,
-                'isActive' => false,
+                'currentCount' => $countOfEffect,
+                'isActive' => \array_key_exists($effect->getId()->toString(), $activeTravelEffectsMap),
                 'effect' => $effect,
             ];
         }, $allEffects);
@@ -211,19 +237,19 @@ class EffectsService extends AbstractService
         return $travelOptions;
     }
 
-    public function getDefenceEffectsForUser(User $user): array
+    public function getDefenceEffectsOwnedByUser(User $user): array
     {
-        return $this->getUserEffectsOfTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
+        return $this->getOwnedEffectsOfTypeForUser($user, EnumEffectsType::TYPE_DEFENCE);
     }
 
-    public function getTravelEffectsForUser(User $user): array
+    public function getTravelEffectsOwnedByUser(User $user): array
     {
-        return $this->getUserEffectsOfTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
+        return $this->getOwnedEffectsOfTypeForUser($user, EnumEffectsType::TYPE_TRAVEL);
     }
 
-    public function getOffenceEffectsForUser(User $user): array
+    public function getOffenceEffectsOwnedByUser(User $user): array
     {
-        return $this->getUserEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
+        return $this->getOwnedEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
     }
 
     public function addRandomEffectsForUser(User $user): array
@@ -253,14 +279,33 @@ class EffectsService extends AbstractService
             $earnedEffects,
             $mapper
         ) {
-            return \array_map(static function (DbEffect $effect) use ($effectRepo, $userEffectRepo, $userEntity, $mapper) {
+            return \array_map(static function (DbEffect $effect) use (
+                $effectRepo,
+                $userEffectRepo,
+                $userEntity,
+                $mapper
+            ) {
                 $userEffectRepo->createNew(
                     $effectRepo->getByID($effect->id, Query::HYDRATE_OBJECT),
                     $userEntity,
-                );
+                    );
                 return $mapper->getEffect($effectRepo->getByID($effect->id));
             }, $earnedEffects);
         });
+    }
+
+    private function getCountsOfType($userEffects)
+    {
+        $countsOfType = [];
+        foreach ($userEffects as $userEffect) {
+            /** @var UserEffect $userEffect */
+            $effectId = $userEffect->getEffect()->getId()->toString();
+            if (!isset($countsOfType[$effectId])) {
+                $countsOfType[$effectId] = 0;
+            }
+            $countsOfType[$effectId]++;
+        }
+        return $countsOfType;
     }
 
     private function getAvailableEffectsOfTypeForUser(User $user, string $type): array
@@ -284,7 +329,7 @@ class EffectsService extends AbstractService
         }, $allEffects);
     }
 
-    private function getUserEffectsOfTypeForUser(User $user, string $type): array
+    private function getOwnedEffectsOfTypeForUser(User $user, string $type): array
     {
         // this method has a cache to reuse it during the same request
         $cacheKey = __CLASS__ . __METHOD__ . $user->getId()->toString() . $type;
@@ -295,7 +340,7 @@ class EffectsService extends AbstractService
         $mapper = $this->mapperFactory->createUserEffectMapper();
         $results = \array_map(static function ($result) use ($mapper) {
             return $mapper->getUserEffect($result);
-        }, $this->entityManager->getUserEffectRepo()->getUniqueOfTypeForUserId($user->getId(), $type));
+        }, $this->entityManager->getUserEffectRepo()->getAllOfTypeForUserId($user->getId(), $type));
         $this->userEffectsCache[$cacheKey] = $results;
         return $results;
     }
@@ -419,7 +464,7 @@ class EffectsService extends AbstractService
                 $shipEntity,
                 $userEntity,
                 $portEntity,
-            );
+                );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }
@@ -440,7 +485,7 @@ class EffectsService extends AbstractService
         $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
             $ship->getId(),
             EnumEffectsType::TYPE_TRAVEL,
-        );
+            );
         if (empty($activeTravelEffects)) {
             return null;
         }
@@ -449,6 +494,6 @@ class EffectsService extends AbstractService
         return new ActiveEffect(
             $activeEffect['id'],
             $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']),
-        );
+            );
     }
 }

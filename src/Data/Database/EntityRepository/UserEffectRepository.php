@@ -37,13 +37,10 @@ class UserEffectRepository extends AbstractEntityRepository
         }));
     }
 
-    public function getUniqueOfTypeForUserId(UuidInterface $userId, string $type): array
+    public function getAllOfTypeForUserId(UuidInterface $userId, string $type): array
     {
-        $allOfTypeForUser = \array_filter($this->getAllForUserId($userId), function ($result) use ($type) {
+        return \array_filter($this->getAllForUserId($userId), function ($result) use ($type) {
             return $result['effect']['type'] === $type;
-        });
-        return groupByValue($allOfTypeForUser, function ($result) {
-            return (string)$result['effect']['id'];
         });
     }
 

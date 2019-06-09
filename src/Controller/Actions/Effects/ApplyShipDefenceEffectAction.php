@@ -5,15 +5,17 @@ namespace App\Controller\Actions\Effects;
 
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
-use App\Response\FleetResponse;
+use App\Response\ShipInLocationResponse;
 use App\Service\EffectsService;
+use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
 class ApplyShipDefenceEffectAction extends AbstractApplySimpleEffectAction
 {
-    private $fleetResponse;
     private $usersService;
+    private $shipsService;
+    private $shipInLocationResponse;
 
     public static function getRouteDefinition(): array
     {
@@ -21,22 +23,28 @@ class ApplyShipDefenceEffectAction extends AbstractApplySimpleEffectAction
     }
 
     public function __construct(
-        FleetResponse $fleetResponse,
         UsersService $usersService,
+        ShipsService $shipsService,
+        ShipInLocationResponse $shipInLocationResponse,
         EffectsService $effectsService,
         LoggerInterface $logger
     ) {
         parent::__construct($effectsService, $logger);
-        $this->fleetResponse = $fleetResponse;
         $this->usersService = $usersService;
+        $this->shipsService = $shipsService;
+        $this->shipInLocationResponse = $shipInLocationResponse;
     }
 
     public function getResponse(GenericApplyEffectToken $token): array
     {
         $user = $this->usersService->getById($token->getTriggeredById());
-        if (!$user) {
-            throw new \RuntimeException('Something went very wrong. User was not found');
+        $shipWithLocation = $this->shipsService->getByIDWithLocation($token->getShipId());
+        if (!$user || !$shipWithLocation) {
+            throw new \RuntimeException('Something went very wrong');
         }
-        return $this->fleetResponse->getResponseDataForUser($user);
+        return [
+            'data' => $this->shipInLocationResponse->getResponseData($user, $shipWithLocation),
+            'error' => null,
+        ];
     }
 }

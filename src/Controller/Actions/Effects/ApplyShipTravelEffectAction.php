@@ -38,10 +38,13 @@ class ApplyShipTravelEffectAction extends AbstractApplySimpleEffectAction
             throw new \RuntimeException('Something went very wrong. Ship was not found');
         }
 
-        return $this->shipInPortResponse->getResponseData(
-            $shipWithLocation->getOwner(),
-            $shipWithLocation,
-            $shipWithLocation->getLocation(),
-        );
+        return [
+            'data' => $this->shipInPortResponse->getResponseData(
+                $shipWithLocation->getOwner(),
+                $shipWithLocation,
+                $shipWithLocation->getLocation(),
+                ),
+            'error' => null,
+        ];
     }
 }

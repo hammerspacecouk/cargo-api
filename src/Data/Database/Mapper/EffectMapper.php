@@ -39,6 +39,7 @@ class EffectMapper extends Mapper
             $item['id'],
             $item['name'],
             $item['description'],
+            $item['displayGroup'],
             $item['purchaseCost'],
             $item['duration'],
             $item['count'],
