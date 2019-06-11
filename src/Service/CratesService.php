@@ -36,7 +36,7 @@ class CratesService extends AbstractService
         $this->entityManager->flush();
     }
 
-    public function findInPortForUser(Port $port, User $user, $limit = 10): array
+    public function findInPortForUser(Port $port, User $user, $limit = 50): array
     {
         $results = $this->entityManager->getCrateLocationRepo()
             ->findWithCrateForPortIdAndUserId(

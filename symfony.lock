@@ -143,6 +143,9 @@
     "nette/robot-loader": {
         "version": "v3.0.3"
     },
+    "nette/schema": {
+        "version": "v1.0.0"
+    },
     "nette/utils": {
         "version": "v2.5.1"
     },
@@ -260,9 +263,6 @@
             "ref": "f7895777cd673fcefbc321a9063077a24e5df646"
         }
     },
-    "roave/doctrine-simplecache": {
-        "version": "2.1.1"
-    },
     "roave/security-advisories": {
         "version": "dev-master"
     },
@@ -299,6 +299,9 @@
     "sebastian/resource-operations": {
         "version": "1.0.0"
     },
+    "sebastian/type": {
+        "version": "1.1.1"
+    },
     "sebastian/version": {
         "version": "2.0.1"
     },
@@ -314,6 +317,9 @@
     "symfony/cache": {
         "version": "v4.0.6"
     },
+    "symfony/cache-contracts": {
+        "version": "v1.1.1"
+    },
     "symfony/config": {
         "version": "v4.0.6"
     },
@@ -325,9 +331,6 @@
             "version": "3.3",
             "ref": "e3868d2f4a5104f19f844fe551099a00c6562527"
         }
-    },
-    "symfony/contracts": {
-        "version": "v1.0.2"
     },
     "symfony/debug": {
         "version": "v4.0.6"
@@ -343,6 +346,9 @@
     },
     "symfony/event-dispatcher": {
         "version": "v4.0.6"
+    },
+    "symfony/event-dispatcher-contracts": {
+        "version": "v1.1.1"
     },
     "symfony/filesystem": {
         "version": "v4.0.6"
@@ -374,6 +380,9 @@
     "symfony/http-kernel": {
         "version": "v4.0.6"
     },
+    "symfony/mime": {
+        "version": "v4.3.1"
+    },
     "symfony/monolog-bridge": {
         "version": "v4.0.6"
     },
@@ -392,11 +401,20 @@
     "symfony/polyfill-ctype": {
         "version": "v1.9.0"
     },
+    "symfony/polyfill-iconv": {
+        "version": "v1.11.0"
+    },
+    "symfony/polyfill-intl-idn": {
+        "version": "v1.11.0"
+    },
     "symfony/polyfill-mbstring": {
         "version": "v1.7.0"
     },
     "symfony/polyfill-php72": {
         "version": "v1.7.0"
+    },
+    "symfony/polyfill-php73": {
+        "version": "v1.11.0"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.3"
@@ -409,6 +427,9 @@
             "version": "4.0",
             "ref": "cda8b550123383d25827705d05a42acf6819fe4e"
         }
+    },
+    "symfony/service-contracts": {
+        "version": "v1.1.2"
     },
     "symfony/stopwatch": {
         "version": "v4.0.4"
