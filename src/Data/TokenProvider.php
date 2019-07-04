@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Data;
 
+use App\Data\Database\EntityManager;
 use App\Domain\Exception\InvalidTokenException;
+use App\Domain\Exception\UsedTokenException;
 use App\Domain\ValueObject\Token\AbstractToken;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 use App\Domain\ValueObject\TokenId;
 use App\Infrastructure\ApplicationConfig;
-use App\Data\Database\EntityManager;
-use App\Domain\Exception\UsedTokenException;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
@@ -53,10 +53,17 @@ class TokenProvider
             throw new \InvalidArgumentException($tokenClass . ' is not an ActionToken');
         }
         // datetime scoped to the day
-        // $day = $dateTime->format('Y-m-d');
-        // todo - the date has been removed for now because the routes get cached. Switch to dynamic routing
-        $combined = \getenv('APP_SECRET') . $tokenClass;
-        return self::ACTIONS_PATH_PREFIX . '/' . \sha1($combined);
+        $day = $dateTime->format('Y-m-d');
+        $combined = \getenv('APP_SECRET') . $tokenClass . $day;
+        return \sha1($combined);
+    }
+
+    public static function splitToken(string $fullTokenString): array
+    {
+        $splitPoint = strlen(\sha1('0'));
+        $tokenKey = substr($fullTokenString, 0, $splitPoint);
+        $tokenString = substr($fullTokenString, $splitPoint);
+        return [$tokenKey, $tokenString];
     }
 
     public function makeToken(

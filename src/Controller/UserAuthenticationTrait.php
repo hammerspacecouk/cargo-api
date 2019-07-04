@@ -13,7 +13,6 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 trait UserAuthenticationTrait
@@ -69,7 +68,7 @@ trait UserAuthenticationTrait
             }
             return $this->userAuthentication;
         } catch (InvalidUuidStringException $e) {
-            throw new BadRequestHttpException('Token Invalid: ' . $e->getMessage());
+            throw new NoUserHttpException('Invalid user - token invalid: ' . $e->getMessage());
         }
     }
 

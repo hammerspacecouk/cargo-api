@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
-use App\Infrastructure\ApplicationConfig;
 use App\Data\FlashDataStore;
 use App\Domain\ValueObject\Message\Info;
+use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -23,13 +23,11 @@ class LogoutAction
     private $flashData;
     private $logger;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/logout', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/logout', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(

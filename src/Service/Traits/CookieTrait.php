@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service\Traits;
 
-use App\Infrastructure\ApplicationConfig;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Cookie;
 

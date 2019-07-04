@@ -9,16 +9,13 @@ class SessionState implements \JsonSerializable
 {
     private $player;
     private $rankStatus;
-    private $loginOptions;
 
     public function __construct(
         ?User $player = null,
-        PlayerRankStatus $rankStatus = null,
-        ?LoginOptions $loginOptions = null
+        PlayerRankStatus $rankStatus = null
     ) {
         $this->player = $player;
         $this->rankStatus = $rankStatus;
-        $this->loginOptions = $loginOptions;
     }
 
     public function jsonSerialize()
@@ -28,7 +25,6 @@ class SessionState implements \JsonSerializable
             'player' => $this->player,
             'hasProfileNotification' => $this->player && !$this->player->hasEmailAddress(),
             'rankStatus' => $this->rankStatus,
-            'loginOptions' => $this->loginOptions,
         ];
     }
 }

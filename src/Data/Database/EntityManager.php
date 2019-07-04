@@ -5,8 +5,8 @@ namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
-use App\Infrastructure\DateTimeFactory;
 use App\Infrastructure\ApplicationConfig;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Decorator\EntityManagerDecorator;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;

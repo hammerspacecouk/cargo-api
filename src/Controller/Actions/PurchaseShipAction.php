@@ -3,30 +3,21 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
 use App\Response\UpgradesResponse;
 use App\Service\UpgradesService;
 use App\Service\UsersService;
-use Psr\Log\LoggerInterface;
 
-class PurchaseShipAction extends AbstractAction
+class PurchaseShipAction
 {
     private $upgradesService;
     private $usersService;
     private $upgradesResponse;
 
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(PurchaseShipToken::class);
-    }
-
     public function __construct(
         UpgradesService $upgradesService,
         UpgradesResponse $upgradesResponse,
-        UsersService $usersService,
-        LoggerInterface $logger
+        UsersService $usersService
     ) {
-        parent::__construct($logger);
         $this->upgradesService = $upgradesService;
         $this->usersService = $usersService;
         $this->upgradesResponse = $upgradesResponse;

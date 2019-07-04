@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Command\AbstractCommand;
-use function App\Functions\DateTimes\jsonDecode;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function App\Functions\DateTimes\jsonDecode;
 
 class MakeDataCommand extends AbstractCommand
 {

@@ -17,13 +17,11 @@ use Symfony\Component\Routing\Route;
 
 class LoginFacebookAction extends AbstractLoginAction
 {
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login/facebook', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login/facebook', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __invoke(

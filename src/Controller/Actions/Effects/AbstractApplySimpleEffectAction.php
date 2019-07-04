@@ -3,21 +3,21 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions\Effects;
 
-use App\Controller\Actions\AbstractAction;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Service\EffectsService;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractApplySimpleEffectAction extends AbstractAction
+abstract class AbstractApplySimpleEffectAction
 {
     private $effectsService;
+    protected $logger;
 
     public function __construct(
         EffectsService $effectsService,
         LoggerInterface $logger
     ) {
-        parent::__construct($logger);
         $this->effectsService = $effectsService;
+        $this->logger = $logger;
     }
 
     abstract public function getResponse(GenericApplyEffectToken $token): array;

@@ -5,10 +5,10 @@ namespace App\Domain\ValueObject\Token\Action\ApplyEffect;
 
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 use App\Domain\ValueObject\TokenId;
-use function App\Functions\Strings\shortHash;
 use DateInterval;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Strings\shortHash;
 
 // An effect that needs no other tasks than adding to the active_effects list
 class GenericApplyEffectToken extends AbstractActionToken

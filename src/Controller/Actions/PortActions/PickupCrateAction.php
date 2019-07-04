@@ -8,11 +8,6 @@ use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 
 class PickupCrateAction extends AbstractPortAction
 {
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(PickupCrateToken::class);
-    }
-
     protected function parseToken(string $tokenString, bool $confirmSingleUse = true): AbstractMoveCrateToken
     {
         return $this->cratesService->parsePickupCrateToken($tokenString, $confirmSingleUse);

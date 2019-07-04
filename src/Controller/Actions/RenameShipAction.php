@@ -3,28 +3,18 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\RenameShipToken;
-use App\Response\FleetResponse;
 use App\Service\Ships\ShipNameService;
 use App\Service\ShipsService;
-use Psr\Log\LoggerInterface;
 
-class RenameShipAction extends AbstractAction
+class RenameShipAction
 {
     private $shipsService;
     private $shipNameService;
 
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(RenameShipToken::class);
-    }
-
     public function __construct(
         ShipsService $shipsService,
-        ShipNameService $shipNameService,
-        LoggerInterface $logger
+        ShipNameService $shipNameService
     ) {
-        parent::__construct($logger);
         $this->shipNameService = $shipNameService;
         $this->shipsService = $shipsService;
     }

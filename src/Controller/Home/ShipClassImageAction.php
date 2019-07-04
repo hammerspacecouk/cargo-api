@@ -15,16 +15,14 @@ class ShipClassImageAction
 {
     use IDRequestTrait;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/ship-class/{uuid}-{hash}.svg', [
-                '_controller' => self::class,
-            ], [
-                'uuid' => Uuid::VALID_PATTERN,
-                'hash' => '^[0-9a-f]{40}$',
-            ]),
-        ];
+        return new Route('/ship-class/{uuid}-{hash}.svg', [
+            '_controller' => self::class,
+        ], [
+            'uuid' => Uuid::VALID_PATTERN,
+            'hash' => '^[0-9a-f]{40}$',
+        ]);
     }
 
     public function __invoke(
@@ -46,6 +44,6 @@ class ShipClassImageAction
                 'content-type' => 'image/svg+xml',
                 'cache-control' => 'public, max-age=' . (60 * 60 * 24 * 400),
             ],
-        );
+            );
     }
 }

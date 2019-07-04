@@ -16,13 +16,11 @@ class ListAction
 
     private const PER_PAGE = 50;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/ports', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/ports', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __invoke(

@@ -18,7 +18,6 @@ $actions = [
     // login
     Controller\Security\LoginAction::class,
     Controller\Security\LogoutAction::class,
-    Controller\Security\CheckLoginAction::class,
     Controller\Security\LoginAnonymousAction::class,
     Controller\Security\LoginEmailAction::class,
     Controller\Security\LoginFacebookAction::class,
@@ -44,26 +43,12 @@ $actions = [
     Controller\Play\UpgradesAction::class,
     Controller\Play\ShipAction::class,
 
-
-    // actions (uses token)
-    Controller\Actions\AcknowledgePromotionAction::class,
-    Controller\Actions\AddHealthAction::class,
-    Controller\Actions\ApplyOffenceEffectAction::class,
-    Controller\Actions\MoveShipAction::class,
-    Controller\Actions\PurchaseShipAction::class,
-    Controller\Actions\PurchaseEffectAction::class,
-    Controller\Actions\RenameShipAction::class,
-    Controller\Actions\RequestShipNameAction::class,
-    Controller\Actions\Effects\ApplyShipDefenceEffectAction::class,
-    Controller\Actions\Effects\ApplyShipTravelEffectAction::class,
-    Controller\Actions\PortActions\DropCrateAction::class,
-    Controller\Actions\PortActions\PickupCrateAction::class,
+    // use token
+    Controller\TokenAction\TokenAction::class,
 ];
 
 foreach ($actions as $action) {
-    foreach ($action::getRouteDefinition() as $name => $definition) {
-        $collection->add($name, $definition);
-    }
+    $collection->add($action, $action::getRouteDefinition());
 }
 
 return $collection;

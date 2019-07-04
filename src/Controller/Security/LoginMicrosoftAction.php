@@ -16,13 +16,11 @@ use Symfony\Component\Routing\Route;
 
 class LoginMicrosoftAction extends AbstractLoginAction
 {
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login/microsoft', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login/microsoft', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __invoke(

@@ -8,9 +8,9 @@ use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use App\Domain\ValueObject\Colour;
-use function App\Functions\Numbers\clamp;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Numbers\clamp;
 
 class UserRepository extends AbstractEntityRepository implements CleanableInterface
 {

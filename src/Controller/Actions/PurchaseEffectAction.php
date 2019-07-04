@@ -3,34 +3,24 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Response\ShipInLocationResponse;
-use App\Response\UpgradesResponse;
 use App\Service\ShipsService;
 use App\Service\UpgradesService;
 use App\Service\UsersService;
-use Psr\Log\LoggerInterface;
 
-class PurchaseEffectAction extends AbstractAction
+class PurchaseEffectAction
 {
     private $upgradesService;
     private $usersService;
     private $shipInLocationResponse;
     private $shipsService;
 
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(PurchaseEffectToken::class);
-    }
-
     public function __construct(
         UpgradesService $upgradesService,
         ShipsService $shipsService,
         UsersService $usersService,
-        ShipInLocationResponse $shipInLocationResponse,
-        LoggerInterface $logger
+        ShipInLocationResponse $shipInLocationResponse
     ) {
-        parent::__construct($logger);
         $this->upgradesService = $upgradesService;
         $this->usersService = $usersService;
         $this->shipInLocationResponse = $shipInLocationResponse;

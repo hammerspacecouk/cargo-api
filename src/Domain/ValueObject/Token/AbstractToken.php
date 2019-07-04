@@ -5,11 +5,11 @@ namespace App\Domain\ValueObject\Token;
 
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\TokenId;
-use function App\Functions\Strings\shortHash;
 use DateTimeImmutable;
 use ParagonIE\Paseto\JsonToken;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Strings\shortHash;
 
 abstract class AbstractToken
 {

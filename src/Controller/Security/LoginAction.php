@@ -3,30 +3,48 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Domain\ValueObject\LoginOptions;
+use App\Infrastructure\ApplicationConfig;
+use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 class LoginAction
 {
-    public static function getRouteDefinition(): array
+    private $applicationConfig;
+    private $usersService;
+
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login', [
+            '_controller' => self::class,
+        ]);
+    }
+
+    public function __construct(
+        ApplicationConfig $applicationConfig,
+        UsersService $usersService
+    ) {
+        $this->applicationConfig = $applicationConfig;
+        $this->usersService = $usersService;
     }
 
     public function __invoke(
         Request $request
     ): JsonResponse {
-        return new JsonResponse([
-            'email' => '/login/email',
-            'facebook' => '/login/facebook',
-            'google' => '/login/google',
-            'microsoft' => '/login/microsoft',
-            'twitter' => '/login/twitter',
-        ]);
+        $response = new JsonResponse(new LoginOptions(
+            $this->applicationConfig->isLoginAnonEnabled() ?
+                $this->usersService->getLoginToken(LoginAnonymousAction::TOKEN_TYPE) : null,
+            $this->applicationConfig->isLoginEmailEnabled() ?
+                $this->usersService->getLoginToken(LoginEmailAction::TOKEN_TYPE) : null,
+            $this->applicationConfig->isLoginFacebookEnabled(),
+            $this->applicationConfig->isLoginGoogleEnabled(),
+            $this->applicationConfig->isLoginMicrosoftEnabled(),
+            $this->applicationConfig->isLoginTwitterEnabled(),
+            ));
+
+        $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
+        return $response;
     }
 }

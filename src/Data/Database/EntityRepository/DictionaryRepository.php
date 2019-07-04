@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\Entity\Dictionary;
-use function App\Functions\Arrays\seedableRandomItem;
 use Doctrine\ORM\Query;
+use function App\Functions\Arrays\seedableRandomItem;
 
 class DictionaryRepository extends AbstractEntityRepository
 {

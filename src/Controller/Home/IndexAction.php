@@ -9,13 +9,11 @@ use Symfony\Component\Routing\Route;
 
 class IndexAction
 {
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/', [
+            '_controller' => self::class,
+        ]);
     }
 
     // general status and stats of the game as a whole

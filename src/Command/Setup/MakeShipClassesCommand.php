@@ -13,7 +13,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use function App\Functions\Transforms\csvToArray;
 
 class MakeShipClassesCommand extends AbstractCommand

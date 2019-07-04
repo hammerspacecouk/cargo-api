@@ -30,13 +30,11 @@ class LoginEmailAction extends AbstractLoginAction
 
     private $emailsService;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login/email', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login/email', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(
@@ -57,7 +55,7 @@ class LoginEmailAction extends AbstractLoginAction
             $flashData,
             $usersService,
             $logger,
-        );
+            );
         $this->emailsService = $emailsService;
     }
 

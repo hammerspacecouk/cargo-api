@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Controller\Actions\Effects;
 
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
-use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use App\Response\ShipInPortResponse;
 use App\Service\EffectsService;
 use App\Service\ShipsService;
@@ -14,11 +13,6 @@ class ApplyShipTravelEffectAction extends AbstractApplySimpleEffectAction
 {
     private $shipInPortResponse;
     private $shipsService;
-
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(ShipTravelEffectToken::class);
-    }
 
     public function __construct(
         ShipInPortResponse $shipInPortResponse,

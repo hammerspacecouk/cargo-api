@@ -14,15 +14,13 @@ class ShowAction
 {
     use Traits\GetShipTrait;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/ships/{uuid}', [
-                '_controller' => self::class,
-            ], [
-                'uuid' => Uuid::VALID_PATTERN,
-            ]),
-        ];
+        return new Route('/ships/{uuid}', [
+            '_controller' => self::class,
+        ], [
+            'uuid' => Uuid::VALID_PATTERN,
+        ]);
     }
 
     public function __invoke(

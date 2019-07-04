@@ -3,29 +3,24 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Service\Ships\ShipNameService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
-class RequestShipNameAction extends AbstractAction
+class RequestShipNameAction
 {
     private $shipNameService;
     private $usersService;
-
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(RequestShipNameToken::class);
-    }
+    private $logger;
 
     public function __construct(
         ShipNameService $shipNameService,
         UsersService $usersService,
         LoggerInterface $logger
     ) {
-        parent::__construct($logger);
         $this->shipNameService = $shipNameService;
         $this->usersService = $usersService;
+        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole

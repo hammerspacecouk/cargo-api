@@ -4,22 +4,17 @@ declare(strict_types=1);
 namespace App\Controller\Actions;
 
 use App\Domain\Exception\OutdatedMoveException;
-use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Response\ShipInPortResponse;
 use App\Service\EffectsService;
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
 
-class ApplyOffenceEffectAction extends AbstractAction
+class ApplyOffenceEffectAction
 {
     private $shipsService;
     private $shipInPortResponse;
     private $effectsService;
-
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(UseOffenceEffectToken::class);
-    }
+    private $logger;
 
     public function __construct(
         EffectsService $effectsService,
@@ -27,10 +22,10 @@ class ApplyOffenceEffectAction extends AbstractAction
         ShipInPortResponse $shipInPortResponse,
         LoggerInterface $logger
     ) {
-        parent::__construct($logger);
         $this->shipInPortResponse = $shipInPortResponse;
         $this->effectsService = $effectsService;
         $this->shipsService = $shipsService;
+        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Exception;
 
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class NoUserHttpException extends AccessDeniedHttpException
+class NoUserHttpException extends UnauthorizedHttpException
 {
 }

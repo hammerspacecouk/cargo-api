@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions\PortActions;
 
-use App\Controller\Actions\AbstractAction;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\Exception\UsedTokenException;
@@ -14,9 +13,10 @@ use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-abstract class AbstractPortAction extends AbstractAction
+abstract class AbstractPortAction
 {
     protected $cratesService;
+    protected $logger;
 
     private $shipInPortResponse;
     private $shipsService;
@@ -27,10 +27,10 @@ abstract class AbstractPortAction extends AbstractAction
         ShipInPortResponse $shipInPortResponse,
         LoggerInterface $logger
     ) {
-        parent::__construct($logger);
         $this->cratesService = $cratesService;
         $this->shipInPortResponse = $shipInPortResponse;
         $this->shipsService = $shipsService;
+        $this->logger = $logger;
     }
 
     public function invoke(string $tokenString): array

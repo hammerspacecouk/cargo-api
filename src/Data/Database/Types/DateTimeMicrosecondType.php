@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\DateTimeImmutableType;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Field type mapping for the Doctrine Database Abstraction Layer (DBAL).

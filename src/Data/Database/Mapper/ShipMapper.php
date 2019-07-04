@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Data\Database\Mapper;
 
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipClass;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\Entity\ShipClass;
 
 class ShipMapper extends Mapper
 {

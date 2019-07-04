@@ -5,8 +5,8 @@ namespace App\Service;
 
 use App\Data\Database\Entity\ActiveEffect as DbActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
-use App\Data\Database\Entity\ShipLocation;
 use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\Database\Entity\ShipLocation;
 use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
 use App\Domain\Entity\ActiveEffect;
@@ -21,10 +21,10 @@ use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Domain\ValueObject\TokenId;
-use function App\Functions\Arrays\ensureArray;
-use function App\Functions\Arrays\find;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
+use function App\Functions\Arrays\ensureArray;
+use function App\Functions\Arrays\find;
 
 class EffectsService extends AbstractService
 {

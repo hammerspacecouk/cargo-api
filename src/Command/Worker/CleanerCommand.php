@@ -7,11 +7,10 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\EntityManager;
 use App\Infrastructure\DateTimeFactory;
 use Psr\Log\LoggerInterface;
-
-use function App\Functions\Classes\whoImplements;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function App\Functions\Classes\whoImplements;
 
 class CleanerCommand extends Command
 {

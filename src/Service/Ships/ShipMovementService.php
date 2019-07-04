@@ -10,11 +10,11 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\TokenId;
-use function App\Functions\Dates\intervalToSeconds;
 use App\Service\ShipsService;
 use DateInterval;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Dates\intervalToSeconds;
 
 class ShipMovementService extends ShipsService
 {

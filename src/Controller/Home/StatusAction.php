@@ -17,13 +17,11 @@ class StatusAction
     private $applicationConfig;
     private $logger;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/status', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/status', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(

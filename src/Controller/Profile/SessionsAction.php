@@ -17,13 +17,11 @@ class SessionsAction
 
     private $authenticationService;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/profile/sessions', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/profile/sessions', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(
@@ -43,7 +41,7 @@ class SessionsAction
 
             return [
                 'isCurrent' => $isCurrent,
-                'removeToken' => $isCurrent? null : 'todo', // todo - make an action token based on the ID
+                'removeToken' => $isCurrent ? null : 'todo', // todo - make an action token based on the ID
                 'state' => $token,
             ];
         }, $tokens);

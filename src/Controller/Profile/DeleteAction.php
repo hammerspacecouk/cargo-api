@@ -25,13 +25,11 @@ class DeleteAction
     private $logger;
     private $usersService;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/profile/delete', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/profile/delete', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(
@@ -139,7 +137,7 @@ class DeleteAction
             $this->applicationConfig->getWebHostname() .
             '/profile/delete?' .
             http_build_query($params),
-        );
+            );
         return $this->userResponse($response, $this->authenticationService);
     }
 }

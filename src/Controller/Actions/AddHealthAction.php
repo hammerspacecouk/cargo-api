@@ -3,24 +3,19 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Response\ShipInLocationResponse;
 use App\Service\Ships\ShipHealthService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
-class AddHealthAction extends AbstractAction
+class AddHealthAction
 {
     private $shipHealthService;
     private $usersService;
     private $shipInLocationResponse;
     private $shipsService;
-
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(ShipHealthToken::class);
-    }
+    private $logger;
 
     public function __construct(
         ShipHealthService $shipHealthService,
@@ -29,11 +24,11 @@ class AddHealthAction extends AbstractAction
         ShipInLocationResponse $shipInLocationResponse,
         LoggerInterface $logger
     ) {
-        parent::__construct($logger);
         $this->shipHealthService = $shipHealthService;
         $this->usersService = $usersService;
         $this->shipInLocationResponse = $shipInLocationResponse;
         $this->shipsService = $shipsService;
+        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole

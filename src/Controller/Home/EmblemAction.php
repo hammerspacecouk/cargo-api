@@ -16,17 +16,15 @@ class EmblemAction
 {
     use IDRequestTrait;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/emblem/{uuid}-{hash}-{colour}.svg', [
-                '_controller' => self::class,
-            ], [
-                'uuid' => Uuid::VALID_PATTERN,
-                'hash' => '^[0-9a-f]{32}$',
-                'colour' => '^[0-9a-f]{6}$',
-            ]),
-        ];
+        return new Route('/emblem/{uuid}-{hash}-{colour}.svg', [
+            '_controller' => self::class,
+        ], [
+            'uuid' => Uuid::VALID_PATTERN,
+            'hash' => '^[0-9a-f]{32}$',
+            'colour' => '^[0-9a-f]{6}$',
+        ]);
     }
 
     public function __invoke(
@@ -48,6 +46,6 @@ class EmblemAction
                 'content-type' => 'image/svg+xml',
                 'cache-control' => 'public, max-age=' . (60 * 60 * 24 * 400),
             ],
-        );
+            );
     }
 }

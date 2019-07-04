@@ -3,33 +3,24 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Response\ShipInChannelResponse;
 use App\Service\EffectsService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\UsersService;
-use Psr\Log\LoggerInterface;
 
-class MoveShipAction extends AbstractAction
+class MoveShipAction
 {
     private $shipMovementService;
     private $usersService;
     private $shipInChannelResponse;
     private $effectsService;
 
-    public static function getRouteDefinition(): array
-    {
-        return self::buildRouteDefinition(MoveShipToken::class);
-    }
-
     public function __construct(
         ShipMovementService $shipMovementService,
         UsersService $usersService,
         EffectsService $effectsService,
-        ShipInChannelResponse $shipInChannelResponse,
-        LoggerInterface $logger
+        ShipInChannelResponse $shipInChannelResponse
     ) {
-        parent::__construct($logger);
         $this->shipMovementService = $shipMovementService;
         $this->usersService = $usersService;
         $this->shipInChannelResponse = $shipInChannelResponse;

@@ -23,13 +23,11 @@ class ShowAction
     private $usersService;
     private $playerRanksService;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/profile', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/profile', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(

@@ -6,7 +6,6 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\User;
 use App\Data\Database\Entity\UserEffect;
-use function App\Functions\Arrays\groupByValue;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 

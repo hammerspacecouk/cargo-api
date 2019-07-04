@@ -14,15 +14,13 @@ class ShowAction
 {
     use Traits\GetPortTrait;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/ports/{uuid}', [
-                '_controller' => self::class,
-            ], [
-                'uuid' => Uuid::VALID_PATTERN,
-            ]),
-        ];
+        return new Route('/ports/{uuid}', [
+            '_controller' => self::class,
+        ], [
+            'uuid' => Uuid::VALID_PATTERN,
+        ]);
     }
 
     public function __invoke(

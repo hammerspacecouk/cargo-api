@@ -32,13 +32,11 @@ class LoginGoogleAction extends AbstractLoginAction
      */
     private $googleOauthClientSecret;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login/google', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login/google', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(
@@ -60,7 +58,7 @@ class LoginGoogleAction extends AbstractLoginAction
             $flashData,
             $usersService,
             $logger,
-        );
+            );
         $this->googleOauthClientId = $googleOauthClientId;
         $this->googleOauthClientSecret = $googleOauthClientSecret;
     }
@@ -77,9 +75,9 @@ class LoginGoogleAction extends AbstractLoginAction
         }
 
         $provider = new Google([
-            'clientId'     => $this->googleOauthClientId,
+            'clientId' => $this->googleOauthClientId,
             'clientSecret' => $this->googleOauthClientSecret,
-            'redirectUri'  => $this->applicationConfig->getApiHostname() . '/login/google',
+            'redirectUri' => $this->applicationConfig->getApiHostname() . '/login/google',
             // todo - state object with a verifiable token containing the redirect parameter
         ]);
 

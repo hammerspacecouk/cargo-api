@@ -4,12 +4,11 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Controller\UserAuthenticationTrait;
+use App\Data\FlashDataStore;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\EmailAddress;
-use function App\Functions\Strings\startsWith;
 use App\Infrastructure\ApplicationConfig;
-use App\Data\FlashDataStore;
 use App\Service\AuthenticationService;
 use App\Service\ConfigService;
 use App\Service\ShipsService;
@@ -18,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use function App\Functions\Strings\startsWith;
 
 class AbstractLoginAction
 {

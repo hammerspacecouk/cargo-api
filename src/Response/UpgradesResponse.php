@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Response;
 
-use App\Data\Database\Types\EnumEffectsDisplayGroupType;
 use App\Domain\Entity\User;
 use App\Service\UpgradesService;
 

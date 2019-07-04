@@ -14,19 +14,17 @@ class LoginAnonymousAction extends AbstractLoginAction
 {
     public const TOKEN_TYPE = 'loginAnon';
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route(
-                '/login/anonymous',
-                ['_controller' => self::class,],
-                [],
-                [],
-                '',
-                [],
-                ['POST']
-            ),
-        ];
+        return new Route(
+            '/login/anonymous',
+            ['_controller' => self::class,],
+            [],
+            [],
+            '',
+            [],
+            ['POST']
+        );
     }
 
     public function __invoke(

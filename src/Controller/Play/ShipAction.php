@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Controller\UserAuthenticationTrait;
 use App\Controller\Ships\Traits\GetShipTrait;
+use App\Controller\UserAuthenticationTrait;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Response\ShipInLocationResponse;
@@ -36,15 +36,13 @@ class ShipAction
     private $applicationConfig;
     private $shipInLocationResponse;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            static::class => new Route('/play/{uuid}', [
-                '_controller' => self::class,
-            ], [
-                'uuid' => Uuid::VALID_PATTERN,
-            ]),
-        ];
+        return new Route('/play/{uuid}', [
+            '_controller' => self::class,
+        ], [
+            'uuid' => Uuid::VALID_PATTERN,
+        ]);
     }
 
     public function __construct(

@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Domain\Exception\TokenException;
+use App\Domain\ValueObject\Message\Message;
 use App\Domain\ValueObject\Token\FlashDataToken;
 use App\Infrastructure\ApplicationConfig;
-use App\Domain\ValueObject\Message\Message;
 use ParagonIE\Paseto\Exception\PasetoException;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;

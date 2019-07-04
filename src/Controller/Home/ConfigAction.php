@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace App\Controller\Home;
 
 use App\Controller\UserAuthenticationTrait;
-use function App\Functions\DateTimes\jsonDecode;
 use App\Service\AuthenticationService;
 use App\Service\ConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
+use function App\Functions\DateTimes\jsonDecode;
 
 class ConfigAction
 {
@@ -19,13 +19,11 @@ class ConfigAction
     private $configService;
     private $authenticationService;
 
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/config', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/config', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __construct(

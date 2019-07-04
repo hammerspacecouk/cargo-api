@@ -13,13 +13,11 @@ use Symfony\Component\Routing\Route;
 
 class LoginTwitterAction extends AbstractLoginAction
 {
-    public static function getRouteDefinition(): array
+    public static function getRouteDefinition(): Route
     {
-        return [
-            self::class => new Route('/login/twitter', [
-                '_controller' => self::class,
-            ]),
-        ];
+        return new Route('/login/twitter', [
+            '_controller' => self::class,
+        ]);
     }
 
     public function __invoke(
@@ -50,9 +48,9 @@ class LoginTwitterAction extends AbstractLoginAction
             'oauth/access_token',
             [
                 'oauth_verifier' => $verifier,
-                'oauth_token'=> $token,
+                'oauth_token' => $token,
             ],
-        );
+            );
 
         $client->setOauthToken($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
 

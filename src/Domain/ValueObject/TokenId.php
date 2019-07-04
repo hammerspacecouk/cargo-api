@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
-use function App\Functions\Strings\filteredImplode;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Strings\filteredImplode;
 
 class TokenId
 {

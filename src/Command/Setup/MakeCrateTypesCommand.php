@@ -6,12 +6,10 @@ namespace App\Command\Setup;
 use App\Command\AbstractCommand;
 use App\Data\Database\Entity\CrateType;
 use App\Data\Database\EntityManager;
-use InvalidArgumentException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use function App\Functions\Transforms\csvToArray;
 
 class MakeCrateTypesCommand extends AbstractCommand
