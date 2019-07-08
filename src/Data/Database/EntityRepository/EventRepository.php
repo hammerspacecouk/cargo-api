@@ -20,7 +20,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class EventRepository extends AbstractEntityRepository implements CleanableInterface
 {
-    private const DEFAULT_PAGE_SIZE = 25;
+    private const DEFAULT_PAGE_SIZE = 15;
 
     public function getAllLatest(
         int $limit = self::DEFAULT_PAGE_SIZE,
