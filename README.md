@@ -1,6 +1,6 @@
 ![Build status](https://travis-ci.org/hammerspacecouk/php-pure-helpers.svg?branch=master)
 
-# Hyper Shippin' [space] (API)
+# Saxopholis (API)
 
 Loading...
 
