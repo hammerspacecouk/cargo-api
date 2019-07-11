@@ -8,6 +8,7 @@ use App\Data\TokenProvider;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\LockedTransaction;
 use App\Domain\ValueObject\Message\Ok;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
@@ -28,7 +29,7 @@ class UpgradesService extends AbstractService
         return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): ?Transaction {
             $mapped = $mapper->getShipClass($result);
             if (!$user->getRank()->meets($mapped->getMinimumRank())) {
-                return null;
+                return new LockedTransaction($mapped->getMinimumRank());
             }
 
             $alreadyOwned = $shipCountsByClassId[(string)$mapped->getId()] ?? 0;

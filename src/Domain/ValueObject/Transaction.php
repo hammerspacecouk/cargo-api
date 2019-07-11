@@ -28,6 +28,7 @@ class Transaction implements \JsonSerializable
     public function jsonSerialize()
     {
         $data = [
+            'available' => true,
             'cost' => $this->cost,
             'actionToken' => $this->token,
             'currentCount' => $this->currentCount,
