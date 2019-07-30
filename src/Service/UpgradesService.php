@@ -9,7 +9,7 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\LockedTransaction;
-use App\Domain\ValueObject\Message\Ok;
+use App\Domain\ValueObject\ShipLaunchEvent;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
 use App\Domain\ValueObject\Transaction;
@@ -100,7 +100,7 @@ class UpgradesService extends AbstractService
 
     public function usePurchaseShipToken(
         PurchaseShipToken $token
-    ): Ok {
+    ): ShipLaunchEvent {
 
         // get the owner and their home port
         /** @var \App\Data\Database\Entity\User $userEntity */
@@ -134,7 +134,13 @@ class UpgradesService extends AbstractService
             throw $e;
         }
 
-        return new Ok($shipName . ' was launched at ' . $userEntity->homePort->name);
+        $shipEntity = $this->mapperFactory->createShipMapper()->getShip(
+            $this->entityManager->getShipRepo()->getByID($ship->id)
+        );
+        $portEntity = $this->mapperFactory->createPortMapper()->getPort(
+            $this->entityManager->getPortRepo()->getByID($userEntity->homePort->id)
+        );
+        return new ShipLaunchEvent($shipEntity, $portEntity);
     }
 
     public function parsePurchaseEffectToken(string $tokenString): PurchaseEffectToken

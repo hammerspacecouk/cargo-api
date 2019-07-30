@@ -16,6 +16,9 @@ class ShipClass extends Entity implements \JsonSerializable
     private $purchaseCost;
     private $description;
     private $imageSvg;
+    private $displayStrength;
+    private $displaySpeed;
+    private $displayCapacity;
 
     public function __construct(
         UuidInterface $id,
@@ -26,6 +29,9 @@ class ShipClass extends Entity implements \JsonSerializable
         int $purchaseCost,
         float $speedMultiplier,
         string $imageSvg,
+        int $displayStrength,
+        int $displaySpeed,
+        int $displayCapacity,
         ?PlayerRank $minimumRank
     ) {
         parent::__construct($id);
@@ -37,6 +43,9 @@ class ShipClass extends Entity implements \JsonSerializable
         $this->purchaseCost = $purchaseCost;
         $this->description = $description;
         $this->imageSvg = $imageSvg;
+        $this->displayStrength = $displayStrength;
+        $this->displaySpeed = $displaySpeed;
+        $this->displayCapacity = $displayCapacity;
     }
 
     public function jsonSerialize(): array
@@ -48,6 +57,12 @@ class ShipClass extends Entity implements \JsonSerializable
             'capacity' => $this->getCapacity(),
             'strength' => $this->strength,
             'image' => $this->getImagePath(),
+            'stats' => [
+                'max' => 10,
+                'strength' => $this->displayStrength,
+                'speed' => $this->displaySpeed,
+                'capacity' => $this->displayCapacity,
+            ],
         ];
     }
 
@@ -110,5 +125,20 @@ class ShipClass extends Entity implements \JsonSerializable
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function getDisplayStrength(): int
+    {
+        return $this->displayStrength;
+    }
+
+    public function getDisplaySpeed(): int
+    {
+        return $this->displaySpeed;
+    }
+
+    public function getDisplayCapacity(): int
+    {
+        return $this->displayCapacity;
     }
 }

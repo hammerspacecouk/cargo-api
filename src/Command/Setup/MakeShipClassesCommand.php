@@ -66,6 +66,9 @@ class MakeShipClassesCommand extends AbstractCommand
             $speedMultiplier = (float)$data['speedMultiplier'];
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
+            $displayStrength = (int)$data['displayStrength'];
+            $displaySpeed = (int)$data['displaySpeed'];
+            $displayCapacity = (int)$data['displayCapacity'];
             $svg = trim($data['svg']);
             /** @var ShipClass|null $entity */
             $entity = $this->entityManager->getShipClassRepo()->getByID($id, Query::HYDRATE_OBJECT);
@@ -81,6 +84,9 @@ class MakeShipClassesCommand extends AbstractCommand
                 $entity->speedMultiplier = $speedMultiplier;
                 $entity->purchaseCost = $purchaseCost;
                 $entity->isStarterShip = $isStarterShip;
+                $entity->displayCapacity = $displayCapacity;
+                $entity->displaySpeed = $displaySpeed;
+                $entity->displayStrength = $displayStrength;
                 $entity->svg = $svg;
             } else {
                 $entity = new ShipClass(
@@ -94,6 +100,9 @@ class MakeShipClassesCommand extends AbstractCommand
                     $isStarterShip,
                     $purchaseCost,
                     $svg,
+                    $displayCapacity,
+                    $displaySpeed,
+                    $displayStrength,
                     $minimumRank
                 );
                 $entity->id = $id;

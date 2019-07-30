@@ -61,7 +61,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_PLAYER_NEW,
-            function (Event $entity) use ($player, $homePort) {
+            static function (Event $entity) use ($player, $homePort) {
                 $entity->actioningPlayer = $player;
                 $entity->subjectPort = $homePort;
                 return $entity;
@@ -73,7 +73,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_SHIP_NEW,
-            function (Event $entity) use ($ship, $player) {
+            static function (Event $entity) use ($ship, $player) {
                 $entity->actioningPlayer = $player;
                 $entity->subjectShip = $ship;
                 return $entity;
@@ -85,7 +85,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_PLAYER_PROMOTION,
-            function (Event $entity) use ($rank, $player) {
+            static function (Event $entity) use ($rank, $player) {
                 $entity->actioningPlayer = $player;
                 $entity->subjectRank = $rank;
                 return $entity;
@@ -97,7 +97,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_SHIP_ARRIVAL,
-            function (Event $entity) use ($ship, $port) {
+            static function (Event $entity) use ($ship, $port) {
                 $entity->actioningShip = $ship;
                 $entity->subjectPort = $port;
                 return $entity;
@@ -109,7 +109,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_SHIP_RENAME,
-            function (Event $entity) use ($ship, $oldName) {
+            static function (Event $entity) use ($ship, $oldName) {
                 $entity->subjectShip = $ship;
                 $entity->value = $oldName;
                 return $entity;
@@ -121,7 +121,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_SHIP_DEPARTURE,
-            function (Event $entity) use ($ship, $port) {
+            static function (Event $entity) use ($ship, $port) {
                 $entity->actioningShip = $ship;
                 $entity->subjectPort = $port;
                 return $entity;
@@ -133,7 +133,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_CRATE_NEW,
-            function (Event $entity) use ($crate, $reservedForPlayer) {
+            static function (Event $entity) use ($crate, $reservedForPlayer) {
                 $entity->subjectCrate = $crate;
                 $entity->actioningPlayer = $reservedForPlayer;
                 return $entity;
@@ -145,7 +145,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     {
         return $this->log(
             DomainEvent::ACTION_CRATE_PICKUP,
-            function (Event $entity) use ($crate, $ship, $port) {
+            static function (Event $entity) use ($crate, $ship, $port) {
                 $entity->subjectPort = $port;
                 $entity->subjectCrate = $crate;
                 $entity->actioningShip = $ship;
@@ -162,7 +162,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     ): Event {
         return $this->log(
             DomainEvent::ACTION_EFFECT_USE,
-            function (Event $entity) use ($effect, $actioningPlayer, $affectedShip, $affectedPort) {
+            static function (Event $entity) use ($effect, $actioningPlayer, $affectedShip, $affectedPort) {
                 $entity->actioningPlayer = $actioningPlayer;
                 $entity->subjectEffect = $effect;
                 $entity->subjectPort = $affectedPort;
@@ -181,7 +181,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     ) {
         return $this->log(
             DomainEvent::ACTION_EFFECT_OFFENCE,
-            function (Event $entity) use ($attackingShip, $affectedShip, $inPort, $effect, $damage) {
+            static function (Event $entity) use ($attackingShip, $affectedShip, $inPort, $effect, $damage) {
                 $entity->actioningShip = $attackingShip;
                 $entity->subjectShip = $affectedShip;
                 $entity->subjectPort = $inPort;
