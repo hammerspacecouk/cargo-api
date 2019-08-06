@@ -44,7 +44,7 @@ class PlayerRankStatus implements \JsonSerializable
         ];
     }
 
-    public function getLevelProgress(): ?int
+    public function getLevelProgress(): ?float
     {
         if (!$this->nextRank) {
             return null;
@@ -55,7 +55,7 @@ class PlayerRankStatus implements \JsonSerializable
         $gap = ($end - $start);
 
         $distanceThrough = ($this->portsVisited - $start);
-        return (int)\floor(($distanceThrough / $gap) * 100);
+        return $distanceThrough / $gap;
     }
 
     public function getPortsVisited(): int

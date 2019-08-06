@@ -37,7 +37,7 @@ class Ship extends Entity implements \JsonSerializable
 
     public function getStrengthPercent(): int
     {
-        return (int)\ceil(($this->strength / $this->getShipClass()->getStrength()) * 100);
+        return $this->strength / $this->getShipClass()->getStrength();
     }
 
     public function isDestroyed(): bool
@@ -47,7 +47,7 @@ class Ship extends Entity implements \JsonSerializable
 
     public function isHealthy(): bool
     {
-        return $this->getStrengthPercent() > 25;
+        return $this->getStrengthPercent() > .25;
     }
 
     public function meetsStrength(int $minimumStrength): bool
