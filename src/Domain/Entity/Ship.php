@@ -35,7 +35,7 @@ class Ship extends Entity implements \JsonSerializable
         return $this->name;
     }
 
-    public function getStrengthPercent(): int
+    public function getStrengthPercent(): float
     {
         return $this->strength / $this->getShipClass()->getStrength();
     }
