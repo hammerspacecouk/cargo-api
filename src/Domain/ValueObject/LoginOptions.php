@@ -39,12 +39,6 @@ class LoginOptions implements \JsonSerializable
                 'token' => (string)$this->loginAnonToken,
             ];
         }
-        if ($this->loginEmailToken) {
-            $data['email'] = [
-                'path' => '/login/email',
-                'token' => (string)$this->loginEmailToken,
-            ];
-        }
 
         if ($this->facebook) {
             $data['facebook'] = '/login/facebook';

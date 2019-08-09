@@ -4,9 +4,12 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\AuthenticationToken;
+use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
+use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
 use DateInterval;
 use DateTimeImmutable;
@@ -99,7 +102,7 @@ class AuthenticationService extends AbstractService
             '',
             self::COOKIE_NAME,
             $this->dateTimeFactory->now()->sub(new DateInterval('P1Y')),
-        );
+            );
     }
 
     public function getUpdatedCookieForResponse(
@@ -118,7 +121,7 @@ class AuthenticationService extends AbstractService
             $currentAuthentication->getUser(),
             $currentAuthentication->getCreationTime(),
             $currentAuthentication,
-        );
+            );
     }
 
     public function getAuthenticationFromRequest(Request $request): ?UserAuthentication
@@ -152,7 +155,7 @@ class AuthenticationService extends AbstractService
             $authentication->getUser()->getId(),
             $tokenEntity['expiry'],
             $secret,
-        );
+            );
 
         if (!\hash_equals($tokenEntity['digest'], $digest)) {
             return null;
@@ -208,6 +211,45 @@ class AuthenticationService extends AbstractService
                 $expiry->getTimestamp(),
             ], JSON_THROW_ON_ERROR),
             $this->applicationConfig->getTokenPrivateKey()->encode(),
+        );
+    }
+
+    public function getAuthProviders(?User $user = null): array
+    {
+        $providers = [];
+
+        if ($this->applicationConfig->isLoginGoogleEnabled()) {
+            // todo - info from database
+            $isSetup = false;
+            $providers[AuthProvider::PROVIDER_GOOGLE] = $this->setupAuthProvider(
+                AuthProvider::PROVIDER_GOOGLE,
+                $isSetup,
+                $user
+            );
+        }
+
+        return $providers;
+    }
+
+    private function setupAuthProvider(string $provider, bool $isSetup, ?User $user): AuthProvider
+    {
+        $removalToken = null;
+
+        if ($isSetup && $user) {
+            $tokenData = $this->tokenHandler->makeToken(...RemoveAuthProviderToken::make(
+                $user->getId(),
+                $provider
+            ));
+            $removalToken = new RemoveAuthProviderToken(
+                $tokenData->getJsonToken(),
+                (string)$tokenData,
+                TokenProvider::getActionPath(RemoveAuthProviderToken::class, $this->dateTimeFactory->now())
+            );
+        }
+
+        return new AuthProvider(
+            $provider,
+            $removalToken
         );
     }
 }

@@ -100,9 +100,9 @@ class User extends Entity implements \JsonSerializable
         return $this->playerRank;
     }
 
-    public function hasEmailAddress(): bool
+    public function isAnonymous(): bool
     {
-        return $this->hasEmailAddress;
+        return !$this->hasEmailAddress;
     }
 
     public function getPlayStartTime(): DateTimeImmutable

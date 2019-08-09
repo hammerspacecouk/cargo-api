@@ -67,9 +67,10 @@ class AbstractLoginAction
     ): RedirectResponse {
         // do you already have an anonymous session
         $currentSessionUser = $this->getUserIfExists($request, $this->authenticationService);
-        if ($currentSessionUser && !$currentSessionUser->hasEmailAddress()) {
+        if ($currentSessionUser && $currentSessionUser->isAnonymous()) {
             // if this is an anonymous user we can convert it to a full account
             // but ONLY if there isn't already an account with this email
+            // todo - this logic changes with the oauth changes
             $exists = (bool)$this->usersService->getByEmailAddress($emailAddress);
             if ($exists) {
                 return new RedirectResponse(

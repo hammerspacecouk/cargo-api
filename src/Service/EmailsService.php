@@ -9,6 +9,7 @@ use App\Infrastructure\ApplicationConfig;
 use Swift_Mailer;
 use Swift_Message;
 
+// todo - remove me
 class EmailsService
 {
     private const EMAIL_MIME_TYPE = 'text/html';

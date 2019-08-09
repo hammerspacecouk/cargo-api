@@ -23,7 +23,6 @@ class SessionState implements \JsonSerializable
         return [
             'isLoggedIn' => (bool)$this->player,
             'player' => $this->player,
-            'hasProfileNotification' => $this->player && !$this->player->hasEmailAddress(),
             'rankStatus' => $this->rankStatus,
         ];
     }

@@ -127,7 +127,7 @@ class UsersService extends AbstractService
 
     public function getUserHint(User $user): string
     {
-        if (!$user->hasEmailAddress()) {
+        if ($user->isAnonymous()) {
             return HintRepository::ANON_HINT;
         }
         return $this->entityManager->getHintRepo()

@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Route;
 
+// todo - remove me
 class LoginEmailAction extends AbstractLoginAction
 {
     public const TOKEN_TYPE = 'loginEmail';

@@ -18,7 +18,13 @@ class ShipInChannelResponse extends AbstractShipInLocationResponse
         $data = $this->getBaseData($user, $ship, $location);
 
         $data['channel'] = $location;
-        $data['hint'] = $this->usersService->getUserHint($user);
+        $data['hint'] = null;
+
+        if ($user->isAnonymous()) {
+            $data['authProviders'] = $this->authenticationService->getAuthProviders($user);
+        } else {
+            $data['hint'] = $this->usersService->getUserHint($user);
+        }
 
         if ($bonusEffects !== null) {
             $data['bonus'] = $bonusEffects;

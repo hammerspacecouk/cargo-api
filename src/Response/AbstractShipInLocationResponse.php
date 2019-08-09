@@ -8,6 +8,7 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AlgorithmService;
+use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
 use App\Service\CratesService;
 use App\Service\EffectsService;
@@ -35,10 +36,12 @@ abstract class AbstractShipInLocationResponse
     protected $shipNameService;
     protected $shipHealthService;
     protected $upgradesService;
+    protected $authenticationService;
 
     public function __construct(
         AlgorithmService $algorithmService,
         ApplicationConfig $applicationConfig,
+        AuthenticationService $authenticationService,
         ChannelsService $channelsService,
         CratesService $cratesService,
         EffectsService $effectsService,
@@ -64,6 +67,7 @@ abstract class AbstractShipInLocationResponse
         $this->shipNameService = $shipNameService;
         $this->shipHealthService = $shipHealthService;
         $this->upgradesService = $upgradesService;
+        $this->authenticationService = $authenticationService;
     }
 
     abstract public function getResponseData(

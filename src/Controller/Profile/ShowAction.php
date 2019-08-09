@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Profile;
 
 use App\Controller\UserAuthenticationTrait;
-use App\Domain\ValueObject\SessionState;
 use App\Service\AuthenticationService;
-use App\Service\PlayerRanksService;
 use App\Service\PortsService;
 use App\Service\UsersService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +19,6 @@ class ShowAction
     private $authenticationService;
     private $portsService;
     private $usersService;
-    private $playerRanksService;
 
     public static function getRouteDefinition(): Route
     {
@@ -32,32 +29,27 @@ class ShowAction
 
     public function __construct(
         AuthenticationService $authenticationService,
-        PlayerRanksService $playerRanksService,
         PortsService $portsService,
         UsersService $usersService
     ) {
         $this->authenticationService = $authenticationService;
         $this->portsService = $portsService;
         $this->usersService = $usersService;
-        $this->playerRanksService = $playerRanksService;
     }
 
     public function __invoke(
         Request $request
     ): Response {
-        $authentication = $this->getAuthentication($request, $this->authenticationService);
-        $player = $authentication->getUser();
+        $user = $this->getUser($request, $this->authenticationService);
 
-        $homePort = $this->portsService->findHomePortForUserId($player->getId());
+        $homePort = $this->portsService->findHomePortForUserId($user->getId());
 
         return $this->userResponse(new JsonResponse([
-            'isAnonymous' => !$player->hasEmailAddress(),
-            'canDelete' => $this->usersService->canUserDelete($player),
+            'isAnonymous' => $user->isAnonymous(),
+            'isTrial' => true, // todo - real value
+            'canDelete' => $this->usersService->canUserDelete($user),
             'homePort' => $homePort,
-            'session' => new SessionState(
-                $player,
-                $this->playerRanksService->getForUser($player)
-            ),
+            'authProviders' => $this->authenticationService->getAuthProviders($user),
         ]), $this->authenticationService);
     }
 }
