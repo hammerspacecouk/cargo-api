@@ -42,6 +42,6 @@ class ShipInPort extends AbstractShipLocation
     public function isDangerous(): bool
     {
         // you can be attacked at ports that are not save havens
-        return !$this->getPort()->isSafeHaven();
+        return !$this->getPort()->isSafe();
     }
 }

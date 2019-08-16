@@ -38,12 +38,12 @@ class UserEffectRepository extends AbstractEntityRepository
 
     public function getAllOfTypeForUserId(UuidInterface $userId, string $type): array
     {
-        return \array_filter($this->getAllForUserId($userId), function ($result) use ($type) {
+        return \array_filter($this->getAllForUserId($userId), static function ($result) use ($type) {
             return $result['effect']['type'] === $type;
         });
     }
 
-    private function getAllForUserId(UuidInterface $userId)
+    public function getAllForUserId(UuidInterface $userId)
     {
         if (isset($this->userCache[$userId->toString()])) {
             return $this->userCache[$userId->toString()];

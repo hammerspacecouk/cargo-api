@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Data\Database\Types\EnumEffectsDisplayGroupType;
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
 
@@ -62,6 +63,16 @@ abstract class Effect extends Entity implements \JsonSerializable
     public function canBePurchased(): bool
     {
         return $this->cost !== null;
+    }
+
+    public function canBeUsedInPort(): bool
+    {
+        return true;
+    }
+
+    public function canBeUsedInChannel(): bool
+    {
+        return $this->displayGroup === EnumEffectsDisplayGroupType::TYPE_DEFENCE;
     }
 
     public function getPurchaseCost(): ?int

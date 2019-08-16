@@ -51,11 +51,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $moveCrateKey = $latestShipCrateLocation ? $latestShipCrateLocation->toHash() : $ship->toHash();
         }
 
-        $shipTravelOptions = $this->effectsService->getShipTravelOptions($ship, $user);
-
         $port = $location->getPort();
         $data['port'] = $port;
-        $data['tacticalOptions'] = \array_merge($shipTravelOptions, $data['tacticalOptions']);
         $data['directions'] = $this->getDirectionsFromPort(
             $port,
             $ship,
@@ -103,7 +100,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             // - it's not your own ship
             // - this ship is not a probe
             // - the current port is not a safe haven
-            if (!$port->isSafeHaven() &&
+            if (!$port->isSafe() &&
                 !$currentShip->getShipClass()->isProbe() &&
                 !$ship->getOwner()->equals($currentShip->getOwner())
             ) {

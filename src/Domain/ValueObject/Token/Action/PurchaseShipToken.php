@@ -23,11 +23,11 @@ class PurchaseShipToken extends AbstractActionToken
 
     public function getShipClassId(): UuidInterface
     {
-            return Uuid::fromString($this->token->get(self::KEY_SHIP_CLASS));
+        return Uuid::fromString($this->token->get(self::KEY_SHIP_CLASS));
     }
 
     public function getOwnerId(): UuidInterface
     {
-            return Uuid::fromString($this->token->get(self::KEY_OWNER));
+        return Uuid::fromString($this->token->get(self::KEY_OWNER));
     }
 }

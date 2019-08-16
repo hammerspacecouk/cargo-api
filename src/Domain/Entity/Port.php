@@ -10,16 +10,16 @@ class Port extends Entity implements \JsonSerializable
     public const TOTAL_PORT_COUNT = 1000;
 
     private $name;
-    private $isSafeHaven;
+    private $isSafe;
 
     public function __construct(
         UuidInterface $id,
         string $name,
-        bool $isSafeHaven
+        bool $isSafe
     ) {
         parent::__construct($id);
         $this->name = $name;
-        $this->isSafeHaven = $isSafeHaven;
+        $this->isSafe = $isSafe;
     }
 
     public function getName(): string
@@ -27,9 +27,9 @@ class Port extends Entity implements \JsonSerializable
         return $this->name;
     }
 
-    public function isSafeHaven(): bool
+    public function isSafe(): bool
     {
-        return $this->isSafeHaven;
+        return $this->isSafe;
     }
 
     public function jsonSerialize()
@@ -38,7 +38,7 @@ class Port extends Entity implements \JsonSerializable
             'id' => $this->id,
             'type' => 'Port',
             'name' => $this->name,
-            'safeHaven' => $this->isSafeHaven(),
+            'isSafe' => $this->isSafe(),
         ];
     }
 }
