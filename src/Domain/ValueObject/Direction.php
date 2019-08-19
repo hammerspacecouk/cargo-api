@@ -108,10 +108,10 @@ class Direction implements \JsonSerializable
         if ($minimumRank &&
             !$this->playerRank->meets($minimumRank)
         ) {
-            $this->denialReasons[] = 'Minimum rank: ' . $minimumRank->getName();
+            $this->denialReasons[] = 'Requires: ' . $minimumRank->getName();
         }
         if ($minimumStrength && !$this->ship->meetsStrength($minimumStrength)) {
-            $this->denialReasons[] = 'This ship is not currently enough for this journey';
+            $this->denialReasons[] = 'This ship is not currently strong enough for this journey';
         }
     }
 }

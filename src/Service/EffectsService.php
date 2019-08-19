@@ -106,10 +106,8 @@ class EffectsService extends AbstractService
             $hitsRemaining = $activeEffect->remainingCount;
             $expiry = $activeEffect->expiry;
         } elseif ($userEffect) {
-            if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
-                if (!$effect->affectsAllShips()) {
-                    $shipSelect = true; // no actionToken
-                } elseif ($shipLocation instanceof ShipInPort) {
+            if ($effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()) {
+                if ($shipLocation instanceof ShipInPort) {
                     $actionToken = $this->getOffenceEffectToken($effect, $userEffect, $ship, $shipLocation->getPort());
                 } else {
                     throw new \RuntimeException('Should not be able to make offence actions outside of a port');
@@ -122,7 +120,10 @@ class EffectsService extends AbstractService
                 // TODO - NEXTNEXT
                 //  Tidy this file
                 //  Re-create ships list with offence actions
-                //  Front end to display use and purchase buttons
+        }
+
+        if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
+            $shipSelect = true; // no actionToken
         }
 
         if ($shipLocation instanceof ShipInPort) {

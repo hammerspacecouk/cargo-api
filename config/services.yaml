@@ -58,11 +58,6 @@ services:
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
 
-  # Register the service as an event listener
-  App\Infrastructure\Subscriber\FlashDataSubscriber:
-    tags:
-      - { name: 'kernel.event_subscriber' }
-
   App\Infrastructure\ApplicationConfig:
     arguments:
       - '%env(APP_ENV)%'
