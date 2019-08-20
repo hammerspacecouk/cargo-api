@@ -42,7 +42,7 @@ class ShipsService extends AbstractService
     public function getByID(
         UuidInterface $uuid
     ): ?Ship {
-    
+
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c', 'o', 'r')
             ->join('tbl.shipClass', 'c')
@@ -71,7 +71,7 @@ class ShipsService extends AbstractService
         UuidInterface $shipId,
         UuidInterface $ownerId
     ): ?Ship {
-    
+
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
@@ -92,7 +92,7 @@ class ShipsService extends AbstractService
     public function getByIDWithLocation(
         UuidInterface $uuid
     ): ?Ship {
-    
+
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c', 'o', 'r')
             ->join('tbl.shipClass', 'c')
@@ -143,12 +143,16 @@ class ShipsService extends AbstractService
         return $this->mapMany($results);
     }
 
+    /**
+     * @param Port $port
+     * @return Ship[]
+     */
     public function findAllActiveInPort(Port $port): array
     {
         $results = $this->entityManager->getShipLocationRepo()->getActiveShipsForPortId($port->getId());
-        $mapper = $this->mapperFactory->createShipLocationMapper();
-        return array_map(function ($result) use ($mapper) {
-            return $mapper->getShipLocation($result);
+        $mapper = $this->mapperFactory->createShipMapper();
+        return array_map(static function ($result) use ($mapper) {
+            return $mapper->getShip($result['ship']);
         }, $results);
     }
 

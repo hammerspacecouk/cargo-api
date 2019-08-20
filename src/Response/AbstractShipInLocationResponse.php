@@ -89,7 +89,6 @@ abstract class AbstractShipInLocationResponse
             'port' => null,
             'channel' => null,
             'directions' => null,
-            'purchaseOptions' => null,
             'events' => [],
             'playerScore' => $user->getScore(),
             'playerRankStatus' => $rankStatus,

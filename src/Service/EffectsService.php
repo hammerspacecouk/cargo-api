@@ -117,9 +117,6 @@ class EffectsService extends AbstractService
             } elseif ($effect instanceof Effect\TravelEffect) {
                 $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
             }
-                // TODO - NEXTNEXT
-                //  Tidy this file
-                //  Re-create ships list with offence actions
         }
 
         if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
@@ -133,6 +130,7 @@ class EffectsService extends AbstractService
         return new TacticalEffect(
             $effect,
             $effect->getMinimumRank(),
+            $userEffect,
             $shipSelect,
             $countsOfType[$effect->getId()->toString()] ?? 0,
             $hitsRemaining,
@@ -239,72 +237,53 @@ class EffectsService extends AbstractService
         );
     }
 
+    /**
+     * @param Ship $playingShip
+     * @param Ship $victimShip
+     * @param Port $currentPort
+     * @param TacticalEffect[] $tacticalOptions
+     * @return array
+     */
+    public function getOffenceOptionsAtShip(
+        Ship $playingShip,
+        Ship $victimShip,
+        Port $currentPort,
+        $tacticalOptions
+    ): array {
+        $availableOffenceEffects = array_filter($tacticalOptions, static function(TacticalEffect $tacticalEffect) {
+            return $tacticalEffect->isAvailableShipOffence();
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public function getOffenceOptionsAtShip(Ship $playingShip, Ship $victimShip, Port $currentPort): array
-    {
-        $user = $playingShip->getOwner();
-
-        $allEffects = $this->getAvailableEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
-        $userEffects = $this->getOffenceEffectsOwnedByUser($user);
-        $countsOfType = $this->getCountsPerEffect($userEffects);
-
-        return \array_map(function (Effect $effect) use (
-            $playingShip,
-            $userEffects,
-            $victimShip,
-            $currentPort,
-            $countsOfType
-        ) {
-
-            /** @var UserEffect|null $userEffect */
-            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
-                return $effect->getId()->equals($userEffect->getEffect()->getId());
-            }, $userEffects);
-
-            $actionToken = null;
-            if ($userEffect) {
-                /** @var Effect\OffenceEffect $effect */
-                $effect = $userEffect->getEffect();
-
-                // else if it's in userEffects, populate the action token
-                $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
-                    new TokenId($this->uuidFactory->uuid5(
-                        'b65f419b-ffe4-46dc-b61e-c9da6a82ffd9',
-                        $userEffect->getId()->toString()
-                    )),
-                    $userEffect->getId(),
-                    $playingShip->getId(),
-                    $currentPort->getId(),
-                    $effect->getDamage(),
-                    $effect->affectsAllShips() ? null : $victimShip->getId(),
-                    ));
-                $actionToken = new UseOffenceEffectToken(
-                    $token->getJsonToken(),
-                    (string)$token,
-                    TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
-                );
+        $offenceEffects = [];
+        foreach ($availableOffenceEffects as $availableOffenceEffect) {
+            $userEffect = $availableOffenceEffect->getUserEffect();
+            $effect = $availableOffenceEffect->getEffect();
+            if (!$userEffect || !$effect || !$effect instanceof Effect\OffenceEffect) {
+                throw new \RuntimeException('An offence effect without an effect. Whaa!');
             }
 
-            return [
+            $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
+                new TokenId($userEffect->getId()),
+                $userEffect->getId(),
+                $playingShip->getId(),
+                $currentPort->getId(),
+                $effect->getDamage(),
+                $victimShip->getId(),
+                ));
+            $actionToken = new UseOffenceEffectToken(
+                $token->getJsonToken(),
+                (string)$token,
+                TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+            );
+
+            $offenceEffects[] = [
                 'actionToken' => $actionToken,
-                'effect' => $effect,
-                'currentCount' => $countsOfType[$effect->getId()->toString()] ?? 0,
+                'effect' => $availableOffenceEffect->getEffect(),
+                'currentCount' => $availableOffenceEffect->getCurrentCount(),
             ];
-        }, $allEffects);
+        }
+
+        return $offenceEffects;
     }
 
 

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Response;
 
-use App\Data\Database\Types\EnumEffectsDisplayGroupType;
 use App\Domain\Entity\Crate;
 use App\Domain\Entity\CrateLocation;
 use App\Domain\Entity\Effect;
@@ -60,45 +59,41 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $totalCrateValue,
             $location->getId(),
             );
-        $data['shipsInLocation'] = $this->getShipsInPort($port, $ship);
+        $data['shipsInLocation'] = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
         $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
         $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
-
-        $data['purchaseOptions'] = $this->getPurchaseOptionsForPort($user, $port, $ship);
         return $data;
     }
 
-
-
     private function getShipsInPort(
         Port $port,
-        Ship $currentShip
+        Ship $currentShip,
+        $tacticalOptions
     ): array {
 
-        $ships = \array_map(function (ShipInPort $shipLocation) use ($currentShip, $port) {
-            // apply any required changes or filter them out (set to null)
-            $ship = $shipLocation->getShip();
+        $ships = [];
 
+        foreach ($this->shipsService->findAllActiveInPort($port) as $ship) {
             // remove the current ship from view
             if ($ship->getId()->equals($currentShip->getId())) {
-                return null;
+                continue;
             }
-
             // get active effects for this ship
             $activeEffects = $this->effectsService->getActiveEffectsForShip($ship);
             foreach ($activeEffects as $effect) {
                 /** @var Effect|Effect\DefenceEffect $effect */
                 if (($effect instanceof Effect\DefenceEffect) && $effect->isInvisible()) {
-                    return null;
+                    // don't include invisible ships in the list
+                    continue 2;
                 }
             }
 
             $offence = null;
             // make offence effects if all of the following are satisfied:
             // - it's not your own ship
-            // - this ship is not a probe
+            // - the current ship is not a probe
             // - the current port is not a safe haven
             if (!$port->isSafe() &&
                 !$currentShip->getShipClass()->isProbe() &&
@@ -107,18 +102,18 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $offence = $this->effectsService->getOffenceOptionsAtShip(
                     $currentShip,
                     $ship,
-                    $port
+                    $port,
+                    $tacticalOptions
                 );
             }
 
-            return [
+            $ships[] = [
                 'ship' => $ship,
                 'offence' => $offence,
             ];
-        }, $this->shipsService->findAllActiveInPort($port));
+        }
 
-        // remove any nulls (filtered out)
-        return \array_values(\array_filter($ships));
+        return $ships;
     }
 
     private function getCratesInPort(
@@ -241,35 +236,5 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         return $directions;
-    }
-
-    private function getPurchaseOptionsForPort(User $user, Port $port, Ship $ship): array
-    {
-        return \array_merge(
-            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
-                $user,
-                $port,
-                $ship,
-                EnumEffectsDisplayGroupType::TYPE_TRAVEL
-            ),
-            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
-                $user,
-                $port,
-                $ship,
-                EnumEffectsDisplayGroupType::TYPE_DEFENCE
-            ),
-            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
-                $user,
-                $port,
-                $ship,
-                EnumEffectsDisplayGroupType::TYPE_OFFENCE
-            ),
-            $this->upgradesService->getAvailableEffectsByDisplayTypeForUserAndPort(
-                $user,
-                $port,
-                $ship,
-                EnumEffectsDisplayGroupType::TYPE_SPECIAL
-            ),
-        );
     }
 }
