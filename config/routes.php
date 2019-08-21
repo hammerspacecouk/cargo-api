@@ -35,7 +35,6 @@ $actions = [
 
     // profile (requires cookie)
     Controller\Profile\ShowAction::class,
-    Controller\Profile\SessionsAction::class,
     Controller\Profile\DeleteAction::class,
 
     // play (requires cookie)

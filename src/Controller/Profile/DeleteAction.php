@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Profile;
 
+use App\Controller\CacheControlResponseTrait;
 use App\Controller\UserAuthenticationTrait;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Infrastructure\ApplicationConfig;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Route;
 
 class DeleteAction
 {
+    use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
     private $authenticationService;
@@ -77,7 +79,7 @@ class DeleteAction
         $this->logger->notice('[ACCOUNT DELETE] [STAGE 1]');
 
         // first screen must check the session to get your user in the first place
-        $user = $this->getAuthentication($request, $this->authenticationService)->getUser();
+        $user = $this->getUser($request, $this->authenticationService);
         if (!$this->usersService->canUserDelete($user)) {
             throw new BadRequestHttpException('Tried to delete without being allowed. Tut tut');
         }
@@ -92,7 +94,7 @@ class DeleteAction
     {
         $this->logger->notice('[ACCOUNT DELETE] [STAGE 2]');
         // second screen will ensure you got through our token check, ensuring it's not already used
-        $user = $this->getAuthentication($request, $this->authenticationService)->getUser();
+        $user = $this->getUser($request, $this->authenticationService);
         if (!$this->usersService->canUserDelete($user)) {
             throw new BadRequestHttpException('Tried to delete without being allowed. Tut tut');
         }
@@ -107,7 +109,7 @@ class DeleteAction
         $this->logger->notice('[ACCOUNT DELETE] [STAGE 3]');
         // the final screen will check your session matches the user in the token and delete the account
 
-        $user = $this->getAuthentication($request, $this->authenticationService)->getUser();
+        $user = $this->getUser($request, $this->authenticationService);
         if (!$user->getId()->equals($token->getUserId())) {
             throw new BadRequestHttpException('Token not for this user');
         }
@@ -116,14 +118,8 @@ class DeleteAction
         }
 
         $this->usersService->useStageThreeDeleteAccountToken($token);
-        $this->clearAuthentication($request, $this->authenticationService, $this->logger);
-
-        $response = new RedirectResponse(
-            $this->applicationConfig->getWebHostname() . '#logout'
-        );
-
-        // redirect to the application homepage, now that the account is deleted and you're logged out
-        return $this->userResponse($response, $this->authenticationService);
+        $logoutResponse = $this->logoutResponse($this->applicationConfig, $this->authenticationService);
+        return $this->noCacheResponse($logoutResponse);
     }
 
     private function makeTokenRedirect($stage, $token): Response
@@ -138,6 +134,6 @@ class DeleteAction
             '/delete?' .
             http_build_query($params),
             );
-        return $this->userResponse($response, $this->authenticationService);
+        return $this->noCacheResponse($response);
     }
 }

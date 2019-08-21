@@ -26,7 +26,7 @@ class ShipMovementService extends ShipsService
         int $journeyTime,
         int $earnings,
         UuidInterface $currentLocation,
-        array $activeEffectsToExpire
+        array $tacticalEffectsToExpire
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
             new TokenId($this->uuidFactory->uuid5(
@@ -39,7 +39,7 @@ class ShipMovementService extends ShipsService
             $reverseDirection,
             $journeyTime,
             $earnings,
-            $activeEffectsToExpire,
+            $tacticalEffectsToExpire,
         ));
         return new MoveShipToken(
             $token->getJsonToken(),

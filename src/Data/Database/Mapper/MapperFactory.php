@@ -6,6 +6,11 @@ namespace App\Data\Database\Mapper;
 // Please keep this class in alphabetical order
 class MapperFactory
 {
+    public function createActiveEffectMapper(): ActiveEffectMapper
+    {
+        return new ActiveEffectMapper($this);
+    }
+
     public function createChannelMapper(): ChannelMapper
     {
         return new ChannelMapper($this);

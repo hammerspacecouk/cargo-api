@@ -118,7 +118,7 @@ class TimedCommand extends Command
             }, $channels);
 
             // of the possible directions, find which ones the ship is allowed to travel
-            $directions = \array_filter($directions, function (Direction $direction) {
+            $directions = \array_filter($directions, static function (Direction $direction) {
                 return $direction->isAllowedToEnter();
             });
 
@@ -135,7 +135,7 @@ class TimedCommand extends Command
 
             // if not found, choose the one the player hasn't been to most recently
             if (!$direction) {
-                usort($directions, function (Direction $a, Direction $b) {
+                usort($directions, static function (Direction $a, Direction $b) {
                     // todo -check this sort is correct
                     return $a->getLastVisitTime() <=> $b->getLastVisitTime();
                 });

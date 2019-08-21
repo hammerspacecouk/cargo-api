@@ -7,12 +7,9 @@ use App\Domain\Entity\Effect;
 
 class TravelEffect extends Effect
 {
-    public function getSpeedDivisor(): ?int
+    public function getSpeedDivisor(): int
     {
-        if (!$this->value) {
-            return null;
-        }
-        return $this->value['s'];
+        return $this->value['s'] ?? 1;
     }
 
     public function isInstant(): bool
@@ -20,11 +17,8 @@ class TravelEffect extends Effect
         return $this->value && $this->value['s'] === -1;
     }
 
-    public function getEarningsMultiplier(): ?int
+    public function getEarningsMultiplier(): int
     {
-        if (!$this->value) {
-            return null;
-        }
-        return $this->value['e'];
+        return $this->value['e'] ?? 1;
     }
 }

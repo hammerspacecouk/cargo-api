@@ -167,11 +167,6 @@ class UsersService extends AbstractService
         $this->entityManager->getUserRepo()->deleteById($token->getUserId(), DbUser::class);
     }
 
-    public function cleanupActionTokens(DateTimeImmutable $expiredSince): int
-    {
-        return $this->entityManager->getUsedActionTokenRepo()->removeExpired($expiredSince);
-    }
-
     public function parseAcknowledgePromotionToken(
         string $tokenString
     ): AcknowledgePromotionToken {

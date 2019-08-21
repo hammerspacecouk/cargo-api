@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\TokenId;
 use DateInterval;
 use Ramsey\Uuid\Uuid;
@@ -26,7 +27,7 @@ class MoveShipToken extends AbstractActionToken
         bool $isReversed,
         int $journeyTime,
         int $earnings,
-        array $effectIdsToExpire
+        array $tacticalEffectsToExpire
     ): array {
         return parent::create([
             self::KEY_SHIP => $shipId->toString(),
@@ -35,9 +36,12 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
             self::KEY_EARNINGS => $earnings,
-            self::KEY_EXPIRE_EFFECTS => \array_map(function (UuidInterface $uuid) {
-                return $uuid->toString();
-            }, $effectIdsToExpire),
+            self::KEY_EXPIRE_EFFECTS => \array_map(static function (TacticalEffect $tacticalEffect) {
+                if (!$tacticalEffect->getActiveEffect()) {
+                    throw new \RuntimeException('An active tactical effect without an active effect?');
+                }
+                return $tacticalEffect->getActiveEffect()->getId()->toString();
+            }, $tacticalEffectsToExpire),
         ], $tokenId);
     }
 

@@ -3,22 +3,15 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Controller\UserAuthenticationTrait;
+use App\Controller\AbstractUserAction;
 use App\Response\UpgradesResponse;
 use App\Service\AuthenticationService;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
 
-class UpgradesAction
+class UpgradesAction extends AbstractUserAction
 {
-    use UserAuthenticationTrait;
-
-    protected $authenticationService;
-
-    private $logger;
     private $upgradesResponse;
 
     public static function getRouteDefinition(): Route
@@ -33,20 +26,13 @@ class UpgradesAction
         UpgradesResponse $upgradesResponse,
         LoggerInterface $logger
     ) {
-        $this->authenticationService = $authenticationService;
-        $this->logger = $logger;
+        parent::__construct($authenticationService, $logger);
         $this->upgradesResponse = $upgradesResponse;
     }
 
-    public function __invoke(
+    public function invoke(
         Request $request
-    ): Response {
-        $this->logger->debug(__CLASS__);
-        $user = $this->getUser($request, $this->authenticationService);
-
-        return $this->userResponse(
-            new JsonResponse($this->upgradesResponse->getResponseDataForUser($user)),
-            $this->authenticationService
-        );
+    ): array {
+        return $this->upgradesResponse->getResponseDataForUser($this->user);
     }
 }

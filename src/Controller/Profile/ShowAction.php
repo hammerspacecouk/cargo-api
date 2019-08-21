@@ -3,20 +3,16 @@ declare(strict_types=1);
 
 namespace App\Controller\Profile;
 
-use App\Controller\UserAuthenticationTrait;
+use App\Controller\AbstractUserAction;
 use App\Service\AuthenticationService;
 use App\Service\PortsService;
 use App\Service\UsersService;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
 
-class ShowAction
+class ShowAction extends AbstractUserAction
 {
-    use UserAuthenticationTrait;
-
-    private $authenticationService;
     private $portsService;
     private $usersService;
 
@@ -30,26 +26,25 @@ class ShowAction
     public function __construct(
         AuthenticationService $authenticationService,
         PortsService $portsService,
-        UsersService $usersService
+        UsersService $usersService,
+        LoggerInterface $logger
     ) {
-        $this->authenticationService = $authenticationService;
+        parent::__construct($authenticationService, $logger);
         $this->portsService = $portsService;
         $this->usersService = $usersService;
     }
 
-    public function __invoke(
+    public function invoke(
         Request $request
-    ): Response {
-        $user = $this->getUser($request, $this->authenticationService);
+    ): array {
+        $homePort = $this->portsService->findHomePortForUserId($this->user->getId());
 
-        $homePort = $this->portsService->findHomePortForUserId($user->getId());
-
-        return $this->userResponse(new JsonResponse([
-            'isAnonymous' => $user->isAnonymous(),
+        return [
+            'isAnonymous' => $this->user->isAnonymous(),
             'isTrial' => true, // todo - real value
-            'canDelete' => $this->usersService->canUserDelete($user),
+            'canDelete' => $this->usersService->canUserDelete($this->user),
             'homePort' => $homePort,
-            'authProviders' => $this->authenticationService->getAuthProviders($user),
-        ]), $this->authenticationService);
+            'authProviders' => $this->authenticationService->getAuthProviders($this->user),
+        ];
     }
 }

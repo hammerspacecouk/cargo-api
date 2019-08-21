@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Home;
 
+use App\Controller\CacheControlResponseTrait;
 use App\Controller\UserAuthenticationTrait;
 use App\Service\AuthenticationService;
 use App\Service\ConfigService;
@@ -14,6 +15,7 @@ use function App\Functions\DateTimes\jsonDecode;
 
 class ConfigAction
 {
+    use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
     private $configService;
@@ -49,8 +51,6 @@ class ConfigAction
             $this->configService->setConfig($data);
         }
 
-        // if POST, update it
-
         $config = \json_encode($this->configService->getConfig(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 
         $body = <<<BODY
@@ -70,6 +70,6 @@ class ConfigAction
         BODY;
 
 
-        return new Response($body);
+        return $this->noCacheResponse(new Response($body));
     }
 }

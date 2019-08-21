@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
+use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\UserEffect;
@@ -20,11 +21,15 @@ class TacticalEffect implements \JsonSerializable
     private $shipSelect;
     private $purchaseEffectTransaction;
     private $userEffect;
+    private $isActive;
+    private $activeEffect;
 
     public function __construct(
         ?Effect $effect,
         PlayerRank $minimumRank,
+        bool $isActive = false,
         ?UserEffect $userEffect = null,
+        ?ActiveEffect $activeEffect = null,
         bool $shipSelect = false,
         int $currentCount = 0,
         ?int $hitsRemaining = 0,
@@ -42,6 +47,8 @@ class TacticalEffect implements \JsonSerializable
         $this->shipSelect = $shipSelect;
         $this->purchaseEffectTransaction = $purchaseEffectTransaction;
         $this->userEffect = $userEffect;
+        $this->isActive = $isActive;
+        $this->activeEffect = $activeEffect;
     }
 
     public function jsonSerialize()
@@ -56,15 +63,25 @@ class TacticalEffect implements \JsonSerializable
             'actionToken' => $this->actionToken,
             'hitsRemaining' => $this->hitsRemaining,
             'expiry' => $this->activeExpiry ? $this->activeExpiry->format('c') : null,
-            'isActive' => $this->activeExpiry || $this->hitsRemaining,
+            'isActive' => $this->isActive,
             'mustSelectShip' => $this->shipSelect,
             'purchaseToken' => $this->purchaseEffectTransaction,
         ];
     }
 
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
     public function getEffect(): ?Effect
     {
         return $this->effect;
+    }
+
+    public function getActiveEffect(): ?ActiveEffect
+    {
+        return $this->activeEffect;
     }
 
     public function getUserEffect(): ?UserEffect

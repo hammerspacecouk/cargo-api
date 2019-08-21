@@ -7,7 +7,6 @@ use App\Data\Database\Entity\ActiveEffect as DbActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
 use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
@@ -45,11 +44,7 @@ class EffectsService extends AbstractService
         $countsOfType = $this->getCountsPerEffect($userEffects);
 
         /** @var DbActiveEffect[] $activeShipEffects */
-        $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
-            $ship->getId(),
-            EnumEffectsType::TYPE_DEFENCE,
-            Query::HYDRATE_OBJECT
-        );
+        $activeShipEffects = $this->getActiveEffectsForShip($ship);
 
         $availableEffects = [];
         foreach ($allEffects as $effect) {
@@ -85,9 +80,9 @@ class EffectsService extends AbstractService
             return new TacticalEffect(null, $effect->getMinimumRank());
         }
 
-        /** @var DbActiveEffect|null $activeEffect */
-        $activeEffect = find(static function (DbActiveEffect $activeEffect) use ($effect) {
-            return $effect->getId()->equals($activeEffect->effect->id);
+        /** @var ActiveEffect|null $activeEffect */
+        $activeEffect = find(static function (ActiveEffect $activeEffect) use ($effect) {
+            return $effect->getId()->equals($activeEffect->getEffect()->getId());
         }, $activeShipEffects);
 
         /** @var UserEffect|null $userEffect */
@@ -97,14 +92,16 @@ class EffectsService extends AbstractService
 
         $actionToken = null;
         $hitsRemaining = null;
+        $isActive = false;
         $expiry = null;
         $shipSelect = false;
         $purchaseToken = null;
 
         // if it's in active effects. populate hitsRemaining or expiry
         if ($activeEffect) {
-            $hitsRemaining = $activeEffect->remainingCount;
-            $expiry = $activeEffect->expiry;
+            $hitsRemaining = $activeEffect->getRemainingCount();
+            $expiry = $activeEffect->getExpiry();
+            $isActive = true;
         } elseif ($userEffect) {
             if ($effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()) {
                 if ($shipLocation instanceof ShipInPort) {
@@ -130,7 +127,9 @@ class EffectsService extends AbstractService
         return new TacticalEffect(
             $effect,
             $effect->getMinimumRank(),
+            $isActive,
             $userEffect,
+            $activeEffect,
             $shipSelect,
             $countsOfType[$effect->getId()->toString()] ?? 0,
             $hitsRemaining,
@@ -286,13 +285,6 @@ class EffectsService extends AbstractService
         return $offenceEffects;
     }
 
-
-
-    public function getOffenceEffectsOwnedByUser(User $user): array
-    {
-        return $this->getOwnedEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
-    }
-
     public function addRandomEffectsForUser(User $user): array
     {
         $effectRepo = $this->entityManager->getEffectRepo();
@@ -349,18 +341,6 @@ class EffectsService extends AbstractService
         return $countsOfType;
     }
 
-    private function getAvailableEffectsOfTypeForUser(User $user, string $type): array
-    {
-        $allEffects = $this->entityManager->getEffectRepo()->getTypeAboveRankThreshold(
-            $type,
-            $user->getRank()->getThreshold()
-        );
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(static function ($result) use ($mapper) {
-            return $mapper->getEffect($result);
-        }, $allEffects);
-    }
-
     private function getAll(): array
     {
         return $this->mapMany($this->entityManager->getEffectRepo()->getAll());
@@ -390,19 +370,16 @@ class EffectsService extends AbstractService
         return $results;
     }
 
-    private function getOwnedEffectsOfTypeForUser(User $user, string $type): array
+    /**
+     * @param Ship $ship
+     * @return ActiveEffect[]
+     */
+    public function getActiveEffectsForShip(Ship $ship): array
     {
-        // this method has a cache to reuse it during the same request
-        $cacheKey = __METHOD__ . $user->getId()->toString() . $type;
-        if (isset($this->userEffectsCache[$cacheKey])) {
-            return $this->userEffectsCache[$cacheKey];
-        }
-
-        $mapper = $this->mapperFactory->createUserEffectMapper();
+        $mapper = $this->mapperFactory->createActiveEffectMapper();
         $results = \array_map(static function ($result) use ($mapper) {
-            return $mapper->getUserEffect($result);
-        }, $this->entityManager->getUserEffectRepo()->getAllOfTypeForUserId($user->getId(), $type));
-        $this->userEffectsCache[$cacheKey] = $results;
+            return $mapper->getActiveEffect($result);
+        }, $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId()));
         return $results;
     }
 
@@ -528,33 +505,5 @@ class EffectsService extends AbstractService
                 );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
-    }
-
-    public function getActiveEffectsForShip(Ship $ship): array
-    {
-        $activeEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId());
-
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(static function (array $activeEffect) use ($mapper) {
-            return $mapper->getEffect($activeEffect['effect']);
-        }, $activeEffects);
-    }
-
-    public function getApplicableTravelEffectForShip(Ship $ship): ?ActiveEffect
-    {
-        /** @var DbActiveEffect[] $activeShipEffects */
-        $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
-            $ship->getId(),
-            EnumEffectsType::TYPE_TRAVEL,
-            );
-        if (empty($activeTravelEffects)) {
-            return null;
-        }
-        // there should never be more than one, but just in case, we'll apply only the first one we find
-        $activeEffect = reset($activeTravelEffects);
-        return new ActiveEffect(
-            $activeEffect['id'],
-            $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']),
-            );
     }
 }
