@@ -3,28 +3,18 @@ declare(strict_types=1);
 
 namespace App\Controller\Play;
 
-use App\Controller\UserAuthenticationTrait;
+use App\Controller\AbstractUserAction;
 use App\Domain\ValueObject\SessionState;
 use App\Response\FleetResponse;
 use App\Service\AuthenticationService;
 use App\Service\PlayerRanksService;
-use App\Service\UsersService;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
 
-class IndexAction
+class IndexAction extends AbstractUserAction
 {
-    use UserAuthenticationTrait;
-
-    protected $authenticationService;
-    protected $usersService;
-
-    private $shipsService;
     private $playerRanksService;
-    private $eventsService;
-    private $shipNameService;
     private $fleetResponse;
 
     public static function getRouteDefinition(): Route
@@ -37,29 +27,23 @@ class IndexAction
     public function __construct(
         AuthenticationService $authenticationService,
         PlayerRanksService $playerRanksService,
-        UsersService $usersService,
-        FleetResponse $fleetResponse
+        FleetResponse $fleetResponse,
+        LoggerInterface $logger
     ) {
-        $this->authenticationService = $authenticationService;
-        $this->usersService = $usersService;
+        parent::__construct($authenticationService, $logger);
         $this->playerRanksService = $playerRanksService;
         $this->fleetResponse = $fleetResponse;
     }
 
-    public function __invoke(
+    public function invoke(
         Request $request
-    ): Response {
-        $user = $this->getUser($request, $this->authenticationService);
-        $fleet = null;
-
-        $data = [
+    ): array {
+        return [
             'sessionState' => new SessionState(
-                $user,
-                $this->playerRanksService->getForUser($user)
+                $this->user,
+                $this->playerRanksService->getForUser($this->user)
             ),
-            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
+            'fleet' => $this->fleetResponse->getResponseDataForUser($this->user),
         ];
-
-        return $this->userResponse(new JsonResponse($data), $this->authenticationService);
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
+use App\Controller\CacheControlResponseTrait;
 use App\Controller\UserAuthenticationTrait;
 use App\Data\FlashDataStore;
 use App\Domain\Entity\Ship;
@@ -16,11 +17,13 @@ use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use function App\Functions\Strings\startsWith;
 
 class AbstractLoginAction
 {
+    use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
     protected const RETURN_ADDRESS_KEY = 'ra';
@@ -92,7 +95,7 @@ class AbstractLoginAction
         return $this->getLoginResponseForUser($user);
     }
 
-    protected function getLoginResponseForUser(User $user): RedirectResponse
+    protected function getLoginResponseForUser(User $user): Response
     {
         $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
         $url = $this->getRedirectUrl();
@@ -108,8 +111,7 @@ class AbstractLoginAction
 
         $response = new RedirectResponse($url);
         $response->headers->setCookie($cookie);
-
-        return $response;
+        return $this->noCacheResponse($response);
     }
 
     private function getRedirectUrl()

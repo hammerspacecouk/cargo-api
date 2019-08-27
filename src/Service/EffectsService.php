@@ -7,7 +7,6 @@ use App\Data\Database\Entity\ActiveEffect as DbActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
-use App\Data\Database\Types\EnumEffectsType;
 use App\Data\TokenProvider;
 use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
@@ -45,11 +44,7 @@ class EffectsService extends AbstractService
         $countsOfType = $this->getCountsPerEffect($userEffects);
 
         /** @var DbActiveEffect[] $activeShipEffects */
-        $activeShipEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
-            $ship->getId(),
-            EnumEffectsType::TYPE_DEFENCE,
-            Query::HYDRATE_OBJECT
-        );
+        $activeShipEffects = $this->getActiveEffectsForShip($ship);
 
         $availableEffects = [];
         foreach ($allEffects as $effect) {
@@ -85,9 +80,9 @@ class EffectsService extends AbstractService
             return new TacticalEffect(null, $effect->getMinimumRank());
         }
 
-        /** @var DbActiveEffect|null $activeEffect */
-        $activeEffect = find(static function (DbActiveEffect $activeEffect) use ($effect) {
-            return $effect->getId()->equals($activeEffect->effect->id);
+        /** @var ActiveEffect|null $activeEffect */
+        $activeEffect = find(static function (ActiveEffect $activeEffect) use ($effect) {
+            return $effect->getId()->equals($activeEffect->getEffect()->getId());
         }, $activeShipEffects);
 
         /** @var UserEffect|null $userEffect */
@@ -97,19 +92,19 @@ class EffectsService extends AbstractService
 
         $actionToken = null;
         $hitsRemaining = null;
+        $isActive = false;
         $expiry = null;
         $shipSelect = false;
         $purchaseToken = null;
 
         // if it's in active effects. populate hitsRemaining or expiry
         if ($activeEffect) {
-            $hitsRemaining = $activeEffect->remainingCount;
-            $expiry = $activeEffect->expiry;
+            $hitsRemaining = $activeEffect->getRemainingCount();
+            $expiry = $activeEffect->getExpiry();
+            $isActive = true;
         } elseif ($userEffect) {
-            if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
-                if (!$effect->affectsAllShips()) {
-                    $shipSelect = true; // no actionToken
-                } elseif ($shipLocation instanceof ShipInPort) {
+            if ($effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()) {
+                if ($shipLocation instanceof ShipInPort) {
                     $actionToken = $this->getOffenceEffectToken($effect, $userEffect, $ship, $shipLocation->getPort());
                 } else {
                     throw new \RuntimeException('Should not be able to make offence actions outside of a port');
@@ -119,10 +114,10 @@ class EffectsService extends AbstractService
             } elseif ($effect instanceof Effect\TravelEffect) {
                 $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
             }
-                // TODO - NEXTNEXT
-                //  Tidy this file
-                //  Re-create ships list with offence actions
-                //  Front end to display use and purchase buttons
+        }
+
+        if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
+            $shipSelect = true; // no actionToken
         }
 
         if ($shipLocation instanceof ShipInPort) {
@@ -132,6 +127,9 @@ class EffectsService extends AbstractService
         return new TacticalEffect(
             $effect,
             $effect->getMinimumRank(),
+            $isActive,
+            $userEffect,
+            $activeEffect,
             $shipSelect,
             $countsOfType[$effect->getId()->toString()] ?? 0,
             $hitsRemaining,
@@ -238,79 +236,53 @@ class EffectsService extends AbstractService
         );
     }
 
+    /**
+     * @param Ship $playingShip
+     * @param Ship $victimShip
+     * @param Port $currentPort
+     * @param TacticalEffect[] $tacticalOptions
+     * @return array
+     */
+    public function getOffenceOptionsAtShip(
+        Ship $playingShip,
+        Ship $victimShip,
+        Port $currentPort,
+        $tacticalOptions
+    ): array {
+        $availableOffenceEffects = array_filter($tacticalOptions, static function(TacticalEffect $tacticalEffect) {
+            return $tacticalEffect->isAvailableShipOffence();
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public function getOffenceOptionsAtShip(Ship $playingShip, Ship $victimShip, Port $currentPort): array
-    {
-        $user = $playingShip->getOwner();
-
-        $allEffects = $this->getAvailableEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
-        $userEffects = $this->getOffenceEffectsOwnedByUser($user);
-        $countsOfType = $this->getCountsPerEffect($userEffects);
-
-        return \array_map(function (Effect $effect) use (
-            $playingShip,
-            $userEffects,
-            $victimShip,
-            $currentPort,
-            $countsOfType
-        ) {
-
-            /** @var UserEffect|null $userEffect */
-            $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
-                return $effect->getId()->equals($userEffect->getEffect()->getId());
-            }, $userEffects);
-
-            $actionToken = null;
-            if ($userEffect) {
-                /** @var Effect\OffenceEffect $effect */
-                $effect = $userEffect->getEffect();
-
-                // else if it's in userEffects, populate the action token
-                $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
-                    new TokenId($this->uuidFactory->uuid5(
-                        'b65f419b-ffe4-46dc-b61e-c9da6a82ffd9',
-                        $userEffect->getId()->toString()
-                    )),
-                    $userEffect->getId(),
-                    $playingShip->getId(),
-                    $currentPort->getId(),
-                    $effect->getDamage(),
-                    $effect->affectsAllShips() ? null : $victimShip->getId(),
-                    ));
-                $actionToken = new UseOffenceEffectToken(
-                    $token->getJsonToken(),
-                    (string)$token,
-                    TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
-                );
+        $offenceEffects = [];
+        foreach ($availableOffenceEffects as $availableOffenceEffect) {
+            $userEffect = $availableOffenceEffect->getUserEffect();
+            $effect = $availableOffenceEffect->getEffect();
+            if (!$userEffect || !$effect || !$effect instanceof Effect\OffenceEffect) {
+                throw new \RuntimeException('An offence effect without an effect. Whaa!');
             }
 
-            return [
+            $token = $this->tokenHandler->makeToken(...UseOffenceEffectToken::make(
+                new TokenId($userEffect->getId()),
+                $userEffect->getId(),
+                $playingShip->getId(),
+                $currentPort->getId(),
+                $effect->getDamage(),
+                $victimShip->getId(),
+                ));
+            $actionToken = new UseOffenceEffectToken(
+                $token->getJsonToken(),
+                (string)$token,
+                TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+            );
+
+            $offenceEffects[] = [
                 'actionToken' => $actionToken,
-                'effect' => $effect,
-                'currentCount' => $countsOfType[$effect->getId()->toString()] ?? 0,
+                'effect' => $availableOffenceEffect->getEffect(),
+                'currentCount' => $availableOffenceEffect->getCurrentCount(),
             ];
-        }, $allEffects);
-    }
+        }
 
-
-
-    public function getOffenceEffectsOwnedByUser(User $user): array
-    {
-        return $this->getOwnedEffectsOfTypeForUser($user, EnumEffectsType::TYPE_OFFENCE);
+        return $offenceEffects;
     }
 
     public function addRandomEffectsForUser(User $user): array
@@ -369,18 +341,6 @@ class EffectsService extends AbstractService
         return $countsOfType;
     }
 
-    private function getAvailableEffectsOfTypeForUser(User $user, string $type): array
-    {
-        $allEffects = $this->entityManager->getEffectRepo()->getTypeAboveRankThreshold(
-            $type,
-            $user->getRank()->getThreshold()
-        );
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(static function ($result) use ($mapper) {
-            return $mapper->getEffect($result);
-        }, $allEffects);
-    }
-
     private function getAll(): array
     {
         return $this->mapMany($this->entityManager->getEffectRepo()->getAll());
@@ -410,19 +370,16 @@ class EffectsService extends AbstractService
         return $results;
     }
 
-    private function getOwnedEffectsOfTypeForUser(User $user, string $type): array
+    /**
+     * @param Ship $ship
+     * @return ActiveEffect[]
+     */
+    public function getActiveEffectsForShip(Ship $ship): array
     {
-        // this method has a cache to reuse it during the same request
-        $cacheKey = __METHOD__ . $user->getId()->toString() . $type;
-        if (isset($this->userEffectsCache[$cacheKey])) {
-            return $this->userEffectsCache[$cacheKey];
-        }
-
-        $mapper = $this->mapperFactory->createUserEffectMapper();
+        $mapper = $this->mapperFactory->createActiveEffectMapper();
         $results = \array_map(static function ($result) use ($mapper) {
-            return $mapper->getUserEffect($result);
-        }, $this->entityManager->getUserEffectRepo()->getAllOfTypeForUserId($user->getId(), $type));
-        $this->userEffectsCache[$cacheKey] = $results;
+            return $mapper->getActiveEffect($result);
+        }, $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId()));
         return $results;
     }
 
@@ -548,33 +505,5 @@ class EffectsService extends AbstractService
                 );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
-    }
-
-    public function getActiveEffectsForShip(Ship $ship): array
-    {
-        $activeEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId());
-
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return \array_map(static function (array $activeEffect) use ($mapper) {
-            return $mapper->getEffect($activeEffect['effect']);
-        }, $activeEffects);
-    }
-
-    public function getApplicableTravelEffectForShip(Ship $ship): ?ActiveEffect
-    {
-        /** @var DbActiveEffect[] $activeShipEffects */
-        $activeTravelEffects = $this->entityManager->getActiveEffectRepo()->findActiveForShipId(
-            $ship->getId(),
-            EnumEffectsType::TYPE_TRAVEL,
-            );
-        if (empty($activeTravelEffects)) {
-            return null;
-        }
-        // there should never be more than one, but just in case, we'll apply only the first one we find
-        $activeEffect = reset($activeTravelEffects);
-        return new ActiveEffect(
-            $activeEffect['id'],
-            $this->mapperFactory->createEffectMapper()->getEffect($activeEffect['effect']),
-            );
     }
 }

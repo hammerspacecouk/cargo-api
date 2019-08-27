@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
+use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\PlayerRank;
+use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
-use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use DateTimeImmutable;
 
 class TacticalEffect implements \JsonSerializable
@@ -19,10 +20,16 @@ class TacticalEffect implements \JsonSerializable
     private $actionToken;
     private $shipSelect;
     private $purchaseEffectTransaction;
+    private $userEffect;
+    private $isActive;
+    private $activeEffect;
 
     public function __construct(
         ?Effect $effect,
         PlayerRank $minimumRank,
+        bool $isActive = false,
+        ?UserEffect $userEffect = null,
+        ?ActiveEffect $activeEffect = null,
         bool $shipSelect = false,
         int $currentCount = 0,
         ?int $hitsRemaining = 0,
@@ -39,6 +46,9 @@ class TacticalEffect implements \JsonSerializable
         $this->actionToken = $actionToken;
         $this->shipSelect = $shipSelect;
         $this->purchaseEffectTransaction = $purchaseEffectTransaction;
+        $this->userEffect = $userEffect;
+        $this->isActive = $isActive;
+        $this->activeEffect = $activeEffect;
     }
 
     public function jsonSerialize()
@@ -53,9 +63,43 @@ class TacticalEffect implements \JsonSerializable
             'actionToken' => $this->actionToken,
             'hitsRemaining' => $this->hitsRemaining,
             'expiry' => $this->activeExpiry ? $this->activeExpiry->format('c') : null,
-            'isActive' => $this->activeExpiry || $this->hitsRemaining,
+            'isActive' => $this->isActive,
             'mustSelectShip' => $this->shipSelect,
             'purchaseToken' => $this->purchaseEffectTransaction,
         ];
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function getEffect(): ?Effect
+    {
+        return $this->effect;
+    }
+
+    public function getActiveEffect(): ?ActiveEffect
+    {
+        return $this->activeEffect;
+    }
+
+    public function getUserEffect(): ?UserEffect
+    {
+        return $this->userEffect;
+    }
+
+    public function getCurrentCount(): int
+    {
+        return $this->currentCount;
+    }
+
+    public function isAvailableShipOffence(): bool
+    {
+        return (
+          $this->shipSelect && // must be for a single ship
+          $this->userEffect && // must have one to use
+          $this->effect instanceof Effect\OffenceEffect
+        );
     }
 }

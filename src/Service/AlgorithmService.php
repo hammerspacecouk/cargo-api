@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Domain\Entity\Effect\TravelEffect;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Ship;
+use App\Domain\ValueObject\TacticalEffect;
 
 class AlgorithmService extends AbstractService
 {
@@ -13,11 +14,18 @@ class AlgorithmService extends AbstractService
 
     public const MINIMUM_EARNINGS_DISTANCE = 1/100;
 
+    /**
+     * @param int $distanceUnits
+     * @param Ship $ship
+     * @param PlayerRank $playerRank
+     * @param TacticalEffect[] $activeTravelEffects
+     * @return int
+     */
     public function getJourneyTime(
         int $distanceUnits,
         Ship $ship,
         PlayerRank $playerRank,
-        ?TravelEffect $activeTravelEffect = null
+        $activeTravelEffects = []
     ): int {
         // base time is the longest without modifications (except really slow ships)
         $time = $this->applicationConfig->getDistanceMultiplier() * $distanceUnits;
@@ -28,22 +36,34 @@ class AlgorithmService extends AbstractService
         // earlier classes are faster
         $time *= $playerRank->getSpeedMultiplier();
 
-        if ($activeTravelEffect) {
-            if ($activeTravelEffect->isInstant()) {
+        foreach ($activeTravelEffects as $activeTravelEffect) {
+            $effect = $activeTravelEffect->getEffect();
+            if (!$effect instanceof TravelEffect) {
+                continue;
+            }
+
+            if ($effect->isInstant()) {
                 $time = 0;
             } else {
-                $time /= $activeTravelEffect->getSpeedDivisor();
+                $time /= $effect->getSpeedDivisor();
             }
         }
 
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
     }
 
-    public function getTotalEarnings(int $totalCrateValue, int $distance, ?TravelEffect $activeTravelEffect): int
-    {
+    public function getTotalEarnings(
+        int $totalCrateValue,
+        int $distance,
+        $activeTravelEffects = []
+    ): int {
         $value = $totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE);
-        if ($activeTravelEffect) {
-            $value *= $activeTravelEffect->getEarningsMultiplier();
+        foreach ($activeTravelEffects as $activeTravelEffect) {
+            $effect = $activeTravelEffect->getEffect();
+            if (!$effect instanceof TravelEffect) {
+                continue;
+            }
+            $value *= $effect->getEarningsMultiplier();
         }
         return (int)\round($value);
     }

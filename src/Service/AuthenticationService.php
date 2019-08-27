@@ -24,51 +24,17 @@ class AuthenticationService extends AbstractService
     use Traits\CookieTrait;
 
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
-    private const COOKIE_EXPIRY = 'P3M';
-    private const WAIT_BEFORE_REFRESH = 'PT1H';
-
-    public function getUnexpiredById(
-        UuidInterface $id
-    ): ?UserAuthentication {
-        $tokenEntity = $this->entityManager->getAuthenticationTokenRepo()->findUnexpiredById($id);
-        if (!$tokenEntity) {
-            return null;
-        }
-
-        return $this->mapperFactory->createUserAuthenticationMapper()
-            ->getUserAuthentication($tokenEntity);
-    }
+    private const TOKEN_EXPIRY = 'P3M';
+    private const WAIT_BEFORE_REFRESH = 'P7D';
 
     public function makeNewAuthenticationCookie(
-        User $user,
-        ?DateTimeImmutable $creationTime = null,
-        ?UserAuthentication $previousToken = null
+        User $user
     ): Cookie {
-        [$token, $secret, $expiry] = $this->authoriseUser($user, $creationTime, $previousToken);
-
-        $cookieToken = \bin2hex($token->id->getBytes()) . $secret;
-        return $this->makeCookie($cookieToken, self::COOKIE_NAME, $expiry);
-    }
-
-    public function getAnonymousAuthentication(User $user): ?UserAuthentication
-    {
-        /** @var AuthenticationToken $token */
-        [$token] = $this->authoriseUser($user);
-        return $this->getUnexpiredById($token->id);
-    }
-
-    private function authoriseUser(
-        User $user,
-        ?DateTimeImmutable $creationTime = null,
-        ?UserAuthentication $previousToken = null
-    ): array {
-        $expiry = $this->dateTimeFactory->now()->add(new \DateInterval(self::COOKIE_EXPIRY));
+        $expiry = $this->dateTimeFactory->now()->add(new \DateInterval(self::TOKEN_EXPIRY));
         $secret = \bin2hex(\random_bytes(32));
-        if (!$creationTime) {
-            $creationTime = $this->dateTimeFactory->now();
-        }
+        $creationTime = $this->dateTimeFactory->now();
 
-        $digest = $this->getDigest($user->getId(), $expiry, $secret);
+        $digest = $this->getDigest($user->getId(), $creationTime, $secret);
 
         $userEntity = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
 
@@ -80,21 +46,13 @@ class AuthenticationService extends AbstractService
             $userEntity,
         );
 
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
-            $this->entityManager->persist($tokenEntity);
-            if ($previousToken) {
-                $this->entityManager->getAuthenticationTokenRepo()->deleteById($previousToken->getId());
-            }
-            $this->entityManager->flush();
-            $this->entityManager->getConnection()->commit();
-            return [$tokenEntity, $secret, $expiry];
-        } catch (\Throwable $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Failed to renew authentication token');
-            throw $e;
-        }
+        $this->entityManager->persist($tokenEntity);
+        $this->entityManager->flush();
+
+        $cookieToken = \bin2hex($tokenEntity->id->getBytes()) . $secret;
+        return $this->makeCookie($cookieToken, self::COOKIE_NAME, new DateTimeImmutable('2038-01-01T12:00:00Z'));
     }
+
 
     public function makeRemovalCookie(): Cookie
     {
@@ -105,26 +63,7 @@ class AuthenticationService extends AbstractService
             );
     }
 
-    public function getUpdatedCookieForResponse(
-        UserAuthentication $currentAuthentication
-    ): ?Cookie {
-        // to lower churn (and thundering herd), we'll only update the token every so often (not every request)
-        $timeToUpdate = $currentAuthentication->getLastUsed()->add(new DateInterval(self::WAIT_BEFORE_REFRESH));
-        if ($timeToUpdate > $this->dateTimeFactory->now() &&
-            $this->dateTimeFactory->now()->getTimestamp() !==
-            $currentAuthentication->getLastUsed()->getTimestamp() // session was made in this request
-        ) {
-            return null;
-        }
-
-        return $this->makeNewAuthenticationCookie(
-            $currentAuthentication->getUser(),
-            $currentAuthentication->getCreationTime(),
-            $currentAuthentication,
-            );
-    }
-
-    public function getAuthenticationFromRequest(Request $request): ?UserAuthentication
+    public function getAuthenticationFromRequest(Request $request, bool $withRefresh = true): ?UserAuthentication
     {
         $token = $request->cookies->get(self::COOKIE_NAME);
         if (!$token) {
@@ -140,7 +79,6 @@ class AuthenticationService extends AbstractService
         $id = Uuid::fromString($id);
 
         // get the row out of the database by ID (where not expired)
-        // todo - duplicate logic from findUnexpiredById. tidy up, but support digest
         $tokenEntity = $this->entityManager->getAuthenticationTokenRepo()->findUnexpiredById($id);
 
         if (!$tokenEntity) {
@@ -153,12 +91,18 @@ class AuthenticationService extends AbstractService
         // compare the hashes. if incorrect, return null
         $digest = $this->getDigest(
             $authentication->getUser()->getId(),
-            $tokenEntity['expiry'],
+            $authentication->getCreationTime(),
             $secret,
             );
 
         if (!\hash_equals($tokenEntity['digest'], $digest)) {
             return null;
+        }
+
+        // to lower churn (and thundering herd), we'll only extend the token every so often (not every request)
+        $timeToUpdate = $authentication->getLastUsed()->add(new DateInterval(self::WAIT_BEFORE_REFRESH));
+        if ($withRefresh && $timeToUpdate < $this->dateTimeFactory->now()) {
+            $this->extendAuthentication($authentication);
         }
 
         return $authentication;
@@ -169,17 +113,12 @@ class AuthenticationService extends AbstractService
         $this->entityManager->getAuthenticationTokenRepo()->deleteById($userAuthentication->getId());
     }
 
-    public function cleanupExpired(DateTimeImmutable $now): int
-    {
-        return $this->entityManager->getAuthenticationTokenRepo()->removeExpired($now);
-    }
-
     public function findAllForUser(User $user)
     {
         $results = $this->entityManager->getAuthenticationTokenRepo()->findAllForUserId($user->getId());
 
         $mapper = $this->mapperFactory->createUserAuthenticationMapper();
-        return array_map(function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getUserAuthentication($result);
         }, $results);
     }
@@ -199,19 +138,6 @@ class AuthenticationService extends AbstractService
         $token = $this->tokenHandler->parseTokenFromString($tokenString);
         $this->tokenHandler->markAsUsed($token);
         return new EmailLoginToken($token, $tokenString);
-    }
-
-    private function getDigest(UuidInterface $userId, DateTimeImmutable $expiry, string $secret): string
-    {
-        return \hash_hmac(
-            'sha256',
-            \json_encode([
-                $secret,
-                $userId->toString(),
-                $expiry->getTimestamp(),
-            ], JSON_THROW_ON_ERROR),
-            $this->applicationConfig->getTokenPrivateKey()->encode(),
-        );
     }
 
     public function getAuthProviders(?User $user = null): array
@@ -251,5 +177,33 @@ class AuthenticationService extends AbstractService
             $provider,
             $removalToken
         );
+    }
+
+    private function getDigest(UuidInterface $userId, DateTimeImmutable $creationTime, string $secret): string
+    {
+        return \hash_hmac(
+            'sha256',
+            \json_encode([
+                $secret,
+                $userId->toString(),
+                $creationTime->getTimestamp(),
+            ], JSON_THROW_ON_ERROR),
+            $this->applicationConfig->getTokenPrivateKey()->encode(),
+        );
+    }
+
+    private function extendAuthentication(UserAuthentication $authentication): void
+    {
+        /** @var AuthenticationToken $tokenEntity */
+        $tokenEntity = $this->entityManager->getAuthenticationTokenRepo()->getByID(
+            $authentication->getId(),
+            Query::HYDRATE_OBJECT
+        );
+
+        $now = $this->dateTimeFactory->now();
+        $tokenEntity->expiry = $now->add(new DateInterval(self::TOKEN_EXPIRY));
+        $tokenEntity->lastUsed = $now;
+        $this->entityManager->persist($tokenEntity);
+        $this->entityManager->flush();
     }
 }

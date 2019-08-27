@@ -15,6 +15,7 @@ use App\Controller\Actions\PurchaseEffectAction;
 use App\Controller\Actions\PurchaseShipAction;
 use App\Controller\Actions\RenameShipAction;
 use App\Controller\Actions\RequestShipNameAction;
+use App\Controller\CacheControlResponseTrait;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\TokenException;
@@ -42,7 +43,7 @@ use function App\Functions\DateTimes\jsonDecode;
 
 class TokenAction
 {
-    private const HEADERS_NO_CACHE = 'no-cache, no-store, must-revalidate';
+    use CacheControlResponseTrait;
 
     private $now;
     private $yesterday;
@@ -189,20 +190,18 @@ class TokenAction
     {
         if ($request->getContentType() === 'json') {
             $response = new JsonResponse($responseData);
-            $response->headers->set('cache-control', self::HEADERS_NO_CACHE);
-            return $response;
+            return $this->noCacheResponse($response);
         }
         // todo - server rendered via POST
         throw new ConflictHttpException('Not available outside of JSON yet');
     }
 
-    private function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
+    private function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR): Response
     {
         $data = [
             'error' => $message,
         ];
         $response = new JsonResponse($data, $code);
-        $response->headers->set('cache-control', self::HEADERS_NO_CACHE);
-        return $response;
+        return $this->noCacheResponse($response);
     }
 }
