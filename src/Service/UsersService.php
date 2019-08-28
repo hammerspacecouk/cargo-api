@@ -10,19 +10,17 @@ use App\Domain\Entity\User;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Colour;
-use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
-use App\Domain\ValueObject\Token\FlashDataToken;
+use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Service\Oauth\AbstractOAuthService;
+use App\Service\Oauth\OAuthServiceInterface;
 use DateInterval;
-use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class UsersService extends AbstractService
 {
-    public const IP_HASH_LIFETIME = 'PT1H';
-
     private const DELETE_DELAY = 'PT15M';
 
     private $userMapper;
@@ -35,67 +33,16 @@ class UsersService extends AbstractService
         );
     }
 
-    public function getByEmailAddress(EmailAddress $email): ?User
+    public function getLoginToken(string $type): SimpleDataToken
     {
-        $userEntity = $this->entityManager->getUserRepo()
-            ->getByQueryHash($this->makeContentHash((string)$email));
-        if ($userEntity) {
-            return $this->mapSingle($userEntity);
-        }
-        return null;
-    }
-
-    public function addEmailToUser(User $user, EmailAddress $email): User
-    {
-        /** @var DbUser $dbUser */
-        $dbUser = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
-        $dbUser->queryHash = $this->makeContentHash((string)$email);
-        // the user isn't anonymous any more, so remove the anonymous IP
-        $dbUser->anonymousIpHash = null;
-        $this->entityManager->persist($dbUser);
-        $this->entityManager->flush();
-
-        $userWithEmail = $this->getByEmailAddress($email);
-        if (!$userWithEmail) {
-            throw new \RuntimeException(__METHOD__ . ' went very wrong');
-        }
-        return $userWithEmail;
-    }
-
-    public function getByAnonymousIp(string $ipAddress): ?User // todo - am I using this?
-    {
-        $userEntity = $this->entityManager->getUserRepo()
-            ->getByQueryHash($this->makeContentHash($ipAddress));
-        if ($userEntity) {
-            return $this->mapSingle($userEntity);
-        }
-        return null;
-    }
-
-    public function getOrCreateByEmailAddress(EmailAddress $email): User
-    {
-        $this->logger->notice('[NEW PLAYER] [EMAIL]');
-        $user = $this->getByEmailAddress($email);
-        if ($user) {
-            return $user;
-        }
-        $queryHash = $this->makeContentHash((string)$email);
-        return $this->newPlayer($queryHash, null);
-    }
-
-    public function getLoginToken(string $type): FlashDataToken
-    {
-        $token = $this->tokenHandler->makeToken(...FlashDataToken::make(
-            ['login' => $type],
-            [],
-        ));
-        return new FlashDataToken($token->getJsonToken(), (string)$token);
+        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make(['login' => $type]));
+        return new SimpleDataToken($token->getJsonToken(), (string)$token);
     }
 
     public function verifyLoginToken(string $tokenString, string $type): bool
     {
         // will throw if the token is expired or invalid
-        $token = new FlashDataToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
         if ($token->getData()['login'] === $type) {
             return true;
         }
@@ -191,9 +138,9 @@ class UsersService extends AbstractService
         $this->entityManager->flush();
     }
 
-    private function newPlayer(?string $queryHash, ?string $ipHash): User
+    protected function newPlayer(?string $oauthHash, ?string $ipHash): User
     {
-        if (!($queryHash xor $ipHash)) {
+        if (!($oauthHash xor $ipHash)) {
             throw new \DomainException('Must have either an email or ip hash to start');
         }
 
@@ -204,7 +151,7 @@ class UsersService extends AbstractService
             $seed = \crc32(\sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
         } else {
             // email based users will get the same outcome for that same email
-            $seed = \crc32((string)$queryHash);
+            $seed = \crc32((string)$oauthHash);
         }
         \mt_srand($seed);
 
@@ -220,12 +167,13 @@ class UsersService extends AbstractService
         try {
             // Set the users original home port and persist the user
             $player = $this->entityManager->getUserRepo()->newPlayer(
-                $queryHash,
                 $ipHash,
                 Colour::makeInitialRandomValue(),
                 Bearing::getInitialRandomStepNumber(),
                 $safeHaven,
-                $initialRank
+                $initialRank,
+                $oauthHash,
+                $this
             );
 
             // make the player an initial ship and place it in the home port
@@ -253,7 +201,7 @@ class UsersService extends AbstractService
         throw new \RuntimeException('Could not create or fetch user');
     }
 
-    private function makeContentHash(string $inputContent): string
+    protected function makeContentHash(string $inputContent): string
     {
         return \bin2hex(\sodium_hex2bin(\hash_hmac(
             'sha256',
@@ -270,7 +218,7 @@ class UsersService extends AbstractService
         return $this->userMapper;
     }
 
-    private function mapSingle(?array $result): ?User
+    protected function mapSingle(?array $result): ?User
     {
         if (!$result) {
             return null;

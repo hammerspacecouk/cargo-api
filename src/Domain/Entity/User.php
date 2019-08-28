@@ -16,7 +16,7 @@ class User extends Entity implements \JsonSerializable
     private $colour;
     private $score;
     private $homePort;
-    private $hasEmailAddress;
+    private $isAnonymous;
     private $playStartTime;
     private $playerRank;
     private $permissionLevel;
@@ -26,7 +26,7 @@ class User extends Entity implements \JsonSerializable
         int $rotationSteps,
         Colour $colour,
         Score $score,
-        bool $hasEmailAddress,
+        bool $isAnonymous,
         DateTimeImmutable $playStartTime,
         int $permissionLevel,
         ?Port $homePort,
@@ -36,7 +36,7 @@ class User extends Entity implements \JsonSerializable
         $this->rotationSteps = $rotationSteps;
         $this->score = $score;
         $this->homePort = $homePort;
-        $this->hasEmailAddress = $hasEmailAddress;
+        $this->isAnonymous = $isAnonymous;
         $this->playStartTime = $playStartTime;
         $this->colour = $colour;
         $this->playerRank = $playerRank;
@@ -102,7 +102,7 @@ class User extends Entity implements \JsonSerializable
 
     public function isAnonymous(): bool
     {
-        return !$this->hasEmailAddress;
+        return $this->isAnonymous;
     }
 
     public function getPlayStartTime(): DateTimeImmutable

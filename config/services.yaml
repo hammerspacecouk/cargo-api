@@ -37,10 +37,8 @@ services:
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
     public: false       # Allows optimizing the container by removing unused services; this also means
       # fetching services directly from the container via $container->get() won't work.
-    # The best practice is to be explicit about your dependencies anyway.
+      # The best practice is to be explicit about your dependencies anyway.
     bind:
-      $googleOauthClientId: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
-      $googleOauthClientSecret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
       $installedCacheAdapter: '@Symfony\Component\Cache\Psr16Cache'
 
   # makes classes in src/ available to be used as services
@@ -74,12 +72,12 @@ services:
       - '%env(TOKEN_PRIVATE_KEY)%'
       - '%env(APP_VERSION)%'
 
+
   Facebook\Facebook:
     class: Facebook\Facebook
     arguments:
       - app_id: '%env(OAUTH_FACEBOOK_APP_ID)%'
         app_secret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
-        persistent_data_handler: '@App\Data\OAuth\Facebook\PersistentData'
         http_client_handler: '@App\Data\OAuth\Facebook\HttpClient'
 
   Abraham\TwitterOAuth\TwitterOAuth:
@@ -110,3 +108,61 @@ services:
   Symfony\Component\Cache\Psr16Cache:
     class: Symfony\Component\Cache\Psr16Cache
 
+  # Oauth Setup
+
+  OAuthGoogle:
+    class: League\OAuth2\Client\Provider\GenericProvider
+    arguments:
+      - clientId: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+        clientSecret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+        redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/google'
+        urlAuthorize: 'https://accounts.google.com/o/oauth2/v2/auth'
+        urlAccessToken: 'https://www.googleapis.com/oauth2/v4/token'
+        urlResourceOwnerDetails: 'https://openidconnect.googleapis.com/v1/userinfo'
+        responseResourceOwnerId: 'sub'
+
+  OAuthMicrosoft:
+    class: League\OAuth2\Client\Provider\GenericProvider
+    arguments:
+      - clientId: '%env(OAUTH_MICROSOFT_APP_ID)%'
+        clientSecret: '%env(OAUTH_MICROSOFT_APP_SECRET)%'
+        redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/microsoft'
+        urlAuthorize: 'https://login.live.com/oauth20_authorize.srf'
+        urlAccessToken: 'https://login.live.com/oauth20_token.srf'
+        urlResourceOwnerDetails: 'https://apis.live.net/v5.0/me'
+
+  OAuthTwitter:
+    class: League\OAuth2\Client\Provider\GenericProvider
+    arguments:
+      - clientId: '%env(OAUTH_TWITTER_API_KEY)%'
+        clientSecret: '%env(OAUTH_TWITTER_API_SECRET)%'
+        redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/twitter'
+        urlAuthorize: 'https://api.twitter.com/oauth/authorize'
+        urlAccessToken: 'https://api.twitter.com/oauth/token'
+        urlResourceOwnerDetails: 'https://api.twitter.com/oauth/'
+
+  OAuthFacebook:
+    class: League\OAuth2\Client\Provider\GenericProvider
+    arguments:
+      - clientId: '%env(OAUTH_FACEBOOK_APP_ID)%'
+        clientSecret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
+        redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/facebook'
+        urlAuthorize: 'https://www.facebook.com/dialog/oauth'
+        urlAccessToken: 'https://graph.facebook.com/oauth/access_token'
+        urlResourceOwnerDetails: 'https://graph.facebook.com/me?fields=id'
+
+  App\Controller\Security\LoginGoogleAction:
+    class: App\Controller\Security\LoginGoogleAction
+    tags: ['controller.service_arguments']
+    arguments:
+      - '@OAuthGoogle'
+      - '@App\Controller\Security\OAuthHandler'
+      - '@App\Service\Oauth\GoogleService'
+
+  App\Controller\Security\LoginMicrosoftAction:
+    class: App\Controller\Security\LoginMicrosoftAction
+    tags: ['controller.service_arguments']
+    arguments:
+      - '@OAuthMicrosoft'
+      - '@App\Controller\Security\OAuthHandler'
+      - '@App\Service\Oauth\MicrosoftService'

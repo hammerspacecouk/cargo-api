@@ -3,62 +3,14 @@ declare(strict_types=1);
 
 namespace App\Controller\Security;
 
-use App\Domain\ValueObject\EmailAddress;
-use League\OAuth2\Client\Token\AccessToken;
-use Stevenmaguire\OAuth2\Client\Provider\Microsoft;
-use Stevenmaguire\OAuth2\Client\Provider\MicrosoftResourceOwner;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Route;
 
-class LoginMicrosoftAction extends AbstractLoginAction
+class LoginMicrosoftAction extends AbstractOauthLoginAction
 {
     public static function getRouteDefinition(): Route
     {
         return new Route('/login/microsoft', [
             '_controller' => self::class,
         ]);
-    }
-
-    public function __invoke(
-        Request $request,
-        Microsoft $client
-    ): Response {
-        $this->logger->debug(__CLASS__);
-
-        $code = $request->get('code');
-
-        if (!$code) {
-            $loginUrl = $client->getAuthorizationUrl();
-            $this->flashData->set('state', $client->getState());
-            $this->logger->notice('[LOGIN REQUEST] [MICROSOFT]');
-            $this->setReturnAddress($request);
-            return new RedirectResponse($loginUrl);
-        }
-
-        $this->logger->notice('[LOGIN] [MICROSOFT]');
-
-        $state = $request->get('state');
-        if (!$state || $state !== $this->flashData->getOnce('state')) {
-            throw new BadRequestHttpException('No state');
-        }
-
-        /** @var AccessToken $token */
-        $token = $client->getAccessToken('authorization_code', [
-            'code' => $code,
-        ]);
-
-        /** @var MicrosoftResourceOwner $user */
-        $user = $client->getResourceOwner($token);
-        $email = $user->getEmail();
-
-        if ($email === null) {
-            throw new UnauthorizedHttpException('You must have an e-mail address available to recognise you');
-        }
-
-        return $this->getLoginResponse($request, new EmailAddress($email));
     }
 }

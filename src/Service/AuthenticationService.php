@@ -9,8 +9,10 @@ use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
 use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\EmailAddress;
+use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 use App\Domain\ValueObject\Token\EmailLoginToken;
+use App\Domain\ValueObject\Token\SimpleDataToken;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -26,6 +28,19 @@ class AuthenticationService extends AbstractService
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
     private const TOKEN_EXPIRY = 'P3M';
     private const WAIT_BEFORE_REFRESH = 'P7D';
+
+    public function getOAuthState(string $redirectUrl): string
+    {
+        $state = new OauthState($redirectUrl);
+        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make($state->getClaims()));
+        return (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+    }
+
+    public function parseOauthState(string $tokenString): OauthState
+    {
+        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
+        return OauthState::createFromClaims($token->getData());
+    }
 
     public function makeNewAuthenticationCookie(
         User $user

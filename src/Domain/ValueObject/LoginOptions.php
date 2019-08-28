@@ -3,27 +3,24 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
-use App\Domain\ValueObject\Token\FlashDataToken;
+use App\Domain\ValueObject\Token\SimpleDataToken;
 
 class LoginOptions implements \JsonSerializable
 {
     private $loginAnonToken;
-    private $loginEmailToken;
     private $facebook;
     private $google;
     private $microsoft;
     private $twitter;
 
     public function __construct(
-        ?FlashDataToken $loginAnonToken = null,
-        ?FlashDataToken $loginEmailToken = null,
+        ?SimpleDataToken $loginAnonToken = null,
         bool $facebook = false,
         bool $google = false,
         bool $microsoft = false,
         bool $twitter = false
     ) {
         $this->loginAnonToken = $loginAnonToken;
-        $this->loginEmailToken = $loginEmailToken;
         $this->facebook = $facebook;
         $this->google = $google;
         $this->microsoft = $microsoft;

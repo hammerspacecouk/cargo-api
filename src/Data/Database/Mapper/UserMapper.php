@@ -18,13 +18,21 @@ class UserMapper extends Mapper
             $item['rotationSteps'],
             new Colour($item['colour']),
             $this->mapScore($item),
-            $item['queryHash'] !== null,
+            $this->isAnonymous($item),
             $item['createdAt'],
             $item['permissionLevel'],
             $this->mapHomePort($item),
             $this->mapRank($item),
         );
         return $domainEntity;
+    }
+
+    private function isAnonymous($item): bool
+    {
+        return !(
+            $item['googleId'] ||
+            $item['microsoftId']
+        );
     }
 
     private function mapHomePort($item): ?Port

@@ -11,7 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="users",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={
- *          @ORM\Index(name="user_query_hash", columns={"query_hash"}),
+ *          @ORM\Index(name="user_google", columns={"google_id"}),
+ *          @ORM\Index(name="user_microsoft", columns={"microsoft_id"}),
  *          @ORM\Index(name="user_ip_hash", columns={"anonymous_ip_hash"})
  *     }
  * )
@@ -19,7 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
 class User extends AbstractEntity
 {
     /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public $queryHash;
+    public $googleId;
+
+    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
+    public $microsoftId;
 
     /** @ORM\Column(type="binary", nullable=true)) */
     public $anonymousIpHash;
@@ -54,7 +58,6 @@ class User extends AbstractEntity
     public $lastRankSeen;
 
     public function __construct(
-        ?string $queryHash,
         ?string $ipHash,
         string $colour,
         int $rotationSteps,
@@ -62,7 +65,6 @@ class User extends AbstractEntity
         PlayerRank $lastRankSeen
     ) {
         parent::__construct();
-        $this->queryHash = $queryHash;
         $this->anonymousIpHash = $ipHash;
         $this->colour = $colour;
         $this->rotationSteps = $rotationSteps;

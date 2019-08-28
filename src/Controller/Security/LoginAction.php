@@ -36,8 +36,6 @@ class LoginAction
         $response = new JsonResponse(new LoginOptions(
             $this->applicationConfig->isLoginAnonEnabled() ?
                 $this->usersService->getLoginToken(LoginAnonymousAction::TOKEN_TYPE) : null,
-            $this->applicationConfig->isLoginEmailEnabled() ?
-                $this->usersService->getLoginToken(LoginEmailAction::TOKEN_TYPE) : null,
             $this->applicationConfig->isLoginFacebookEnabled(),
             $this->applicationConfig->isLoginGoogleEnabled(),
             $this->applicationConfig->isLoginMicrosoftEnabled(),

@@ -19,7 +19,6 @@ $actions = [
     Controller\Security\LoginAction::class,
     Controller\Security\LogoutAction::class,
     Controller\Security\LoginAnonymousAction::class,
-    Controller\Security\LoginEmailAction::class,
     Controller\Security\LoginFacebookAction::class,
     Controller\Security\LoginGoogleAction::class,
     Controller\Security\LoginMicrosoftAction::class,

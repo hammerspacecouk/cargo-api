@@ -8,6 +8,9 @@ use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use App\Domain\ValueObject\Colour;
+use App\Service\Oauth\AbstractOAuthService;
+use App\Service\Oauth\OAuthServiceInterface;
+use App\Service\UsersService;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Numbers\clamp;
@@ -17,21 +20,25 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
     private const MAX_RATE_DELTA = 2 ** 30;
 
     public function newPlayer(
-        ?string $queryHash,
         ?string $ipHash,
         Colour $colour,
         int $rotationSteps,
         Port $homePort,
-        PlayerRank $initialRank
+        PlayerRank $initialRank,
+        ?string $oauthHash,
+        UsersService $service
     ): User {
         $user = new User(
-            $queryHash,
             $ipHash,
             $colour->getHex(),
             $rotationSteps,
             $homePort,
             $initialRank,
         );
+        if ($oauthHash && $service instanceof OAuthServiceInterface) {
+            $user = $service->attachHash($user, $oauthHash);
+        }
+
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $homePort);
@@ -50,23 +57,12 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function getByQueryHash(
-        string $queryHash,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl')
-            ->where('tbl.queryHash = :hash')
-            ->setParameter('hash', $queryHash);
-        return $qb->getQuery()->getOneOrNullResult($resultType);
-    }
-
-    public function countByIpHash(string $queryHash): int
+    public function countByIpHash(string $ipHash): int
     {
         $qb = $this->createQueryBuilder('tbl')
             ->select('COUNT(1)')
             ->where('tbl.anonymousIpHash = :hash')
-            ->setParameter('hash', $queryHash);
+            ->setParameter('hash', $ipHash);
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 

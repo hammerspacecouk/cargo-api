@@ -28,13 +28,13 @@ class Event extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     public $actioningPlayer;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     public $actioningShip;
 
@@ -46,7 +46,7 @@ class Event extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     public $subjectShip;
 
@@ -58,7 +58,7 @@ class Event extends AbstractEntity
 
     /**
      * @ORM\ManyToOne(targetEntity="Crate")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
     public $subjectCrate;
 
