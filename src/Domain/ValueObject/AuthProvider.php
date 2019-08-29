@@ -8,7 +8,7 @@ use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 class AuthProvider implements \JsonSerializable
 {
     public const PROVIDER_GOOGLE = 'google';
-    // todo - others
+    public const PROVIDER_MICROSOFT = 'microsoft';
 
     private $provider;
     private $removalToken;

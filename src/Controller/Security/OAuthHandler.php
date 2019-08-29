@@ -30,8 +30,7 @@ class OAuthHandler extends AbstractLoginAction
 
         if (!$code) {
             return new RedirectResponse($oauthProvider->getAuthorizationUrl([
-                'state' => $this->authenticationService->getOAuthState($this->getRedirectUrl($request)),
-                'scope' => ['openid'],
+                'state' => $this->authenticationService->getOAuthState($this->getRedirectUrl($request))
             ]));
         }
 
@@ -47,8 +46,8 @@ class OAuthHandler extends AbstractLoginAction
 
         // do you already have an anonymous session
         $currentSessionUser = $this->getUserIfExists($request, $this->authenticationService);
-        if ($currentSessionUser && $currentSessionUser->isAnonymous()) {
-            // if this is an anonymous user we can convert it to a full account
+        if ($currentSessionUser) {
+            // if this is a current user we can attach the oauth to this account
             // but ONLY if there isn't already an account with this id
             if ($oAuthService->userExistsForOAuthId($ownerId)) {
                 return new RedirectResponse(

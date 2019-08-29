@@ -19,10 +19,8 @@ $actions = [
     Controller\Security\LoginAction::class,
     Controller\Security\LogoutAction::class,
     Controller\Security\LoginAnonymousAction::class,
-    Controller\Security\LoginFacebookAction::class,
     Controller\Security\LoginGoogleAction::class,
     Controller\Security\LoginMicrosoftAction::class,
-    Controller\Security\LoginTwitterAction::class,
 
     // ports
     Controller\Ports\ListAction::class,

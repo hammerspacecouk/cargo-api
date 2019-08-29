@@ -55,9 +55,8 @@ class ShipAction extends AbstractUserAction
         Request $request
     ): array {
         $this->logger->debug(__CLASS__);
-        $user = $this->getUser($request, $this->authenticationService);
-        $ship = $this->getShipWithLocation($request, $user);
-        return $this->shipInLocationResponse->getResponseData($user, $ship);
+        $ship = $this->getShipWithLocation($request, $this->user);
+        return $this->shipInLocationResponse->getResponseData($this->user, $ship);
     }
 
     private function getShipWithLocation(

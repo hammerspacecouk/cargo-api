@@ -8,10 +8,9 @@ use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
 use App\Domain\ValueObject\AuthProvider;
-use App\Domain\ValueObject\EmailAddress;
 use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
-use App\Domain\ValueObject\Token\EmailLoginToken;
+use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
 use DateInterval;
 use DateTimeImmutable;
@@ -128,48 +127,49 @@ class AuthenticationService extends AbstractService
         $this->entityManager->getAuthenticationTokenRepo()->deleteById($userAuthentication->getId());
     }
 
-    public function findAllForUser(User $user)
-    {
-        $results = $this->entityManager->getAuthenticationTokenRepo()->findAllForUserId($user->getId());
-
-        $mapper = $this->mapperFactory->createUserAuthenticationMapper();
-        return array_map(static function ($result) use ($mapper) {
-            return $mapper->getUserAuthentication($result);
-        }, $results);
-    }
-
-    public function makeEmailLoginToken(
-        EmailAddress $emailAddress
-    ): EmailLoginToken {
-        $token = $this->tokenHandler->makeToken(...EmailLoginToken::make(
-            $emailAddress
-        ));
-        return new EmailLoginToken($token->getJsonToken(), (string)$token);
-    }
-
-    public function useEmailLoginToken(
-        string $tokenString
-    ): EmailLoginToken {
-        $token = $this->tokenHandler->parseTokenFromString($tokenString);
-        $this->tokenHandler->markAsUsed($token);
-        return new EmailLoginToken($token, $tokenString);
-    }
-
-    public function getAuthProviders(?User $user = null): array
+    public function getAuthProviders(User $user): array
     {
         $providers = [];
 
+        /** @var \App\Data\Database\Entity\User $userEntity */
+        $userEntity = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
+
         if ($this->applicationConfig->isLoginGoogleEnabled()) {
-            // todo - info from database
-            $isSetup = false;
-            $providers[AuthProvider::PROVIDER_GOOGLE] = $this->setupAuthProvider(
+            $providers[] = $this->setupAuthProvider(
                 AuthProvider::PROVIDER_GOOGLE,
-                $isSetup,
+                $userEntity->googleId !== null,
+                $user
+            );
+        }
+        if ($this->applicationConfig->isLoginMicrosoftEnabled()) {
+            $providers[] = $this->setupAuthProvider(
+                AuthProvider::PROVIDER_MICROSOFT,
+                $userEntity->microsoftId !== null,
                 $user
             );
         }
 
         return $providers;
+    }
+
+    public function parseRemoveAuthProviderToken(
+        string $tokenString
+    ): RemoveAuthProviderToken {
+        return new RemoveAuthProviderToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useRemoveAuthProviderToken(
+        RemoveAuthProviderToken $tokenDetail
+    ): void {
+        $authProvider = $tokenDetail->getAuthProvider();
+        $userId = $tokenDetail->getUserId();
+
+        /** @var \App\Data\Database\Entity\User $userEntity */
+        $userEntity = $this->entityManager->getUserRepo()->getByID($userId, Query::HYDRATE_OBJECT);
+        $field = $authProvider . 'Id';
+        $userEntity->$field = null;
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
     }
 
     private function setupAuthProvider(string $provider, bool $isSetup, ?User $user): AuthProvider

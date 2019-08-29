@@ -13,6 +13,7 @@ use App\Controller\Actions\PortActions\DropCrateAction;
 use App\Controller\Actions\PortActions\PickupCrateAction;
 use App\Controller\Actions\PurchaseEffectAction;
 use App\Controller\Actions\PurchaseShipAction;
+use App\Controller\Actions\RemoveAuthProviderAction;
 use App\Controller\Actions\RenameShipAction;
 use App\Controller\Actions\RequestShipNameAction;
 use App\Controller\CacheControlResponseTrait;
@@ -27,6 +28,7 @@ use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
+use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
@@ -60,6 +62,7 @@ class TokenAction
     private $applyShipTravelEffectAction;
     private $dropCrateAction;
     private $pickupCrateAction;
+    private $removeAuthProviderAction;
 
     public static function getRouteDefinition(): Route
     {
@@ -82,7 +85,8 @@ class TokenAction
         ApplyShipDefenceEffectAction $applyShipDefenceEffectAction,
         ApplyShipTravelEffectAction $applyShipTravelEffectAction,
         DropCrateAction $dropCrateAction,
-        PickupCrateAction $pickupCrateAction
+        PickupCrateAction $pickupCrateAction,
+        RemoveAuthProviderAction $removeAuthProviderAction
     ) {
         $this->logger = $logger;
         $this->acknowledgePromotionAction = $acknowledgePromotionAction;
@@ -100,6 +104,7 @@ class TokenAction
 
         $this->now = $dateTimeFactory->now();
         $this->yesterday = $this->now->sub(new \DateInterval('P1D'));
+        $this->removeAuthProviderAction = $removeAuthProviderAction;
     }
 
     public function __invoke(
@@ -170,6 +175,10 @@ class TokenAction
             case TokenProvider::getActionPath(PickupCrateToken::class, $this->now):
             case TokenProvider::getActionPath(PickupCrateToken::class, $this->yesterday):
                 return $this->pickupCrateAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(RemoveAuthProviderToken::class, $this->now):
+            case TokenProvider::getActionPath(RemoveAuthProviderToken::class, $this->yesterday):
+                return $this->removeAuthProviderAction->invoke($tokenString);
         }
         throw new BadRequestHttpException('Invalid token type');
     }

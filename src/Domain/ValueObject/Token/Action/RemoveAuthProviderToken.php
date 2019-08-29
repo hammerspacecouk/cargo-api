@@ -21,7 +21,7 @@ class RemoveAuthProviderToken extends AbstractActionToken
         ]);
     }
 
-    public function getAuthProvider(): int
+    public function getAuthProvider(): string
     {
         return $this->token->get(self::KEY_PROVIDER);
     }

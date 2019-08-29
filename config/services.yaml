@@ -120,6 +120,8 @@ services:
         urlAccessToken: 'https://www.googleapis.com/oauth2/v4/token'
         urlResourceOwnerDetails: 'https://openidconnect.googleapis.com/v1/userinfo'
         responseResourceOwnerId: 'sub'
+        scopes:
+          - 'openid'
 
   OAuthMicrosoft:
     class: League\OAuth2\Client\Provider\GenericProvider
@@ -127,9 +129,12 @@ services:
       - clientId: '%env(OAUTH_MICROSOFT_APP_ID)%'
         clientSecret: '%env(OAUTH_MICROSOFT_APP_SECRET)%'
         redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/microsoft'
-        urlAuthorize: 'https://login.live.com/oauth20_authorize.srf'
-        urlAccessToken: 'https://login.live.com/oauth20_token.srf'
-        urlResourceOwnerDetails: 'https://apis.live.net/v5.0/me'
+        urlAuthorize: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
+        urlAccessToken: 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+        urlResourceOwnerDetails: 'https://graph.microsoft.com/v1.0/me'
+        scopes:
+          - 'openid'
+          - 'user.read'
 
   OAuthTwitter:
     class: League\OAuth2\Client\Provider\GenericProvider
