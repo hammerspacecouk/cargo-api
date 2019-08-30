@@ -85,10 +85,10 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $port,
                 $ship,
                 $user,
-                $totalCrateValue,
+                (int)$totalCrateValue,
                 $location->getId(),
                 $data['tacticalOptions'],
-                );
+            );
         }
         $otherShips = [];
         if ($allowOtherShips) {
@@ -266,7 +266,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $activeTravelEffects,
-                    );
+                );
             }
 
             $directions[$bearing] = [

@@ -64,7 +64,6 @@ class EffectsService extends AbstractService
             );
         }
         return $availableEffects;
-
     }
 
     private function makeTacticalEffect(
@@ -161,7 +160,7 @@ class EffectsService extends AbstractService
             $effect->getId(),
             $ship->getId(),
             $cost,
-            ));
+        ));
         $purchaseToken = new PurchaseEffectToken(
             $rawToken->getJsonToken(),
             (string)$rawToken,
@@ -175,7 +174,7 @@ class EffectsService extends AbstractService
         UserEffect $userEffect,
         Ship $ship,
         Port $port
-    ): UseOffenceEffectToken {
+    ): ?UseOffenceEffectToken {
         if ($port->isSafe()) {
             // can't use any offence effects in Sanctuaries
             return null;
@@ -208,7 +207,7 @@ class EffectsService extends AbstractService
             null,
             $userEffect->getEffect()->getDurationSeconds(),
             $userEffect->getEffect()->getHitCount(),
-            ));
+        ));
         return new ShipDefenceEffectToken(
             $token->getJsonToken(),
             (string)$token,
@@ -228,7 +227,7 @@ class EffectsService extends AbstractService
             null,
             $userEffect->getEffect()->getDurationSeconds(),
             $userEffect->getEffect()->getHitCount(),
-            ));
+        ));
         return new ShipTravelEffectToken(
             $token->getJsonToken(),
             (string)$token,
@@ -249,7 +248,7 @@ class EffectsService extends AbstractService
         Port $currentPort,
         $tacticalOptions
     ): array {
-        $availableOffenceEffects = array_filter($tacticalOptions, static function(TacticalEffect $tacticalEffect) {
+        $availableOffenceEffects = array_filter($tacticalOptions, static function (TacticalEffect $tacticalEffect) {
             return $tacticalEffect->isAvailableShipOffence();
         });
 
@@ -268,7 +267,7 @@ class EffectsService extends AbstractService
                 $currentPort->getId(),
                 $effect->getDamage(),
                 $victimShip->getId(),
-                ));
+            ));
             $actionToken = new UseOffenceEffectToken(
                 $token->getJsonToken(),
                 (string)$token,
@@ -321,7 +320,7 @@ class EffectsService extends AbstractService
                 $userEffectRepo->createNew(
                     $effectRepo->getByID($effect->id, Query::HYDRATE_OBJECT),
                     $userEntity,
-                    );
+                );
                 return $mapper->getEffect($effectRepo->getByID($effect->id));
             }, $earnedEffects);
         });
@@ -502,7 +501,7 @@ class EffectsService extends AbstractService
                 $shipEntity,
                 $userEntity,
                 $portEntity,
-                );
+            );
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }

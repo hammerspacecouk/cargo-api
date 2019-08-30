@@ -133,7 +133,7 @@ class DeleteAction
             $this->applicationConfig->getWebHostname() .
             '/delete?' .
             http_build_query($params),
-            );
+        );
         return $this->noCacheResponse($response);
     }
 }

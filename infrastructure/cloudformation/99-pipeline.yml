@@ -11,8 +11,8 @@ Parameters:
   GitHubUser:
     Type: String
 
-  ClusterStackAlpha:
-    Type: String
+#  ClusterStackAlpha:
+#    Type: String
 
   ClusterStackProd:
     Type: String
@@ -296,7 +296,7 @@ Resources:
                 - Name: App
               OutputArtifacts: []
         # todo - step to run migrations
-        - Name: DeployToAlpha
+        - Name: DeployToProd
           Actions:
             - Name: DeployAPI
               ActionTypeId:
@@ -306,7 +306,7 @@ Resources:
                 Provider: ECS
               Configuration:
                 ClusterName:
-                  Fn::ImportValue: !Sub "${ClusterStackAlpha}::ClusterName"
+                  Fn::ImportValue: !Sub "${ClusterStackProd}::ClusterName"
                 ServiceName: api
                 FileName: "imagedefinitions.json"
               InputArtifacts:
@@ -320,7 +320,7 @@ Resources:
                 Provider: ECS
               Configuration:
                 ClusterName:
-                  Fn::ImportValue: !Sub "${ClusterStackAlpha}::ClusterName"
+                  Fn::ImportValue: !Sub "${ClusterStackProd}::ClusterName"
                 ServiceName: arrivals
                 FileName: "imagedefinitions.json"
               InputArtifacts:

@@ -37,7 +37,7 @@ class ApplyShipTravelEffectAction extends AbstractApplySimpleEffectAction
                 $shipWithLocation->getOwner(),
                 $shipWithLocation,
                 $shipWithLocation->getLocation(),
-                ),
+            ),
             'error' => null,
         ];
     }

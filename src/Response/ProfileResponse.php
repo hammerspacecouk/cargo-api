@@ -36,5 +36,4 @@ class ProfileResponse
             'authProviders' => $this->authenticationService->getAuthProviders($user),
         ];
     }
-
 }

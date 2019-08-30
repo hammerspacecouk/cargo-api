@@ -74,7 +74,7 @@ class AuthenticationService extends AbstractService
             '',
             self::COOKIE_NAME,
             $this->dateTimeFactory->now()->sub(new DateInterval('P1Y')),
-            );
+        );
     }
 
     public function getAuthenticationFromRequest(Request $request, bool $withRefresh = true): ?UserAuthentication
@@ -107,7 +107,7 @@ class AuthenticationService extends AbstractService
             $authentication->getUser()->getId(),
             $authentication->getCreationTime(),
             $secret,
-            );
+        );
 
         if (!\hash_equals($tokenEntity['digest'], $digest)) {
             return null;

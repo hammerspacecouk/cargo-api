@@ -14,8 +14,7 @@ class ShipLaunchEvent implements \JsonSerializable
     public function __construct(
         Ship $ship,
         Port $homePort
-    )
-    {
+    ) {
         $this->ship = $ship;
         $this->port = $homePort;
     }

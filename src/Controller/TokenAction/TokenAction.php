@@ -124,6 +124,7 @@ class TokenAction
         }
     }
 
+    // phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
     private function processToken(string $tokenKey, string $tokenString): array
     {
         // route the tokens. also allow tokens from yesterday to cater for the date boundary

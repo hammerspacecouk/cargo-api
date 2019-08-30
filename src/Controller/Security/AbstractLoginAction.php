@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use function App\Functions\Strings\startsWith;
 
 abstract class AbstractLoginAction
@@ -43,6 +44,9 @@ abstract class AbstractLoginAction
     protected function getRedirectUrl(Request $request): string
     {
         $redirectUrl = $request->headers->get('Referer');
+        if (is_array($redirectUrl)) {
+            throw new BadRequestHttpException('Bad referrer');
+        }
 
         $host = $this->applicationConfig->getWebHostname();
         $home = $host . '/';

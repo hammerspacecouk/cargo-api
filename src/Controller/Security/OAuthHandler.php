@@ -30,7 +30,7 @@ class OAuthHandler extends AbstractLoginAction
 
         if (!$code) {
             return new RedirectResponse($oauthProvider->getAuthorizationUrl([
-                'state' => $this->authenticationService->getOAuthState($this->getRedirectUrl($request))
+                'state' => $this->authenticationService->getOAuthState($this->getRedirectUrl($request)),
             ]));
         }
 
@@ -60,5 +60,4 @@ class OAuthHandler extends AbstractLoginAction
         }
         return $this->getLoginResponseForUser($user, $state->getReturnUrl());
     }
-
 }

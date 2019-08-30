@@ -85,10 +85,10 @@ class Cache implements CacheInterface
      * The PSR standard only requires certain characters and reserves others. It also has a maximum length
      * https://www.php-fig.org/psr/psr-16/#12-definitions
      * Trim and Replace them with safe characters, and concatenate with hash to reduce risk of collisions after the edit
-     * @param $key
+     * @param string $key
      * @return string
      */
-    private function sanitiseKey($key): string
+    private function sanitiseKey(string $key): string
     {
         $key = trim($key);
 
@@ -99,7 +99,10 @@ class Cache implements CacheInterface
         $keyHash = '_' . substr(sha1($key), 0, 8);
 
         // remove any characters not defined in the PSR standard
-        $key = preg_replace('/[^A-Za-z0-9_\.]/','_', $key);
+        $key = preg_replace('/[^A-Za-z0-9_\.]/', '_', $key);
+        if ($key === null) {
+            throw new \RuntimeException('Invalid KEY');
+        }
 
         // limit length to meet standard (leave space for the hash we're about to concatenate)
         $key = substr($key, 0, 64 - strlen($keyHash));

@@ -40,7 +40,7 @@ class LoginAction
             $this->applicationConfig->isLoginGoogleEnabled(),
             $this->applicationConfig->isLoginMicrosoftEnabled(),
             $this->applicationConfig->isLoginTwitterEnabled(),
-            ));
+        ));
 
         $response->headers->set('cache-control', 'no-cache, no-store, must-revalidate');
         return $response;

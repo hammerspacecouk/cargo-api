@@ -22,7 +22,6 @@ class ShowAction extends AbstractUserAction
     }
 
     public function __construct(
-
         AuthenticationService $authenticationService,
         ProfileResponse $profileResponse,
         LoggerInterface $logger

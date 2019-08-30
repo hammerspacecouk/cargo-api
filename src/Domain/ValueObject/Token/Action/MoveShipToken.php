@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token\Action;
 
+use App\Domain\Entity\ActiveEffect;
 use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\TokenId;
 use DateInterval;
@@ -37,10 +38,10 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_JOURNEY_TIME => $journeyTime,
             self::KEY_EARNINGS => $earnings,
             self::KEY_EXPIRE_EFFECTS => \array_map(static function (TacticalEffect $tacticalEffect) {
-                if (!$tacticalEffect->getActiveEffect()) {
-                    throw new \RuntimeException('An active tactical effect without an active effect?');
+                if ($tacticalEffect->getActiveEffect() instanceof ActiveEffect) {
+                    return $tacticalEffect->getActiveEffect()->getId()->toString();
                 }
-                return $tacticalEffect->getActiveEffect()->getId()->toString();
+                throw new \RuntimeException('An active tactical effect without an active effect?');
             }, $tacticalEffectsToExpire),
         ], $tokenId);
     }

@@ -44,6 +44,6 @@ class ShipClassImageAction
                 'content-type' => 'image/svg+xml',
                 'cache-control' => 'public, max-age=' . (60 * 60 * 24 * 400),
             ],
-            );
+        );
     }
 }

@@ -14,6 +14,7 @@ class NullPlayerRank extends PlayerRank
             Uuid::fromString(Uuid::NIL),
             '',
             0,
+            '',
             ''
         );
     }
