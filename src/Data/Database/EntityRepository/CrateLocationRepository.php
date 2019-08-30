@@ -27,7 +27,27 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->where('IDENTITY(tbl.port) = :portID')
             ->andWhere('tbl.isCurrent = true')
             ->andWhere('c.isDestroyed = false')
-            ->andWhere('c.reservedFor IS NULL OR c.reservedFor = :userID')
+            ->andWhere('c.reservedFor IS NULL')
+            ->setParameter('portID', $portId->getBytes())
+            ->setMaxResults($limit)
+            ->orderBy('c.isGoal', 'DESC')
+            ->addOrderBy('c.value', 'DESC');
+        return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function findReservedWithCrateForPortIdAndUserId(
+        UuidInterface $portId,
+        UuidInterface $userId,
+        int $limit = 10,
+        $resultType = Query::HYDRATE_ARRAY
+    ): array {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'c')
+            ->join('tbl.crate', 'c')
+            ->where('IDENTITY(tbl.port) = :portID')
+            ->andWhere('tbl.isCurrent = true')
+            ->andWhere('c.isDestroyed = false')
+            ->andWhere('c.reservedFor = :userID')
             ->setParameter('portID', $portId->getBytes())
             ->setParameter('userID', $userId->getBytes())
             ->setMaxResults($limit)

@@ -156,7 +156,8 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
 
     public function makeInPort(
         Ship $ship,
-        Port $port
+        Port $port,
+        bool $initialLaunch = false
     ): void {
         $location = new ShipLocation(
             $ship,
@@ -166,7 +167,9 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         );
         $this->getEntityManager()->persist($location);
 
-        $this->getEntityManager()->getEventRepo()->logShipArrival($ship, $port);
+        if (!$initialLaunch) {
+            $this->getEntityManager()->getEventRepo()->logShipArrival($ship, $port);
+        }
 
         $this->getEntityManager()->flush();
     }

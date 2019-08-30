@@ -178,7 +178,7 @@ class UsersService extends AbstractService
 
             // make the player an initial ship and place it in the home port
             $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $starterShipClass, $player);
-            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $safeHaven);
+            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $safeHaven, true);
             $this->entityManager->getPortVisitRepo()->recordVisit(null, $player, $safeHaven);
 
             // Make a crate (reserved for this player)

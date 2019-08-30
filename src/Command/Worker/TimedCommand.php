@@ -107,6 +107,7 @@ class TimedCommand extends Command
                     $channel,
                     $player->getRank(),
                     $ship,
+                    false,
                     $this->algorithmService->getJourneyTime(
                         $channel->getDistance(),
                         $ship,

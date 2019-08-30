@@ -121,7 +121,7 @@ class UpgradesService extends AbstractService
             $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $shipClassEntity, $userEntity);
 
             $this->logger->info('Placing ship in home port');
-            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $userEntity->homePort);
+            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $userEntity->homePort, true);
 
             $this->consumeCredits($userEntity, $shipClassEntity->purchaseCost);
             $this->tokenHandler->markAsUsed($token->getOriginalToken());

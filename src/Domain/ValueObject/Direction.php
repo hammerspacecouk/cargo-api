@@ -22,12 +22,17 @@ class Direction implements \JsonSerializable
     private $lastVisitTime;
 
     private $denialReasons = [];
+    /**
+     * @var bool
+     */
+    private $isHomePort;
 
     public function __construct(
         Port $destinationPort,
         Channel $channel,
         PlayerRank $playerRank,
         Ship $ship,
+        bool $isHomePort,
         int $time,
         int $earnings = null,
         DateTimeImmutable $lastVisitTime = null
@@ -38,6 +43,7 @@ class Direction implements \JsonSerializable
         $this->ship = $ship;
         $this->time = $time;
         $this->earnings = $earnings;
+        $this->isHomePort = $isHomePort;
         $this->lastVisitTime = $lastVisitTime;
 
         $this->calculateEligibility();
@@ -52,6 +58,7 @@ class Direction implements \JsonSerializable
             'journeyTimeSeconds' => $this->time,
             'isAllowed' => $this->isAllowedToEnter(),
             'denialReason' => $this->getDenialReason(),
+            'isHomePort' => $this->isHomePort,
         ];
     }
 

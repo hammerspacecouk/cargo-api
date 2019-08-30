@@ -38,12 +38,21 @@ class CratesService extends AbstractService
 
     public function findInPortForUser(Port $port, User $user, $limit = 50): array
     {
-        $results = $this->entityManager->getCrateLocationRepo()
-            ->findWithCrateForPortIdAndUserId(
-                $port->getId(),
-                $user->getId(),
-                $limit
-            );
+        if ($user->getRank()->isTutorial()) {
+            $results = $this->entityManager->getCrateLocationRepo()
+                ->findReservedWithCrateForPortIdAndUserId(
+                    $port->getId(),
+                    $user->getId(),
+                    $limit
+                );
+        } else {
+            $results = $this->entityManager->getCrateLocationRepo()
+                ->findWithCrateForPortIdAndUserId(
+                    $port->getId(),
+                    $user->getId(),
+                    $limit
+                );
+        }
 
         $mapper = $this->mapperFactory->createCrateLocationMapper();
         return array_map(static function ($result) use ($mapper) {

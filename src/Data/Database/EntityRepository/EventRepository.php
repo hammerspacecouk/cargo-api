@@ -76,6 +76,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             static function (Event $entity) use ($ship, $player) {
                 $entity->actioningPlayer = $player;
                 $entity->subjectShip = $ship;
+                $entity->subjectPort = $player->homePort;
                 return $entity;
             },
         );
@@ -214,6 +215,8 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 'port',
                 'crate',
                 'effect',
+                'actioningShipClass',
+                'targetShipClass',
             )
             ->leftJoin('tbl.actioningPlayer', 'actioningPlayer')
             ->leftJoin('actioningPlayer.lastRankSeen', 'actioningPlayerRank')
@@ -225,6 +228,8 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
             ->leftJoin('tbl.subjectPort', 'port')
             ->leftJoin('tbl.subjectCrate', 'crate')
             ->leftJoin('tbl.subjectEffect', 'effect')
+            ->leftJoin('actioningShip.shipClass', 'actioningShipClass')
+            ->leftJoin('ship.shipClass', 'targetShipClass')
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->orderBy('tbl.time', 'DESC');

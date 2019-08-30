@@ -11,7 +11,7 @@ class PlayerRankRepository extends AbstractEntityRepository
 
     public function getList(): array
     {
-        $cacheKey = __CLASS__ . '-' . __METHOD__;
+        $cacheKey = __METHOD__;
         $data = $this->cache->get($cacheKey);
         if ($data) {
             return $data;

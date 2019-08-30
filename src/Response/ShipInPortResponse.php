@@ -52,20 +52,57 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         $port = $location->getPort();
+        $cratesInPort = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
+
+        $tutorialStep = null;
+        $allowDirections = true;
+        $allowOtherShips = true;
+        if ($user->getRank()->isTutorial()) {
+            $allowOtherShips = false;
+            $data['tacticalOptions'] = [];
+            // tutorial will have only received the reserved crate
+            $hasPickedUpCrate = empty($cratesInPort);
+            if ($hasPickedUpCrate) {
+                $allowDirections = true;
+                $moveCrateKey = null; // prevents it being put back down
+                $tutorialStep = 2;
+            } else {
+                $allowDirections = false;
+                $tutorialStep = 1;
+            }
+        }
+        if ($user->getRank()->getThreshold() === 2) {
+            $tutorialStep = 3;
+        }
+        if (!$port->isSafe() && $user->getRank()->getThreshold() === 3) {
+            $tutorialStep = 4;
+        }
+
+        $cratesOnShip = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
+        $directions = [];
+        if ($allowDirections) {
+            $directions = $this->getDirectionsFromPort(
+                $port,
+                $ship,
+                $user,
+                $totalCrateValue,
+                $location->getId(),
+                $data['tacticalOptions'],
+                );
+        }
+        $otherShips = [];
+        if ($allowOtherShips) {
+            $otherShips = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
+        }
+
         $data['port'] = $port;
-        $data['directions'] = $this->getDirectionsFromPort(
-            $port,
-            $ship,
-            $user,
-            $totalCrateValue,
-            $location->getId(),
-            $data['tacticalOptions']
-            );
-        $data['shipsInLocation'] = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
+        $data['tutorialStep'] = $tutorialStep;
+        $data['directions'] = $directions;
+        $data['shipsInLocation'] = $otherShips;
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
-        $data['cratesInPort'] = $this->getCratesInPort($port, $ship, $user, \count($cratesOnShip), $moveCrateKey);
-        $data['cratesOnShip'] = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
+        $data['cratesInPort'] = $cratesInPort;
+        $data['cratesOnShip'] = $cratesOnShip;
         return $data;
     }
 
@@ -154,12 +191,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         array $crates,
         Port $port,
         Ship $ship,
-        string $groupTokenKey
+        ?string $groupTokenKey
     ): array {
-
         return \array_map(function (Crate $crate) use ($ship, $port, $groupTokenKey) {
+            $token = null;
+            if ($groupTokenKey) {
+                $token = $this->cratesService->getDropCrateToken($crate, $ship, $port, $groupTokenKey);
+            }
             return [
-                'token' => $this->cratesService->getDropCrateToken($crate, $ship, $port, $groupTokenKey),
+                'token' => $token,
                 'crate' => $crate,
                 'valuePerLY' => $crate->getValuePerLightYear($this->applicationConfig->getDistanceMultiplier()),
             ];
@@ -177,11 +217,12 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         // find all channels for a port, with their bearing and distance
         $channels = $this->channelsService->getAllLinkedToPort($port);
+        $homePort = $this->portsService->findHomePortForUserId($user->getId());
 
         $directions = Bearing::getEmptyBearingsList();
 
         $activeTravelEffects = array_filter($tacticalOptions, static function (TacticalEffect $tacticalEffect) {
-           return $tacticalEffect->getEffect() instanceof Effect\TravelEffect && $tacticalEffect->isActive();
+            return $tacticalEffect->getEffect() instanceof Effect\TravelEffect && $tacticalEffect->isActive();
         });
 
         foreach ($channels as $channel) {
@@ -203,14 +244,16 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $activeTravelEffects
             );
 
+            $destination = $channel->getDestination($port);
             $directionDetail = new Direction(
-                $channel->getDestination($port),
+                $destination,
                 $channel,
                 $user->getRank(),
                 $ship,
+                $destination->equals($homePort),
                 $journeyTimeSeconds,
                 $earnings,
-                );
+            );
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {

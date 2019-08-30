@@ -41,6 +41,7 @@ class PlayerRankStatus implements \JsonSerializable
             'previousRank' => $this->previousRank,
             'olderRanks' => $this->olderRanks,
             'nextRank' => $this->nextRank,
+            'description' => $this->currentRank->getDescription(),
         ];
     }
 

@@ -14,6 +14,7 @@ use App\Service\CratesService;
 use App\Service\EffectsService;
 use App\Service\EventsService;
 use App\Service\PlayerRanksService;
+use App\Service\PortsService;
 use App\Service\Ships\ShipHealthService;
 use App\Service\Ships\ShipMovementService;
 use App\Service\Ships\ShipNameService;
@@ -37,6 +38,7 @@ abstract class AbstractShipInLocationResponse
     protected $shipHealthService;
     protected $upgradesService;
     protected $authenticationService;
+    protected $portsService;
 
     public function __construct(
         AlgorithmService $algorithmService,
@@ -47,6 +49,7 @@ abstract class AbstractShipInLocationResponse
         EffectsService $effectsService,
         EventsService $eventsService,
         PlayerRanksService $playerRanksService,
+        PortsService $portsService,
         ShipMovementService $shipMovementService,
         ShipNameService $shipNameService,
         ShipsService $shipsService,
@@ -68,6 +71,7 @@ abstract class AbstractShipInLocationResponse
         $this->shipHealthService = $shipHealthService;
         $this->upgradesService = $upgradesService;
         $this->authenticationService = $authenticationService;
+        $this->portsService = $portsService;
     }
 
     abstract public function getResponseData(

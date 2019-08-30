@@ -26,7 +26,7 @@ class PlayerRanksService extends AbstractService
     {
         $results = $this->entityManager->getPlayerRankRepo()->getList();
         $mapper = $this->mapperFactory->createPlayerRankMapper();
-        return array_map(function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getPlayerRank($result);
         }, $results);
     }
