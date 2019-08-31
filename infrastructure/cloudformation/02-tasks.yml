@@ -116,8 +116,8 @@ Resources:
           Secrets:
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLER
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_DISTANCE_MULTIPLIER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLIER
             - Name: CONFIG_HOSTNAME_API
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
             - Name: CONFIG_HOSTNAME_WEB
@@ -204,8 +204,8 @@ Resources:
           Secrets:
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLER
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_DISTANCE_MULTIPLIER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLIER
             - Name: CONFIG_HOSTNAME_API
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
             - Name: CONFIG_HOSTNAME_WEB
@@ -279,8 +279,8 @@ Resources:
           Secrets:
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLER
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_DISTANCE_MULTIPLIER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLIER
             - Name: CONFIG_HOSTNAME_API
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
             - Name: CONFIG_HOSTNAME_WEB
@@ -354,8 +354,8 @@ Resources:
           Secrets:
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLER
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_DISTANCE_MULTIPLIER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLIER
             - Name: CONFIG_HOSTNAME_API
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
             - Name: CONFIG_HOSTNAME_WEB
@@ -431,8 +431,8 @@ Resources:
           Secrets:
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
-            - Name: CONFIG_DISTANCE_MULTIPLER
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_DISTANCE_MULTIPLIER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLIER
             - Name: CONFIG_HOSTNAME_API
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
             - Name: CONFIG_HOSTNAME_WEB
