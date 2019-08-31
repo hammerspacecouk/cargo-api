@@ -198,8 +198,8 @@ class MakeMapCommand extends AbstractCommand
 
             return '<text text-anchor="middle" y="' . $halfY . '" ' .
                 'style="font-family:sans-serif;font-size: 8px;fill:blue;text-shadow:0 0 1px #fff">' .
-                '<tspan x="' . $halfX. '" text-anchor="middle">' . $line[4] . '</tspan>' .
-                '<tspan x="' . $halfX. '" text-anchor="middle" dy="10">' . $line[5] . '</tspan>' .
+                '<tspan x="' . $halfX . '" text-anchor="middle">' . $line[4] . '</tspan>' .
+                '<tspan x="' . $halfX . '" text-anchor="middle" dy="10">' . $line[5] . '</tspan>' .
                 '</text>';
         }, $lines));
 
@@ -213,16 +213,16 @@ class MakeMapCommand extends AbstractCommand
             }
             return '<polygon data-id="' . $port[0]->getId() .
                 '" points="' . $this->getHexPoints($port[1], $port[2]) . '"' .
-                ' stroke="black" fill="' . $color. '" />';
+                ' stroke="black" fill="' . $color . '" />';
         }, $ports));
 
         $texts = \implode('', \array_map(static function (array $port) {
             $lines = explode(' ', $port[0]->getName());
             $x = $port[1];
             $outputs = [];
-            $outputs[] = '<tspan x="' . $x. '" text-anchor="middle">' . array_shift($lines) . '</tspan>';
+            $outputs[] = '<tspan x="' . $x . '" text-anchor="middle">' . array_shift($lines) . '</tspan>';
             foreach ($lines as $line) {
-                $outputs[] = '<tspan x="' . $x. '" text-anchor="middle" dy="12">' . $line . '</tspan>';
+                $outputs[] = '<tspan x="' . $x . '" text-anchor="middle" dy="12">' . $line . '</tspan>';
             }
 
             return '<text y="' . $port[2] . '" style="font-family:sans-serif;font-size: 10px;">' .
