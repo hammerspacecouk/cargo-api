@@ -22,7 +22,7 @@ RUN composer install --optimize-autoloader --apcu-autoloader --no-dev --prefer-d
     rm -rf vendor/*/*/tests/ && \
     rm -rf vendor/*/*/Tests/ && \
     rm -rf vendor/*/*/test/ && \
-    bin/console cache:warm --env=prod
+    bin/console cache:warmup --env=prod
 
 RUN chown -R www-data:www-data /var/www
 

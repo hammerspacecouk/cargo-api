@@ -88,8 +88,8 @@ Resources:
               - ssm:GetParameters
               - ssm:GetParametersByPath
             Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/*
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/*
 
   APITaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -105,7 +105,7 @@ Resources:
       ContainerDefinitions:
         - Name: cargo-api-php
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
-          Cpu: 64
+          Cpu: 192
           Memory: 128
           Essential: true
           Environment:

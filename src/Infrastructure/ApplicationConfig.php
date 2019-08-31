@@ -52,7 +52,7 @@ class ApplicationConfig
         $this->hostnameWeb = $hostnameWeb;
         $this->cookieScope = $cookieScope;
         $this->maxUsersPerIp = $maxUsersPerIp;
-        $this->distanceMultiplier = $distanceMultiplier;
+        $this->distanceMultiplier = (int)$distanceMultiplier;
         $this->emailFromName = $emailFromName;
         $this->emailFromAddress = $emailFromAddress;
         $this->tokenPrivateKey = $tokenPrivateKey;
