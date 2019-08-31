@@ -53,6 +53,7 @@ class MakePortsCommand extends AbstractCommand
             $name = $data['name'];
             $isSafeHaven = (bool)$data['isSafeHaven'];
             $isOpen = (bool)$data['isOpen'];
+            $isAHome = (bool)$data['isHome'];
             $isDestination = (bool)$data['isDestination'];
 
             $cluster = null;
@@ -68,6 +69,7 @@ class MakePortsCommand extends AbstractCommand
                 $entity->name = $name;
                 $entity->cluster = $cluster;
                 $entity->isSafeHaven = $isSafeHaven;
+                $entity->isAHome = $isAHome;
                 $entity->isOpen = $isOpen;
                 $entity->isDestination = $isDestination;
             } else {
@@ -75,6 +77,7 @@ class MakePortsCommand extends AbstractCommand
                     $name,
                     $cluster,
                     $isSafeHaven,
+                    $isAHome,
                     $isDestination,
                     $isOpen
                 );

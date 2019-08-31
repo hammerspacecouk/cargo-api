@@ -13,6 +13,7 @@ class PortMapper extends Mapper
             $item['id'],
             $item['name'],
             $item['isSafeHaven'],
+            $item['isAHome'],
         );
         return $domainEntity;
     }

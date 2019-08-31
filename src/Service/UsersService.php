@@ -156,7 +156,7 @@ class UsersService extends AbstractService
         \mt_srand($seed);
 
         // get some starting types
-        $safeHaven = $this->entityManager->getPortRepo()->getARandomSafePort(Query::HYDRATE_OBJECT);
+        $safeHaven = $this->entityManager->getPortRepo()->getARandomHomePort(Query::HYDRATE_OBJECT);
         $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
         $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
         $initialRank = $this->entityManager->getPlayerRankRepo()->getStarter(Query::HYDRATE_OBJECT);

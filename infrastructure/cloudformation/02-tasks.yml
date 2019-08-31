@@ -88,8 +88,8 @@ Resources:
               - ssm:GetParameters
               - ssm:GetParametersByPath
             Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/*
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/*
 
   APITaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -113,6 +113,50 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+          Secrets:
+            - Name: CONFIG_COOKIE_SCOPE
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
+            - Name: CONFIG_DISTANCE_MULTIPLER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_HOSTNAME_API
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
+            - Name: CONFIG_HOSTNAME_WEB
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_WEB
+            - Name: MAILER_FROM_ADDRESS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_ADDRESS
+            - Name: LOGIN_FLAGS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/LOGIN_FLAGS
+            - Name: MAILER_FROM_NAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_NAME
+            - Name: MAILER_USERNAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_USERNAME
+            - Name: MAILER_HOST
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
+            - Name: OAUTH_GOOGLE_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_FACEBOOK_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
+            - Name: OAUTH_MICROSOFT_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_ID
+            - Name: OAUTH_TWITTER_API_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
+
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL
+            - Name: APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
+            - Name: MAILER_PASSWORD
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_PASSWORD
+            - Name: OAUTH_FACEBOOK_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
+            - Name: OAUTH_GOOGLE_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_MICROSOFT_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
+            - Name: OAUTH_TWITTER_API_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_SECRET
+            - Name: TOKEN_PRIVATE_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/TOKEN_PRIVATE_KEY
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -157,6 +201,50 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+          Secrets:
+            - Name: CONFIG_COOKIE_SCOPE
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
+            - Name: CONFIG_DISTANCE_MULTIPLER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_HOSTNAME_API
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
+            - Name: CONFIG_HOSTNAME_WEB
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_WEB
+            - Name: MAILER_FROM_ADDRESS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_ADDRESS
+            - Name: LOGIN_FLAGS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/LOGIN_FLAGS
+            - Name: MAILER_FROM_NAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_NAME
+            - Name: MAILER_USERNAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_USERNAME
+            - Name: MAILER_HOST
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
+            - Name: OAUTH_GOOGLE_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_FACEBOOK_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
+            - Name: OAUTH_MICROSOFT_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_ID
+            - Name: OAUTH_TWITTER_API_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
+
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL
+            - Name: APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
+            - Name: MAILER_PASSWORD
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_PASSWORD
+            - Name: OAUTH_FACEBOOK_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
+            - Name: OAUTH_GOOGLE_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_MICROSOFT_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
+            - Name: OAUTH_TWITTER_API_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_SECRET
+            - Name: TOKEN_PRIVATE_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/TOKEN_PRIVATE_KEY
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -188,6 +276,50 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+          Secrets:
+            - Name: CONFIG_COOKIE_SCOPE
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
+            - Name: CONFIG_DISTANCE_MULTIPLER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_HOSTNAME_API
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
+            - Name: CONFIG_HOSTNAME_WEB
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_WEB
+            - Name: MAILER_FROM_ADDRESS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_ADDRESS
+            - Name: LOGIN_FLAGS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/LOGIN_FLAGS
+            - Name: MAILER_FROM_NAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_NAME
+            - Name: MAILER_USERNAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_USERNAME
+            - Name: MAILER_HOST
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
+            - Name: OAUTH_GOOGLE_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_FACEBOOK_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
+            - Name: OAUTH_MICROSOFT_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_ID
+            - Name: OAUTH_TWITTER_API_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
+
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL
+            - Name: APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
+            - Name: MAILER_PASSWORD
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_PASSWORD
+            - Name: OAUTH_FACEBOOK_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
+            - Name: OAUTH_GOOGLE_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_MICROSOFT_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
+            - Name: OAUTH_TWITTER_API_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_SECRET
+            - Name: TOKEN_PRIVATE_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/TOKEN_PRIVATE_KEY
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -219,6 +351,50 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+          Secrets:
+            - Name: CONFIG_COOKIE_SCOPE
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
+            - Name: CONFIG_DISTANCE_MULTIPLER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_HOSTNAME_API
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
+            - Name: CONFIG_HOSTNAME_WEB
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_WEB
+            - Name: MAILER_FROM_ADDRESS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_ADDRESS
+            - Name: LOGIN_FLAGS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/LOGIN_FLAGS
+            - Name: MAILER_FROM_NAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_NAME
+            - Name: MAILER_USERNAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_USERNAME
+            - Name: MAILER_HOST
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
+            - Name: OAUTH_GOOGLE_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_FACEBOOK_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
+            - Name: OAUTH_MICROSOFT_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_ID
+            - Name: OAUTH_TWITTER_API_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
+
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL_DDL
+            - Name: APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
+            - Name: MAILER_PASSWORD
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_PASSWORD
+            - Name: OAUTH_FACEBOOK_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
+            - Name: OAUTH_GOOGLE_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_MICROSOFT_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
+            - Name: OAUTH_TWITTER_API_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_SECRET
+            - Name: TOKEN_PRIVATE_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/TOKEN_PRIVATE_KEY
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -252,6 +428,50 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+          Secrets:
+            - Name: CONFIG_COOKIE_SCOPE
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
+            - Name: CONFIG_DISTANCE_MULTIPLER
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_DISTANCE_MULTIPLER
+            - Name: CONFIG_HOSTNAME_API
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_API
+            - Name: CONFIG_HOSTNAME_WEB
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_HOSTNAME_WEB
+            - Name: MAILER_FROM_ADDRESS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_ADDRESS
+            - Name: LOGIN_FLAGS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/LOGIN_FLAGS
+            - Name: MAILER_FROM_NAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_FROM_NAME
+            - Name: MAILER_USERNAME
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_USERNAME
+            - Name: MAILER_HOST
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
+            - Name: OAUTH_GOOGLE_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_FACEBOOK_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
+            - Name: OAUTH_MICROSOFT_APP_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_ID
+            - Name: OAUTH_TWITTER_API_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
+
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL
+            - Name: APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
+            - Name: MAILER_PASSWORD
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_PASSWORD
+            - Name: OAUTH_FACEBOOK_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
+            - Name: OAUTH_GOOGLE_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_MICROSOFT_APP_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
+            - Name: OAUTH_TWITTER_API_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_SECRET
+            - Name: TOKEN_PRIVATE_KEY
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/TOKEN_PRIVATE_KEY
           LogConfiguration:
             LogDriver: awslogs
             Options:

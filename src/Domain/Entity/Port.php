@@ -11,15 +11,18 @@ class Port extends Entity implements \JsonSerializable
 
     private $name;
     private $isSafe;
+    private $isAHome;
 
     public function __construct(
         UuidInterface $id,
         string $name,
-        bool $isSafe
+        bool $isSafe,
+        bool $isAHome
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->isSafe = $isSafe;
+        $this->isAHome = $isAHome;
     }
 
     public function getName(): string
@@ -40,5 +43,10 @@ class Port extends Entity implements \JsonSerializable
             'name' => $this->name,
             'isSafe' => $this->isSafe(),
         ];
+    }
+
+    public function isAHome(): bool
+    {
+        return $this->isAHome;
     }
 }

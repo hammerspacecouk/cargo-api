@@ -39,6 +39,16 @@ class MakeMapCommand extends AbstractCommand
             );
     }
 
+    private function rankKey(Channel $channel): string
+    {
+        return substr($channel->getMinimumRank()->getId()->toString(), 0, 3);
+    }
+
+    private function channelKey(Channel $channel): string
+    {
+        return substr($channel->getId()->toString(), 0, 6);
+    }
+
     protected function execute(
         InputInterface $input,
         OutputInterface $output
@@ -72,7 +82,7 @@ class MakeMapCommand extends AbstractCommand
         $ports[$secondPort->getId()->toString()] = [$secondPort, $endX, $endY];
 
         $limits = $this->limits($endX, $endY);
-        $lines[] = [0, 0, $endX, $endY];
+        $lines[] = [0, 0, $endX, $endY, $this->channelKey($firstChannel), $this->rankKey($firstChannel)];
 
         $progress = new ProgressBar($output, $total);
         $progress->start();
@@ -111,7 +121,7 @@ class MakeMapCommand extends AbstractCommand
                 }
 
                 $limits = $this->limits($endX, $endY, $limits);
-                $lines[] = [$startX, $startY, $endX, $endY];
+                $lines[] = [$startX, $startY, $endX, $endY, $this->channelKey($channel), $this->rankKey($channel)];
 
                 // remove this channel from the list
                 unset($channels[$i]);
@@ -174,7 +184,7 @@ class MakeMapCommand extends AbstractCommand
         array $ports,
         string $viewBox
     ): string {
-        $lineSvgs = \implode('', \array_map(function (array $line) {
+        $lineSvgs = \implode('', \array_map(static function (array $line) {
             return '<line x1="' .
                 $line[0] . '" y1="' .
                 $line[1] . '" x2="' .
@@ -182,17 +192,41 @@ class MakeMapCommand extends AbstractCommand
                 $line[3] . '" stroke="black" />';
         }, $lines));
 
+        $lineRatings = \implode('', \array_map(static function (array $line) {
+            $halfX = (($line[2] - $line[0]) / 2) + $line[0];
+            $halfY = ((($line[3] - $line[1]) / 2) + $line[1]) - 2;
+
+            return '<text text-anchor="middle" y="' . $halfY . '" ' .
+                'style="font-family:sans-serif;font-size: 8px;fill:blue;text-shadow:0 0 1px #fff">' .
+                '<tspan x="' . $halfX. '" text-anchor="middle">' . $line[4] . '</tspan>' .
+                '<tspan x="' . $halfX. '" text-anchor="middle" dy="10">' . $line[5] . '</tspan>' .
+                '</text>';
+        }, $lines));
+
         $hexSvgs = \implode('', \array_map(function (array $port) {
+            $color = '#ff9999';
+            if ($port[0]->isSafe()) {
+                $color = '#ffff99';
+            }
+            if ($port[0]->isAHome()) {
+                $color = '#99ff99';
+            }
             return '<polygon data-id="' . $port[0]->getId() .
                 '" points="' . $this->getHexPoints($port[1], $port[2]) . '"' .
-                ' stroke="black" fill="white" />';
+                ' stroke="black" fill="' . $color. '" />';
         }, $ports));
 
-        $texts = \implode('', \array_map(function (array $port) {
-            return '<text x="' . ($port[1] - (self::HEXAGON_WIDTH / 2.05)) .
-                '" y="' . ($port[2] + 4) . '" style="font-family:sans-serif;font-size: 12px" textLength="' .
-                self::HEXAGON_WIDTH * 0.95 . '" lengthAdjust="spacingAndGlyphs">' .
-                $port[0]->getName() . '</text>';
+        $texts = \implode('', \array_map(static function (array $port) {
+            $lines = explode(' ', $port[0]->getName());
+            $x = $port[1];
+            $outputs = [];
+            $outputs[] = '<tspan x="' . $x. '" text-anchor="middle">' . array_shift($lines) . '</tspan>';
+            foreach ($lines as $line) {
+                $outputs[] = '<tspan x="' . $x. '" text-anchor="middle" dy="12">' . $line . '</tspan>';
+            }
+
+            return '<text y="' . $port[2] . '" style="font-family:sans-serif;font-size: 10px;">' .
+                implode($outputs) . '</text>';
         }, $ports));
 
         return <<<SVG
@@ -200,6 +234,7 @@ class MakeMapCommand extends AbstractCommand
                 $lineSvgs
                 $hexSvgs
                 $texts
+                $lineRatings
             </svg>
         SVG;
     }

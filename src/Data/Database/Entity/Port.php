@@ -21,6 +21,9 @@ class Port extends AbstractEntity
     public $isSafeHaven = false;
 
     /** @ORM\Column(type="boolean") */
+    public $isAHome = false;
+
+    /** @ORM\Column(type="boolean") */
     public $isDestination = false;
 
     /** @ORM\Column(type="boolean") */
@@ -36,6 +39,7 @@ class Port extends AbstractEntity
         string $name,
         ?Cluster $cluster,
         bool $isSafeHaven,
+        bool $isAHome,
         bool $isDestination,
         bool $isOpen
     ) {
@@ -45,5 +49,6 @@ class Port extends AbstractEntity
         $this->isSafeHaven = $isSafeHaven;
         $this->isDestination = $isDestination;
         $this->isOpen = $isOpen;
+        $this->isAHome = $isAHome;
     }
 }

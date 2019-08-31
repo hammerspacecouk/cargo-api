@@ -7,15 +7,15 @@ use Doctrine\ORM\Query;
 
 class PortRepository extends AbstractEntityRepository
 {
-    public function getARandomSafePort(
+    public function getARandomHomePort(
         $resultType = Query::HYDRATE_ARRAY
     ) {
-        $safeCount = $this->countSafe();
+        $safeCount = $this->countHomes();
         /** @noinspection RandomApiMigrationInspection - uses mt_rand so it can be seeded */
         $randomOffset = mt_rand(0, $safeCount - 1);
 
         $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.isSafeHaven = true')
+            ->where('tbl.isAHome = true')
             ->andWhere('tbl.isOpen = true')
             ->andWhere('tbl.isDestination = false')
             ->setFirstResult($randomOffset)
@@ -23,9 +23,9 @@ class PortRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function countSafe(): int
+    private function countHomes(): int
     {
-        $cacheKey = __CLASS__ . '-' . __METHOD__;
+        $cacheKey = __METHOD__;
         $data = $this->cache->get($cacheKey);
         if ($data) {
             return $data;
@@ -33,7 +33,7 @@ class PortRepository extends AbstractEntityRepository
 
         $result = (int)$this->createQueryBuilder('tbl')
             ->select('count(1)')
-            ->where('tbl.isSafeHaven = true')
+            ->where('tbl.isAHome = true')
             ->andWhere('tbl.isOpen = true')
             ->andWhere('tbl.isDestination = false')
             ->getQuery()
