@@ -296,6 +296,15 @@ Resources:
                 - Name: App
               OutputArtifacts: []
         # todo - step to run migrations
+        - Name: ApproveProd
+          Actions:
+            - Name: ApproveProd
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              RunOrder: 1
         - Name: DeployToProd
           Actions:
             - Name: DeployAPI
@@ -326,11 +335,9 @@ Resources:
               InputArtifacts:
                 - Name: BuildOutput
               RunOrder: 1
-        # todo - deploy scheduled task updates
         # todo - manual button press (eventually a automatic sanity test suite)
         # todo - run prod migrations
-        # todo - deploy prod images
-
+        # todo - deploy alpha vs prod images
 
 Outputs:
   PipelineUrl:

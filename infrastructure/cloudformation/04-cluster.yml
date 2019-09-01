@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Setup the API cluster and services
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - alpha
+      - beta
+      - prod
+    Default: prod
+
+  ClusterNamePrefix:
+    Type: String
+    Default: api
+
+  SecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+
+  ALBTargetGroup:
+    Type: String
+
+  APITaskARN:
+    Type: String
+
+  ArrivalsTaskARN:
+    Type: String
+
+  CleanerTaskARN:
+    Type: String
+
+  TimedTaskARN:
+    Type: String
+
+  ExecutionRoleArn:
+    Type: String
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${ClusterNamePrefix}-${Environment}
+
+  APIService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Cluster
+      ServiceName: api
+      LaunchType: 'FARGATE'
+      DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      TaskDefinition: !Ref APITaskARN
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: !Ref SecurityGroups
+          Subnets: !Ref Subnets
+      LoadBalancers:
+        - ContainerName: cargo-api-nginx
+          ContainerPort: 80
+          TargetGroupArn: !Ref ALBTargetGroup
+
+  ArrivalsService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Cluster
+      ServiceName: arrivals
+      LaunchType: 'FARGATE'
+      DesiredCount: 1
+      DeploymentConfiguration:
+        MaximumPercent: 100
+        MinimumHealthyPercent: 0
+      TaskDefinition: !Ref ArrivalsTaskARN
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: !Ref SecurityGroups
+          Subnets: !Ref Subnets
+
+  CleanerRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: cleaner
+      ScheduleExpression: rate(24 hours)
+      State: ENABLED
+      Targets:
+        - Id: cleaner
+          RoleArn: !Ref ExecutionRoleArn
+          Arn: !Join [ "", ["arn:aws:ecs:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":cluster/", !Ref Cluster]]
+          EcsParameters:
+            TaskDefinitionArn: !Ref CleanerTaskARN
+            TaskCount: 1
+            LaunchType: 'FARGATE'
+            PlatformVersion: 'LATEST'
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                SecurityGroups: !Ref SecurityGroups
+                Subnets: !Ref Subnets
+
+  TimedRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: timed
+      ScheduleExpression: rate(10 minutes)
+      State: ENABLED
+      Targets:
+        - Id: timed
+          RoleArn: !Ref ExecutionRoleArn
+          Arn: !Join [ "", ["arn:aws:ecs:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":cluster/", !Ref Cluster]]
+          EcsParameters:
+            TaskDefinitionArn: !Ref TimedTaskARN
+            TaskCount: 1
+            LaunchType: 'FARGATE'
+            PlatformVersion: 'LATEST'
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                SecurityGroups: !Ref SecurityGroups
+                Subnets: !Ref Subnets
+
+Outputs:
+  ClusterName:
+    Value: !Ref Cluster
+    Export:
+      Name: !Sub ${AWS::StackName}::ClusterName
+

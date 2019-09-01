@@ -1,0 +1,73 @@
+Parameters:
+  SecurityGroups:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+
+  VPC:
+    Type: AWS::EC2::VPC::Id
+
+  HostnameProd:
+    Type: String
+
+Resources:
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: !Ref Subnets
+      SecurityGroups: !Ref SecurityGroups
+
+  TargetGroupProd:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LoadBalancer
+    Properties:
+      VpcId: !Ref VPC
+      Port: 80
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /health-alb
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 5
+      TargetType: ip
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 30
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - LoadBalancer
+      - TargetGroupProd
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupProd
+
+  ListenerRuleProd:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref LoadBalancerListener
+      Priority: 2
+      Conditions:
+        - Field: host-header
+          Values:
+            - !Ref HostnameProd
+      Actions:
+        - TargetGroupArn: !Ref TargetGroupProd
+          Type: forward
+
+Outputs:
+  TargetGroupProd:
+    Description: The ALB TargetGroup for the service in prod
+    Value: !Ref TargetGroupProd
+    Export:
+      Name: !Sub "${AWS::StackName}::TargetGroupProd"

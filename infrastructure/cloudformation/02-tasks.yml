@@ -483,6 +483,11 @@ Resources:
             - "game:worker:timed"
 
 Outputs:
+  ExecutionRoleArn:
+    Value: !GetAtt TaskExecutionRole.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}::ExecutionRoleArn
+
   APITask:
     Value: !Ref APITaskDefinition
     Export:
