@@ -51,7 +51,7 @@ class ApplicationConfig
         $this->hostnameApi = $hostnameApi;
         $this->hostnameWeb = $hostnameWeb;
         $this->cookieScope = $cookieScope;
-        $this->maxUsersPerIp = $maxUsersPerIp;
+        $this->maxUsersPerIp = (int)$maxUsersPerIp;
         $this->distanceMultiplier = (int)$distanceMultiplier;
         $this->emailFromName = $emailFromName;
         $this->emailFromAddress = $emailFromAddress;
