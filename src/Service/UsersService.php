@@ -51,8 +51,9 @@ class UsersService extends AbstractService
 
     public function allowedToMakeAnonymousUser(?string $ipAddress): bool
     {
+        return true; // todo - test IPs are coming through Cloudflare and ELB
         if (!$ipAddress) {
-            $ipAddress = ''; // todo - remember to check IPs are coming through Cloudflare and ELB
+            $ipAddress = '';
         }
 
         $ipHash = $this->makeContentHash($ipAddress);
