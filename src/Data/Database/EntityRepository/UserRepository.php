@@ -8,7 +8,6 @@ use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
 use App\Domain\ValueObject\Colour;
-use App\Service\Oauth\AbstractOAuthService;
 use App\Service\Oauth\OAuthServiceInterface;
 use App\Service\UsersService;
 use Doctrine\ORM\Query;

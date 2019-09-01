@@ -49,18 +49,19 @@ class UsersService extends AbstractService
         throw new InvalidTokenException('Unexpected token type');
     }
 
+    // phpcs:disable Squiz.PHP.CommentedOutCode.Found
     public function allowedToMakeAnonymousUser(?string $ipAddress): bool
     {
         return true; // todo - test IPs are coming through Cloudflare and ELB
-        if (!$ipAddress) {
-            $ipAddress = '';
-        }
-
-        $ipHash = $this->makeContentHash($ipAddress);
-        $max = $this->applicationConfig->getMaxUsersPerIp();
-        return (
-            $this->entityManager->getUserRepo()->countByIpHash($ipHash) < $max
-        );
+//        if (!$ipAddress) {
+//            $ipAddress = '';
+//        }
+//
+//        $ipHash = $this->makeContentHash($ipAddress);
+//        $max = $this->applicationConfig->getMaxUsersPerIp();
+//        return (
+//            $this->entityManager->getUserRepo()->countByIpHash($ipHash) < $max
+//        );
     }
 
     public function getNewAnonymousUser(?string $ipAddress): User
