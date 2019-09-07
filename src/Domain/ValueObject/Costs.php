@@ -8,10 +8,6 @@ class Costs
     // costs of things to do
     public const ACTION_REQUEST_SHIP_NAME = 500;
 
-    // delta values of state changes
-    public const DELTA_SHIP_DEPARTURE = 1;
-    public const DELTA_SHIP_ARRIVAL = -self::DELTA_SHIP_DEPARTURE;
-
     // health
     public const SMALL_HEALTH = 500;
     public const SMALL_HEALTH_INCREASE = 100;

@@ -20,7 +20,7 @@ class LockedTransaction extends Transaction
     {
         return [
             'available' => false,
-            'requirement' => 'Requires: ' . $this->minimumRank->getName(),
+            'requirement' => 'Minimum rank: ' . $this->minimumRank->getName(),
         ];
     }
 }
