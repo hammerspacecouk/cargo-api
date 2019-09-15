@@ -10,6 +10,11 @@ class AuthProvider implements \JsonSerializable
     public const PROVIDER_GOOGLE = 'google';
     public const PROVIDER_MICROSOFT = 'microsoft';
 
+    public const ALL_PROVIDERS = [
+        self::PROVIDER_GOOGLE,
+        self::PROVIDER_MICROSOFT,
+    ];
+
     private $provider;
     private $removalToken;
 

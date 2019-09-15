@@ -1,29 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Home;
+namespace App\Controller\Admin;
 
-use App\Controller\CacheControlResponseTrait;
-use App\Controller\UserAuthenticationTrait;
 use App\Service\AuthenticationService;
 use App\Service\ConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 use function App\Functions\DateTimes\jsonDecode;
 
-class ConfigAction
+class ConfigAction extends AbstractAdminAction
 {
-    use CacheControlResponseTrait;
-    use UserAuthenticationTrait;
-
     private $configService;
-    private $authenticationService;
 
     public static function getRouteDefinition(): Route
     {
-        return new Route('/config', [
+        return new Route('/admin/config', [
             '_controller' => self::class,
         ]);
     }
@@ -32,20 +25,12 @@ class ConfigAction
         AuthenticationService $authenticationService,
         ConfigService $configService
     ) {
+        parent::__construct($authenticationService);
         $this->configService = $configService;
-        $this->authenticationService = $authenticationService;
     }
 
-    // health status of the application itself
-    public function __invoke(Request $request): Response
+    public function invoke(Request $request): Response
     {
-        $user = $this->getUser($request, $this->authenticationService);
-
-        if (!$user->isAdmin()) {
-            // Don't tell the world this page exists. Oh wait; it's in a public git repo!
-            throw new NotFoundHttpException('Not Found');
-        }
-
         if ($request->isMethod('POST')) {
             $data = jsonDecode($request->get('config'));
             $this->configService->setConfig($data);
@@ -70,6 +55,6 @@ class ConfigAction
         BODY;
 
 
-        return $this->noCacheResponse(new Response($body));
+        return new Response($body);
     }
 }

@@ -14,6 +14,7 @@ class Event extends Entity implements \JsonSerializable
 
     public const ACTION_EFFECT_USE = 'effect_use';
     public const ACTION_EFFECT_OFFENCE = 'effect_offence';
+    public const ACTION_EFFECT_DESTROYED = 'effect_destroyed';
 
     public const ACTION_PLAYER_NEW = 'player_new';
     public const ACTION_PLAYER_PROMOTION = 'player_promotion';

@@ -430,10 +430,9 @@ class EffectsService extends AbstractService
                 if ($damage === -1) {
                     $damage = $ship->strength; // destroy the ship
                 }
-                $this->entityManager->getShipRepo()->updateStrengthValue($ship, -$damage);
-
                 $this->entityManager->getEventRepo()
                     ->logOffence($actioningShipEntity, $portEntity, $ship, $playerEffect->effect, $damage);
+                $this->entityManager->getShipRepo()->updateStrengthValue($ship, -$damage);
             }
 
             $this->entityManager->getUserEffectRepo()->useEffect($playerEffect);
