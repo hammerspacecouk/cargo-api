@@ -181,7 +181,8 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         int $damage
     ) {
         return $this->log(
-            ($damage >= $affectedShip->strength) ? DomainEvent::ACTION_EFFECT_DESTROYED : DomainEvent::ACTION_EFFECT_OFFENCE,
+            ($damage >= $affectedShip->strength) ?
+                DomainEvent::ACTION_EFFECT_DESTROYED : DomainEvent::ACTION_EFFECT_OFFENCE,
             static function (Event $entity) use ($attackingShip, $affectedShip, $inPort, $effect, $damage) {
                 $entity->actioningShip = $attackingShip;
                 $entity->subjectShip = $affectedShip;
