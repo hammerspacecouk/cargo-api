@@ -39,7 +39,7 @@ class MakeAdminCommand extends AbstractCommand
         OutputInterface $output
     ) {
         $uuid = Uuid::fromString($this->getStringArgument($input, 'uuid'));
-        /** @var User $entity */
+        /** @var User|null $entity */
         $entity = $this->entityManager->getUserRepo()->getByID($uuid, Query::HYDRATE_OBJECT);
 
         if (!$entity) {
