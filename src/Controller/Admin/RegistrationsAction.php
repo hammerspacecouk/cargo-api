@@ -48,6 +48,5 @@ class RegistrationsAction extends AbstractAdminAction
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         return $response;
-
     }
 }

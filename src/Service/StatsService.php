@@ -43,7 +43,7 @@ class StatsService extends AbstractService
 
         $allRanks = $this->entityManager->getPlayerRankRepo()->getList();
 
-        return array_map(function($rank) use ($results) {
+        return array_map(function ($rank) use ($results) {
             $countResult = find(function ($result) use ($rank) {
                 /** @var UuidInterface $id */
                 $id = $result['id'];
@@ -54,7 +54,6 @@ class StatsService extends AbstractService
                 'name' => $rank['name'],
                 'count' => $countResult ? $countResult['theCount'] : 0,
             ];
-
         }, $allRanks);
     }
 
@@ -110,14 +109,6 @@ class StatsService extends AbstractService
         }
 
         $dateCounter = $since;
-        if (!$dateCounter) {
-            $dateCounter = new DateTimeImmutable($results[0]['theDate']);
-        }
-        if (!$until) {
-            $until = $this->dateTimeFactory->now();
-        }
-
-
         while ($dateCounter <= $until) {
             $date = $dateCounter->format('Y-m-d');
             if (!isset($table[$date])) {
