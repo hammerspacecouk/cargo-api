@@ -5,14 +5,11 @@ namespace App\Controller\Security;
 
 use App\Controller\CacheControlResponseTrait;
 use App\Controller\UserAuthenticationTrait;
-use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
-use League\OAuth2\Client\Provider\AbstractProvider;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,13 +66,10 @@ abstract class AbstractLoginAction
         $cookie = $this->authenticationService->makeNewAuthenticationCookie($user);
         $url = $url ?? $this->getDefaultRedirectUrl();
 
-        // if this is a brand new user, send them to their first ship
+        // if this is a brand new user, send them to the intro page
+        // todo - check the user's rank instead
         if ($user->getScore()->getScore() === 0) { // new users have no score (cheap check)
-            /** @var Ship[] $ships */
-            $ships = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1);
-            if (isset($ships[0])) {
-                $url = $this->applicationConfig->getWebHostname() . '/play/' . $ships[0]->getId()->toString();
-            }
+            $url = $this->applicationConfig->getWebHostname() . '/play/intro';
         }
 
         $response = new RedirectResponse($url);
