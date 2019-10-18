@@ -54,10 +54,11 @@ class PortsService extends AbstractService
             ->setParameter('id', $userId->getBytes());
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
-        if (!$result) {
+        $mapped = $this->mapSingle($result['homePort']);
+        if (!$mapped) {
             throw new \LogicException('All users have a home port');
         }
-        return $this->mapSingle($result['homePort']);
+        return $mapped;
     }
 
     private function getMapper(): PortMapper
