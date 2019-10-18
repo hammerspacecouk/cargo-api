@@ -253,6 +253,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $destination->equals($homePort),
                 $journeyTimeSeconds,
                 $earnings,
+                $this->shipLocationsService->getLatestVisitTimeForPort($user, $destination)
             );
 
             $token = null;

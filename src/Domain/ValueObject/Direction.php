@@ -59,6 +59,7 @@ class Direction implements \JsonSerializable
             'isAllowed' => $this->isAllowedToEnter(),
             'denialReason' => $this->getDenialReason(),
             'isHomePort' => $this->isHomePort,
+            'lastVisitTime' => $this->lastVisitTime ? $this->lastVisitTime->format('c') : null,
         ];
     }
 

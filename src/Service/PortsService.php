@@ -46,7 +46,7 @@ class PortsService extends AbstractService
 
     public function findHomePortForUserId(
         UuidInterface $userId
-    ): ?Port {
+    ): Port {
         $qb = $this->getQueryBuilder(DbUser::class)
             ->select('tbl', 'p')
             ->innerJoin('tbl.homePort', 'p')
@@ -54,7 +54,9 @@ class PortsService extends AbstractService
             ->setParameter('id', $userId->getBytes());
 
         $result = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
-
+        if (!$result) {
+            throw new \LogicException('All users have a home port');
+        }
         return $this->mapSingle($result['homePort']);
     }
 
