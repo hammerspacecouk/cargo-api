@@ -10,7 +10,6 @@ use App\Domain\Entity\UserAuthentication;
 use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
-use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
 use DateInterval;
 use DateTimeImmutable;
@@ -145,6 +144,13 @@ class AuthenticationService extends AbstractService
             $providers[] = $this->setupAuthProvider(
                 AuthProvider::PROVIDER_MICROSOFT,
                 $userEntity->microsoftId !== null,
+                $user
+            );
+        }
+        if ($this->applicationConfig->isLoginRedditEnabled()) {
+            $providers[] = $this->setupAuthProvider(
+                AuthProvider::PROVIDER_REDDIT,
+                $userEntity->redditId !== null,
                 $user
             );
         }

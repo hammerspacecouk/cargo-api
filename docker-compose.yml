@@ -3,7 +3,7 @@ version: "3"
 
 services:
   cargo-api-php:
-    image: planet-cargo-base-php:latest
+    image: 490285377149.dkr.ecr.eu-west-2.amazonaws.com/php-base-image:latest
     volumes:
       - .:/var/www
     working_dir: /var/www

@@ -72,27 +72,6 @@ services:
       - '%env(TOKEN_PRIVATE_KEY)%'
       - '%env(APP_VERSION)%'
 
-
-  Facebook\Facebook:
-    class: Facebook\Facebook
-    arguments:
-      - app_id: '%env(OAUTH_FACEBOOK_APP_ID)%'
-        app_secret: '%env(OAUTH_FACEBOOK_APP_SECRET)%'
-        http_client_handler: '@App\Data\OAuth\Facebook\HttpClient'
-
-  Abraham\TwitterOAuth\TwitterOAuth:
-    class: Abraham\TwitterOAuth\TwitterOAuth
-    arguments:
-      - '%env(OAUTH_TWITTER_API_KEY)%'
-      - '%env(OAUTH_TWITTER_API_SECRET)%'
-
-  Stevenmaguire\OAuth2\Client\Provider\Microsoft:
-    class: Stevenmaguire\OAuth2\Client\Provider\Microsoft
-    arguments:
-      - clientId: '%env(OAUTH_MICROSOFT_APP_ID)%'
-        clientSecret: '%env(OAUTH_MICROSOFT_APP_SECRET)%'
-        redirectUri: '%env(OAUTH_MICROSOFT_APP_REDIRECT)%'
-
   GuzzleHttp\Client:
     class: GuzzleHttp\Client
 
@@ -156,6 +135,18 @@ services:
         urlAccessToken: 'https://graph.facebook.com/oauth/access_token'
         urlResourceOwnerDetails: 'https://graph.facebook.com/me?fields=id'
 
+  OAuthReddit:
+    class: App\Infrastructure\RedditOauthProvider
+    arguments:
+      - clientId: '%env(OAUTH_REDDIT_CLIENT_ID)%'
+        clientSecret: '%env(OAUTH_REDDIT_CLIENT_SECRET)%'
+        redirectUri: '%env(CONFIG_HOSTNAME_API)%/login/reddit'
+        urlAuthorize: 'https://www.reddit.com/api/v1/authorize.compact'
+        urlAccessToken: 'https://api.reddit.com/api/v1/access_token'
+        urlResourceOwnerDetails: 'https://oauth.reddit.com/api/v1/me'
+        scopes:
+          - 'identity'
+
   App\Controller\Security\LoginGoogleAction:
     class: App\Controller\Security\LoginGoogleAction
     tags: ['controller.service_arguments']
@@ -171,3 +162,11 @@ services:
       - '@OAuthMicrosoft'
       - '@App\Controller\Security\OAuthHandler'
       - '@App\Service\Oauth\MicrosoftService'
+
+  App\Controller\Security\LoginRedditAction:
+    class: App\Controller\Security\LoginRedditAction
+    tags: ['controller.service_arguments']
+    arguments:
+      - '@OAuthReddit'
+      - '@App\Controller\Security\OAuthHandler'
+      - '@App\Service\Oauth\RedditService'

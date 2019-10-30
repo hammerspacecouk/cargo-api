@@ -25,6 +25,9 @@ class User extends AbstractEntity
     /** @ORM\Column(type="binary", nullable=true, unique=true)) */
     public $microsoftId;
 
+    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
+    public $redditId;
+
     /** @ORM\Column(type="binary", nullable=true)) */
     public $anonymousIpHash;
 

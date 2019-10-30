@@ -12,19 +12,22 @@ class LoginOptions implements \JsonSerializable
     private $google;
     private $microsoft;
     private $twitter;
+    private $reddit;
 
     public function __construct(
         ?SimpleDataToken $loginAnonToken = null,
         bool $facebook = false,
         bool $google = false,
         bool $microsoft = false,
-        bool $twitter = false
+        bool $twitter = false,
+        bool $reddit = false
     ) {
         $this->loginAnonToken = $loginAnonToken;
         $this->facebook = $facebook;
         $this->google = $google;
         $this->microsoft = $microsoft;
         $this->twitter = $twitter;
+        $this->reddit = $reddit;
     }
 
     public function jsonSerialize()
@@ -48,6 +51,9 @@ class LoginOptions implements \JsonSerializable
         }
         if ($this->twitter) {
             $data['twitter'] = '/login/twitter';
+        }
+        if ($this->reddit) {
+            $data['reddit'] = '/login/reddit';
         }
 
         return $data;

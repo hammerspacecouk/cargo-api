@@ -9,6 +9,7 @@ class AuthProvider implements \JsonSerializable
 {
     public const PROVIDER_GOOGLE = 'google';
     public const PROVIDER_MICROSOFT = 'microsoft';
+    public const PROVIDER_REDDIT = 'reddit';
 
     public const ALL_PROVIDERS = [
         self::PROVIDER_GOOGLE,

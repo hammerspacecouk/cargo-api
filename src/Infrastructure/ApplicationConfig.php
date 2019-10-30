@@ -8,11 +8,12 @@ use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
 
 class ApplicationConfig
 {
-    private const LOGIN_ANON        = 0b000000000000001;
-    private const LOGIN_GOOGLE      = 0b000000000000010;
-    private const LOGIN_FACEBOOK    = 0b000000000000100;
-    private const LOGIN_TWITTER     = 0b000000000001000;
-    private const LOGIN_MICROSOFT   = 0b000000000010000;
+    private const LOGIN_ANON        = 1;
+    private const LOGIN_GOOGLE      = 1 << 1;
+    private const LOGIN_FACEBOOK    = 1 << 2;
+    private const LOGIN_TWITTER     = 1 << 3;
+    private const LOGIN_MICROSOFT   = 1 << 4;
+    private const LOGIN_REDDIT      = 1 << 5;
 
     private $environment;
     private $hostnameApi;
@@ -31,6 +32,7 @@ class ApplicationConfig
     private $loginFacebookEnabled;
     private $loginTwitterEnabled;
     private $loginMicrosoftEnabled;
+    private $loginRedditEnabled;
 
     public function __construct(
         string $environment,
@@ -66,6 +68,7 @@ class ApplicationConfig
         $this->loginFacebookEnabled = (bool)($flags & self::LOGIN_FACEBOOK);
         $this->loginTwitterEnabled = (bool)($flags & self::LOGIN_TWITTER);
         $this->loginMicrosoftEnabled = (bool)($flags & self::LOGIN_MICROSOFT);
+        $this->loginRedditEnabled = (bool)($flags & self::LOGIN_REDDIT);
     }
 
     public function getEnvironment(): string
@@ -160,5 +163,10 @@ class ApplicationConfig
     public function isLoginMicrosoftEnabled(): bool
     {
         return $this->loginMicrosoftEnabled;
+    }
+
+    public function isLoginRedditEnabled(): bool
+    {
+        return $this->loginRedditEnabled;
     }
 }

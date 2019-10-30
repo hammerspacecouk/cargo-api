@@ -25,6 +25,7 @@ $actions = [
     Controller\Security\LoginAnonymousAction::class,
     Controller\Security\LoginGoogleAction::class,
     Controller\Security\LoginMicrosoftAction::class,
+    Controller\Security\LoginRedditAction::class,
 
     // ports
     Controller\Ports\ListAction::class,
