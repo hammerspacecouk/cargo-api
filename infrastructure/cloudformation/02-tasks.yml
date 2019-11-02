@@ -134,6 +134,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
             - Name: OAUTH_GOOGLE_CLIENT_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_REDDIT_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_ID
             - Name: OAUTH_FACEBOOK_APP_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
             - Name: OAUTH_MICROSOFT_APP_ID
@@ -151,6 +153,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
             - Name: OAUTH_GOOGLE_CLIENT_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_REDDIT_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_SECRET
             - Name: OAUTH_MICROSOFT_APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
             - Name: OAUTH_TWITTER_API_SECRET
@@ -222,6 +226,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
             - Name: OAUTH_GOOGLE_CLIENT_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_REDDIT_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_ID
             - Name: OAUTH_FACEBOOK_APP_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
             - Name: OAUTH_MICROSOFT_APP_ID
@@ -239,6 +245,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
             - Name: OAUTH_GOOGLE_CLIENT_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_REDDIT_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_SECRET
             - Name: OAUTH_MICROSOFT_APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
             - Name: OAUTH_TWITTER_API_SECRET
@@ -297,6 +305,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
             - Name: OAUTH_GOOGLE_CLIENT_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_REDDIT_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_ID
             - Name: OAUTH_FACEBOOK_APP_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
             - Name: OAUTH_MICROSOFT_APP_ID
@@ -314,6 +324,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
             - Name: OAUTH_GOOGLE_CLIENT_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_REDDIT_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_SECRET
             - Name: OAUTH_MICROSOFT_APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
             - Name: OAUTH_TWITTER_API_SECRET
@@ -372,6 +384,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
             - Name: OAUTH_GOOGLE_CLIENT_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_REDDIT_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_ID
             - Name: OAUTH_FACEBOOK_APP_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
             - Name: OAUTH_MICROSOFT_APP_ID
@@ -389,6 +403,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
             - Name: OAUTH_GOOGLE_CLIENT_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_REDDIT_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_SECRET
             - Name: OAUTH_MICROSOFT_APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
             - Name: OAUTH_TWITTER_API_SECRET
@@ -449,6 +465,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/MAILER_HOST
             - Name: OAUTH_GOOGLE_CLIENT_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_ID
+            - Name: OAUTH_REDDIT_CLIENT_ID
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_ID
             - Name: OAUTH_FACEBOOK_APP_ID
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_ID
             - Name: OAUTH_MICROSOFT_APP_ID
@@ -466,6 +484,8 @@ Resources:
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_FACEBOOK_APP_SECRET
             - Name: OAUTH_GOOGLE_CLIENT_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_GOOGLE_CLIENT_SECRET
+            - Name: OAUTH_REDDIT_CLIENT_SECRET
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_REDDIT_CLIENT_SECRET
             - Name: OAUTH_MICROSOFT_APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_MICROSOFT_APP_SECRET
             - Name: OAUTH_TWITTER_API_SECRET
