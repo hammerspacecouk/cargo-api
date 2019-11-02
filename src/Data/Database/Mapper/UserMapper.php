@@ -31,7 +31,8 @@ class UserMapper extends Mapper
     {
         return !(
             $item['googleId'] ||
-            $item['microsoftId']
+            $item['microsoftId'] ||
+            $item['redditId']
         );
     }
 

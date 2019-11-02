@@ -421,7 +421,7 @@ Resources:
             - "bin/console"
             - "doctrine:migrations:migrate"
             - "-n"
-            - "--env=migrations"
+            - "--env=prod"
 
   TimedTaskDefinition:
     Type: AWS::ECS::TaskDefinition

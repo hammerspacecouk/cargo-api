@@ -3,14 +3,18 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
+use App\Data\Database\Entity\ShipLocation;
 use App\Data\Database\Entity\User;
+use DateInterval;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class ShipRepository extends AbstractEntityRepository
+class ShipRepository extends AbstractEntityRepository implements CleanableInterface
 {
     public function getShipForOwnerId(
         UuidInterface $shipId,
@@ -98,5 +102,20 @@ class ShipRepository extends AbstractEntityRepository
         $this->getEntityManager()->flush();
 
         return $newStrength;
+    }
+
+    public function removeDestroyed(DateTimeImmutable $before): int
+    {
+        $entity = Ship::class;
+        $sql = "DELETE FROM $entity t WHERE t.strength = 0 AND t.updatedAt < :beforeTime";
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('beforeTime', $before);
+        return $query->execute();
+    }
+
+    public function clean(DateTimeImmutable $now): int
+    {
+        return $this->removeDestroyed($now->sub(new DateInterval('P7D')));
     }
 }

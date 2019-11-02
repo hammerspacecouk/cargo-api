@@ -207,6 +207,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->join('player.lastRankSeen', 'rank')
             ->join('ship.shipClass', 'shipClass')
             ->where('tbl.isCurrent = 1')
+            ->andWhere('ship.strength > 0')
             ->andWhere('shipClass.capacity = :capacity')
             ->andWhere('tbl.entryTime <= :before')
             ->setMaxResults($limit)
