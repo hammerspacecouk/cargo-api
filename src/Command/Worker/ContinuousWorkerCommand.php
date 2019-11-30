@@ -17,6 +17,7 @@ abstract class ContinuousWorkerCommand extends Command
 {
     protected const BATCH_SIZE = 100;
     private const MAX_MEMORY_PERCENT = 90;
+    private const MAX_TIME = 60 * 60 * 12;
 
     protected $logger;
     protected $dateTimeFactory;
@@ -47,7 +48,9 @@ abstract class ContinuousWorkerCommand extends Command
         // run forever (unless an exit condition is reached)
         $usedMemory = 0;
         $memoryPercent = 0;
-        while ($memoryPercent < self::MAX_MEMORY_PERCENT) {
+        $startTime = time();
+        $nowTime = 0;
+        while ($memoryPercent < self::MAX_MEMORY_PERCENT && $nowTime < self::MAX_TIME) {
             // reset the time at the start each loop
             $now = $this->dateTimeFactory->now();
 
@@ -69,6 +72,7 @@ abstract class ContinuousWorkerCommand extends Command
             // check we're good on memory
             $usedMemory = \memory_get_usage();
             $memoryPercent = ($usedMemory / $memoryLimitBytes) * 100;
+            $nowTime = time() - $startTime;
             $this->logger->info("[MEMORY_USAGE_PERCENT] $memoryPercent");
         }
         $this->logger->notice("[FINAL_MEMORY_USAGE] $usedMemory");

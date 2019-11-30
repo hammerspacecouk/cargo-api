@@ -52,46 +52,6 @@ class UpgradesService extends AbstractService
         }, $allClasses);
     }
 
-    public function getAvailableEffectsByDisplayTypeForUserAndPort(
-        User $user,
-        Port $port,
-        Ship $ship,
-        string $type
-    ): array {
-        // todo - use $port to reduce the list
-
-        // get the full list, then blank out any that aren't met by the rank
-        $allEffectsGrouped = $this->entityManager->getEffectRepo()->getAllPurchasableByDisplayType($type);
-
-        $mapper = $this->mapperFactory->createEffectMapper();
-        return array_map(function ($result) use ($user, $ship, $mapper): ?Transaction {
-            $mapped = $mapper->getEffect($result);
-            if (!$user->getRank()->meets($mapped->getMinimumRank())) {
-                return null;
-            }
-
-            $purchaseToken = null;
-            $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
-                $user->getId(),
-                $mapped->getId(),
-                $ship->getId(),
-                $mapped->getPurchaseCost(),
-            ));
-            $purchaseToken = new PurchaseEffectToken(
-                $rawToken->getJsonToken(),
-                (string)$rawToken,
-                TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
-            );
-
-            return new Transaction(
-                $mapped->getPurchaseCost(),
-                $purchaseToken,
-                $this->entityManager->getUserEffectRepo()->countForUserId($mapped->getId(), $user->getId()),
-                $mapped
-            );
-        }, $allEffectsGrouped);
-    }
-
     public function parsePurchaseShipToken(
         string $tokenString
     ): PurchaseShipToken {

@@ -18,6 +18,7 @@ use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserEffect;
 use App\Domain\Exception\OutdatedMoveException;
+use App\Domain\ValueObject\LockedTransaction;
 use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
@@ -34,12 +35,22 @@ class EffectsService extends AbstractService
 {
     private $userEffectsCache = [];
 
-    public function getAvailableEffectsForLocation(Ship $ship, User $user, ShipLocation $shipLocation): array
+    public function getEffectsForLocation(Ship $ship, User $user, Port $currentPort): array
+    {
+        $allEffects = $this->getAllPurchasable(); //future todo - effects to buy vary by location
+        return array_map(function (Effect $effect) use ($ship, $user, $currentPort) {
+            if (!$user->getRank()->meets($effect->getMinimumRank())) {
+                return new LockedTransaction($effect->getMinimumRank());
+            }
+            return $this->getPurchaseEffectTransaction($user, $effect, $ship, $currentPort);
+        }, $allEffects);
+    }
+
+    public function getUserEffectsForLocation(Ship $ship, User $user, ShipLocation $shipLocation): array
     {
         $isInPort = $shipLocation instanceof ShipInPort;
         $isInChannel = $shipLocation instanceof ShipInChannel;
 
-        $allEffects = $this->getAll();
         $userEffects = $this->getOwnedEffectsForUser($user);
         $countsOfType = $this->getCountsPerEffect($userEffects);
 
@@ -47,47 +58,36 @@ class EffectsService extends AbstractService
         $activeShipEffects = $this->getActiveEffectsForShip($ship);
 
         $availableEffects = [];
-        foreach ($allEffects as $effect) {
-            // filter out items that can't be used in this location
-            if (($isInPort && !$effect->canBeUsedInPort()) || ($isInChannel && !$effect->canBeUsedInChannel())) {
-                continue;
-            }
-
+        foreach ($userEffects as $userEffect) {
+            $effect = $userEffect->getEffect();
             $availableEffects[] = $this->makeTacticalEffect(
-                $effect,
+                $userEffect,
                 $user,
                 $ship,
                 $shipLocation,
                 $activeShipEffects,
-                $userEffects,
-                $countsOfType
+                $countsOfType,
+                ($isInPort && $effect->canBeUsedInPort()) || ($isInChannel && $effect->canBeUsedInChannel())
             );
         }
         return $availableEffects;
     }
 
     private function makeTacticalEffect(
-        Effect $effect,
+        UserEffect $userEffect,
         User $user,
         Ship $ship,
         ShipLocation $shipLocation,
         array $activeShipEffects,
-        array $userEffects,
-        array $countsOfType
+        array $countsOfType,
+        bool $canBeUsedHere
     ): TacticalEffect {
-        if (!$user->getRank()->meets($effect->getMinimumRank())) {
-            return new TacticalEffect(null, $effect->getMinimumRank());
-        }
+        $effect = $userEffect->getEffect();
 
         /** @var ActiveEffect|null $activeEffect */
         $activeEffect = find(static function (ActiveEffect $activeEffect) use ($effect) {
             return $effect->getId()->equals($activeEffect->getEffect()->getId());
         }, $activeShipEffects);
-
-        /** @var UserEffect|null $userEffect */
-        $userEffect = find(static function (UserEffect $userEffect) use ($effect) {
-            return $effect->getId()->equals($userEffect->getEffect()->getId());
-        }, $userEffects);
 
         $actionToken = null;
         $hitsRemaining = null;
@@ -101,40 +101,37 @@ class EffectsService extends AbstractService
             $hitsRemaining = $activeEffect->getRemainingCount();
             $expiry = $activeEffect->getExpiry();
             $isActive = true;
-        } elseif ($userEffect) {
-            if ($effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()) {
-                if ($shipLocation instanceof ShipInPort) {
-                    $actionToken = $this->getOffenceEffectToken($effect, $userEffect, $ship, $shipLocation->getPort());
-                } else {
-                    throw new \RuntimeException('Should not be able to make offence actions outside of a port');
-                }
-            } elseif ($effect instanceof Effect\DefenceEffect) {
-                $actionToken = $this->getDefenceEffectToken($userEffect, $user, $ship);
-            } elseif ($effect instanceof Effect\TravelEffect) {
-                $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
-            }
+        } elseif (
+            $canBeUsedHere &&
+            $shipLocation instanceof ShipInPort &&
+            $effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()
+        ) {
+            $actionToken = $this->getOffenceEffectToken(
+                $effect,
+                $userEffect,
+                $ship,
+                $shipLocation->getPort()
+            );
+        } elseif ($canBeUsedHere && $effect instanceof Effect\DefenceEffect) {
+            $actionToken = $this->getDefenceEffectToken($userEffect, $user, $ship);
+        } elseif ($canBeUsedHere && $effect instanceof Effect\TravelEffect) {
+            $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
         }
 
         if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
             $shipSelect = true; // no actionToken
         }
 
-        if ($shipLocation instanceof ShipInPort) {
-            $purchaseToken = $this->getPurchaseEffectTransaction($user, $effect, $ship, $shipLocation->getPort());
-        }
-
         return new TacticalEffect(
             $effect,
-            $effect->getMinimumRank(),
             $isActive,
             $userEffect,
             $activeEffect,
             $shipSelect,
-            $countsOfType[$effect->getId()->toString()] ?? 0,
+            $countsOfType[$effect->getId()->toString()],
             $hitsRemaining,
             $expiry,
-            $actionToken,
-            $purchaseToken
+            $actionToken
         );
     }
 
@@ -144,10 +141,6 @@ class EffectsService extends AbstractService
         Ship $ship,
         Port $port
     ): ?Transaction {
-        if (!$effect->canBePurchased()) {
-            return null;
-        }
-
         $cost = $effect->getPurchaseCost();
         if ($port->isSafe()) {
             // prices are more expensive in safe places
@@ -166,7 +159,7 @@ class EffectsService extends AbstractService
             (string)$rawToken,
             TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
         );
-        return new Transaction($cost, $purchaseToken);
+        return new Transaction($cost, $purchaseToken, 0, $effect);
     }
 
     private function getOffenceEffectToken(
@@ -345,6 +338,12 @@ class EffectsService extends AbstractService
         return $this->mapMany($this->entityManager->getEffectRepo()->getAll());
     }
 
+
+    private function getAllPurchasable(): array
+    {
+        return $this->mapMany($this->entityManager->getEffectRepo()->getAllPurchasable());
+    }
+
     private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createEffectMapper();
@@ -353,6 +352,10 @@ class EffectsService extends AbstractService
         }, $results);
     }
 
+    /**
+     * @param User $user
+     * @return UserEffect[]
+     */
     private function getOwnedEffectsForUser(User $user): array
     {
         // this method has a cache to reuse it during the same request

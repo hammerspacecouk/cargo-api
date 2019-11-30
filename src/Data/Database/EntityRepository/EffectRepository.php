@@ -29,10 +29,10 @@ class EffectRepository extends AbstractEntityRepository
         return $data;
     }
 
-    public function getAllPurchasableByDisplayType(string $type): array
+    public function getAllPurchasable(): array
     {
-        return \array_values(\array_filter($this->getAll(), static function ($result) use ($type) {
-            return ($result['displayGroup'] === $type && $result['purchaseCost'] > 0);
+        return \array_values(\array_filter($this->getAll(), static function ($result) {
+            return ($result['purchaseCost'] > 0);
         }));
     }
 

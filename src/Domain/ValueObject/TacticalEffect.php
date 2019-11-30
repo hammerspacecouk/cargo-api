@@ -5,7 +5,6 @@ namespace App\Domain\ValueObject;
 
 use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
-use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 use DateTimeImmutable;
@@ -13,20 +12,17 @@ use DateTimeImmutable;
 class TacticalEffect implements \JsonSerializable
 {
     private $effect;
-    private $minimumRank;
     private $currentCount;
     private $hitsRemaining;
     private $activeExpiry;
     private $actionToken;
     private $shipSelect;
-    private $purchaseEffectTransaction;
     private $userEffect;
     private $isActive;
     private $activeEffect;
 
     public function __construct(
         ?Effect $effect,
-        PlayerRank $minimumRank,
         bool $isActive = false,
         ?UserEffect $userEffect = null,
         ?ActiveEffect $activeEffect = null,
@@ -34,18 +30,15 @@ class TacticalEffect implements \JsonSerializable
         int $currentCount = 0,
         ?int $hitsRemaining = 0,
         DateTimeImmutable $activeExpiry = null,
-        AbstractActionToken $actionToken = null,
-        Transaction $purchaseEffectTransaction = null
+        AbstractActionToken $actionToken = null
     ) {
 
         $this->effect = $effect;
-        $this->minimumRank = $minimumRank;
         $this->currentCount = $currentCount;
         $this->hitsRemaining = $hitsRemaining;
         $this->activeExpiry = $activeExpiry;
         $this->actionToken = $actionToken;
         $this->shipSelect = $shipSelect;
-        $this->purchaseEffectTransaction = $purchaseEffectTransaction;
         $this->userEffect = $userEffect;
         $this->isActive = $isActive;
         $this->activeEffect = $activeEffect;
@@ -53,10 +46,6 @@ class TacticalEffect implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        if (!$this->effect) {
-            return ['minimumRank' => $this->minimumRank];
-        }
-
         return [
             'effect' => $this->effect,
             'currentCount' => $this->currentCount,
@@ -65,7 +54,6 @@ class TacticalEffect implements \JsonSerializable
             'expiry' => $this->activeExpiry ? $this->activeExpiry->format('c') : null,
             'isActive' => $this->isActive,
             'mustSelectShip' => $this->shipSelect,
-            'purchaseToken' => $this->purchaseEffectTransaction,
         ];
     }
 

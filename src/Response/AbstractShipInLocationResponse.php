@@ -90,8 +90,8 @@ abstract class AbstractShipInLocationResponse
         ShipLocation $shipInLocation
     ): array {
         $rankStatus = $this->playerRanksService->getForUser($user);
-        $baseData = [
-            'tacticalOptions' => $this->effectsService->getAvailableEffectsForLocation($ship, $user, $shipInLocation),
+        return [
+            'tacticalOptions' => $this->effectsService->getUserEffectsForLocation($ship, $user, $shipInLocation),
             'ship' => $ship,
             'status' => $shipInLocation->getStatus(),
             'port' => null,
@@ -110,6 +110,5 @@ abstract class AbstractShipInLocationResponse
                 $this->shipHealthService->getLargeHealthTransaction($user, $ship),
             ],
         ];
-        return $baseData;
     }
 }

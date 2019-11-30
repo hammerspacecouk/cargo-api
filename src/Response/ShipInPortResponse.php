@@ -96,6 +96,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         $data['port'] = $port;
+        $data['effectsToPurchase'] = $this->effectsService->getEffectsForLocation($ship, $user, $port);
         $data['tutorialStep'] = $tutorialStep;
         $data['directions'] = $directions;
         $data['shipsInLocation'] = $otherShips;
