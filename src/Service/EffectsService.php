@@ -101,8 +101,7 @@ class EffectsService extends AbstractService
             $hitsRemaining = $activeEffect->getRemainingCount();
             $expiry = $activeEffect->getExpiry();
             $isActive = true;
-        } elseif (
-            $canBeUsedHere &&
+        } elseif ($canBeUsedHere &&
             $shipLocation instanceof ShipInPort &&
             $effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()
         ) {
