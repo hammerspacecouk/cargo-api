@@ -22,7 +22,7 @@ class TacticalEffect implements \JsonSerializable
     private $activeEffect;
 
     public function __construct(
-        ?Effect $effect,
+        Effect $effect,
         bool $isActive = false,
         ?UserEffect $userEffect = null,
         ?ActiveEffect $activeEffect = null,
@@ -62,7 +62,7 @@ class TacticalEffect implements \JsonSerializable
         return $this->isActive;
     }
 
-    public function getEffect(): ?Effect
+    public function getEffect(): Effect
     {
         return $this->effect;
     }

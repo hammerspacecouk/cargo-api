@@ -54,22 +54,53 @@ class EffectsService extends AbstractService
         $userEffects = $this->getOwnedEffectsForUser($user);
         $countsOfType = $this->getCountsPerEffect($userEffects);
 
-        /** @var DbActiveEffect[] $activeShipEffects */
         $activeShipEffects = $this->getActiveEffectsForShip($ship);
 
         $availableEffects = [];
+        $seenEffects = []; // for de-duping
+
+        // add the active effects first
+        foreach ($activeShipEffects as $activeEffect) {
+            $id = $activeEffect->getEffect()->getId()->toString();
+            if (array_key_exists($id, $seenEffects)) {
+                continue; // only need one of each type of effect
+            }
+
+            $availableEffects[] = new TacticalEffect(
+                $activeEffect->getEffect(),
+                true,
+                null,
+                $activeEffect,
+                false,
+                $countsOfType[$id] ?? 0,
+                $activeEffect->getRemainingCount(),
+                $activeEffect->getExpiry()
+            );
+            $seenEffects[$id] = true;
+        }
+
+        // add the rest of the effects (if not already active)
         foreach ($userEffects as $userEffect) {
             $effect = $userEffect->getEffect();
+            $id = $effect->getId()->toString();
+            if (array_key_exists($id, $seenEffects)) {
+                continue; // only need one of each type of effect
+            }
             $availableEffects[] = $this->makeTacticalEffect(
                 $userEffect,
                 $user,
                 $ship,
                 $shipLocation,
-                $activeShipEffects,
                 $countsOfType,
                 ($isInPort && $effect->canBeUsedInPort()) || ($isInChannel && $effect->canBeUsedInChannel())
             );
+            $seenEffects[$id] = true;
         }
+
+        // order them correctly
+        usort($availableEffects, static function (TacticalEffect $a, TacticalEffect $b) {
+            return $a->getEffect()->sortCompare($b->getEffect());
+        });
         return $availableEffects;
     }
 
@@ -78,30 +109,19 @@ class EffectsService extends AbstractService
         User $user,
         Ship $ship,
         ShipLocation $shipLocation,
-        array $activeShipEffects,
         array $countsOfType,
         bool $canBeUsedHere
     ): TacticalEffect {
         $effect = $userEffect->getEffect();
 
-        /** @var ActiveEffect|null $activeEffect */
-        $activeEffect = find(static function (ActiveEffect $activeEffect) use ($effect) {
-            return $effect->getId()->equals($activeEffect->getEffect()->getId());
-        }, $activeShipEffects);
-
         $actionToken = null;
         $hitsRemaining = null;
-        $isActive = false;
         $expiry = null;
         $shipSelect = false;
         $purchaseToken = null;
 
         // if it's in active effects. populate hitsRemaining or expiry
-        if ($activeEffect) {
-            $hitsRemaining = $activeEffect->getRemainingCount();
-            $expiry = $activeEffect->getExpiry();
-            $isActive = true;
-        } elseif ($canBeUsedHere &&
+        if ($canBeUsedHere &&
             $shipLocation instanceof ShipInPort &&
             $effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()
         ) {
@@ -123,11 +143,11 @@ class EffectsService extends AbstractService
 
         return new TacticalEffect(
             $effect,
-            $isActive,
+            false,
             $userEffect,
-            $activeEffect,
+            null,
             $shipSelect,
-            $countsOfType[$effect->getId()->toString()],
+            $countsOfType[$effect->getId()->toString()] ?? 0,
             $hitsRemaining,
             $expiry,
             $actionToken
@@ -248,7 +268,7 @@ class EffectsService extends AbstractService
         foreach ($availableOffenceEffects as $availableOffenceEffect) {
             $userEffect = $availableOffenceEffect->getUserEffect();
             $effect = $availableOffenceEffect->getEffect();
-            if (!$userEffect || !$effect || !$effect instanceof Effect\OffenceEffect) {
+            if (!$userEffect || !$effect instanceof Effect\OffenceEffect) {
                 throw new \RuntimeException('An offence effect without an effect. Whaa!');
             }
 

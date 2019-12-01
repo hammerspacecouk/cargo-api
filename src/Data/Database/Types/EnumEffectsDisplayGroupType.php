@@ -14,8 +14,8 @@ class EnumEffectsDisplayGroupType extends AbstractEnumType
 
     public const ALL_TYPES = [
         self::TYPE_DEFENCE,
-        self::TYPE_OFFENCE,
         self::TYPE_TRAVEL,
+        self::TYPE_OFFENCE,
         self::TYPE_SPECIAL,
     ];
 }

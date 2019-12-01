@@ -60,6 +60,11 @@ abstract class Effect extends Entity implements \JsonSerializable
         return $this->description;
     }
 
+    public function getDisplayGroup(): string
+    {
+        return $this->displayGroup;
+    }
+
     public function canBePurchased(): bool
     {
         return $this->cost !== null;
@@ -103,5 +108,16 @@ abstract class Effect extends Entity implements \JsonSerializable
     public function getValue(): ?array
     {
         return $this->value;
+    }
+
+    public function sortCompare(Effect $effect)
+    {
+        // returns -1 if this instance should be before $effect
+        $positions = array_flip(EnumEffectsDisplayGroupType::ALL_TYPES);
+        $compare = $positions[$this->getDisplayGroup()] <=> $positions[$effect->getDisplayGroup()];
+        if ($compare === 0) {
+            $compare = $this->getName() <=> $effect->getName(); // https://youtu.be/7TYJyCCO8Dc?t=41
+        }
+        return $compare;
     }
 }
