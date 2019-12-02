@@ -133,7 +133,7 @@ class EffectsService extends AbstractService
             );
         } elseif ($canBeUsedHere && $effect instanceof Effect\DefenceEffect) {
             $actionToken = $this->getDefenceEffectToken($userEffect, $user, $ship);
-        } elseif ($canBeUsedHere && $effect instanceof Effect\TravelEffect) {
+        } elseif ($canBeUsedHere && $effect instanceof Effect\TravelEffect && !$ship->isProbe()) {
             $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
         }
 

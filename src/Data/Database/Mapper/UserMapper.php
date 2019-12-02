@@ -13,7 +13,7 @@ class UserMapper extends Mapper
 {
     public function getUser(array $item): User
     {
-        $domainEntity = new User(
+        return new User(
             $item['id'],
             $item['rotationSteps'],
             new Colour($item['colour']),
@@ -24,7 +24,6 @@ class UserMapper extends Mapper
             $this->mapHomePort($item),
             $this->mapRank($item),
         );
-        return $domainEntity;
     }
 
     private function isAnonymous($item): bool

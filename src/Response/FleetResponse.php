@@ -30,23 +30,24 @@ class FleetResponse
         }, $allShips);
 
         // order the ships. At the top should be those that need attention.
-        // At the bottom should be the destroyed ships
-        // the rest should be ordered by name
         \usort($fleetShips, static function ($a, $b) {
             /** @var Ship $shipA */
             $shipA = $a['ship'];
             /** @var Ship $shipB */
             $shipB = $b['ship'];
 
-            if ($a['needsAttention'] !== $b['needsAttention']) {
-                return (int)$b['needsAttention'] - (int)$a['needsAttention'];
-            }
-
+            // damaged ships to the bottom
             if ($shipA->isDestroyed() !== $shipB->isDestroyed()) {
-                return (int)$shipA->isDestroyed() - (int)$shipB->isDestroyed();
+                return $shipA->isDestroyed() ? 1 : -1;
             }
 
-            return \strcmp($shipA->getName(), $shipB->getName());
+            // ships in danger to the top
+            if ($a['needsAttention'] !== $b['needsAttention']) {
+                return $a['needsAttention'] ? -1 : 1;
+            }
+
+            // otherwise order by name
+            return $shipA->getName() <=> $shipB->getName();
         });
 
         return [

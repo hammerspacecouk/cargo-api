@@ -115,4 +115,9 @@ class Ship extends Entity implements \JsonSerializable
     {
         return \sha1($this->id->toString());
     }
+
+    public function isProbe()
+    {
+        return $this->getShipClass()->isProbe();
+    }
 }

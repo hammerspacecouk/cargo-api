@@ -58,7 +58,8 @@ abstract class AbstractOAuthService extends UsersService implements OAuthService
         string $oauthHash
     ): ?User {
         $qb = $this->getQueryBuilder(DbUser::class)
-            ->select('tbl')
+            ->select('tbl', 'r')
+            ->join('tbl.lastRankSeen', 'r')
             ->where($this->getHashQuery())
             ->setParameter('hash', $oauthHash);
         $userEntity = $qb->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);

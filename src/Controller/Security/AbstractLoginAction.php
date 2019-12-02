@@ -67,8 +67,7 @@ abstract class AbstractLoginAction
         $url = $url ?? $this->getDefaultRedirectUrl();
 
         // if this is a brand new user, send them to the intro page
-        // todo - check the user's rank instead
-        if ($user->getScore()->getScore() === 0) { // new users have no score (cheap check)
+        if ($user->getRank()->isTutorial()) {
             $url = $this->applicationConfig->getWebHostname() . '/play/intro';
         }
 
