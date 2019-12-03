@@ -13,8 +13,6 @@ use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
-use App\Service\Oauth\AbstractOAuthService;
-use App\Service\Oauth\OAuthServiceInterface;
 use DateInterval;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;

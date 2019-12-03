@@ -9,3 +9,6 @@ parameters:
         - '#Return type \(App\\Data\\Database\\EntityManager\) of method App\\Data\\Database\\EntityRepository\\AbstractEntityRepository::getEntityManager\(\)#'
         # getXRepo() methods are *designed* to make the return type more specific so will not match ObjectRepository
         - '#but returns App\\Data\\Database\\EntityRepository\\AbstractEntityRepository#'
+        # todo - need to understand these better
+        - '#has no typehint specified#'
+        - '#no value type specified in iterable type#'

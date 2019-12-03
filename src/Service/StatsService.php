@@ -121,7 +121,7 @@ class StatsService extends AbstractService
         return $table;
     }
 
-    private function countUserColumnNotNull($column): int
+    private function countUserColumnNotNull(string $column): int
     {
         $qb = $this->getQueryBuilder(DbUser::class)
             ->select('COUNT(1)')

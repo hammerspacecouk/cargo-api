@@ -25,7 +25,7 @@ class ShipLocationsService extends AbstractService
 
     public function processOldestExpired(
         DateTimeImmutable $since,
-        $limit
+        int $limit
     ): int {
         $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired(
             $since,
@@ -149,11 +149,11 @@ class ShipLocationsService extends AbstractService
         });
     }
 
-    private function mapMany($results): array
+    private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createShipLocationMapper();
 
-        return \array_map(function ($result) use ($mapper) {
+        return \array_map(static function ($result) use ($mapper) {
             return $mapper->getShipLocation($result);
         }, $results);
     }

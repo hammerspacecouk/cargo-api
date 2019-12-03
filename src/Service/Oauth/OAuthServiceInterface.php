@@ -12,5 +12,5 @@ interface OAuthServiceInterface
     public function userExistsForOAuthId(string $id): bool;
     public function getOrCreateUserForOAuthId(string $id): User;
     public function getHashQuery(): string;
-    public function attachHash(DbUser $entity, $hash): DbUser;
+    public function attachHash(DbUser $entity, string $hash): DbUser;
 }

@@ -5,8 +5,6 @@ namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
 use App\Data\TokenProvider;
-use App\Domain\Entity\Port;
-use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\LockedTransaction;
 use App\Domain\ValueObject\ShipLaunchEvent;
@@ -26,7 +24,7 @@ class UpgradesService extends AbstractService
         $shipCountsByClassId = $this->entityManager->getShipRepo()->countClassesForUserId($user->getId());
 
         $mapper = $this->mapperFactory->createShipClassMapper();
-        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): ?Transaction {
+        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): Transaction {
             $mapped = $mapper->getShipClass($result);
             if (!$user->getRank()->meets($mapped->getMinimumRank())) {
                 return new LockedTransaction($mapped->getMinimumRank());

@@ -110,7 +110,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
     private function getShipsInPort(
         Port $port,
         Ship $currentShip,
-        $tacticalOptions
+        array $tacticalOptions
     ): array {
 
         $ships = [];

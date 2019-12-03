@@ -159,7 +159,7 @@ class EffectsService extends AbstractService
         Effect $effect,
         Ship $ship,
         Port $port
-    ): ?Transaction {
+    ): Transaction {
         $cost = $effect->getPurchaseCost();
         if ($port->isSafe()) {
             // prices are more expensive in safe places
@@ -258,7 +258,7 @@ class EffectsService extends AbstractService
         Ship $playingShip,
         Ship $victimShip,
         Port $currentPort,
-        $tacticalOptions
+        array $tacticalOptions
     ): array {
         $availableOffenceEffects = array_filter($tacticalOptions, static function (TacticalEffect $tacticalEffect) {
             return $tacticalEffect->isAvailableShipOffence();
@@ -338,7 +338,7 @@ class EffectsService extends AbstractService
         });
     }
 
-    private function getCountsPerEffect($userEffects): array
+    private function getCountsPerEffect(array $userEffects): array
     {
         $countsOfType = [];
         foreach ($userEffects as $userEffect) {

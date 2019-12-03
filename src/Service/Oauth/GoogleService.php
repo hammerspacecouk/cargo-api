@@ -12,7 +12,7 @@ class GoogleService extends AbstractOAuthService
         return 'tbl.googleId = :hash';
     }
 
-    public function attachHash(DbUser $entity, $hash): DbUser
+    public function attachHash(DbUser $entity, string $hash): DbUser
     {
         $entity->googleId = $hash;
         return $entity;

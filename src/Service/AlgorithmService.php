@@ -55,7 +55,7 @@ class AlgorithmService extends AbstractService
     public function getTotalEarnings(
         int $totalCrateValue,
         int $distance,
-        $activeTravelEffects = []
+        array $activeTravelEffects = []
     ): int {
         $value = $totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE);
         foreach ($activeTravelEffects as $activeTravelEffect) {

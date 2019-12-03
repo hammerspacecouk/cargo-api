@@ -12,7 +12,7 @@ class MicrosoftService extends AbstractOAuthService
         return 'tbl.microsoftId = :hash';
     }
 
-    public function attachHash(DbUser $entity, $hash): DbUser
+    public function attachHash(DbUser $entity, string $hash): DbUser
     {
         $entity->microsoftId = $hash;
         return $entity;

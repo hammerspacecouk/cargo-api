@@ -30,7 +30,7 @@ class EventsService extends AbstractService
         return $this->mapMany($this->entityManager->getEventRepo()->getLatestForUserId($user->getId()));
     }
 
-    public function findLatestForPort(Port $port)
+    public function findLatestForPort(Port $port): array
     {
         return $this->mapMany($this->entityManager->getEventRepo()->getLatestForPortId($port->getId(), 10));
     }
