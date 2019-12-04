@@ -5,8 +5,6 @@ namespace App\Service;
 
 use App\Data\Database\Entity\ShipClass;
 use App\Data\TokenProvider;
-use App\Domain\Entity\Port;
-use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\LockedTransaction;
 use App\Domain\ValueObject\ShipLaunchEvent;
@@ -17,6 +15,10 @@ use Doctrine\ORM\Query;
 
 class UpgradesService extends AbstractService
 {
+    /**
+     * @param User $user
+     * @return Transaction[]
+     */
     public function getAvailableShipsForUser(User $user): array
     {
         // get the full list, then blank out any that aren't met by the rank
@@ -26,13 +28,13 @@ class UpgradesService extends AbstractService
         $shipCountsByClassId = $this->entityManager->getShipRepo()->countClassesForUserId($user->getId());
 
         $mapper = $this->mapperFactory->createShipClassMapper();
-        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): ?Transaction {
+        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): Transaction {
             $mapped = $mapper->getShipClass($result);
             if (!$user->getRank()->meets($mapped->getMinimumRank())) {
                 return new LockedTransaction($mapped->getMinimumRank());
             }
 
-            $alreadyOwned = $shipCountsByClassId[(string)$mapped->getId()] ?? 0;
+            $alreadyOwned = $shipCountsByClassId[$mapped->getId()->toString()] ?? 0;
 
             $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                 $user->getId(),

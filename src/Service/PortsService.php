@@ -12,6 +12,9 @@ use Ramsey\Uuid\UuidInterface;
 
 class PortsService extends AbstractService
 {
+    /**
+     * @var PortMapper|null
+     */
     private $portMapper;
 
     public function getByID(
@@ -32,6 +35,11 @@ class PortsService extends AbstractService
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param int $limit
+     * @param int $page
+     * @return Port[]
+     */
     public function findAll(
         int $limit,
         int $page = 1
@@ -69,6 +77,10 @@ class PortsService extends AbstractService
         return $this->portMapper;
     }
 
+    /**
+     * @param array[]|null $result
+     * @return Port|null
+     */
     private function mapSingle(?array $result): ?Port
     {
         if (!$result) {
@@ -78,7 +90,7 @@ class PortsService extends AbstractService
     }
 
     /**
-     * @param array $results
+     * @param array[] $results
      * @return Port[]
      */
     private function mapMany(array $results): array

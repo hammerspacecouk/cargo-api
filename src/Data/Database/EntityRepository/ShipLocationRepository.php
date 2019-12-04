@@ -14,9 +14,15 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipLocationRepository extends AbstractEntityRepository implements CleanableInterface
 {
+    /**
+     * @param UuidInterface $shipId
+     * @param int $resultType
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function getCurrentForShipId(
         UuidInterface $shipId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'port', 'channel', 'fromPort', 'toPort')
@@ -32,9 +38,14 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    /**
+     * @param array $shipIds
+     * @param int $resultType
+     * @return mixed
+     */
     public function getCurrentForShipIds(
         array $shipIds,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'ship', 'port', 'channel')
@@ -47,29 +58,16 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function getLatest(
-        int $limit,
-        int $offset = 0,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'port', 'channel', 'fromPort', 'toPort')
-            ->leftJoin('tbl.port', 'port')
-            ->leftJoin('tbl.ship', 'ship')
-            ->leftJoin('tbl.channel', 'channel')
-            ->leftJoin('channel.fromPort', 'fromPort')
-            ->leftJoin('channel.toPort', 'toPort')
-            ->where('tbl.isCurrent = true')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
-            ->orderBy('tbl.entryTime', 'DESC');
-        return $qb->getQuery()->getResult($resultType);
-    }
-
+    /**
+     * @param DateTimeImmutable $since
+     * @param int $limit
+     * @param int $resultType
+     * @return mixed
+     */
     public function getOldestExpired(
         DateTimeImmutable $since,
         int $limit = 1,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'ship', 'channel', 'fromPort', 'toPort')
@@ -93,21 +91,6 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->createQuery($sql)
             ->setParameter('beforeTime', $before);
         return $query->execute();
-    }
-
-    public function disableAllActiveForShipID(UuidInterface $uuid): void
-    {
-        $q = $this->getEntityManager()->createQuery(
-            'UPDATE ' . ShipLocation::class . ' cl ' .
-            'SET ' .
-            'cl.isCurrent = false, ' .
-            'cl.updatedAt = :time ' .
-            'WHERE cl.isCurrent = true' .
-            'AND IDENTITY(cl.ship) = :ship '
-        );
-        $q->setParameter('time', $this->dateTimeFactory->now());
-        $q->setParameter('ship', $uuid->getBytes());
-        $q->execute();
     }
 
     public function exitLocation(Ship $ship): void
@@ -174,9 +157,14 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @param UuidInterface $portId
+     * @param int $resultType
+     * @return mixed
+     */
     public function getActiveShipsForPortId(
         UuidInterface $portId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
@@ -193,11 +181,18 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @param DateTimeImmutable $before
+     * @param int $capacity
+     * @param int $limit
+     * @param int $resultType
+     * @return mixed
+     */
     public function getInPortOfCapacity(
         DateTimeImmutable $before,
         int $capacity,
         int $limit,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
@@ -216,7 +211,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getResult($resultType);
     }
 
-    public function clean(\DateTimeImmutable $now): int
+    public function clean(DateTimeImmutable $now): int
     {
         return $this->removeInactiveBefore($now);
     }

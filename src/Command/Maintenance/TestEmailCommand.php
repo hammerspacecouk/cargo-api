@@ -48,7 +48,7 @@ class TestEmailCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $this->logger->debug(__CLASS__);
 
         $emailAddress = $this->getStringArgument($input, 'recipient');
@@ -68,5 +68,7 @@ class TestEmailCommand extends AbstractCommand
         $this->mailer->send($message);
 
         $this->logger->info('Done');
+
+        return 0;
     }
 }

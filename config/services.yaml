@@ -20,8 +20,8 @@ parameters:
   env(CONFIG_HOSTNAME_API): ''
   env(CONFIG_HOSTNAME_WEB): ''
   env(CONFIG_COOKIE_SCOPE): ''
-  env(CONFIG_MAX_IP_USERS): 0
-  env(CONFIG_DISTANCE_MULTIPLIER): 0
+  env(CONFIG_MAX_IP_USERS): '0'
+  env(CONFIG_DISTANCE_MULTIPLIER): '0'
   env(MAILER_FROM_NAME): ''
   env(MAILER_FROM_ADDRESS): ''
   env(APP_SECRET): ''
@@ -81,7 +81,7 @@ services:
     class: App\Infrastructure\Cache
 
   Psr\Cache\CacheItemPoolInterface:
-    class: Symfony\Component\Cache\Adapter\PhpFilesAdapter
+    class: Symfony\Component\Cache\Adapter\NullAdapter
 
   Ramsey\Uuid\UuidFactoryInterface:
     class: Ramsey\Uuid\UuidFactory
@@ -172,3 +172,10 @@ services:
       - '@OAuthReddit'
       - '@App\Controller\Security\OAuthHandler'
       - '@App\Service\Oauth\RedditService'
+
+  App\ExceptionListener:
+    arguments:
+      $logger: '@logger'
+      $debug: '%kernel.debug%'
+    tags:
+      - { name: kernel.event_listener, event: kernel.exception }

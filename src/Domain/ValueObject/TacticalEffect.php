@@ -44,7 +44,10 @@ class TacticalEffect implements \JsonSerializable
         $this->activeEffect = $activeEffect;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'effect' => $this->effect,

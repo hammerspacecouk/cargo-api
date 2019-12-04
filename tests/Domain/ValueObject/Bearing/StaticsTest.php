@@ -56,6 +56,9 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
         Assert::assertSame($expectedOutput, $output);
     }
 
+    /**
+     * @return \Generator<array>
+     */
     public function dataForRotatedBearing(): \Generator
     {
         yield ['NW', 0, 'NW',];

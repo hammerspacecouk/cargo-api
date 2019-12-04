@@ -5,6 +5,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
 use Ramsey\Uuid\UuidInterface;
+use function sha1;
 
 class Ship extends Entity implements \JsonSerializable
 {
@@ -90,7 +91,10 @@ class Ship extends Entity implements \JsonSerializable
         return $this->shipClass;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         $data = [
             'id' => $this->id,
@@ -111,12 +115,12 @@ class Ship extends Entity implements \JsonSerializable
         return $data;
     }
 
-    public function toHash()
+    public function toHash(): string
     {
-        return \sha1($this->id->toString());
+        return sha1($this->id->toString());
     }
 
-    public function isProbe()
+    public function isProbe(): bool
     {
         return $this->getShipClass()->isProbe();
     }

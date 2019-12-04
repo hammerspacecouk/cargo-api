@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Domain\Entity\Effect\TravelEffect;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\TacticalEffect;
 
 class AlgorithmService extends AbstractService
@@ -52,10 +53,16 @@ class AlgorithmService extends AbstractService
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
     }
 
+    /**
+     * @param int $totalCrateValue
+     * @param int $distance
+     * @param TacticalEffect[] $activeTravelEffects
+     * @return int
+     */
     public function getTotalEarnings(
         int $totalCrateValue,
         int $distance,
-        $activeTravelEffects = []
+        array $activeTravelEffects = []
     ): int {
         $value = $totalCrateValue * ($distance ?: self::MINIMUM_EARNINGS_DISTANCE);
         foreach ($activeTravelEffects as $activeTravelEffect) {

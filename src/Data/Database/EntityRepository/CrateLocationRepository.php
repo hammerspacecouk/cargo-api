@@ -15,11 +15,11 @@ use Ramsey\Uuid\UuidInterface;
 
 class CrateLocationRepository extends AbstractEntityRepository
 {
-    public function findWithCrateForPortIdAndUserId(
+
+    public function findWithCrateForPortId(
         UuidInterface $portId,
-        UuidInterface $userId,
         int $limit = 10,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ): array {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'c')
@@ -39,7 +39,7 @@ class CrateLocationRepository extends AbstractEntityRepository
         UuidInterface $portId,
         UuidInterface $userId,
         int $limit = 10,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ): array {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'c')
@@ -56,10 +56,16 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $crateId
+     * @param UuidInterface $portId
+     * @param int $resultType
+     * @return mixed
+     */
     public function findForCrateAndPortId(
         UuidInterface $crateId,
         UuidInterface $portId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'port', 'crate')
@@ -74,9 +80,14 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $shipId
+     * @param int $resultType
+     * @return mixed
+     */
     public function findCurrentForShipID(
         UuidInterface $shipId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'crate')
@@ -89,9 +100,15 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $shipId
+     * @param int $resultType
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function findMostRecentForShipID(
         UuidInterface $shipId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
@@ -102,10 +119,16 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    /**
+     * @param DateTimeImmutable $before
+     * @param int $limit
+     * @param int $resultType
+     * @return mixed
+     */
     public function getOnShipsInPortBefore(
         DateTimeImmutable $before,
         int $limit,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'crate', 'ship')

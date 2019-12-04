@@ -60,7 +60,7 @@ class MakeDataCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $mapUrl = $this->getStringArgument($input, 'inputMapUrl');
 
         $data = \file_get_contents($mapUrl);
@@ -120,6 +120,8 @@ class MakeDataCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done ALL');
+
+        return 0;
     }
 
     private function getInput(string $file): ArrayInput

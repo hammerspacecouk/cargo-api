@@ -8,6 +8,8 @@ use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
+use App\Domain\Entity\UserEffect;
+use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\TokenId;
 use App\Service\ShipsService;
@@ -18,6 +20,17 @@ use function App\Functions\Dates\intervalToSeconds;
 
 class ShipMovementService extends ShipsService
 {
+    /**
+     * @param Ship $ship
+     * @param Channel $channel
+     * @param User $owner
+     * @param bool $reverseDirection
+     * @param int $journeyTime
+     * @param int $earnings
+     * @param UuidInterface $currentLocation
+     * @param TacticalEffect[] $tacticalEffectsToExpire
+     * @return MoveShipToken
+     */
     public function getMoveShipToken(
         Ship $ship,
         Channel $channel,
@@ -48,6 +61,16 @@ class ShipMovementService extends ShipsService
         );
     }
 
+    /**
+     * @param UuidInterface $shipId
+     * @param UuidInterface $channelId
+     * @param bool $reversed
+     * @param DateInterval $journeyTime
+     * @param int $earnings
+     * @param MoveShipToken|null $token
+     * @param UuidInterface[] $effectIdsToExpire
+     * @return ShipLocation
+     */
     public function moveShip(
         UuidInterface $shipId,
         UuidInterface $channelId,

@@ -13,8 +13,6 @@ use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
-use App\Service\Oauth\AbstractOAuthService;
-use App\Service\Oauth\OAuthServiceInterface;
 use DateInterval;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -23,6 +21,9 @@ class UsersService extends AbstractService
 {
     private const DELETE_DELAY = 'PT15M';
 
+    /**
+     * @var UserMapper|null
+     */
     private $userMapper;
 
     public function getById(
@@ -220,6 +221,10 @@ class UsersService extends AbstractService
         return $this->userMapper;
     }
 
+    /**
+     * @param array[]|null $result
+     * @return User|null
+     */
     protected function mapSingle(?array $result): ?User
     {
         if (!$result) {

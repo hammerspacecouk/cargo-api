@@ -28,7 +28,7 @@ class ShipClassImageAction
     public function __invoke(
         Request $request,
         ShipClassService $shipClassService
-    ) {
+    ): Response {
         $classId = $this->getIDFromUrl($request);
         $hash = $request->get('hash', '');
 

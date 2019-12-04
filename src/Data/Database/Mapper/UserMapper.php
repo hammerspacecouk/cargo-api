@@ -11,6 +11,10 @@ use App\Domain\ValueObject\Score;
 
 class UserMapper extends Mapper
 {
+    /**
+     * @param array<mixed> $item
+     * @return User
+     */
     public function getUser(array $item): User
     {
         return new User(
@@ -26,7 +30,11 @@ class UserMapper extends Mapper
         );
     }
 
-    private function isAnonymous($item): bool
+    /**
+     * @param array<mixed> $item
+     * @return bool
+     */
+    private function isAnonymous(array $item): bool
     {
         return !(
             $item['googleId'] ||
@@ -35,7 +43,11 @@ class UserMapper extends Mapper
         );
     }
 
-    private function mapHomePort($item): ?Port
+    /**
+     * @param array<mixed> $item
+     * @return Port|null
+     */
+    private function mapHomePort(array $item): ?Port
     {
         if (isset($item['homePort'])) {
             return $this->mapperFactory->createPortMapper()->getPort($item['homePort']);
@@ -43,7 +55,11 @@ class UserMapper extends Mapper
         return null;
     }
 
-    private function mapRank($item): ?PlayerRank
+    /**
+     * @param array<mixed> $item
+     * @return PlayerRank|null
+     */
+    private function mapRank(array $item): ?PlayerRank
     {
         if (isset($item['lastRankSeen'])) {
             return $this->mapperFactory->createPlayerRankMapper()->getPlayerRank($item['lastRankSeen']);
@@ -51,7 +67,11 @@ class UserMapper extends Mapper
         return null;
     }
 
-    private function mapScore($item): Score
+    /**
+     * @param array<mixed> $item
+     * @return Score
+     */
+    private function mapScore(array $item): Score
     {
         return new Score(
             (int)$item['score'],

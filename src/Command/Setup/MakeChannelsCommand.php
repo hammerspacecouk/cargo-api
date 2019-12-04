@@ -43,7 +43,7 @@ class MakeChannelsCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making the channels between ports');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -62,6 +62,8 @@ class MakeChannelsCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 
     private function handleRow(array $data): void

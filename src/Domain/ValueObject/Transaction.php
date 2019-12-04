@@ -13,6 +13,12 @@ class Transaction implements \JsonSerializable
     private $currentCount;
     private $item;
 
+    /**
+     * @param int|null $cost
+     * @param AbstractActionToken|null $token
+     * @param int $currentCount
+     * @param null|mixed $item
+     */
     public function __construct(
         int $cost = null,
         AbstractActionToken $token = null,
@@ -25,7 +31,10 @@ class Transaction implements \JsonSerializable
         $this->item = $item;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<mixed>
+     */
+    public function jsonSerialize(): array
     {
         $data = [
             'available' => true,
@@ -56,6 +65,9 @@ class Transaction implements \JsonSerializable
         return $this->currentCount;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getItemDetail()
     {
         if ($this->item === null) {

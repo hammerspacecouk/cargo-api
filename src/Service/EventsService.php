@@ -10,6 +10,9 @@ use App\Domain\Entity\User;
 
 class EventsService extends AbstractService
 {
+    /**
+     * @var EventMapper|null
+     */
     private $eventMapper;
 
     /**
@@ -30,7 +33,11 @@ class EventsService extends AbstractService
         return $this->mapMany($this->entityManager->getEventRepo()->getLatestForUserId($user->getId()));
     }
 
-    public function findLatestForPort(Port $port)
+    /**
+     * @param Port $port
+     * @return Event[]
+     */
+    public function findLatestForPort(Port $port): array
     {
         return $this->mapMany($this->entityManager->getEventRepo()->getLatestForPortId($port->getId(), 10));
     }
@@ -44,13 +51,17 @@ class EventsService extends AbstractService
         return $this->eventMapper;
     }
 
+    /**
+     * @param array[]|null $result
+     * @return Event|null
+     */
     private function mapSingle(?array $result): ?Event
     {
         return $result ? $this->getMapper()->getEvent($result) : null;
     }
 
     /**
-     * @param array $results
+     * @param array[] $results
      * @return Event[]
      */
     private function mapMany(array $results): array

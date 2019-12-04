@@ -19,6 +19,11 @@ class ShipsService extends AbstractService
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param int $limit
+     * @param int $page
+     * @return Ship[]
+     */
     public function findAll(
         int $limit,
         int $page = 1
@@ -34,7 +39,7 @@ class ShipsService extends AbstractService
         $mapper = $this->mapperFactory->createShipMapper();
 
         $results = $qb->getQuery()->getArrayResult();
-        return array_map(function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getShip($result);
         }, $results);
     }
@@ -123,6 +128,12 @@ class ShipsService extends AbstractService
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @param UuidInterface $userId
+     * @param int $limit
+     * @param int $page
+     * @return Ship[]
+     */
     public function getForOwnerIDWithLocation(
         UuidInterface $userId,
         int $limit,
@@ -156,6 +167,10 @@ class ShipsService extends AbstractService
         }, $results);
     }
 
+    /**
+     * @param array[] $ships
+     * @return array[]
+     */
     private function attachLocationToShips(array $ships): array
     {
         if (empty($ships)) {
@@ -163,7 +178,7 @@ class ShipsService extends AbstractService
         }
 
         // get all the IDs
-        $ids = array_map(function ($ship) {
+        $ids = array_map(static function ($ship) {
             return $ship['id']->getBytes();
         }, $ships);
 
@@ -183,13 +198,13 @@ class ShipsService extends AbstractService
     }
 
     /**
-     * @param array $results
+     * @param array[] $results
      * @return Ship[]
      */
     private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createShipMapper();
-        return array_map(function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getShip($result);
         }, $results);
     }

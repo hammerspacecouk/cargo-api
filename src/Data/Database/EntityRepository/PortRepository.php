@@ -7,8 +7,12 @@ use Doctrine\ORM\Query;
 
 class PortRepository extends AbstractEntityRepository
 {
+    /**
+     * @param int $resultType
+     * @return mixed
+     */
     public function getARandomHomePort(
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $safeCount = $this->countHomes();
         /** @noinspection RandomApiMigrationInspection - uses mt_rand so it can be seeded */

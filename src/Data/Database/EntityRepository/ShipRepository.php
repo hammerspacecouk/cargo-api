@@ -16,10 +16,17 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipRepository extends AbstractEntityRepository implements CleanableInterface
 {
+    /**
+     * @param UuidInterface $shipId
+     * @param UuidInterface $ownerId
+     * @param int $resultType
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
     public function getShipForOwnerId(
         UuidInterface $shipId,
         UuidInterface $ownerId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'c')

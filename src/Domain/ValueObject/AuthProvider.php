@@ -27,7 +27,10 @@ class AuthProvider implements \JsonSerializable
         $this->removalToken = $removalToken;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'provider' => $this->provider,

@@ -12,7 +12,7 @@ class RedditService extends AbstractOAuthService
         return 'tbl.redditId = :hash';
     }
 
-    public function attachHash(DbUser $entity, $hash): DbUser
+    public function attachHash(DbUser $entity, string $hash): DbUser
     {
         $entity->redditId = $hash;
         return $entity;

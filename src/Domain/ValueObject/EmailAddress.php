@@ -27,10 +27,10 @@ class EmailAddress implements \JsonSerializable
         return $this->emailAddress;
     }
 
-    private function validate(string $emailAddress)
+    private function validate(string $emailAddress): string
     {
-        $emailAddress = trim($emailAddress);
-        if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+        $emailAddress = filter_var(trim($emailAddress), FILTER_VALIDATE_EMAIL);
+        if (!$emailAddress) {
             throw new InvalidEmailAddressException('Invalid e-mail address provided');
         }
         return $emailAddress;

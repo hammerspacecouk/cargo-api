@@ -122,7 +122,7 @@ class DeleteAction
         return $this->noCacheResponse($logoutResponse);
     }
 
-    private function makeTokenRedirect($stage, $token): Response
+    private function makeTokenRedirect(int $stage, DeleteAccountToken $token): Response
     {
         $params = [
             'stage' => $stage,

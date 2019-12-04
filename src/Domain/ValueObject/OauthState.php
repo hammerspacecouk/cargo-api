@@ -16,12 +16,19 @@ class OauthState
         $this->returnUrl = $returnUrl;
     }
 
-    public static function createFromClaims(array $claims)
+    /**
+     * @param array<string, mixed> $claims
+     * @return OauthState
+     */
+    public static function createFromClaims(array $claims): OauthState
     {
         return new self($claims['r']);
     }
 
-    public function getClaims()
+    /**
+     * @return array<string, mixed>
+     */
+    public function getClaims(): array
     {
         return ['r' => $this->returnUrl];
     }

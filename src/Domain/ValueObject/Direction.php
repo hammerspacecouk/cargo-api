@@ -21,6 +21,9 @@ class Direction implements \JsonSerializable
     private $earnings;
     private $lastVisitTime;
 
+    /**
+     * @var string[]
+     */
     private $denialReasons = [];
     /**
      * @var bool
@@ -49,7 +52,10 @@ class Direction implements \JsonSerializable
         $this->calculateEligibility();
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'destination' => $this->destinationPort,
@@ -113,9 +119,7 @@ class Direction implements \JsonSerializable
     {
         $minimumRank = $this->channel->getMinimumRank();
         $minimumStrength = $this->channel->getMinimumStrength();
-        if ($minimumRank &&
-            !$this->playerRank->meets($minimumRank)
-        ) {
+        if (!$this->playerRank->meets($minimumRank)) {
             $this->denialReasons[] = 'Minimum Rank: ' . $minimumRank->getName();
         }
         if ($minimumStrength && !$this->ship->meetsStrength($minimumStrength)) {

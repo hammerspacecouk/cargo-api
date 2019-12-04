@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace App\Functions\Arrays;
 
+/**
+ * @param mixed $data
+ * @return array
+ */
 function ensureArray($data): array
 {
     if (!is_array($data)) {
@@ -11,6 +15,11 @@ function ensureArray($data): array
     return $data;
 }
 
+/**
+ * @param callable $checkFunction
+ * @param array $inputArray
+ * @return mixed|null
+ */
 function find(callable $checkFunction, array $inputArray)
 {
     foreach ($inputArray as $input) {
@@ -21,6 +30,10 @@ function find(callable $checkFunction, array $inputArray)
     return null;
 }
 
+/**
+ * @param array $array
+ * @return mixed
+ */
 function seedableRandomItem(array $array)
 {
     $max = \count($array) - 1;

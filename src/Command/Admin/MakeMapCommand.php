@@ -52,7 +52,7 @@ class MakeMapCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $code = $this->getStringArgument($input, 'passcode');
         if ($code !== $this->applicationConfig->getApplicationSecret()) {
             $output->writeln('Invalid code. Aborting');
@@ -95,11 +95,11 @@ class MakeMapCommand extends AbstractCommand
                 $destinationId = $channel->getDestination()->getId()->toString();
                 if (isset($ports[$originId])) {
                     $reversed = false;
-                    [,$startX,$startY] = $ports[$originId];
+                    [, $startX, $startY] = $ports[$originId];
                     $end = $channel->getDestination();
                 } elseif (isset($ports[$destinationId])) {
                     $reversed = true;
-                    [,$startX,$startY] = $ports[$destinationId];
+                    [, $startX, $startY] = $ports[$destinationId];
                     $end = $channel->getOrigin();
                 } else {
                     continue;
@@ -107,7 +107,7 @@ class MakeMapCommand extends AbstractCommand
 
                 $endId = $end->getId()->toString();
                 if (isset($ports[$endId])) {
-                    [,$endX,$endY] = $ports[$endId];
+                    [, $endX, $endY] = $ports[$endId];
                 } else {
                     // calculate and make it
                     [$endX, $endY] = $this->relativeCoords(
@@ -144,10 +144,17 @@ class MakeMapCommand extends AbstractCommand
         ));
         $output->writeln('');
         $output->writeln('Done. Map available at ' . \realpath($outputPath));
+
+        return 0;
     }
 
-    private function relativeCoords($startX, $startY, Bearing $bearing, $length, $reversed = false): array
-    {
+    private function relativeCoords(
+        int $startX,
+        int $startY,
+        Bearing $bearing,
+        int $length,
+        bool $reversed = false
+    ): array {
         if ($reversed) {
             $bearing = $bearing->getOpposite();
         }
@@ -161,7 +168,7 @@ class MakeMapCommand extends AbstractCommand
         return [$endX, $endY];
     }
 
-    private function limits($newX, $newY, $limits = [0, 0, 0, 0]): array
+    private function limits(int $newX, int $newY, array $limits = [0, 0, 0, 0]): array
     {
         // sX, sY, bX, bY
         if ($newX < $limits[0]) {
@@ -239,7 +246,7 @@ class MakeMapCommand extends AbstractCommand
         SVG;
     }
 
-    private function getHexPoints($x, $y): string
+    private function getHexPoints(int $x, int $y): string
     {
         $height = self::HEXAGON_WIDTH / (\sqrt(3) / 2);
         $size = $height / 2;

@@ -19,6 +19,9 @@ class EntityManager extends EntityManagerDecorator
     private $logger;
     private $applicationConfig;
 
+    /**
+     * @var array<string, AbstractEntityRepository>
+     */
     private $classCache = [];
 
     public function __construct(
@@ -35,10 +38,11 @@ class EntityManager extends EntityManagerDecorator
         $this->applicationConfig = $applicationConfig;
     }
 
+    /**
+     * @param AbstractEntity $entity
+     */
     public function persist($entity): void
     {
-        /** @var AbstractEntity $entity */
-
         // interject to update the created_at/updated_at fields (for audit purposes)
         $now = $this->dateTimeFactory->now();
         $entity->updatedAt = $now;
@@ -48,6 +52,10 @@ class EntityManager extends EntityManagerDecorator
         parent::persist($entity);
     }
 
+    /**
+     * @param class-string<mixed> $entityName
+     * @return AbstractEntityRepository
+     */
     public function getRepository($entityName)
     {
         if (!isset($this->classCache[$entityName])) {
@@ -67,11 +75,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->classCache[$entityName];
     }
 
-    public function getAll()
+    public function getAll(): array
     {
         $entityFiles = \scandir(__DIR__ . '/Entity/', SCANDIR_SORT_NONE);
         if (!$entityFiles) {
-            return false;
+            return [];
         }
 
         $results = \array_map(function ($className) {

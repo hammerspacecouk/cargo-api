@@ -5,13 +5,16 @@ namespace App\Service;
 
 class ConfigService extends AbstractService
 {
-    public function getConfig()
+    public function getConfig(): object
     {
         return $this->entityManager->getConfigRepo()->get();
     }
 
-    public function setConfig($value)
+    /**
+     * @param array<mixed> $value
+     */
+    public function setConfig(array $value): void
     {
-        return $this->entityManager->getConfigRepo()->set($value);
+        $this->entityManager->getConfigRepo()->set($value);
     }
 }

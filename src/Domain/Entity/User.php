@@ -43,7 +43,10 @@ class User extends Entity implements \JsonSerializable
         $this->permissionLevel = $permissionLevel;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         $data = [
             'id' => $this->getId(),
@@ -69,7 +72,10 @@ class User extends Entity implements \JsonSerializable
             '.svg';
     }
 
-    public function getRotationSteps()
+    /**
+     * @return int
+     */
+    public function getRotationSteps(): int
     {
         $this->rotationSteps = 0; // todo - remove this line
         return $this->rotationSteps;

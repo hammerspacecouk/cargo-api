@@ -29,8 +29,12 @@ class ShipClassRepository extends AbstractEntityRepository
         return $data;
     }
 
+    /**
+     * @param int $resultType
+     * @return mixed
+     */
     public function getStarter(
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.isStarterShip = true')

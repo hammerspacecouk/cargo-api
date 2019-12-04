@@ -41,7 +41,7 @@ class MakeHintsCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making the hints');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -60,6 +60,8 @@ class MakeHintsCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 
     private function handleRow(array $data): void

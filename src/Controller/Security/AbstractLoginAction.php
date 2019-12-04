@@ -21,9 +21,21 @@ abstract class AbstractLoginAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
+    /**
+     * @var ApplicationConfig
+     */
     protected $applicationConfig;
+    /**
+     * @var AuthenticationService
+     */
     protected $authenticationService;
+    /**
+     * @var UsersService
+     */
     protected $usersService;
+    /**
+     * @var ShipsService
+     */
     protected $shipsService;
 
     public function __construct(
@@ -41,7 +53,7 @@ abstract class AbstractLoginAction
     protected function getRedirectUrl(Request $request): string
     {
         $redirectUrl = $request->headers->get('Referer');
-        if (is_array($redirectUrl)) {
+        if (!$redirectUrl) {
             throw new BadRequestHttpException('Bad referrer');
         }
 

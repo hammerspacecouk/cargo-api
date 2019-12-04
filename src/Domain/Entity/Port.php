@@ -35,7 +35,10 @@ class Port extends Entity implements \JsonSerializable
         return $this->isSafe;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

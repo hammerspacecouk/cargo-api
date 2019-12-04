@@ -19,8 +19,11 @@ abstract class ContinuousWorkerCommand extends Command
     private const MAX_MEMORY_PERCENT = 90;
     private const MAX_TIME = 60 * 60 * 12;
 
+    /** @var LoggerInterface  */
     protected $logger;
+    /** @var DateTimeFactory  */
     protected $dateTimeFactory;
+    /** @var EntityManager  */
     protected $entityManager;
 
     public function __construct(

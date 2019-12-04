@@ -39,7 +39,7 @@ class MakePortsCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making or updating the ports');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -94,5 +94,7 @@ class MakePortsCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 }

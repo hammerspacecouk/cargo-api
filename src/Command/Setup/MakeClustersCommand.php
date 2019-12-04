@@ -40,7 +40,7 @@ class MakeClustersCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making or updating the clusters');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -78,5 +78,7 @@ class MakeClustersCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 }

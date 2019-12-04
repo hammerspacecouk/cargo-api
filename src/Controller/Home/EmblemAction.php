@@ -30,7 +30,7 @@ class EmblemAction
     public function __invoke(
         Request $request,
         PlayerRanksService $playerRanksService
-    ) {
+    ): Response {
         $rankId = $this->getIDFromUrl($request);
         $colour = new Colour($request->get('colour'));
 

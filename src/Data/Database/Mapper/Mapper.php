@@ -5,6 +5,9 @@ namespace App\Data\Database\Mapper;
 
 abstract class Mapper
 {
+    /**
+     * @var MapperFactory
+     */
     protected $mapperFactory;
 
     public function __construct(

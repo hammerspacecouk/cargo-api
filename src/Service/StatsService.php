@@ -10,6 +10,9 @@ use App\Domain\ValueObject\AuthProvider;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Arrays\find;
 
@@ -32,6 +35,9 @@ class StatsService extends AbstractService
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * @return array[]
+     */
     public function countRanks(): array
     {
         $qb = $this->getQueryBuilder(DbUser::class)
@@ -57,6 +63,9 @@ class StatsService extends AbstractService
         }, $allRanks);
     }
 
+    /**
+     * @return array<string, int>
+     */
     public function countAuthProviders(): array
     {
         $qb = $this->getQueryBuilder(DbUser::class)
@@ -77,6 +86,11 @@ class StatsService extends AbstractService
         return $counts;
     }
 
+    /**
+     * @param DateTimeImmutable $since
+     * @param DateTimeImmutable $until
+     * @return array<int|string, mixed>
+     */
     public function registrationsPerDay(
         DateTimeImmutable $since,
         DateTimeImmutable $until
@@ -121,7 +135,7 @@ class StatsService extends AbstractService
         return $table;
     }
 
-    private function countUserColumnNotNull($column): int
+    private function countUserColumnNotNull(string $column): int
     {
         $qb = $this->getQueryBuilder(DbUser::class)
             ->select('COUNT(1)')

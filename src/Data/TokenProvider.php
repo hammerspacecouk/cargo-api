@@ -76,12 +76,12 @@ class TokenProvider
         if ($tokenId) {
             $id = (string)$tokenId;
         } else {
-            $id = $this->uuidFactory->uuid4();
+            $id = $this->uuidFactory->uuid4()->toString();
         }
 
         return (new Builder())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
-            ->setJti((string)$id)
+            ->setJti($id)
             ->setSubject($subject)
             ->setVersion(new Version2())
             ->setPurpose(Purpose::local())

@@ -22,13 +22,37 @@ abstract class AbstractService
     protected const DEFAULT_LIMIT = 50;
     protected const DEFAULT_PAGE = 1;
 
+    /**
+     * @var EntityManager
+     */
     protected $entityManager;
+    /**
+     * @var MapperFactory
+     */
     protected $mapperFactory;
+    /**
+     * @var ApplicationConfig
+     */
     protected $applicationConfig;
+    /**
+     * @var TokenProvider
+     */
     protected $tokenHandler;
+    /**
+     * @var DateTimeFactory
+     */
     protected $dateTimeFactory;
+    /**
+     * @var CacheInterface
+     */
     protected $cache;
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
+    /**
+     * @var UuidFactoryInterface
+     */
     protected $uuidFactory;
 
     public function __construct(
@@ -51,7 +75,11 @@ abstract class AbstractService
         $this->uuidFactory = $uuidFactory;
     }
 
-    protected function getQueryBuilder(string $name): QueryBuilder
+    /**
+     * @param class-string<mixed> $name
+     * @return QueryBuilder
+     */
+    protected function getQueryBuilder($name): QueryBuilder
     {
         $entity = $this->entityManager->getRepository($name);
         return $entity->createQueryBuilder(self::TBL);

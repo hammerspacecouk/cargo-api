@@ -11,9 +11,14 @@ use Ramsey\Uuid\UuidInterface;
 
 class AuthenticationTokenRepository extends AbstractEntityRepository implements CleanableInterface
 {
+    /**
+     * @param UuidInterface $tokenId
+     * @param int $resultType
+     * @return mixed
+     */
     public function findUnexpiredById(
         UuidInterface $tokenId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'u', 'r')
@@ -24,19 +29,6 @@ class AuthenticationTokenRepository extends AbstractEntityRepository implements 
             ->setParameter('id', $tokenId->getBytes())
             ->setParameter('now', $this->dateTimeFactory->now());
         return $qb->getQuery()->getOneOrNullResult($resultType);
-    }
-
-    public function findAllForUserId(
-        UuidInterface $userId,
-        $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl')
-            ->where('IDENTITY(tbl.user) = (:userId)')
-            ->andWhere('tbl.expiry > :now')
-            ->setParameter('userId', $userId->getBytes())
-            ->setParameter('now', $this->dateTimeFactory->now());
-        return $qb->getQuery()->getResult($resultType);
     }
 
     public function removeExpired(DateTimeImmutable $now): int
