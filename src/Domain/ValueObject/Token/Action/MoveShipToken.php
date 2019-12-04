@@ -78,7 +78,6 @@ class MoveShipToken extends AbstractActionToken
 
     /**
      * @return UuidInterface[]
-     * @throws \ParagonIE\Paseto\Exception\PasetoException
      */
     public function getEffectIdsToExpire(): array
     {

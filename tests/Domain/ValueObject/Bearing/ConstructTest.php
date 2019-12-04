@@ -28,6 +28,9 @@ class ConstructTest extends \PHPUnit\Framework\TestCase
         Assert::assertSame($expectedOpposite, (string)$opposite);
     }
 
+    /**
+     * @return \Generator<array>
+     */
     public function valuesDataProvider(): \Generator
     {
         yield ['NW', 'SE',];

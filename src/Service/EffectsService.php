@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Data\Database\Entity\ActiveEffect as DbActiveEffect;
 use App\Data\Database\Entity\Effect as DbEffect;
 use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
@@ -33,8 +32,17 @@ use function App\Functions\Arrays\find;
 
 class EffectsService extends AbstractService
 {
+    /**
+     * @var array<string, mixed>
+     */
     private $userEffectsCache = [];
 
+    /**
+     * @param Ship $ship
+     * @param User $user
+     * @param Port $currentPort
+     * @return Transaction[]
+     */
     public function getEffectsForLocation(Ship $ship, User $user, Port $currentPort): array
     {
         $allEffects = $this->getAllPurchasable(); //future todo - effects to buy vary by location
@@ -46,6 +54,12 @@ class EffectsService extends AbstractService
         }, $allEffects);
     }
 
+    /**
+     * @param Ship $ship
+     * @param User $user
+     * @param ShipLocation $shipLocation
+     * @return TacticalEffect[]
+     */
     public function getUserEffectsForLocation(Ship $ship, User $user, ShipLocation $shipLocation): array
     {
         $isInPort = $shipLocation instanceof ShipInPort;
@@ -104,6 +118,15 @@ class EffectsService extends AbstractService
         return $availableEffects;
     }
 
+    /**
+     * @param UserEffect $userEffect
+     * @param User $user
+     * @param Ship $ship
+     * @param ShipLocation $shipLocation
+     * @param array<string, int> $countsOfType
+     * @param bool $canBeUsedHere
+     * @return TacticalEffect
+     */
     private function makeTacticalEffect(
         UserEffect $userEffect,
         User $user,
@@ -252,7 +275,7 @@ class EffectsService extends AbstractService
      * @param Ship $victimShip
      * @param Port $currentPort
      * @param TacticalEffect[] $tacticalOptions
-     * @return array
+     * @return array[]
      */
     public function getOffenceOptionsAtShip(
         Ship $playingShip,
@@ -296,6 +319,10 @@ class EffectsService extends AbstractService
         return $offenceEffects;
     }
 
+    /**
+     * @param User $user
+     * @return Effect[]
+     */
     public function addRandomEffectsForUser(User $user): array
     {
         $effectRepo = $this->entityManager->getEffectRepo();
@@ -338,6 +365,10 @@ class EffectsService extends AbstractService
         });
     }
 
+    /**
+     * @param UserEffect[] $userEffects
+     * @return array<string, int>
+     */
     private function getCountsPerEffect(array $userEffects): array
     {
         $countsOfType = [];
@@ -352,17 +383,18 @@ class EffectsService extends AbstractService
         return $countsOfType;
     }
 
-    private function getAll(): array
-    {
-        return $this->mapMany($this->entityManager->getEffectRepo()->getAll());
-    }
-
-
+    /**
+     * @return Effect[]
+     */
     private function getAllPurchasable(): array
     {
         return $this->mapMany($this->entityManager->getEffectRepo()->getAllPurchasable());
     }
 
+    /**
+     * @param array []$results
+     * @return Effect[]
+     */
     private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createEffectMapper();
@@ -454,7 +486,7 @@ class EffectsService extends AbstractService
                 }
                 $this->entityManager->getEventRepo()
                     ->logOffence($actioningShipEntity, $portEntity, $ship, $playerEffect->effect, $damage);
-                $this->entityManager->getShipRepo()->updateStrengthValue($ship, -$damage);
+                $this->entityManager->getShipRepo()->updateStrengthValue($ship, (int)-$damage);
             }
 
             $this->entityManager->getUserEffectRepo()->useEffect($playerEffect);

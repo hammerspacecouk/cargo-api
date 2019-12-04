@@ -27,7 +27,10 @@ class PlayerRank extends Entity implements \JsonSerializable
         $this->description = $description;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

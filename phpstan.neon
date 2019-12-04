@@ -2,6 +2,8 @@ includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
 parameters:
+    inferPrivatePropertyTypeFromConstructor: true
+    checkGenericClassInNonGenericObjectType: false
     doctrine:
         repositoryClass: App\Data\Database\EntityRepository\AbstractEntityRepository
     ignoreErrors:
@@ -9,6 +11,8 @@ parameters:
         - '#Return type \(App\\Data\\Database\\EntityManager\) of method App\\Data\\Database\\EntityRepository\\AbstractEntityRepository::getEntityManager\(\)#'
         # getXRepo() methods are *designed* to make the return type more specific so will not match ObjectRepository
         - '#but returns App\\Data\\Database\\EntityRepository\\AbstractEntityRepository#'
-        # todo - need to understand these better
-        - '#has no typehint specified#'
+        # Type hints for DB entities not worth it until PHP 7.4 #
+        - '#Property App\\Data\\Database\\Entity#'
+        # todo - come back to these when in the mood
         - '#no value type specified in iterable type#'
+

@@ -126,6 +126,10 @@ class AuthenticationService extends AbstractService
         $this->entityManager->getAuthenticationTokenRepo()->deleteById($userAuthentication->getId());
     }
 
+    /**
+     * @param User $user
+     * @return AuthProvider[]
+     */
     public function getAuthProviders(User $user): array
     {
         $providers = [];

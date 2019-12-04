@@ -40,7 +40,7 @@ class MakeShipClassesCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making the classes');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -118,6 +118,8 @@ class MakeShipClassesCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 
     private function getPlayerRank(string $inputString): PlayerRank

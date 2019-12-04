@@ -6,7 +6,6 @@ namespace App;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ExceptionListener
@@ -20,7 +19,7 @@ class ExceptionListener
      */
     private $logger;
 
-    public function __construct(bool $debug = false, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, bool $debug = false)
     {
         $this->debug = $debug;
         $this->logger = $logger;

@@ -21,6 +21,9 @@ class UsersService extends AbstractService
 {
     private const DELETE_DELAY = 'PT15M';
 
+    /**
+     * @var UserMapper|null
+     */
     private $userMapper;
 
     public function getById(
@@ -218,6 +221,10 @@ class UsersService extends AbstractService
         return $this->userMapper;
     }
 
+    /**
+     * @param array[]|null $result
+     * @return User|null
+     */
     protected function mapSingle(?array $result): ?User
     {
         if (!$result) {

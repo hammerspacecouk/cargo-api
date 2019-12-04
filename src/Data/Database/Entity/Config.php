@@ -18,7 +18,7 @@ class Config extends AbstractEntity
     public $value;
 
     public function __construct(
-        $value
+        array $value
     ) {
         parent::__construct();
         $this->value = $value;

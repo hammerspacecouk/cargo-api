@@ -22,20 +22,33 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
 {
     private const DEFAULT_PAGE_SIZE = 15;
 
+    /**
+     * @param int $limit
+     * @param int $offset
+     * @param int $resultType
+     * @return mixed
+     */
     public function getAllLatest(
         int $limit = self::DEFAULT_PAGE_SIZE,
         int $offset = 0,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->buildSelect($limit, $offset);
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $userId
+     * @param int $limit
+     * @param int $offset
+     * @param int $resultType
+     * @return mixed
+     */
     public function getLatestForUserId(
         UuidInterface $userId,
         int $limit = self::DEFAULT_PAGE_SIZE,
         int $offset = 0,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->buildSelect($limit, $offset)
             ->where('IDENTITY(tbl.actioningPlayer) = :userId')
@@ -45,11 +58,18 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $userId
+     * @param int $limit
+     * @param int $offset
+     * @param int $resultType
+     * @return mixed
+     */
     public function getLatestForPortId(
         UuidInterface $userId,
         int $limit = self::DEFAULT_PAGE_SIZE,
         int $offset = 0,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->buildSelect($limit, $offset)
             ->where('IDENTITY(tbl.subjectPort) = :portId')
@@ -179,7 +199,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         Ship $affectedShip,
         Effect $effect,
         int $damage
-    ) {
+    ): Event {
         return $this->log(
             ($damage >= $affectedShip->strength) ?
                 DomainEvent::ACTION_EFFECT_DESTROYED : DomainEvent::ACTION_EFFECT_OFFENCE,

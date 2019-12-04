@@ -18,7 +18,10 @@ class SessionState implements \JsonSerializable
         $this->rankStatus = $rankStatus;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'isLoggedIn' => (bool)$this->player,

@@ -22,6 +22,9 @@ class PlayerRanksService extends AbstractService
             ->getPlayerRank($result);
     }
 
+    /**
+     * @return PlayerRank[]
+     */
     public function getList(): array
     {
         $results = $this->entityManager->getPlayerRankRepo()->getList();

@@ -9,6 +9,9 @@ use App\Domain\Entity\Port;
 
 class ChannelsService extends AbstractService
 {
+    /**
+     * @return Channel[]
+     */
     public function getAll(): array
     {
         $qb = $this->getQueryBuilder(DbChannel::class)

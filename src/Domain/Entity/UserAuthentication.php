@@ -12,10 +12,8 @@ class UserAuthentication extends Entity implements \JsonSerializable
 {
     private $user;
     private $creationTime;
-    private $ipAddress;
     private $lastUsed;
     private $expiry;
-    private $description;
 
     public function __construct(
         UuidInterface $id,
@@ -29,14 +27,6 @@ class UserAuthentication extends Entity implements \JsonSerializable
         $this->lastUsed = $lastUsed;
         $this->expiry = $expiry;
         $this->user = $user;
-    }
-
-    public function getIpAddress(): ?string
-    {
-        if (!empty($this->ipAddress)) {
-            return $this->ipAddress;
-        }
-        return null;
     }
 
     public function getCreationTime(): DateTimeImmutable
@@ -54,11 +44,6 @@ class UserAuthentication extends Entity implements \JsonSerializable
         return $this->expiry;
     }
 
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
     public function getUser(): User
     {
         if ($this->user === null) {
@@ -67,7 +52,10 @@ class UserAuthentication extends Entity implements \JsonSerializable
         return $this->user;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         $data = [
             'creationTime' => $this->getCreationTime()->format(DateTimeFactory::FULL),

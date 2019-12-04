@@ -15,6 +15,10 @@ use Doctrine\ORM\Query;
 
 class UpgradesService extends AbstractService
 {
+    /**
+     * @param User $user
+     * @return Transaction[]
+     */
     public function getAvailableShipsForUser(User $user): array
     {
         // get the full list, then blank out any that aren't met by the rank
@@ -30,7 +34,7 @@ class UpgradesService extends AbstractService
                 return new LockedTransaction($mapped->getMinimumRank());
             }
 
-            $alreadyOwned = $shipCountsByClassId[(string)$mapped->getId()] ?? 0;
+            $alreadyOwned = $shipCountsByClassId[$mapped->getId()->toString()] ?? 0;
 
             $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                 $user->getId(),

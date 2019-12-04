@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2543f0dabb85019374e700332e934a10",
+    "content-hash": "6e9696ef53cedda6439b4aa0aa1c03fa",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -5504,16 +5504,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "dev-master",
+            "version": "0.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "5ca8370dc8551d77de6c9fab34969271d67b19c0"
+                "reference": "1cc06d8493917d16b1742f6c9fd2963c51a4e773"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5ca8370dc8551d77de6c9fab34969271d67b19c0",
-                "reference": "5ca8370dc8551d77de6c9fab34969271d67b19c0",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1cc06d8493917d16b1742f6c9fd2963c51a4e773",
+                "reference": "1cc06d8493917d16b1742f6c9fd2963c51a4e773",
                 "shasum": ""
             },
             "require": {
@@ -5540,11 +5540,11 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
-            "time": "2019-12-03T15:41:09+00:00"
+            "time": "2019-12-04T00:09:47+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "dev-master",
+            "version": "0.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-doctrine.git",
@@ -5608,7 +5608,7 @@
         },
         {
             "name": "phpstan/phpstan-phpunit",
-            "version": "dev-master",
+            "version": "0.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-phpunit.git",
@@ -6871,16 +6871,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.2",
+            "version": "3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7"
+                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
-                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
+                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
                 "shasum": ""
             },
             "require": {
@@ -6918,7 +6918,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-10-28T04:36:32+00:00"
+            "time": "2019-12-04T04:46:47+00:00"
         },
         {
             "name": "symfony/dotenv",
@@ -7202,9 +7202,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "phploc/phploc": 20,
-        "phpstan/phpstan": 20,
-        "phpstan/phpstan-doctrine": 20,
-        "phpstan/phpstan-phpunit": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,

@@ -7,7 +7,7 @@ use App\Data\Database\Entity\Config;
 
 class ConfigRepository extends AbstractEntityRepository
 {
-    public function get()
+    public function get(): object
     {
         $result = $this->findOneBy([]);
         if (!$result) {
@@ -16,7 +16,7 @@ class ConfigRepository extends AbstractEntityRepository
         return $result->value;
     }
 
-    public function set($value)
+    public function set(array $value): void
     {
         $result = $this->findOneBy([]);
         if ($result) {

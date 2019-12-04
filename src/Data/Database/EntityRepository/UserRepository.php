@@ -44,9 +44,14 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $user;
     }
 
+    /**
+     * @param UuidInterface $userId
+     * @param int $resultType
+     * @return mixed
+     */
     public function getByIDWithHomePort(
         UuidInterface $userId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'homePort')
@@ -103,9 +108,14 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $this->clampScore($currentScore + $delta);
     }
 
+    /**
+     * @param UuidInterface $userId
+     * @param int $resultType
+     * @return mixed
+     */
     public function findWithLastSeenRank(
         UuidInterface $userId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'r')
@@ -130,12 +140,12 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $count;
     }
 
-    private function clampScore($score): int
+    private function clampScore(int $score): int
     {
         return clamp($score, 0, PHP_INT_MAX);
     }
 
-    private function clampRate($rate): int
+    private function clampRate(int $rate): int
     {
         return clamp($rate, -self::MAX_RATE_DELTA, self::MAX_RATE_DELTA);
     }

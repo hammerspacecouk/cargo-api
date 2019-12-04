@@ -65,7 +65,10 @@ class Channel extends Entity implements \JsonSerializable
         return $this->minimumStrength;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): ?array
     {
         // must not be exposed without explicit consent
         return null;
@@ -81,7 +84,7 @@ class Channel extends Entity implements \JsonSerializable
         return $this->minimumRank;
     }
 
-    public function isReversed(Port $startingPort)
+    public function isReversed(Port $startingPort): bool
     {
         return !$this->getOrigin()->equals($startingPort);
     }

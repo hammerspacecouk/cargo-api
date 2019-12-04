@@ -34,6 +34,7 @@ use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Infrastructure\DateTimeFactory;
+use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +49,9 @@ class TokenAction
     use CacheControlResponseTrait;
 
     private $now;
+    /**
+     * @var DateTimeImmutable
+     */
     private $yesterday;
     private $logger;
     private $acknowledgePromotionAction;
@@ -184,7 +188,7 @@ class TokenAction
         throw new BadRequestHttpException('Invalid token type');
     }
 
-    private function getTokenString(Request $request)
+    private function getTokenString(Request $request): string
     {
         if ($request->getContentType() === 'json') {
             $data = jsonDecode((string)$request->getContent());
@@ -206,7 +210,7 @@ class TokenAction
         throw new ConflictHttpException('Not available outside of JSON yet');
     }
 
-    private function errorResponse(string $message, $code = Response::HTTP_INTERNAL_SERVER_ERROR): Response
+    private function errorResponse(string $message, int $code = Response::HTTP_INTERNAL_SERVER_ERROR): Response
     {
         $data = [
             'error' => $message,

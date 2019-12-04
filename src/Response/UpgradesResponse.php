@@ -16,6 +16,10 @@ class UpgradesResponse
         $this->upgradesService = $upgradesService;
     }
 
+    /**
+     * @param User $user
+     * @return array<string, mixed>
+     */
     public function getResponseDataForUser(User $user): array
     {
         return [

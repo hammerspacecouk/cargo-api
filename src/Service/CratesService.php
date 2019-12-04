@@ -36,6 +36,12 @@ class CratesService extends AbstractService
         $this->entityManager->flush();
     }
 
+    /**
+     * @param Port $port
+     * @param User $user
+     * @param int $limit
+     * @return CrateLocation[]
+     */
     public function findInPortForUser(Port $port, User $user, int $limit = 50): array
     {
         if ($user->getRank()->isTutorial()) {
@@ -47,9 +53,8 @@ class CratesService extends AbstractService
                 );
         } else {
             $results = $this->entityManager->getCrateLocationRepo()
-                ->findWithCrateForPortIdAndUserId(
+                ->findWithCrateForPortId(
                     $port->getId(),
-                    $user->getId(),
                     $limit
                 );
         }

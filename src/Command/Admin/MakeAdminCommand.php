@@ -37,7 +37,7 @@ class MakeAdminCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $uuid = Uuid::fromString($this->getStringArgument($input, 'uuid'));
         /** @var User|null $entity */
         $entity = $this->entityManager->getUserRepo()->getByID($uuid, Query::HYDRATE_OBJECT);
@@ -50,7 +50,8 @@ class MakeAdminCommand extends AbstractCommand
 
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
-
         $output->writeln('Done');
+
+        return 0;
     }
 }

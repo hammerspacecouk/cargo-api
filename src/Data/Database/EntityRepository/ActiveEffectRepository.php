@@ -52,10 +52,16 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
         return $activeEffect;
     }
 
+    /**
+     * @param UuidInterface $shipId
+     * @param string|null $effectType
+     * @param int $resultType
+     * @return mixed
+     */
     public function findActiveForShipId(
         UuidInterface $shipId,
         ?string $effectType = null,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'e')
@@ -87,9 +93,12 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
         return $this->removeExpired($now);
     }
 
+    /**
+     * @param UuidInterface[] $effectIdsToExpire
+     */
     public function expireByIds(array $effectIdsToExpire): void
     {
-        $ids = \array_map(function (UuidInterface $uuid) {
+        $ids = \array_map(static function (UuidInterface $uuid) {
             return $uuid->getBytes();
         }, $effectIdsToExpire);
 

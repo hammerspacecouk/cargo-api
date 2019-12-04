@@ -41,9 +41,9 @@
     },
     "require-dev": {
         "phploc/phploc": "dev-master",
-        "phpstan/phpstan": "dev-master",
-        "phpstan/phpstan-doctrine": "dev-master",
-        "phpstan/phpstan-phpunit": "dev-master",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-doctrine": "^0.12",
+        "phpstan/phpstan-phpunit": "^0.12",
         "phpunit/phpunit": "^8.0",
         "roave/security-advisories": "dev-master",
         "squizlabs/php_codesniffer": "^3.2",

@@ -18,7 +18,10 @@ abstract class AbstractActionToken extends AbstractToken implements JsonSerializ
         $this->path = $path;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, string>
+     */
+    public function jsonSerialize(): array
     {
         if (!$this->path) {
             throw new DataNotFetchedException('Tried to render a token without setting a path');
@@ -26,7 +29,7 @@ abstract class AbstractActionToken extends AbstractToken implements JsonSerializ
 
         return [
             'path' => '/token',
-            'token' => $this->path . (string)$this,
+            'token' => $this->path . $this,
         ];
     }
 }

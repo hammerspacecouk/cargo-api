@@ -12,7 +12,10 @@ class Messages implements \JsonSerializable
         $this->messages = $messages;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return $this->messages;
     }

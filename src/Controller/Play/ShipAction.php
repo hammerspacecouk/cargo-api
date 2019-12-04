@@ -20,15 +20,7 @@ class ShipAction extends AbstractUserAction
 {
     use GetShipTrait;
 
-    private $algorithmService;
     private $shipsService;
-    private $shipMovementService;
-    private $shipNameService;
-    private $channelsService;
-    private $playerRanksService;
-    private $eventsService;
-    private $cratesService;
-    private $applicationConfig;
     private $shipInLocationResponse;
 
     public static function getRouteDefinition(): Route

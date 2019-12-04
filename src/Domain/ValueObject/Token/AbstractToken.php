@@ -16,7 +16,13 @@ abstract class AbstractToken
     public const EXPIRY = 'PT1H';
     public const TOKEN_HEADER = 'v2.local.';
 
+    /**
+     * @var JsonToken
+     */
     protected $token;
+    /**
+     * @var string
+     */
     protected $tokenString;
     private $id;
     private $expiry;

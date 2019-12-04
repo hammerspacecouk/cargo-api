@@ -10,6 +10,9 @@ class ConfigService extends AbstractService
         return $this->entityManager->getConfigRepo()->get();
     }
 
+    /**
+     * @param array<mixed> $value
+     */
     public function setConfig(array $value): void
     {
         $this->entityManager->getConfigRepo()->set($value);

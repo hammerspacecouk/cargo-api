@@ -39,7 +39,7 @@ class MakePlayerRanksCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making the ranks');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -86,5 +86,7 @@ class MakePlayerRanksCommand extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 }

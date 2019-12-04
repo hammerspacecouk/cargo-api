@@ -34,12 +34,14 @@ class DecodeTokenCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $tokenString = $this->getStringArgument($input, 'tokenString');
         $token = $this->tokenProvider->parseTokenFromString($tokenString, false);
 
         $output->writeln(
             \json_encode($token->getClaims(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
+
+        return 0;
     }
 }

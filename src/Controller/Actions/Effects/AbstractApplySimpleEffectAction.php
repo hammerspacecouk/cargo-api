@@ -10,6 +10,9 @@ use Psr\Log\LoggerInterface;
 abstract class AbstractApplySimpleEffectAction
 {
     private $effectsService;
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
 
     public function __construct(

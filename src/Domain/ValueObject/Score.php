@@ -37,7 +37,10 @@ class Score implements \JsonSerializable
         return $this->calculationTime;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'type' => 'Score',

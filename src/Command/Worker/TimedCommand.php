@@ -12,10 +12,17 @@ use App\Service\ChannelsService;
 use App\Service\CratesService;
 use App\Service\ShipLocationsService;
 use App\Service\Ships\ShipMovementService;
+use DateTimeImmutable;
+use LogicException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function array_filter;
+use function array_map;
+use function array_rand;
+use function ceil;
+use function count;
 
 class TimedCommand extends Command
 {
@@ -71,13 +78,13 @@ class TimedCommand extends Command
         // todo - if the number of goalCrates is below x% of the user count, make a new one
 
         $this->logger->notice(
-            '[WORKER] [TIMED] [SHUTDOWN] ' . (string)\ceil((microtime(true) - $start) * 1000) . 'ms'
+            '[WORKER] [TIMED] [SHUTDOWN] ' . ceil((microtime(true) - $start) * 1000) . 'ms'
         );
 
         return 0;
     }
 
-    private function autoMoveShips($now): void
+    private function autoMoveShips(DateTimeImmutable $now): void
     {
         // find ships of capacity 0 that have been sitting in a port for a while
         $shipsToMove = $this->shipLocationsService->getStagnantProbes($now, self::BATCH_SIZE);
@@ -86,11 +93,13 @@ class TimedCommand extends Command
             return;
         }
 
-        $this->logger->info(\count($shipsToMove) . ' ships to move');
+        $this->logger->info(count($shipsToMove) . ' ships to move');
 
         // for each of them, find all the possible directions they can use
         foreach ($shipsToMove as $shipLocation) {
-            /** @var ShipInPort $shipLocation */
+            if (!$shipLocation instanceof ShipInPort) {
+                throw new LogicException('Required ShipInPort but got something else');
+            }
             $port = $shipLocation->getPort();
             $ship = $shipLocation->getShip();
             $player = $shipLocation->getShip()->getOwner();
@@ -99,7 +108,7 @@ class TimedCommand extends Command
             $channels = $this->channelsService->getAllLinkedToPort($port);
 
             // make direction objects
-            $directions = \array_map(function (Channel $channel) use ($port, $player, $ship) {
+            $directions = array_map(function (Channel $channel) use ($port, $player, $ship) {
                 $destination = $channel->getDestination($port);
 
                 return new Direction(
@@ -119,7 +128,7 @@ class TimedCommand extends Command
             }, $channels);
 
             // of the possible directions, find which ones the ship is allowed to travel
-            $directions = \array_filter($directions, static function (Direction $direction) {
+            $directions = array_filter($directions, static function (Direction $direction) {
                 return $direction->isAllowedToEnter();
             });
 
@@ -131,7 +140,7 @@ class TimedCommand extends Command
             $direction = null;
             if (!empty($nextOptions)) {
                 $this->logger->info('Moving ship ' . $ship->getName() . ' to a new port');
-                $direction = $nextOptions[\array_rand($nextOptions)];
+                $direction = $nextOptions[array_rand($nextOptions)];
             }
 
             // if not found, choose the one the player hasn't been to most recently

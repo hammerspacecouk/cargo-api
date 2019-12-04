@@ -30,7 +30,10 @@ class Crate extends Entity implements \JsonSerializable
         return $this->value * $distanceMultiplier;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         $data = [
             'id' => $this->id,

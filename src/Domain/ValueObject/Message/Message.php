@@ -15,7 +15,10 @@ abstract class Message implements \JsonSerializable
         $this->message = $message;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'type' => $this->getTypeString(),
@@ -28,7 +31,7 @@ abstract class Message implements \JsonSerializable
         return static::WEIGHTING;
     }
 
-    private function getTypeString()
+    private function getTypeString(): ?string
     {
         return static::TYPE;
     }

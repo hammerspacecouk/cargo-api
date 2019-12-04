@@ -6,22 +6,17 @@ namespace App\Service;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Domain\Entity\Port;
+use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use Exception;
+use function array_map;
 
 class ShipLocationsService extends AbstractService
 {
     private const AUTO_MOVE_TIME = 'PT1H';
-
-    public function findLatest(
-        int $limit,
-        int $page = 1
-    ): array {
-        $locations = $this->entityManager->getShipLocationRepo()->getLatest($limit, $this->getOffset($limit, $page));
-        return $this->mapMany($locations);
-    }
 
     public function processOldestExpired(
         DateTimeImmutable $since,
@@ -43,14 +38,11 @@ class ShipLocationsService extends AbstractService
         return $total;
     }
 
-    public function removeInactive(
-        DateTimeImmutable $now
-    ): int {
-        $daysToConsiderInactive = 14;
-        $before = $now->sub(new DateInterval('P' . $daysToConsiderInactive . 'D'));
-        return $this->entityManager->getShipLocationRepo()->removeInactiveBefore($before);
-    }
-
+    /**
+     * @param DateTimeImmutable $before
+     * @param int $limit
+     * @return ShipLocation[]
+     */
     public function getStagnantProbes(
         DateTimeImmutable $before,
         int $limit
@@ -98,7 +90,7 @@ class ShipLocationsService extends AbstractService
         }
 
         // reverse the delta from this journey originally
-        $delta = -$currentLocation->scoreDelta;
+        $delta = (int)-$currentLocation->scoreDelta;
 
         $crateLocations = $this->entityManager->getCrateLocationRepo()->findCurrentForShipID(
             $ship->id,
@@ -149,11 +141,15 @@ class ShipLocationsService extends AbstractService
         });
     }
 
+    /**
+     * @param array[] $results
+     * @return ShipLocation[]
+     */
     private function mapMany(array $results): array
     {
         $mapper = $this->mapperFactory->createShipLocationMapper();
 
-        return \array_map(static function ($result) use ($mapper) {
+        return array_map(static function ($result) use ($mapper) {
             return $mapper->getShipLocation($result);
         }, $results);
     }

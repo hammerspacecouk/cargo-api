@@ -48,7 +48,7 @@ class UpdateDictionary extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Fetching source data');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -87,5 +87,7 @@ class UpdateDictionary extends AbstractCommand
 
         $output->writeln('');
         $output->writeln('Done');
+
+        return 0;
     }
 }

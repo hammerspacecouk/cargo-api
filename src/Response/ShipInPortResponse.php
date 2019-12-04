@@ -18,6 +18,12 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipInPortResponse extends AbstractShipInLocationResponse
 {
+    /**
+     * @param User $user
+     * @param Ship $ship
+     * @param ShipLocation $location
+     * @return array<string, mixed>
+     */
     public function getResponseData(
         User $user,
         Ship $ship,
@@ -107,6 +113,12 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         return $data;
     }
 
+    /**
+     * @param Port $port
+     * @param Ship $currentShip
+     * @param TacticalEffect[] $tacticalOptions
+     * @return array<int, array<string, mixed>>
+     */
     private function getShipsInPort(
         Port $port,
         Ship $currentShip,
@@ -156,6 +168,14 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         return $ships;
     }
 
+    /**
+     * @param Port $port
+     * @param Ship $ship
+     * @param User $user
+     * @param int $cratesAlreadyOnShip
+     * @param string $moveCrateGroupKey
+     * @return array<string, mixed>
+     */
     private function getCratesInPort(
         Port $port,
         Ship $ship,
@@ -188,6 +208,13 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }, $cratesInPort);
     }
 
+    /**
+     * @param Crate[] $crates
+     * @param Port $port
+     * @param Ship $ship
+     * @param string|null $groupTokenKey
+     * @return array<string, mixed>
+     */
     private function getCratesOnShip(
         array $crates,
         Port $port,
@@ -207,6 +234,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }, $crates);
     }
 
+    /**
+     * @param Port $port
+     * @param Ship $ship
+     * @param User $user
+     * @param int $totalCrateValue
+     * @param UuidInterface $currentLocation
+     * @param TacticalEffect[] $tacticalOptions
+     * @return array<string, mixed>
+     */
     private function getDirectionsFromPort(
         Port $port,
         Ship $ship,

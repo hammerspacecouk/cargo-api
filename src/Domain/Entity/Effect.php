@@ -16,6 +16,9 @@ abstract class Effect extends Entity implements \JsonSerializable
     private $durationSeconds;
     private $hitCount;
     private $displayGroup;
+    /**
+     * @var array<mixed>|null
+     */
     protected $value;
 
     public function __construct(
@@ -40,7 +43,10 @@ abstract class Effect extends Entity implements \JsonSerializable
         $this->displayGroup = $displayGroup;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
@@ -110,7 +116,7 @@ abstract class Effect extends Entity implements \JsonSerializable
         return $this->value;
     }
 
-    public function sortCompare(Effect $effect)
+    public function sortCompare(Effect $effect): int
     {
         // returns -1 if this instance should be before $effect
         $positions = array_flip(EnumEffectsDisplayGroupType::ALL_TYPES);

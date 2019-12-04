@@ -16,7 +16,10 @@ class LockedTransaction extends Transaction
         $this->minimumRank = $minimumRank;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'available' => false,

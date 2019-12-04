@@ -28,11 +28,12 @@ class MakeCrateCommand extends Command
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) {
+    ): int {
         $output->writeln('Making a new crate');
 
         $this->cratesService->makeNew();
-
         $output->writeln('Done');
+
+        return 0;
     }
 }

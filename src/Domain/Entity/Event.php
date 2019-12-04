@@ -61,7 +61,10 @@ class Event extends Entity implements \JsonSerializable
         $this->effect = $effect;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

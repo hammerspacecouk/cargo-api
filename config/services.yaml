@@ -81,7 +81,7 @@ services:
     class: App\Infrastructure\Cache
 
   Psr\Cache\CacheItemPoolInterface:
-    class: Symfony\Component\Cache\Adapter\PhpFilesAdapter
+    class: Symfony\Component\Cache\Adapter\NullAdapter
 
   Ramsey\Uuid\UuidFactoryInterface:
     class: Ramsey\Uuid\UuidFactory
@@ -175,7 +175,7 @@ services:
 
   App\ExceptionListener:
     arguments:
-      $debug: '%kernel.debug%'
       $logger: '@logger'
+      $debug: '%kernel.debug%'
     tags:
       - { name: kernel.event_listener, event: kernel.exception }

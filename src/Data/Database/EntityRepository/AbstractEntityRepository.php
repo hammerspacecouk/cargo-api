@@ -59,9 +59,14 @@ abstract class AbstractEntityRepository extends EntityRepository
         $this->_em = $em;
     }
 
+    /**
+     * @param UuidInterface $uuid
+     * @param int $resultType
+     * @return mixed
+     */
     public function getByID(
         UuidInterface $uuid,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->where('tbl.id = :id')

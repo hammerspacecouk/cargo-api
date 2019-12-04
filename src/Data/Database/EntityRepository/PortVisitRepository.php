@@ -11,10 +11,16 @@ use Ramsey\Uuid\UuidInterface;
 
 class PortVisitRepository extends AbstractEntityRepository
 {
+    /**
+     * @param UuidInterface $portId
+     * @param UuidInterface $playerId
+     * @param int $resultType
+     * @return mixed
+     */
     public function getForPortAndUser(
         UuidInterface $portId,
         UuidInterface $playerId,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         return $this->createQueryBuilder('tbl')
             ->select('tbl')

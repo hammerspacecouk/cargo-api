@@ -11,12 +11,19 @@ use Ramsey\Uuid\UuidInterface;
 
 class UserEffectRepository extends AbstractEntityRepository
 {
-    // purposely only cached for this request
+    /**
+     * @var array<string, mixed>
+     */
     private $userCache = [];
 
+    /**
+     * @param UuidInterface $uuid
+     * @param int $resultType
+     * @return mixed
+     */
     public function getByIDWithEffect(
         UuidInterface $uuid,
-        $resultType = Query::HYDRATE_ARRAY
+        int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'effect')
@@ -26,23 +33,10 @@ class UserEffectRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    public function countForUserId(UuidInterface $effectId, UuidInterface $userId): int
-    {
-        $all = $this->getAllForUserId($userId);
-        return \count(\array_filter($all, function (array $userEffect) use ($effectId) {
-            $id = $userEffect['effect']['id'];
-            /** @var $id UuidInterface */
-            return $id->equals($effectId);
-        }));
-    }
-
-    public function getAllOfTypeForUserId(UuidInterface $userId, string $type): array
-    {
-        return \array_filter($this->getAllForUserId($userId), static function ($result) use ($type) {
-            return $result['effect']['type'] === $type;
-        });
-    }
-
+    /**
+     * @param UuidInterface $userId
+     * @return mixed
+     */
     public function getAllForUserId(UuidInterface $userId)
     {
         if (isset($this->userCache[$userId->toString()])) {
