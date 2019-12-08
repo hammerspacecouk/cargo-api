@@ -51,6 +51,6 @@ class MapAction
     private function buildSvg(): string
     {
         // temporary
-        return trim(file_get_contents(__DIR__ . '/../../../build/map.svg'));
+        return trim((string)@file_get_contents(__DIR__ . '/../../../build/map.svg'));
     }
 }
