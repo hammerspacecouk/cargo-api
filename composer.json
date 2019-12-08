@@ -69,8 +69,7 @@
         "tests": [
             "@test",
             "@cs",
-            "@stan",
-            "@loc"
+            "@stan"
         ],
         "test": "phpunit",
         "loc": "phploc public src tests bin",
