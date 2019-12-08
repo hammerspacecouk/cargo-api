@@ -42,6 +42,7 @@ $actions = [
     // play (requires cookie)
     Controller\Play\IndexAction::class,
     Controller\Play\UpgradesAction::class,
+    Controller\Play\MapAction::class,
     Controller\Play\ShipAction::class,
 
     // use token
