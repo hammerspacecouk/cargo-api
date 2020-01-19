@@ -6,7 +6,6 @@ namespace App\Data\Database\Mapper;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
-use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Score;
 
 class UserMapper extends Mapper
@@ -20,8 +19,8 @@ class UserMapper extends Mapper
         return new User(
             $item['id'],
             $item['rotationSteps'],
-            new Colour($item['colour']),
             $this->mapScore($item),
+            $item['emblemSvg'],
             $this->isAnonymous($item),
             $item['createdAt'],
             $item['permissionLevel'],

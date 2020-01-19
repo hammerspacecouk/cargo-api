@@ -21,21 +21,16 @@ class PlayerRank extends AbstractEntity
     /** @ORM\Column(type="text") */
     public $description;
 
-    /** @ORM\Column(type="text") */
-    public $emblemSvg;
-
     /** @ORM\Column(type="integer", unique=true) */
     public $threshold;
 
     public function __construct(
         string $name,
-        string $emblemSvg,
         string $description,
         int $threshold
     ) {
         parent::__construct();
         $this->name = $name;
-        $this->emblemSvg = $emblemSvg;
         $this->threshold = $threshold;
         $this->description = $description;
     }

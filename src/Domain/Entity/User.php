@@ -13,19 +13,19 @@ use Ramsey\Uuid\UuidInterface;
 class User extends Entity implements \JsonSerializable
 {
     private $rotationSteps;
-    private $colour;
     private $score;
     private $homePort;
     private $isAnonymous;
     private $playStartTime;
     private $playerRank;
     private $permissionLevel;
+    private $emblem;
 
     public function __construct(
         UuidInterface $id,
         int $rotationSteps,
-        Colour $colour,
         Score $score,
+        string $emblem,
         bool $isAnonymous,
         DateTimeImmutable $playStartTime,
         int $permissionLevel,
@@ -38,9 +38,9 @@ class User extends Entity implements \JsonSerializable
         $this->homePort = $homePort;
         $this->isAnonymous = $isAnonymous;
         $this->playStartTime = $playStartTime;
-        $this->colour = $colour;
         $this->playerRank = $playerRank;
         $this->permissionLevel = $permissionLevel;
+        $this->emblem = $emblem;
     }
 
     /**
@@ -52,7 +52,6 @@ class User extends Entity implements \JsonSerializable
             'id' => $this->getId(),
             'score' => $this->getScore(),
             'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
-            'colour' => $this->colour,
         ];
         if ($this->homePort) {
             $data['homePort'] = $this->getHomePort();
@@ -66,10 +65,19 @@ class User extends Entity implements \JsonSerializable
 
     public function getEmblemPath(): string
     {
-        return '/emblem/' . $this->getRank()->getId()->toString() .
-            '-' . $this->getRank()->getEmblemHash() .
-            '-' . $this->getColour() .
+        return '/emblem/' . $this->getId()->toString() .
+            '-' . $this->getEmblemHash() .
             '.svg';
+    }
+
+    public function getEmblem(): string
+    {
+        return $this->emblem;
+    }
+
+    public function getEmblemHash(): string
+    {
+        return \md5($this->emblem); // used as a cache buster. needs to be quick, not secure
     }
 
     /**
@@ -84,11 +92,6 @@ class User extends Entity implements \JsonSerializable
     public function getScore(): Score
     {
         return $this->score;
-    }
-
-    public function getColour(): Colour
-    {
-        return $this->colour;
     }
 
     public function getHomePort(): Port
