@@ -34,6 +34,13 @@ class UsersService extends AbstractService
         );
     }
 
+    public function getTopUsers()
+    {
+        return array_map(function($result) {
+            return $this->getMapper()->getUser($result);
+        }, $this->entityManager->getUserRepo()->findTop());
+    }
+
     public function getLoginToken(string $type): SimpleDataToken
     {
         $token = $this->tokenHandler->makeToken(...SimpleDataToken::make(['login' => $type]));

@@ -27,17 +27,21 @@ $actions = [
     Controller\Security\LoginMicrosoftAction::class,
     Controller\Security\LoginRedditAction::class,
 
+    // players
+    Controller\Players\TopPlayersAction::class,
+    Controller\Players\ShowAction::class,
+
     // ports
     Controller\Ports\ListAction::class,
     Controller\Ports\ShowAction::class,
 
     // ships
-    Controller\Ships\ListAction::class,
-    Controller\Ships\ShowAction::class,
+    // Controller\Ships\ListAction::class,
+    // Controller\Ships\ShowAction::class,
 
     // profile (requires cookie)
-    Controller\Profile\ShowAction::class,
-    Controller\Profile\DeleteAction::class,
+    // Controller\Profile\ShowAction::class,
+    // Controller\Profile\DeleteAction::class,
 
     // play (requires cookie)
     Controller\Play\IndexAction::class,

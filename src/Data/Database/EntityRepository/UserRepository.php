@@ -125,6 +125,23 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+
+    /**
+     * @param int $resultType
+     * @return mixed
+     */
+    public function findTop(
+        int $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'r')
+            ->join('tbl.lastRankSeen', 'r')
+            ->orderBy('r.threshold', 'DESC')
+            ->addOrderBy('tbl.score', 'DESC')
+            ->setMaxResults(100);
+        return $qb->getQuery()->getResult($resultType);
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         // remove IP hashes from User accounts older than X minutes
