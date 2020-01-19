@@ -33,15 +33,14 @@ class ShowAction
     public function __construct(
         ShipsService $shipsService,
         UsersService $usersService
-    ){
+    ) {
         $this->usersService = $usersService;
         $this->shipsService = $shipsService;
     }
 
     public function __invoke(
         Request $request
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $uuid = $this->getIDFromUrl($request);
         $player = $this->usersService->getById($uuid);
         if (!$player) {

@@ -25,7 +25,7 @@ class TopPlayersAction
     ): JsonResponse {
 
         $r = new JsonResponse([
-            'players' => $usersService->getTopUsers()
+            'players' => $usersService->getTopUsers(),
         ]);
         $r->setMaxAge(60 * 10);
         $r->setPublic();

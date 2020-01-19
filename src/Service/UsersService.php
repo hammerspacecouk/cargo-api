@@ -34,9 +34,9 @@ class UsersService extends AbstractService
         );
     }
 
-    public function getTopUsers()
+    public function getTopUsers(): array
     {
-        return array_map(function($result) {
+        return array_map(function ($result) {
             return $this->getMapper()->getUser($result);
         }, $this->entityManager->getUserRepo()->findTop());
     }
