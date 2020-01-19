@@ -168,10 +168,20 @@ class UsersService extends AbstractService
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
+            $emblemColour = Colour::makeInitialRandomValue();
+
+            /** @noinspection RandomApiMigrationInspection - purposely want to use the seeded value */
+            $emblemFile = \dechex(\mt_rand(0, 15));
+            $emblem = \file_get_contents(__DIR__ . '/../Data/Static/Emblems/' . $emblemFile . '.svg');
+            if (!$emblem) {
+                throw new \RuntimeException('Could not get file');
+            }
+            $emblem = \str_replace('fefefe', (string)$emblemColour, $emblem);
+
             // Set the users original home port and persist the user
             $player = $this->entityManager->getUserRepo()->newPlayer(
                 $ipHash,
-                Colour::makeInitialRandomValue(),
+                $emblem,
                 Bearing::getInitialRandomStepNumber(),
                 $safeHaven,
                 $initialRank,

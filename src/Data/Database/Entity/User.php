@@ -31,8 +31,8 @@ class User extends AbstractEntity
     /** @ORM\Column(type="binary", nullable=true)) */
     public $anonymousIpHash;
 
-    /** @ORM\Column(type="string", length=6)) */
-    public $colour = '000000';
+    /** @ORM\Column(type="string", length=6, nullable=true)) */
+    public $colour = 'ffffff'; // todo - colour is being removed in favour of emblem
 
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
@@ -49,6 +49,9 @@ class User extends AbstractEntity
     /** @ORM\Column(type="datetime_microsecond") */
     public $scoreCalculationTime;
 
+    /** @ORM\Column(type="text") */
+    public $emblemSvg;
+
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      */
@@ -62,16 +65,16 @@ class User extends AbstractEntity
 
     public function __construct(
         ?string $ipHash,
-        string $colour,
+        string $emblemSvg,
         int $rotationSteps,
         Port $homePort,
         PlayerRank $lastRankSeen
     ) {
         parent::__construct();
         $this->anonymousIpHash = $ipHash;
-        $this->colour = $colour;
         $this->rotationSteps = $rotationSteps;
         $this->homePort = $homePort;
+        $this->emblemSvg = $emblemSvg;
         $this->scoreCalculationTime = (new \DateTimeImmutable())->setTimestamp(0);
         $this->lastRankSeen = $lastRankSeen;
     }

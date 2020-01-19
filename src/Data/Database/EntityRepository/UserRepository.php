@@ -20,7 +20,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function newPlayer(
         ?string $ipHash,
-        Colour $colour,
+        string $emblem,
         int $rotationSteps,
         Port $homePort,
         PlayerRank $initialRank,
@@ -29,7 +29,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
     ): User {
         $user = new User(
             $ipHash,
-            $colour->getHex(),
+            $emblem,
             $rotationSteps,
             $homePort,
             $initialRank,
