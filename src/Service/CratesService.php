@@ -264,4 +264,43 @@ class CratesService extends AbstractService
         }
         return $total;
     }
+
+    public function ensureEnoughGoalCrates(): void
+    {
+        // count the number of engaged users
+        $userCount = $this->entityManager->getUserRepo()->countEngagedUsers();
+
+        // count the number of goal crates
+        $crateCount = $this->entityManager->getCrateRepo()->countGoalCrates();
+
+        // if there are enough, nothing to do
+        $usersPerCrate = 10;
+        $expectedCount = max(1, (int)floor($userCount / $usersPerCrate));
+        if ($crateCount > $expectedCount) {
+            return;
+        }
+
+        // select a non-safe port at random
+        $port = $this->entityManager->getPortRepo()->getARandomDangerousPort(Query::HYDRATE_OBJECT);
+
+        // create a new crate and put it in the port
+        $this->entityManager->transactional(function () use ($port) {
+            $crateContents = $this->entityManager->getCrateTypeRepo()->getGoalCrateContents();
+            $crate = new DbCrate(
+                $crateContents->contents,
+                $crateContents->value,
+            );
+            $this->entityManager->persist($crate);
+
+            $this->entityManager->getCrateLocationRepo()->makeInPort(
+                $crate,
+                $port
+            );
+        });
+
+        $this->logger->notice('[NEW_GOAL_CRATE] Goal Crate Created', [
+            'userCount' => $userCount,
+            'newGoalCrateCount' => $crateCount + 1,
+        ]);
+    }
 }

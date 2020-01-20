@@ -16,7 +16,7 @@ class UpgradesAction extends AbstractUserAction
 
     public static function getRouteDefinition(): Route
     {
-        return new Route('/play/inventory', [
+        return new Route('/play/upgrades', [
             '_controller' => self::class,
         ]);
     }

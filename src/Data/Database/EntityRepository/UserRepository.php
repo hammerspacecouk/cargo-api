@@ -70,6 +70,17 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return (int)$qb->getQuery()->getSingleScalarResult();
     }
 
+    public function countEngagedUsers(): int
+    {
+        $engagementThreshold = 10;
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('COUNT(1)')
+            ->join('tbl.lastRankSeen', 'rank')
+            ->where('rank.threshold >= :threshold')
+            ->setParameter('threshold', $engagementThreshold);
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
     public function updateScoreRate(User $user, int $rateDelta = 0): void
     {
         $rate = ($user->scoreRate + $rateDelta);

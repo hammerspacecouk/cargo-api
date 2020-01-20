@@ -75,7 +75,7 @@ class TimedCommand extends Command
         // move hoarded crates back to the port after one hour
         $this->cratesService->restoreHoardedBackToPort($now, self::BATCH_SIZE);
 
-        // todo - if the number of goalCrates is below x% of the user count, make a new one
+        $this->cratesService->ensureEnoughGoalCrates();
 
         $this->logger->notice(
             '[WORKER] [TIMED] [SHUTDOWN] ' . ceil((microtime(true) - $start) * 1000) . 'ms'

@@ -49,4 +49,13 @@ class CrateRepository extends AbstractEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function countGoalCrates(): int
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('COUNT(1)')
+            ->where('tbl.isGoal = true')
+            ->andWhere('tbl.isDestroyed = false');
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
 }

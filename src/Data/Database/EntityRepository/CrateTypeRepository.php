@@ -23,6 +23,14 @@ class CrateTypeRepository extends AbstractEntityRepository
         return $this->getRandomWeighted($contents);
     }
 
+    public function getGoalCrateContents(): CrateType
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.isGoal = true');
+        return $qb->getQuery()->getSingleResult();
+    }
+
     private function getAvailableCrateTypes(): array
     {
         $cacheKey = __CLASS__ . '-' . __METHOD__;
@@ -58,7 +66,7 @@ class CrateTypeRepository extends AbstractEntityRepository
 
     private function getRandomWeighted(array $crateTypes): CrateType
     {
-        $total = \array_reduce($crateTypes, function (int $carry, CrateType $crateType) {
+        $total = \array_reduce($crateTypes, static function (int $carry, CrateType $crateType) {
             return $carry + $crateType->abundance;
         }, 0);
 

@@ -51,6 +51,7 @@ class ShipClass extends Entity implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
+            'id' => $this->getId(),
             'type' => 'ShipClass',
             'name' => $this->getName(),
             'description' => $this->getDescription(),
