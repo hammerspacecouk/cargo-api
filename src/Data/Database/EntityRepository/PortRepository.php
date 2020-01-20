@@ -27,6 +27,10 @@ class PortRepository extends AbstractEntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    /**
+     * @param int $resultType
+     * @return mixed
+     */
     public function getARandomDangerousPort(
         int $resultType = Query::HYDRATE_ARRAY
     ) {
