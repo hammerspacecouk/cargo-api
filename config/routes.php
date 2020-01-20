@@ -40,8 +40,8 @@ $actions = [
     // Controller\Ships\ShowAction::class,
 
     // profile (requires cookie)
-    // Controller\Profile\ShowAction::class,
-    // Controller\Profile\DeleteAction::class,
+    Controller\Profile\ShowAction::class,
+    Controller\Profile\DeleteAction::class,
 
     // play (requires cookie)
     Controller\Play\IndexAction::class,
