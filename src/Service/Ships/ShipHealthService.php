@@ -38,7 +38,7 @@ class ShipHealthService extends ShipsService
         User $user,
         Ship $ship
     ): Transaction {
-        if (!$ship->isFullStrength()) {
+        if ($ship->isFullStrength()) {
             return new Transaction(
                 Costs::SMALL_HEALTH_INCREASE,
                 null,
@@ -59,7 +59,7 @@ class ShipHealthService extends ShipsService
         User $user,
         Ship $ship
     ): Transaction {
-        if (!$ship->isFullStrength()) {
+        if ($ship->isFullStrength()) {
             return new Transaction(
                 Costs::LARGE_HEALTH_INCREASE,
                 null,
