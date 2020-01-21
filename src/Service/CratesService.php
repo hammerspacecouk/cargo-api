@@ -32,6 +32,7 @@ class CratesService extends AbstractService
             $crateContents->contents,
             $crateContents->value,
         );
+        $crate->isGoal = $crateContents->isGoal;
         $this->entityManager->persist($crate);
         $this->entityManager->flush();
     }
@@ -276,7 +277,7 @@ class CratesService extends AbstractService
         // if there are enough, nothing to do
         $usersPerCrate = 10;
         $expectedCount = max(1, (int)floor($userCount / $usersPerCrate));
-        if ($crateCount > $expectedCount) {
+        if ($crateCount >= $expectedCount) {
             return;
         }
 
@@ -290,6 +291,7 @@ class CratesService extends AbstractService
                 $crateContents->contents,
                 $crateContents->value,
             );
+            $crate->isGoal = true;
             $this->entityManager->persist($crate);
 
             $this->entityManager->getCrateLocationRepo()->makeInPort(
@@ -300,6 +302,7 @@ class CratesService extends AbstractService
 
         $this->logger->notice('[NEW_GOAL_CRATE] Goal Crate Created', [
             'userCount' => $userCount,
+            'expectedGoalCrateCount' => $expectedCount,
             'newGoalCrateCount' => $crateCount + 1,
         ]);
     }
