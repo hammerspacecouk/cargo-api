@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Home;
 
+use App\Service\CratesService;
 use App\Service\EventsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Route;
@@ -18,12 +19,14 @@ class IndexAction
 
     // general status and stats of the game as a whole
     public function __invoke(
+        CratesService $cratesService,
         EventsService $eventsService
     ): JsonResponse {
 
         // todo - public cache headers
         return new JsonResponse([
             'events' => $eventsService->findAllLatest(15),
+            'goalCrateLocation' => $cratesService->findGoalCrateLocation(),
         ]);
     }
 }

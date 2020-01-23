@@ -306,4 +306,13 @@ class CratesService extends AbstractService
             'newGoalCrateCount' => $crateCount + 1,
         ]);
     }
+
+    public function findGoalCrateLocation(): ?Port
+    {
+        $location = $this->entityManager->getCrateLocationRepo()->findPortWithOldestGoalCrate();
+        if ($location) {
+            return $this->mapperFactory->createPortMapper()->getPort($location['port']);
+        }
+        return null;
+    }
 }

@@ -187,4 +187,17 @@ class CrateLocationRepository extends AbstractEntityRepository
         $this->getEntityManager()->persist($location);
         $this->getEntityManager()->flush();
     }
+
+    public function findPortWithOldestGoalCrate(int $resultType = Query::HYDRATE_ARRAY)
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port')
+            ->join('tbl.port', 'port')
+            ->join('tbl.crate', 'crate')
+            ->where('crate.isGoal = true')
+            ->andWhere('tbl.isCurrent = true')
+            ->orderBy('tbl.createdAt', 'DESC')
+            ->setMaxResults(1);
+        return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
 }
