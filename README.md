@@ -14,3 +14,12 @@ Invoke-Expression -Command (aws ecr get-login --no-include-email --region eu-wes
 ```
 docker-compose up -d
 ```
+
+## Add commit hook
+
+```
+cp bin/hooks/pre-commit .git/hooks
+
+cd .git/hooks
+ln -s ../../bin/hooks/pre-commit.sh pre-commit
+```

@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
-use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Score;
 use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Ramsey\Uuid\UuidInterface;
+use function strtoupper;
 
 class User extends Entity implements \JsonSerializable
 {
@@ -20,9 +20,11 @@ class User extends Entity implements \JsonSerializable
     private $playerRank;
     private $permissionLevel;
     private $emblem;
+    private $displayName;
 
     public function __construct(
         UuidInterface $id,
+        ?string $displayName,
         int $rotationSteps,
         Score $score,
         string $emblem,
@@ -41,6 +43,7 @@ class User extends Entity implements \JsonSerializable
         $this->playerRank = $playerRank;
         $this->permissionLevel = $permissionLevel;
         $this->emblem = $emblem;
+        $this->displayName = $displayName;
     }
 
     /**
@@ -50,6 +53,7 @@ class User extends Entity implements \JsonSerializable
     {
         $data = [
             'id' => $this->getId(),
+            'displayName' => $this->getDisplayName(),
             'score' => $this->getScore(),
             'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
         ];
@@ -61,6 +65,14 @@ class User extends Entity implements \JsonSerializable
             $data['rank'] = $this->getRank();
         }
         return $data;
+    }
+
+    public function getDisplayName(): string
+    {
+        if ($this->displayName) {
+            return $this->displayName;
+        }
+        return 'Recruit #' . strtoupper($this->getId()->getTimeLowHex());
     }
 
     public function getEmblemPath(): string

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+docker-compose up -d
+docker-compose exec cargo-api-php composer tests
+
+# Redirect output to stderr.
+exec 1>&2

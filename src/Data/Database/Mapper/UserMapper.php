@@ -18,6 +18,7 @@ class UserMapper extends Mapper
     {
         return new User(
             $item['id'],
+            null, // todo - displayName from database
             $item['rotationSteps'],
             $this->mapScore($item),
             $item['emblemSvg'],
