@@ -7,28 +7,24 @@ use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UserEffectRepository")
+ * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\UserAchievementRepository")
  * @ORM\Table(
- *     name="user_effects",
+ *     name="user_achievements",
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
- *     indexes={
- *      @ORM\Index(name="user_effects_expiry", columns={"used_at"}),
- *      @ORM\Index(name="user_effects_for_user", columns={"user_id","used_at"}),
+ *     uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="userach_unique", columns={"user_id", "achievement_id"})
  *     }
  * )})
  */
-class UserEffect extends AbstractEntity
+class UserAchievement extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond") */
     public $collectedAt;
 
-    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $usedAt;
-
     /**
-     * @ORM\ManyToOne(targetEntity="Effect")
+     * @ORM\ManyToOne(targetEntity="Achievement")
      */
-    public $effect;
+    public $achievement;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
@@ -38,12 +34,12 @@ class UserEffect extends AbstractEntity
 
     public function __construct(
         User $user,
-        Effect $achievement,
+        Achievement $achievement,
         DateTimeImmutable $collectedAt
     ) {
         parent::__construct();
         $this->user = $user;
-        $this->effect = $achievement;
+        $this->achievement = $achievement;
         $this->collectedAt = $collectedAt;
     }
 }

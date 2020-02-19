@@ -19,6 +19,7 @@ use App\Domain\ValueObject\TokenId;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 class CratesService extends AbstractService
@@ -107,6 +108,7 @@ class CratesService extends AbstractService
     }
 
     public function getPickupCrateToken(
+        User $user,
         Crate $crate,
         Ship $ship,
         Port $port,
@@ -118,6 +120,7 @@ class CratesService extends AbstractService
                 $crateLocationId,
                 $this->uuidFactory->uuid5('9af42da1-6bc4-4eec-9f7e-2cdc08ff095f', $groupKey),
             ),
+            $user->getId(),
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
@@ -130,6 +133,7 @@ class CratesService extends AbstractService
     }
 
     public function getDropCrateToken(
+        User $user,
         Crate $crate,
         Ship $ship,
         Port $port,
@@ -139,6 +143,7 @@ class CratesService extends AbstractService
             new TokenId(
                 $this->uuidFactory->uuid5('5b9e3fd9-a513-43a6-9678-c813793f25cd', $tokenKey),
             ),
+            $user->getId(),
             $crate->getId(),
             $port->getId(),
             $ship->getId(),
@@ -176,6 +181,7 @@ class CratesService extends AbstractService
         $crateId = $token->getCrateId();
         $portId = $token->getPortId();
         $shipId = $token->getShipId();
+        $userId = $token->getUserId();
 
         if (!$this->crateIsInPort($crateId, $portId)) {
             throw new OutdatedMoveException('Sorry, someone else got to that crate before you');
@@ -185,7 +191,7 @@ class CratesService extends AbstractService
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
         $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
 
-        $this->entityManager->transactional(function () use ($port, $crate, $token, $ship) {
+        $this->entityManager->transactional(function () use ($userId, $port, $crate, $token, $ship) {
             $this->logger->info('Revoking previous location');
             $this->entityManager->getCrateLocationRepo()->exitLocation($crate);
 
@@ -201,6 +207,8 @@ class CratesService extends AbstractService
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
 
             $this->logger->notice('[CRATE_PICKUP]');
+
+            $this->entityManager->getUserAchievementRepo()->recordCratePickup($userId);
         });
     }
 

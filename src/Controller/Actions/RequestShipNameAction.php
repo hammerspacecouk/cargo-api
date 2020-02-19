@@ -32,6 +32,7 @@ class RequestShipNameAction
         $shipName = $this->shipNameService->useRequestShipNameToken($token);
 
         $actionToken = $this->shipNameService->getRenameShipToken(
+            $token->getUserId(),
             $token->getShipId(),
             $shipName,
         );

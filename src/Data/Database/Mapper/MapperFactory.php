@@ -6,6 +6,11 @@ namespace App\Data\Database\Mapper;
 // Please keep this class in alphabetical order
 class MapperFactory
 {
+    public function createAchievementMapper(): AchievementMapper
+    {
+        return new AchievementMapper($this);
+    }
+
     public function createActiveEffectMapper(): ActiveEffectMapper
     {
         return new ActiveEffectMapper($this);

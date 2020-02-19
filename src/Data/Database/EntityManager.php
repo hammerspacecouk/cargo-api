@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
+use App\Data\Database\Entity\Achievement;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
@@ -94,6 +95,11 @@ class EntityManager extends EntityManagerDecorator
         return array_filter($results);
     }
 
+    public function getAchievementRepo(): EntityRepository\AchievementRepository
+    {
+        return $this->getRepository(Entity\Achievement::class);
+    }
+
     public function getActiveEffectRepo(): EntityRepository\ActiveEffectRepository
     {
         return $this->getRepository(Entity\ActiveEffect::class);
@@ -169,6 +175,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\PortVisit::class);
     }
 
+    public function getRankAchievementRepo(): EntityRepository\RankAchievementRepository
+    {
+        return $this->getRepository(Entity\RankAchievement::class);
+    }
+
     public function getShipRepo(): EntityRepository\ShipRepository
     {
         return $this->getRepository(Entity\Ship::class);
@@ -187,6 +198,11 @@ class EntityManager extends EntityManagerDecorator
     public function getUsedActionTokenRepo(): EntityRepository\UsedActionTokenRepository
     {
         return $this->getRepository(Entity\UsedActionToken::class);
+    }
+
+    public function getUserAchievementRepo(): EntityRepository\UserAchievementRepository
+    {
+        return $this->getRepository(Entity\UserAchievement::class);
     }
 
     public function getUserEffectRepo(): EntityRepository\UserEffectRepository
