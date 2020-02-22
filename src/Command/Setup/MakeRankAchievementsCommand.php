@@ -41,8 +41,7 @@ class MakeRankAchievementsCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ): int
-    {
+    ): int {
         $output->writeln('Making the rank achievements');
 
         $filePath = $this->getStringArgument($input, 'inputList');
@@ -78,10 +77,10 @@ class MakeRankAchievementsCommand extends AbstractCommand
         $rankId = Uuid::fromString($data['rank_uuid']);
         $achievementId = Uuid::fromString($data['achievement_uuid']);
 
-        /** @var Achievement|null $entity */
+        /** @var Achievement|null $achievementEntity */
         $achievementEntity = $this->entityManager->getAchievementRepo()->getByID($achievementId, Query::HYDRATE_OBJECT);
 
-        /** @var PlayerRank|null $entity */
+        /** @var PlayerRank|null $rankEntity */
         $rankEntity = $this->entityManager->getPlayerRankRepo()->getByID($rankId, Query::HYDRATE_OBJECT);
 
         if (!$achievementEntity) {

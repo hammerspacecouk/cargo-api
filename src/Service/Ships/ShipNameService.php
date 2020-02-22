@@ -86,7 +86,6 @@ class ShipNameService extends ShipsService
             $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
 
             $this->entityManager->getUserAchievementRepo()->recordRenameShip($userId);
-
         });
     }
 

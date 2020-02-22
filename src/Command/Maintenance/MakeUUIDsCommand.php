@@ -29,7 +29,7 @@ class MakeUUIDsCommand extends AbstractCommand
                 'number',
                 InputArgument::OPTIONAL,
                 'How many to generate',
-                10
+                '10'
             );
     }
 
@@ -37,7 +37,11 @@ class MakeUUIDsCommand extends AbstractCommand
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $count = (int)$input->getArgument('number');
+        $count = $input->getArgument('number');
+        if (is_array($count)) {
+            throw new \InvalidArgumentException('Arrays not allowed');
+        }
+        $count = (int)$count;
         while ($count > 0) {
             $output->writeln($this->uuidFactory->uuid4()->toString());
             $count--;

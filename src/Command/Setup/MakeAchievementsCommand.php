@@ -39,8 +39,7 @@ class MakeAchievementsCommand extends AbstractCommand
     protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ): int
-    {
+    ): int {
         $output->writeln('Making the achievements');
 
         $filePath = $this->getStringArgument($input, 'inputList');
