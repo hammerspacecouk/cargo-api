@@ -4,15 +4,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\AuthenticationToken as DbAuthenticationToken;
-use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\User as DbUser;
 use App\Domain\ValueObject\AuthProvider;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
-use Doctrine\DBAL\DBALException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Arrays\find;
 

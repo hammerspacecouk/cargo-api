@@ -21,8 +21,11 @@ class MakeDataCommand extends AbstractCommand
     private $makeCrateTypesCommand;
     private $makeHintsCommand;
     private $updateDictionary;
+    private $makeAchievementsCommand;
+    private $makeRankAchievementsCommand;
 
     public function __construct(
+        MakeAchievementsCommand $makeAchievementsCommand,
         MakePlayerRanksCommand $playerRanksCommand,
         MakeShipClassesCommand $makeShipClassesCommand,
         MakeClustersCommand $makeClustersCommand,
@@ -30,6 +33,7 @@ class MakeDataCommand extends AbstractCommand
         MakeChannelsCommand $makeChannelsCommand,
         MakeEffectsCommand $makeEffectsCommand,
         MakeCrateTypesCommand $makeCrateTypesCommand,
+        MakeRankAchievementsCommand $makeRankAchievementsCommand,
         MakeHintsCommand $makeHintsCommand,
         UpdateDictionary $updateDictionary
     ) {
@@ -43,6 +47,8 @@ class MakeDataCommand extends AbstractCommand
         $this->makeCrateTypesCommand = $makeCrateTypesCommand;
         $this->makeHintsCommand = $makeHintsCommand;
         $this->updateDictionary = $updateDictionary;
+        $this->makeAchievementsCommand = $makeAchievementsCommand;
+        $this->makeRankAchievementsCommand = $makeRankAchievementsCommand;
     }
 
     protected function configure(): void
@@ -89,6 +95,12 @@ class MakeDataCommand extends AbstractCommand
 
         $output->writeln('Effects: ' . $map['Effects']);
         $this->makeEffectsCommand->run($this->getInput($map['Effects']), $output);
+
+        $output->writeln('Achievements: ' . $map['Achievements']);
+        $this->makeAchievementsCommand->run($this->getInput($map['Achievements']), $output);
+
+        $output->writeln('Rank Achievements: ' . $map['RankAchievements']);
+        $this->makeRankAchievementsCommand->run($this->getInput($map['RankAchievements']), $output);
 
         $output->writeln('CrateContents: ' . $map['CrateContents']);
         $this->makeCrateTypesCommand->run(

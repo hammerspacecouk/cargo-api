@@ -132,6 +132,8 @@ class ShipMovementService extends ShipsService
                 $this->tokenHandler->markAsUsed($token->getOriginalToken());
             }
 
+            $this->entityManager->getUserAchievementRepo()->recordTravel($ship->owner->id);
+
             $this->logger->notice(sprintf(
                 '[DEPARTURE] Ship: %s, Channel: %s, Reversed: %s',
                 (string)$ship->id,

@@ -33,10 +33,12 @@ class ShipNameService extends ShipsService
     }
 
     public function getRenameShipToken(
+        UuidInterface $userId,
         UuidInterface $shipId,
         string $newName
     ): RenameShipToken {
         $token = $this->tokenHandler->makeToken(...RenameShipToken::make(
+            $userId,
             $shipId,
             $newName,
         ));
@@ -77,20 +79,15 @@ class ShipNameService extends ShipsService
     ): void {
         $name = $tokenDetail->getShipName();
         $shipId = $tokenDetail->getShipId();
+        $userId = $tokenDetail->getUserId();
 
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
-            $this->logger->info('Renaming ship');
+        $this->entityManager->getConnection()->transactional(function () use ($shipId, $name, $tokenDetail, $userId) {
             $this->entityManager->getShipRepo()->renameShip($shipId, $name);
-            $this->logger->info('Marking token as used');
             $this->tokenHandler->markAsUsed($tokenDetail->getOriginalToken());
-            $this->logger->info('Committing transaction');
-            $this->entityManager->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Rolled back "useRenameShipToken" transaction');
-            throw $e;
-        }
+
+            $this->entityManager->getUserAchievementRepo()->recordRenameShip($userId);
+
+        });
     }
 
     private function requestShipName(

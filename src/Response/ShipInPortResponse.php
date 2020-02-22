@@ -84,7 +84,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $tutorialStep = 4;
         }
 
-        $cratesOnShip = $this->getCratesOnShip($cratesOnShip, $port, $ship, $moveCrateKey);
+        $cratesOnShip = $this->getCratesOnShip($cratesOnShip, $user, $port, $ship, $moveCrateKey);
         $directions = [];
         if ($allowDirections) {
             $directions = $this->getDirectionsFromPort(
@@ -187,6 +187,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $canAddMoreCrates = $ship->getShipClass()->getCapacity() > $cratesAlreadyOnShip;
 
         return \array_map(function (CrateLocation $crateLocation) use (
+            $user,
             $ship,
             $port,
             $canAddMoreCrates,
@@ -196,6 +197,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
             return [
                 'token' => $canAddMoreCrates ? $this->cratesService->getPickupCrateToken(
+                    $user,
                     $crate,
                     $ship,
                     $port,
@@ -210,6 +212,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
     /**
      * @param Crate[] $crates
+     * @param User $user
      * @param Port $port
      * @param Ship $ship
      * @param string|null $groupTokenKey
@@ -217,14 +220,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
      */
     private function getCratesOnShip(
         array $crates,
+        User $user,
         Port $port,
         Ship $ship,
         ?string $groupTokenKey
     ): array {
-        return \array_map(function (Crate $crate) use ($ship, $port, $groupTokenKey) {
+        return \array_map(function (Crate $crate) use ($user, $ship, $port, $groupTokenKey) {
             $token = null;
             if ($groupTokenKey) {
-                $token = $this->cratesService->getDropCrateToken($crate, $ship, $port, $groupTokenKey);
+                $token = $this->cratesService->getDropCrateToken($user, $crate, $ship, $port, $groupTokenKey);
             }
             return [
                 'token' => $token,
