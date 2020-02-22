@@ -75,7 +75,6 @@ class MakeDataCommand extends AbstractCommand
         }
         $map = jsonDecode($data);
 
-
         // assumes files of a specific name in the input folder
         // run in the right order
         $output->writeln('PlayerRank: ' . $map['PlayerRank']);
@@ -96,11 +95,11 @@ class MakeDataCommand extends AbstractCommand
         $output->writeln('Effects: ' . $map['Effects']);
         $this->makeEffectsCommand->run($this->getInput($map['Effects']), $output);
 
-        $output->writeln('Achievements: ' . $map['Achievements']);
-        $this->makeAchievementsCommand->run($this->getInput($map['Achievements']), $output);
+        $output->writeln('Achievements: ' . $map['Achievement']);
+        $this->makeAchievementsCommand->run($this->getInput($map['Achievement']), $output);
 
-        $output->writeln('Rank Achievements: ' . $map['RankAchievements']);
-        $this->makeRankAchievementsCommand->run($this->getInput($map['RankAchievements']), $output);
+        $output->writeln('Rank Achievements: ' . $map['RankAchievement']);
+        $this->makeRankAchievementsCommand->run($this->getInput($map['RankAchievement']), $output);
 
         $output->writeln('CrateContents: ' . $map['CrateContents']);
         $this->makeCrateTypesCommand->run(
