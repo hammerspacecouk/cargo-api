@@ -15,7 +15,7 @@ class SimpleDataToken extends AbstractToken
      * @return array<mixed>
      */
     public static function make(
-        $data
+        array $data
     ): array {
         return parent::create([
             self::KEY_DATA => json_encode($data, JSON_THROW_ON_ERROR, 512),

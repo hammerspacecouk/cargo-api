@@ -56,12 +56,12 @@ class User extends Entity implements \JsonSerializable
             'displayName' => $this->getDisplayName(),
             'score' => $this->getScore(),
             'startedAt' => $this->getPlayStartTime()->format(DateTimeFactory::FULL),
+            'emblem' => $this->getEmblemPath(),
         ];
         if ($this->homePort) {
             $data['homePort'] = $this->getHomePort();
         }
         if ($this->playerRank) {
-            $data['emblem'] = $this->getEmblemPath();
             $data['rank'] = $this->getRank();
         }
         return $data;

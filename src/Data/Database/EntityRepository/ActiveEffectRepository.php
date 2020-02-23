@@ -79,6 +79,17 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getResult($resultType);
     }
 
+    public function deleteForUserId(UuidInterface $userId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(ActiveEffect::class, 'tbl')
+            ->where('IDENTITY(tbl.appliesToUser) = :userId')
+            ->orWhere('IDENTITY(tbl.triggeredBy) = :userId')
+            ->setParameter('userId', $userId->getBytes())
+            ->getQuery()
+            ->execute();
+    }
+
     public function removeExpired(DateTimeImmutable $now): int
     {
         $sql = 'DELETE FROM ' . ActiveEffect::class . ' t WHERE t.expiry < :now';

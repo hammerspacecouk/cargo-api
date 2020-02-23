@@ -10,8 +10,10 @@ use App\Data\Database\Entity\User;
 use App\Domain\ValueObject\Colour;
 use App\Service\Oauth\OAuthServiceInterface;
 use App\Service\UsersService;
+use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Dates\intervalToSeconds;
 use function App\Functions\Numbers\clamp;
 
 class UserRepository extends AbstractEntityRepository implements CleanableInterface
@@ -33,6 +35,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             $rotationSteps,
             $homePort,
             $initialRank,
+            $this->dateTimeFactory->now(),
         );
         if ($oauthHash && $service instanceof OAuthServiceInterface) {
             $user = $service->attachHash($user, $oauthHash);
@@ -42,6 +45,18 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         $this->getEntityManager()->flush();
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $homePort);
         return $user;
+    }
+
+    public function resetUser(User $user, PlayerRank $initialRank): void
+    {
+        $user->score = 0;
+        $user->scoreRate = 0;
+        $user->scoreCalculationTime = (new DateTimeImmutable())->setTimestamp(0);
+        $user->lastRankSeen = $initialRank;
+
+        $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $user->homePort);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -79,6 +94,13 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             ->where('rank.threshold >= :threshold')
             ->setParameter('threshold', $engagementThreshold);
         return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function recordWinner(User $user): void
+    {
+        $user->gameCompletionTime = intervalToSeconds($user->gameStartDateTime->diff($this->dateTimeFactory->now()));
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 
     public function updateScoreRate(User $user, int $rateDelta = 0): void
@@ -136,24 +158,31 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-
-    /**
-     * @param int $resultType
-     * @return mixed
-     */
-    public function findTop(
-        int $resultType = Query::HYDRATE_ARRAY
-    ) {
+    public function findTop(): array
+    {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl', 'r')
             ->join('tbl.lastRankSeen', 'r')
             ->orderBy('r.threshold', 'DESC')
             ->addOrderBy('tbl.score', 'DESC')
             ->setMaxResults(100);
-        return $qb->getQuery()->getResult($resultType);
+        return $qb->getQuery()->getArrayResult();
     }
 
-    public function clean(\DateTimeImmutable $now): int
+    /**
+     * @return array
+     */
+    public function findWinners(): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.gameCompletionTime IS NOT NULL')
+            ->orderBy('tbl.gameCompletionTime', 'ASC')
+            ->setMaxResults(100);
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    public function clean(DateTimeImmutable $now): int
     {
         // remove IP hashes from User accounts older than X minutes
         $count = $this->clearHashesBefore(
@@ -178,7 +207,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return clamp($rate, -self::MAX_RATE_DELTA, self::MAX_RATE_DELTA);
     }
 
-    private function clearHashesBefore(\DateTimeImmutable $before): int
+    private function clearHashesBefore(DateTimeImmutable $before): int
     {
         $qb = $this->createQueryBuilder('tbl')
             ->update()

@@ -189,6 +189,7 @@ class CratesService extends AbstractService
 
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         $port = $this->entityManager->getPortRepo()->getByID($portId, Query::HYDRATE_OBJECT);
+        /** @var DbCrate $crate */
         $crate = $this->entityManager->getCrateRepo()->getByID($crateId, Query::HYDRATE_OBJECT);
 
         $this->entityManager->transactional(function () use ($userId, $port, $crate, $token, $ship) {
@@ -209,6 +210,9 @@ class CratesService extends AbstractService
             $this->logger->notice('[CRATE_PICKUP]');
 
             $this->entityManager->getUserAchievementRepo()->recordCratePickup($userId);
+            if ($crate->isGoal) {
+                $this->entityManager->getUserAchievementRepo()->recordGoalCratePickup($userId);
+            }
         });
     }
 
@@ -262,16 +266,44 @@ class CratesService extends AbstractService
                 Query::HYDRATE_OBJECT
             );
 
-            // todo - event log should cover hoarding
             $this->entityManager->transactional(function () use ($crateLocation, $shipLocation) {
                 $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);
                 $this->entityManager->getCrateLocationRepo()->makeInPort(
                     $crateLocation->crate,
                     $shipLocation->port
                 );
+                $this->entityManager->getUserAchievementRepo()->recordHoarding($crateLocation->ship->owner->id);
             });
         }
         return $total;
+    }
+
+    public function retrieveLostCrates(): int
+    {
+        // find any crate locations that are current but have no ship or port. put them back in their previous port
+        $crates = $this->entityManager->getCrateLocationRepo()->findLostCrates(Query::HYDRATE_OBJECT);
+        $crateCount = count($crates);
+        if (!$crateCount) {
+            return 0;
+        }
+        $this->logger->notice('LOST CRATES FOUND: ' . $crateCount);
+        $toSetCurrent = array_map(function(DbCrateLocation $crateLocation) {
+            return $this->entityManager->getCrateLocationRepo()
+                ->findPreviousForCrateId($crateLocation->crate->id, Query::HYDRATE_OBJECT);
+        }, $crates);
+
+        $this->entityManager->getConnection()->transactional(function() use ($crates, $toSetCurrent) {
+            foreach ($crates as $crateLocation) {
+                $this->entityManager->remove($crateLocation);
+            }
+            foreach ($toSetCurrent as $oldLocation) {
+                /** @var DbCrateLocation $oldLocation */
+                $oldLocation->isCurrent = true;
+                $this->entityManager->persist($oldLocation);
+            }
+            $this->entityManager->flush();
+        });
+        return $crateCount;
     }
 
     public function ensureEnoughGoalCrates(): void

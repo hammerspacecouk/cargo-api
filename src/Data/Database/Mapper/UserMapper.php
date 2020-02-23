@@ -18,12 +18,12 @@ class UserMapper extends Mapper
     {
         return new User(
             $item['id'],
-            null, // todo - displayName from database
+            $item['nickname'],
             $item['rotationSteps'],
             $this->mapScore($item),
             $item['emblemSvg'],
             $this->isAnonymous($item),
-            $item['createdAt'],
+            $item['gameStartDateTime'],
             $item['permissionLevel'],
             $this->mapHomePort($item),
             $this->mapRank($item),

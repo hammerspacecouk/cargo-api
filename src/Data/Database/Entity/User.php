@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,7 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  *     indexes={
  *          @ORM\Index(name="user_google", columns={"google_id"}),
  *          @ORM\Index(name="user_microsoft", columns={"microsoft_id"}),
- *          @ORM\Index(name="user_ip_hash", columns={"anonymous_ip_hash"})
+ *          @ORM\Index(name="user_reddit", columns={"reddit_id"}),
+ *          @ORM\Index(name="user_ip_hash", columns={"anonymous_ip_hash"}),
+ *          @ORM\Index(name="user_completion_time", columns={"game_completion_time"})
  *     }
  * )
  */
@@ -31,6 +34,9 @@ class User extends AbstractEntity
     /** @ORM\Column(type="binary", nullable=true)) */
     public $anonymousIpHash;
 
+    /** @ORM\Column(type="text", length=50, nullable=true) */
+    public $nickname;
+
     /** @ORM\Column(type="integer") */
     public $rotationSteps;
 
@@ -45,6 +51,12 @@ class User extends AbstractEntity
 
     /** @ORM\Column(type="datetime_microsecond") */
     public $scoreCalculationTime;
+
+    /** @ORM\Column(type="datetime_microsecond") */
+    public $gameStartDateTime;
+
+    /** @ORM\Column(type="integer", nullable=true) */
+    public $gameCompletionTime;
 
     /** @ORM\Column(type="text") */
     public $emblemSvg;
@@ -65,7 +77,8 @@ class User extends AbstractEntity
         string $emblemSvg,
         int $rotationSteps,
         Port $homePort,
-        PlayerRank $lastRankSeen
+        PlayerRank $lastRankSeen,
+        DateTimeImmutable $gameStartDateTime
     ) {
         parent::__construct();
         $this->anonymousIpHash = $ipHash;
@@ -74,5 +87,6 @@ class User extends AbstractEntity
         $this->emblemSvg = $emblemSvg;
         $this->scoreCalculationTime = (new \DateTimeImmutable())->setTimestamp(0);
         $this->lastRankSeen = $lastRankSeen;
+        $this->gameStartDateTime = $gameStartDateTime;
     }
 }

@@ -38,6 +38,16 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    public function deleteByOwnerId(UuidInterface $userId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(Ship::class, 'tbl')
+            ->where('IDENTITY(tbl.owner) = :ownerId')
+            ->setParameter('ownerId', $userId->getBytes())
+        ->getQuery()
+        ->execute();
+    }
+
     public function renameShip(
         UuidInterface $shipId,
         string $newName
@@ -123,6 +133,6 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function clean(DateTimeImmutable $now): int
     {
-        return $this->removeDestroyed($now->sub(new DateInterval('P7D')));
+        return $this->removeDestroyed($now->sub(new DateInterval('P14D')));
     }
 }

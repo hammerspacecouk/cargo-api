@@ -28,7 +28,8 @@ class UsersService extends AbstractService
 
     public function getById(
         UuidInterface $uuid
-    ): ?User {
+    ): ?User
+    {
         return $this->mapSingle(
             $this->entityManager->getUserRepo()->findWithLastSeenRank($uuid)
         );
@@ -39,6 +40,16 @@ class UsersService extends AbstractService
         return array_map(function ($result) {
             return $this->getMapper()->getUser($result);
         }, $this->entityManager->getUserRepo()->findTop());
+    }
+
+    public function getWinners(): array
+    {
+        return array_map(function ($result) {
+            return [
+                'player' => $this->getMapper()->getUser($result),
+                'completionTime' => $result['gameCompletionTime'],
+            ];
+        }, $this->entityManager->getUserRepo()->findWinners());
     }
 
     public function getLoginToken(string $type): SimpleDataToken
@@ -97,18 +108,30 @@ class UsersService extends AbstractService
         return $user->getPlayStartTime() < $threshold;
     }
 
+    public function getResetToken(User $user): ?string
+    {
+        // You can't reset your game until you've played for a little bit.
+        // This is to prevent abuse.
+        if ($user->isAnonymous() || $user->getRank()->getThreshold() < 20) {
+            return null;
+        }
+        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make(['id'=>$user->getId()]));
+        return (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+    }
+
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
     {
         $token = $this->tokenHandler->makeToken(...DeleteAccountToken::make(
             $userId,
             $stage,
-        ));
+            ));
         return new DeleteAccountToken($token->getJsonToken(), (string)$token);
     }
 
     public function parseDeleteAccountToken(
         string $tokenString
-    ): DeleteAccountToken {
+    ): DeleteAccountToken
+    {
         return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
@@ -124,9 +147,43 @@ class UsersService extends AbstractService
         $this->entityManager->getUserRepo()->deleteById($token->getUserId(), DbUser::class);
     }
 
+    public function parseResetToken($tokenString): UuidInterface
+    {
+        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
+        return $this->uuidFactory->fromString($token->getData()['id']);
+    }
+
+    public function resetUser(User $user): void
+    {
+        /*
+         * Delete all ships (should cascade to locations and crates)
+         * Delete all port visits
+         * Delete all user_effects
+         * Delete all user_achievements
+         * Delete all active_effects
+         * Delete all events
+         * Set User Score to 0 and rank to tutorial
+         */
+        $userEntity = $this->entityManager->getUserRepo()->getByIDWithHomePort($user->getId(), Query::HYDRATE_OBJECT);
+        $initialRank = $this->entityManager->getPlayerRankRepo()->getStarter(Query::HYDRATE_OBJECT);
+        $this->entityManager->getConnection()->transactional(function() use ($userEntity, $initialRank) {
+            $this->entityManager->getShipRepo()->deleteByOwnerId($userEntity->id);
+            $this->entityManager->getPortVisitRepo()->deleteForPlayerId($userEntity->id);
+            $this->entityManager->getUserEffectRepo()->deleteForUserId($userEntity->id);
+            $this->entityManager->getUserAchievementRepo()->deleteForUserId($userEntity->id);
+            $this->entityManager->getActiveEffectRepo()->deleteForUserId($userEntity->id);
+            $this->entityManager->getEventRepo()->deleteForUserId($userEntity->id);
+            $this->entityManager->getUserRepo()->resetUser($userEntity, $initialRank);
+
+            // all clean, start a new game
+            $this->newGameSetup($userEntity);
+        });
+    }
+
     public function parseAcknowledgePromotionToken(
         string $tokenString
-    ): AcknowledgePromotionToken {
+    ): AcknowledgePromotionToken
+    {
         return new AcknowledgePromotionToken(
             $this->tokenHandler->parseTokenFromString($tokenString, false),
             $tokenString,
@@ -167,8 +224,6 @@ class UsersService extends AbstractService
 
         // get some starting types
         $safeHaven = $this->entityManager->getPortRepo()->getARandomStarterPort(Query::HYDRATE_OBJECT);
-        $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
-        $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
         $initialRank = $this->entityManager->getPlayerRankRepo()->getStarter(Query::HYDRATE_OBJECT);
 
         // start a transaction
@@ -196,16 +251,7 @@ class UsersService extends AbstractService
                 $this
             );
 
-            // make the player an initial ship and place it in the home port
-            $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $starterShipClass, $player);
-            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $safeHaven, true);
-            $this->entityManager->getPortVisitRepo()->recordVisit(null, $player, $safeHaven);
-
-            // Make a crate (reserved for this player)
-            $crate = $this->entityManager->getCrateRepo()->makeInitialCrateForPlayer($player);
-
-            // Put the crate into the port
-            $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $safeHaven);
+            $this->newGameSetup($player);
 
             // end the transaction
             $this->entityManager->getConnection()->commit();
@@ -219,6 +265,23 @@ class UsersService extends AbstractService
             return $user;
         }
         throw new \RuntimeException('Could not create or fetch user');
+    }
+
+    private function newGameSetup(DbUser $player): void
+    {
+        $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
+        $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
+
+        // make the player an initial ship and place it in the home port
+        $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $starterShipClass, $player);
+        $this->entityManager->getShipLocationRepo()->makeInPort($ship, $player->homePort, true);
+        $this->entityManager->getPortVisitRepo()->recordVisit(null, $player, $player->homePort);
+
+        // Make a crate (reserved for this player)
+        $crate = $this->entityManager->getCrateRepo()->makeInitialCrateForPlayer($player);
+
+        // Put the crate into the port
+        $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $player->homePort);
     }
 
     protected function makeContentHash(string $inputContent): string

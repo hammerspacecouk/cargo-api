@@ -11,7 +11,7 @@ use App\Domain\Entity\User;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
-use Exception;
+use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
 
 class ShipLocationsService extends AbstractService
@@ -83,10 +83,10 @@ class ShipLocationsService extends AbstractService
             $ownerId,
             Query::HYDRATE_OBJECT,
         );
-        $makeNewCrate = null;
+        $isFirstJourney = null;
         // if this was their first travel from the home (visits = 1) we're going to make a new crate
         if (!$portVisit && $portVisitRepo->countForPlayerId($ownerId) === 1) {
-            $makeNewCrate = true;
+            $isFirstJourney = true;
         }
 
         // reverse the delta from this journey originally
@@ -105,7 +105,7 @@ class ShipLocationsService extends AbstractService
             $owner,
             $crateLocations,
             $delta,
-            $makeNewCrate
+            $isFirstJourney
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
@@ -126,18 +126,34 @@ class ShipLocationsService extends AbstractService
                     $destinationPort
                 );
                 $this->entityManager->getCrateRepo()->removeReservation($crateLocation->crate);
+
+                if ($crateLocation->crate->isGoal && $destinationPort->isDestination) {
+                    // winner
+                    $this->entityManager->getUserAchievementRepo()->recordWin($owner->id);
+                    $this->entityManager->getUserRepo()->recordWinner($owner);
+                }
             }
 
-            if ($makeNewCrate) {
+            if ($isFirstJourney) {
                 $crate = $this->entityManager->getCrateRepo()->newRandomCrate();
                 $this->entityManager->getCrateLocationRepo()->makeInPort(
                     $crate,
                     $destinationPort
                 );
+                $this->entityManager->getUserAchievementRepo()->recordTravel($owner->id);
             }
 
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
+
+            $timeInChannel = $currentLocation->entryTime->diff($currentLocation->entryTime);
+            if (intervalToSeconds($timeInChannel) >= 60 * 60 * 24) {
+                $this->entityManager->getUserAchievementRepo()->recordLongTravel($owner->id);
+            }
+
+            if (!$destinationPort->isSafeHaven) {
+                $this->entityManager->getUserAchievementRepo()->recordArrivalToUnsafeTerritory($owner->id);
+            }
         });
     }
 

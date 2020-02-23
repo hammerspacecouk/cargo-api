@@ -58,6 +58,16 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         return $qb->getQuery()->getResult($resultType);
     }
 
+    public function deleteForUserId(UuidInterface $userId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(Event::class, 'tbl')
+            ->where('IDENTITY(tbl.actioningPlayer) = :userId')
+            ->setParameter('userId', $userId->getBytes())
+            ->getQuery()
+            ->execute();
+    }
+
     /**
      * @param UuidInterface $userId
      * @param int $limit

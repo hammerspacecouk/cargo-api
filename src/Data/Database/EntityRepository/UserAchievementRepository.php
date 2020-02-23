@@ -21,11 +21,37 @@ class UserAchievementRepository extends AbstractEntityRepository
         return $qb->getQuery()->getArrayResult();
     }
 
+    public function deleteForUserId(UuidInterface $userId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(UserAchievement::class, 'tbl')
+            ->where('IDENTITY(tbl.user) = :userId')
+            ->setParameter('userId', $userId->getBytes())
+            ->getQuery()
+            ->execute();
+    }
+
     public function recordCratePickup(UuidInterface $userId): void
     {
         $this->record(
             $userId,
             Uuid::fromString('820a098f-e801-468e-bdb0-105fbb2debff')
+        );
+    }
+
+    public function recordGoalCratePickup(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('5031ad8e-763c-4f3a-b537-fd16ea667b22')
+        );
+    }
+
+    public function recordHoarding(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('f02aff86-47f0-4848-9b63-674a4247d7dd')
         );
     }
 
@@ -37,11 +63,91 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
+    public function recordLongTravel(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('f8cd00cb-315d-42a5-8270-7793ebe57327')
+        );
+    }
+
+    public function recordLaunchedShip(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('f155544a-c733-46b0-8e2a-acf3e84638e3')
+        );
+    }
+
     public function recordRenameShip(UuidInterface $userId): void
     {
         $this->record(
             $userId,
             Uuid::fromString('9a384c28-46cf-4a7f-910e-f61e9ca12ed3')
+        );
+    }
+
+    public function recordShipDestroyed(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('690f6b47-fdde-4acb-be4d-a9bc2ac0a33e')
+        );
+    }
+
+    public function recordShipAttacked(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('5ac1ce5c-d029-4863-bfef-ee52a7efc2a4')
+        );
+    }
+
+    public function recordAttackedShip(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('dc376f2e-d255-4b4e-b3a5-101735711c8d')
+        );
+    }
+
+    public function recordDestroyedShip(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('6c81e527-7be2-4b3a-86f8-a13de9507d67')
+        );
+    }
+
+    public function recordArrivalToUnsafeTerritory(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('89bfabe1-5ae3-4971-94b7-df4279949c64')
+        );
+    }
+
+    public function recordContactWithInfected(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('6b08dc29-a47a-4483-a500-913acfa6119e')
+        );
+    }
+
+    public function recordWin(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('134b0330-577d-476e-92c7-602f957284d3')
+        );
+    }
+
+    public function recordAddedToLeaderBoard(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('5d75b968-6080-46e6-a269-1b09adbf1216')
         );
     }
 

@@ -77,8 +77,7 @@ class UpgradesService extends AbstractService
 
         // make a new ship, attached to the owner
         // place the new ship in the users home port
-        $this->entityManager->getConnection()->beginTransaction();
-        try {
+        $ship = $this->entityManager->getConnection()->transactional(function () use ($shipName, $shipClassEntity, $userEntity, $token) {
             $this->logger->info('Making new ship');
             $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $shipClassEntity, $userEntity);
 
@@ -88,13 +87,10 @@ class UpgradesService extends AbstractService
             $this->consumeCredits($userEntity, $shipClassEntity->purchaseCost);
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
 
-            $this->logger->info('Committing transaction');
-            $this->entityManager->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->logger->error('Rolled back ' . __METHOD__ . ' transaction');
-            throw $e;
-        }
+            $this->entityManager->getUserAchievementRepo()->recordLaunchedShip($userEntity->id);
+
+            return $ship;
+        });
 
         $shipEntity = $this->mapperFactory->createShipMapper()->getShip(
             $this->entityManager->getShipRepo()->getByID($ship->id)

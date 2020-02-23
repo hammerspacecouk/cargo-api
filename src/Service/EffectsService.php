@@ -479,16 +479,22 @@ class EffectsService extends AbstractService
             $applyEffectToken
         ) {
             foreach ($affectedShips as $ship) {
+                $victimUserId = $ship->owner->id;
                 /** @var DbShip $ship */
                 $damage = $applyEffectToken->getDamage();
                 if ($damage === -1) {
                     $damage = $ship->strength; // destroy the ship
+                    $this->entityManager->getUserAchievementRepo()->recordShipDestroyed($victimUserId);
+                    $this->entityManager->getUserAchievementRepo()->recordDestroyedShip($playerEffect->user->id);
+
                 }
                 $this->entityManager->getEventRepo()
                     ->logOffence($actioningShipEntity, $portEntity, $ship, $playerEffect->effect, $damage);
                 $this->entityManager->getShipRepo()->updateStrengthValue($ship, (int)-$damage);
+                $this->entityManager->getUserAchievementRepo()->recordShipAttacked($victimUserId);
             }
 
+            $this->entityManager->getUserAchievementRepo()->recordAttackedShip($playerEffect->user->id);
             $this->entityManager->getUserEffectRepo()->useEffect($playerEffect);
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });

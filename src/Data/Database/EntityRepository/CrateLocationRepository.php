@@ -131,9 +131,10 @@ class CrateLocationRepository extends AbstractEntityRepository
         int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'crate', 'ship')
+            ->select('tbl', 'crate', 'ship', 'owner')
             ->join('tbl.crate', 'crate')
             ->join('tbl.ship', 'ship')
+            ->join('ship.owner', 'owner')
             ->join(
                 ShipLocation::class,
                 'shipLoc',
@@ -188,9 +189,6 @@ class CrateLocationRepository extends AbstractEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    /**
-     * @return mixed
-     */
     public function findPortWithOldestGoalCrate(int $resultType = Query::HYDRATE_ARRAY)
     {
         $qb = $this->createQueryBuilder('tbl')
@@ -202,5 +200,27 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->orderBy('tbl.createdAt', 'DESC')
             ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function findLostCrates(int $resultType = Query::HYDRATE_ARRAY): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl')
+            ->where('tbl.ship IS NULL')
+            ->andWhere('tbl.port IS NULL')
+            ->andWhere('tbl.isCurrent = true');
+        return $qb->getQuery()->getResult($resultType);
+    }
+
+    public function findPreviousForCrateId(UuidInterface $id, int $resultType = Query::HYDRATE_ARRAY)
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->where('IDENTITY(tbl.crate) = :crateId')
+            ->andWhere('tbl.ship IS NULL')
+            ->andWhere('tbl.isCurrent = false')
+            ->orderBy('tbl.updatedAt', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('crateId', $id->getBytes());
+        return $qb->getQuery()->getSingleResult($resultType);
     }
 }

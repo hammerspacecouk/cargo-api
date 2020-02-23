@@ -42,6 +42,16 @@ class PortVisitRepository extends AbstractEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function deleteForPlayerId(UuidInterface $playerId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(PortVisit::class, 'tbl')
+            ->where('IDENTITY(tbl.player) = :playerId')
+            ->setParameter('playerId', $playerId->getBytes())
+            ->getQuery()
+            ->execute();
+    }
+
     public function recordVisit(
         ?PortVisit $visit,
         User $owner,

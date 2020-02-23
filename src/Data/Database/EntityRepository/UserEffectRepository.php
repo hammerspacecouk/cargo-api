@@ -57,6 +57,16 @@ class UserEffectRepository extends AbstractEntityRepository
         return $data;
     }
 
+    public function deleteForUserId(UuidInterface $userId): void
+    {
+        $this->createQueryBuilder('tbl')
+            ->delete(UserEffect::class, 'tbl')
+            ->where('IDENTITY(tbl.user) = :userId')
+            ->setParameter('userId', $userId->getBytes())
+            ->getQuery()
+            ->execute();
+    }
+
     public function createNew(
         Effect $effectEntity,
         User $user
