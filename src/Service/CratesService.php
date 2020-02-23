@@ -287,12 +287,12 @@ class CratesService extends AbstractService
             return 0;
         }
         $this->logger->notice('LOST CRATES FOUND: ' . $crateCount);
-        $toSetCurrent = array_map(function(DbCrateLocation $crateLocation) {
+        $toSetCurrent = array_map(function (DbCrateLocation $crateLocation) {
             return $this->entityManager->getCrateLocationRepo()
                 ->findPreviousForCrateId($crateLocation->crate->id, Query::HYDRATE_OBJECT);
         }, $crates);
 
-        $this->entityManager->getConnection()->transactional(function() use ($crates, $toSetCurrent) {
+        $this->entityManager->getConnection()->transactional(function () use ($crates, $toSetCurrent) {
             foreach ($crates as $crateLocation) {
                 $this->entityManager->remove($crateLocation);
             }

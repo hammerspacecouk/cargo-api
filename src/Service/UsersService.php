@@ -28,8 +28,7 @@ class UsersService extends AbstractService
 
     public function getById(
         UuidInterface $uuid
-    ): ?User
-    {
+    ): ?User {
         return $this->mapSingle(
             $this->entityManager->getUserRepo()->findWithLastSeenRank($uuid)
         );
@@ -124,14 +123,13 @@ class UsersService extends AbstractService
         $token = $this->tokenHandler->makeToken(...DeleteAccountToken::make(
             $userId,
             $stage,
-            ));
+        ));
         return new DeleteAccountToken($token->getJsonToken(), (string)$token);
     }
 
     public function parseDeleteAccountToken(
         string $tokenString
-    ): DeleteAccountToken
-    {
+    ): DeleteAccountToken {
         return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
@@ -147,7 +145,7 @@ class UsersService extends AbstractService
         $this->entityManager->getUserRepo()->deleteById($token->getUserId(), DbUser::class);
     }
 
-    public function parseResetToken($tokenString): UuidInterface
+    public function parseResetToken(string $tokenString): UuidInterface
     {
         $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
         return $this->uuidFactory->fromString($token->getData()['id']);
@@ -166,7 +164,7 @@ class UsersService extends AbstractService
          */
         $userEntity = $this->entityManager->getUserRepo()->getByIDWithHomePort($user->getId(), Query::HYDRATE_OBJECT);
         $initialRank = $this->entityManager->getPlayerRankRepo()->getStarter(Query::HYDRATE_OBJECT);
-        $this->entityManager->getConnection()->transactional(function() use ($userEntity, $initialRank) {
+        $this->entityManager->getConnection()->transactional(function () use ($userEntity, $initialRank) {
             $this->entityManager->getShipRepo()->deleteByOwnerId($userEntity->id);
             $this->entityManager->getPortVisitRepo()->deleteForPlayerId($userEntity->id);
             $this->entityManager->getUserEffectRepo()->deleteForUserId($userEntity->id);
@@ -182,8 +180,7 @@ class UsersService extends AbstractService
 
     public function parseAcknowledgePromotionToken(
         string $tokenString
-    ): AcknowledgePromotionToken
-    {
+    ): AcknowledgePromotionToken {
         return new AcknowledgePromotionToken(
             $this->tokenHandler->parseTokenFromString($tokenString, false),
             $tokenString,

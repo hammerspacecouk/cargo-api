@@ -22,7 +22,6 @@ class ResetAction
 
     private $authenticationService;
     private $applicationConfig;
-    private $logger;
     private $usersService;
 
     public static function getRouteDefinition(): Route

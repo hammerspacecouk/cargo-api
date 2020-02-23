@@ -189,6 +189,9 @@ class CrateLocationRepository extends AbstractEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @return mixed
+     */
     public function findPortWithOldestGoalCrate(int $resultType = Query::HYDRATE_ARRAY)
     {
         $qb = $this->createQueryBuilder('tbl')
@@ -212,6 +215,9 @@ class CrateLocationRepository extends AbstractEntityRepository
         return $qb->getQuery()->getResult($resultType);
     }
 
+    /**
+     * @return mixed
+     */
     public function findPreviousForCrateId(UuidInterface $id, int $resultType = Query::HYDRATE_ARRAY)
     {
         $qb = $this->createQueryBuilder('tbl')

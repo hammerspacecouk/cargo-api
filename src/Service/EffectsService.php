@@ -486,7 +486,6 @@ class EffectsService extends AbstractService
                     $damage = $ship->strength; // destroy the ship
                     $this->entityManager->getUserAchievementRepo()->recordShipDestroyed($victimUserId);
                     $this->entityManager->getUserAchievementRepo()->recordDestroyedShip($playerEffect->user->id);
-
                 }
                 $this->entityManager->getEventRepo()
                     ->logOffence($actioningShipEntity, $portEntity, $ship, $playerEffect->effect, $damage);

@@ -77,20 +77,22 @@ class UpgradesService extends AbstractService
 
         // make a new ship, attached to the owner
         // place the new ship in the users home port
-        $ship = $this->entityManager->getConnection()->transactional(function () use ($shipName, $shipClassEntity, $userEntity, $token) {
-            $this->logger->info('Making new ship');
-            $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $shipClassEntity, $userEntity);
+        $ship = $this->entityManager->getConnection()->transactional(
+            function () use ($shipName, $shipClassEntity, $userEntity, $token) {
+                $this->logger->info('Making new ship');
+                $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $shipClassEntity, $userEntity);
 
-            $this->logger->info('Placing ship in home port');
-            $this->entityManager->getShipLocationRepo()->makeInPort($ship, $userEntity->homePort, true);
+                $this->logger->info('Placing ship in home port');
+                $this->entityManager->getShipLocationRepo()->makeInPort($ship, $userEntity->homePort, true);
 
-            $this->consumeCredits($userEntity, $shipClassEntity->purchaseCost);
-            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+                $this->consumeCredits($userEntity, $shipClassEntity->purchaseCost);
+                $this->tokenHandler->markAsUsed($token->getOriginalToken());
 
-            $this->entityManager->getUserAchievementRepo()->recordLaunchedShip($userEntity->id);
+                $this->entityManager->getUserAchievementRepo()->recordLaunchedShip($userEntity->id);
 
-            return $ship;
-        });
+                return $ship;
+            }
+        );
 
         $shipEntity = $this->mapperFactory->createShipMapper()->getShip(
             $this->entityManager->getShipRepo()->getByID($ship->id)
