@@ -60,7 +60,7 @@ class ShowAction
 
     private function getShips(User $player): array
     {
-        $allShips = $this->shipsService->getForOwnerIDWithLocation($player->getId(), 1000);
+        $allShips = $this->shipsService->getForOwnerIDWithLocation($player->getId());
 
         // filter out destroyed ships
         $allShips = \array_filter($allShips, static function (Ship $ship) {

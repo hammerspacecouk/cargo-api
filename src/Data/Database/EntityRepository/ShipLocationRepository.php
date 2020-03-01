@@ -215,4 +215,17 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
     {
         return $this->removeInactiveBefore($now);
     }
+
+    public function getRecentForShipID(UuidInterface $shipId, int $limit): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port')
+            ->join('tbl.port', 'port')
+            ->where('IDENTITY(tbl.ship) = :shipId')
+            ->andWhere('tbl.port IS NOT NULL')
+            ->orderBy('tbl.entryTime', 'DESC')
+            ->setMaxResults($limit)
+            ->setParameter('shipId', $shipId->getBytes());
+        return $qb->getQuery()->getArrayResult();
+    }
 }

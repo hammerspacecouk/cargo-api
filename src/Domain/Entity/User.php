@@ -97,7 +97,6 @@ class User extends Entity implements \JsonSerializable
      */
     public function getRotationSteps(): int
     {
-        $this->rotationSteps = 0; // todo - remove this line
         return $this->rotationSteps;
     }
 

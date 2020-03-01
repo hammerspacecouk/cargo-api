@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Domain\Entity\Port;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use DateInterval;
@@ -36,6 +37,15 @@ class ShipLocationsService extends AbstractService
             }
         }
         return $total;
+    }
+
+    public function getRecentForShip(Ship $ship): array
+    {
+        $locations = $this->entityManager->getShipLocationRepo()->getRecentForShipID(
+            $ship->getId(),
+            5
+        );
+        return $this->mapMany($locations);
     }
 
     /**

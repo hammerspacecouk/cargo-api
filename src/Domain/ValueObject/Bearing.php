@@ -64,6 +64,12 @@ class Bearing implements \JsonSerializable
         return $bearings[$newKey % $indexCount];
     }
 
+    public function getRotated(int $steps): Bearing
+    {
+        $newBearing = self::getRotatedBearing($this->bearing, $steps);
+        return new Bearing($newBearing);
+    }
+
     public function getOpposite(): Bearing
     {
         return new Bearing(self::BEARINGS[$this->bearing]);

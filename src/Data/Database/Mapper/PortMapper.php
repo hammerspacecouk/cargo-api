@@ -9,12 +9,13 @@ class PortMapper extends Mapper
 {
     public function getPort(array $item): Port
     {
-        $domainEntity = new Port(
+        return new Port(
             $item['id'],
             $item['name'],
             $item['isSafeHaven'],
             $item['isAHome'],
+            $item['coordinates']['v'] ?? null,
+            $item['coordinates']['b'] ?? null,
         );
-        return $domainEntity;
     }
 }

@@ -69,6 +69,18 @@ class PortsService extends AbstractService
         return $mapped;
     }
 
+    /**
+     * @return Port[]
+     */
+    public function findForUserMap(UuidInterface $userId): array
+    {
+        // todo - filter for the individual user
+        $all = $this->findAll(1000);
+        return array_values(array_filter($all, static function (Port $port) {
+            return $port->getViewBox();
+        }));
+    }
+
     private function getMapper(): PortMapper
     {
         if (!$this->portMapper) {

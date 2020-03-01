@@ -29,6 +29,9 @@ class Port extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $isOpen = true;
 
+    /** @ORM\Column(type="json") */
+    public $coordinates;
+
     /**
      * @ORM\ManyToOne(targetEntity="Cluster")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")

@@ -23,7 +23,7 @@ class FleetResponse
 
     public function getResponseDataForUser(User $user): array
     {
-        $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId(), 1000);
+        $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId());
 
         $fleetShips = \array_map(function (Ship $ship) {
             return $this->mapShip($ship);

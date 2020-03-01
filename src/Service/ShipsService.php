@@ -136,7 +136,7 @@ class ShipsService extends AbstractService
      */
     public function getForOwnerIDWithLocation(
         UuidInterface $userId,
-        int $limit,
+        int $limit = 1000,
         int $page = 1
     ): array {
         $qb = $this->getQueryBuilder(DbShip::class)

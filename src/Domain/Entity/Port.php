@@ -12,17 +12,29 @@ class Port extends Entity implements \JsonSerializable
     private $name;
     private $isSafe;
     private $isAHome;
+    /**
+     * @var string
+     */
+    private $viewBox;
+    /**
+     * @var array
+     */
+    private $coordinates;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         bool $isSafe,
-        bool $isAHome
+        bool $isAHome,
+        ?string $viewBox,
+        ?array $coordinates
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->isSafe = $isSafe;
         $this->isAHome = $isAHome;
+        $this->viewBox = $viewBox;
+        $this->coordinates = $coordinates;
     }
 
     public function getName(): string
@@ -33,6 +45,19 @@ class Port extends Entity implements \JsonSerializable
     public function isSafe(): bool
     {
         return $this->isSafe;
+    }
+
+    public function getViewBox(): ?string
+    {
+        return $this->viewBox;
+    }
+
+    public function getCoordinates(int $rotationStep): ?array
+    {
+        if ($this->coordinates) {
+            return $this->coordinates[$rotationStep];
+        }
+        return null;
     }
 
     /**

@@ -23,9 +23,14 @@ class MakeDataCommand extends AbstractCommand
     private $updateDictionary;
     private $makeAchievementsCommand;
     private $makeRankAchievementsCommand;
+    /**
+     * @var MakeCoordinatesCommand
+     */
+    private $makeCoordinatesCommand;
 
     public function __construct(
         MakeAchievementsCommand $makeAchievementsCommand,
+        MakeCoordinatesCommand $makeCoordinatesCommand,
         MakePlayerRanksCommand $playerRanksCommand,
         MakeShipClassesCommand $makeShipClassesCommand,
         MakeClustersCommand $makeClustersCommand,
@@ -49,6 +54,7 @@ class MakeDataCommand extends AbstractCommand
         $this->updateDictionary = $updateDictionary;
         $this->makeAchievementsCommand = $makeAchievementsCommand;
         $this->makeRankAchievementsCommand = $makeRankAchievementsCommand;
+        $this->makeCoordinatesCommand = $makeCoordinatesCommand;
     }
 
     protected function configure(): void
@@ -128,6 +134,10 @@ class MakeDataCommand extends AbstractCommand
             ]),
             $output
         );
+
+
+        $output->writeln('Making Coordinates');
+        $this->makeCoordinatesCommand->run(new ArrayInput([]), $output);
 
         $output->writeln('');
         $output->writeln('Done ALL');
