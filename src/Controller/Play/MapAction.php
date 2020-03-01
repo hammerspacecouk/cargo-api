@@ -5,6 +5,7 @@ namespace App\Controller\Play;
 
 use App\Controller\AbstractUserAction;
 use App\Domain\Entity\Port;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
@@ -76,22 +77,27 @@ class MapAction extends AbstractUserAction
         $highlights = [];
         $nearbyLinks = [];
         $journeyHistory = [];
-        // todo - break up this method a bit
         foreach ($playerShips as $i => $ship) {
-            $color = self::JOURNEY_COLOURS[$i % count(self::JOURNEY_COLOURS)];
             $location = $ship->getLocation();
             if ($location instanceof ShipInPort) {
                 $port = $location->getPort();
 
                 $coordinates = $port->getCoordinates($this->user->getRotationSteps());
 
+                $y = 0 - (self::GRID_WIDTH / 2) - (self::SHIP_SIZE / 2);
+                if (isset($ports[$port->getId()->toString()])) {
+                    // todo - this is a very crude method. should instead spread them out around the circle
+                    $y = (self::GRID_WIDTH / 2) + (self::SHIP_SIZE / 2);
+                }
+
                 // draw the current planet
                 $ports[$port->getId()->toString()] = $port;
                 $highlights[$port->getId()->toString()] = $port;
 
+
                 // draw the ship (link)
                 $shipX = $coordinates[0];
-                $shipY = $coordinates[1] - (self::GRID_WIDTH / 2) - (self::SHIP_SIZE / 2);
+                $shipY = $coordinates[1] + $y;
                 $ships[] = [
                     'id' => $ship->getId()->toString(),
                     'url' => $this->applicationConfig->getApiHostname() . $ship->getShipClass()->getImagePath(),
@@ -100,38 +106,14 @@ class MapAction extends AbstractUserAction
                     'name' => $ship->getName(),
                 ];
 
-                // get the connecting planets and draw dotted lines to them
-                $nearby = $this->channelsService->getAllLinkedToPort($port);
-                foreach ($nearby as $nearbyChannel) {
-                    $origin = $nearbyChannel->getOrigin();
-                    $destination = $nearbyChannel->getDestination();
-                    $nearbyPort = $origin->equals($port) ? $destination : $origin;
-                    $ports[$nearbyPort->getId()->toString()] = $nearbyPort;
-                    $nearbyLinks[$nearbyChannel->getId()->toString()] = [
-                        'from' => $coordinates,
-                        'to' => $nearbyPort->getCoordinates($this->user->getRotationSteps()),
-                    ];
-                }
-
-                // get the ship's last 5 moves. draw lines and planets in decreasing opacity
-                $latestLocations = $this->shipLocationsService->getRecentForShip($ship);
-                array_shift($latestLocations); // remove the current planet
-                $follow = [$shipX + (self::SHIP_SIZE / 2), $shipY + (self::SHIP_SIZE / 2)]; // start at the ship and go backwards
-                $opacity = 1;
-                foreach ($latestLocations as $latestLocation) {
-                    if (!$latestLocation instanceof ShipInPort) {
-                        throw new \LogicException('This went wrong');
-                    }
-                    $toCoords = $latestLocation->getPort()->getCoordinates($this->user->getRotationSteps());
-                    $journeyHistory[] = [
-                        'from' => $follow,
-                        'to' => $toCoords,
-                        'opacity' => $opacity,
-                        'color' => $color,
-                    ];
-                    $follow = $toCoords;
-                    $opacity -= 0.2;
-                }
+                $this->attachNearby($nearbyLinks, $ports, $port, $coordinates);
+                $this->attachHistory(
+                    $journeyHistory,
+                    self::JOURNEY_COLOURS[$i % count(self::JOURNEY_COLOURS)],
+                    $ship,
+                    $shipX,
+                    $shipY
+                );
             }
         }
 
@@ -147,13 +129,59 @@ class MapAction extends AbstractUserAction
         ];
     }
 
+    // todo - a way that doesn't pass by reference
+    private function attachNearby(array &$nearbyLinks, array &$ports, Port $port, array $coordinates): void
+    {
+        // get the connecting planets and draw dotted lines to them
+        $nearby = $this->channelsService->getAllLinkedToPort($port);
+        foreach ($nearby as $nearbyChannel) {
+            $origin = $nearbyChannel->getOrigin();
+            $destination = $nearbyChannel->getDestination();
+            $nearbyPort = $origin->equals($port) ? $destination : $origin;
+            $ports[$nearbyPort->getId()->toString()] = $nearbyPort;
+            $nearbyLinks[$nearbyChannel->getId()->toString()] = [
+                'from' => $coordinates,
+                'to' => $nearbyPort->getCoordinates($this->user->getRotationSteps()),
+            ];
+        }
+    }
+
+    // todo - a way that doesn't pass by reference
+    private function attachHistory(array &$journeyHistory, string $color, Ship $ship, int $shipX, int $shipY): void
+    {
+        // get the ship's last 5 moves. draw lines and planets in decreasing opacity
+        $latestLocations = $this->shipLocationsService->getRecentForShip($ship);
+        array_shift($latestLocations); // remove the current planet
+        $follow = [$shipX + (self::SHIP_SIZE / 2), $shipY + (self::SHIP_SIZE / 2)]; // start at ship and go backwards
+        $opacity = 1;
+        foreach ($latestLocations as $latestLocation) {
+            if (!$latestLocation instanceof ShipInPort) {
+                throw new \LogicException('This went wrong');
+            }
+            $toCoords = $latestLocation->getPort()->getCoordinates($this->user->getRotationSteps());
+            $journeyHistory[] = [
+                'from' => $follow,
+                'to' => $toCoords,
+                'opacity' => $opacity,
+                'color' => $color,
+            ];
+            $follow = $toCoords;
+            $opacity -= 0.2;
+        }
+    }
+
     /**
      * @param Port[] $ports
      * @param Port[] $highlights
      * @return string
      */
-    private function buildSvg(array $ports, array $ships, array $highlights, array $nearbyLinks, array $journeyHistory): string
-    {
+    private function buildSvg(
+        array $ports,
+        array $ships,
+        array $highlights,
+        array $nearbyLinks,
+        array $journeyHistory
+    ): string {
         $portSvgs = '';
         $shipSvgs = '';
         $lineSvgs = '';
@@ -170,7 +198,7 @@ class MapAction extends AbstractUserAction
             $textY = $coords[1] + $radius + self::SPACING;
 
             $portSvgs .= <<<SVG
-                <circle data-id="{$port->getId()}" cx="$coords[0]" cy="$coords[1]" r="$radius" fill="$color" />
+                <circle cx="$coords[0]" cy="$coords[1]" r="$radius" fill="$color" />
             SVG;
             $texts .= <<<SVG
                 <text font-size="16px" x="$textX" y="$textY" fill="$color">{$port->getName()}</text>
