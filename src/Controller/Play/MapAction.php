@@ -178,8 +178,14 @@ class MapAction extends AbstractUserAction
     }
 
     // todo - a way that doesn't pass by reference
-    private function attachHistory(array &$journeyHistory, array &$ports, string $color, Ship $ship, int $shipX, int $shipY): void
-    {
+    private function attachHistory(
+        array &$journeyHistory,
+        array &$ports,
+        string $color,
+        Ship $ship,
+        int $shipX,
+        int $shipY
+    ): void {
         // get the ship's last 5 moves. draw lines and planets in decreasing opacity
         $latestLocations = $this->shipLocationsService->getRecentForShip($ship);
         array_shift($latestLocations); // remove the current planet

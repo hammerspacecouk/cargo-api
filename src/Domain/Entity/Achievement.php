@@ -38,7 +38,7 @@ class Achievement extends Entity implements \JsonSerializable
         $progress = $rankStatus->getPortsVisited() - $rankStatus->getCurrentRank()->getThreshold();
         $progressString = '';
         if ($progress > 0) {
-            $progressString = ' (' . $progress .'/' . $diff . ')';
+            $progressString = ' (' . $progress . '/' . $diff . ')';
         }
         return new self(
             Uuid::fromString(Uuid::NIL),

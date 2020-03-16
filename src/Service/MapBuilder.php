@@ -23,9 +23,13 @@ class MapBuilder implements \JsonSerializable
         '223,134,75',
     ];
 
+    /** @var array */
     private $ports = [];
+    /** @var array */
     private $highlights = [];
+    /** @var array */
     private $shipsInPorts = [];
+    /** @var array */
     private $links = [];
 
     private $apiHostname;
@@ -37,7 +41,7 @@ class MapBuilder implements \JsonSerializable
         $this->rotationSteps = $rotationSteps;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'svg' => $this->output(),
@@ -48,7 +52,7 @@ class MapBuilder implements \JsonSerializable
 
     private function getCenter(): Coordinate
     {
-        return new Coordinate(0,0);
+        return new Coordinate(0, 0);
     }
 
     private function getViewBox(): string
@@ -81,7 +85,6 @@ class MapBuilder implements \JsonSerializable
 
     public function addShipInChannel(Ship $ship, Channel $channel): void
     {
-
     }
 
     public function addLink(Channel $channel): void

@@ -10,7 +10,6 @@ class Coordinate implements \JsonSerializable
 
     public function __construct(int $x, int $y)
     {
-
         $this->x = $x;
         $this->y = $y;
     }
@@ -25,9 +24,8 @@ class Coordinate implements \JsonSerializable
         return $this->y;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-
         return [
             'x' => $this->x,
             'y' => $this->y,
