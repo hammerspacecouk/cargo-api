@@ -40,7 +40,6 @@
         "symfony/yaml": "^5.0"
     },
     "require-dev": {
-        "phploc/phploc": "dev-master",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-doctrine": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
@@ -72,7 +71,6 @@
             "@stan"
         ],
         "test": "phpunit",
-        "loc": "phploc public src tests bin",
         "cbf": "phpcbf public src tests bin",
         "cs": "phpcs -s public src tests bin",
         "stan": "phpstan analyse public src tests bin --memory-limit=-1 --level 7 -c phpstan.neon"
