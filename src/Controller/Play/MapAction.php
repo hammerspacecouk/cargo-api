@@ -6,12 +6,14 @@ namespace App\Controller\Play;
 use App\Controller\AbstractUserAction;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
 use App\Service\ShipLocationsService;
 use App\Service\ShipsService;
+use App\Service\MapBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -84,10 +86,10 @@ class MapAction extends AbstractUserAction
 
                 $coordinates = $port->getCoordinates($this->user->getRotationSteps());
 
-                $y = 0 - (self::GRID_WIDTH / 2) - (self::SHIP_SIZE / 2);
+                $y = 0 - (self::GRID_WIDTH / 4) - (self::SHIP_SIZE / 2);
                 if (isset($ports[$port->getId()->toString()])) {
                     // todo - this is a very crude method. should instead spread them out around the circle
-                    $y = (self::GRID_WIDTH / 2) + (self::SHIP_SIZE / 2);
+                    $y = (self::GRID_WIDTH / 4) + (self::SHIP_SIZE / 2);
                 }
 
                 // draw the current planet
@@ -109,6 +111,7 @@ class MapAction extends AbstractUserAction
                 $this->attachNearby($nearbyLinks, $ports, $port, $coordinates);
                 $this->attachHistory(
                     $journeyHistory,
+                    $ports,
                     self::JOURNEY_COLOURS[$i % count(self::JOURNEY_COLOURS)],
                     $ship,
                     $shipX,
@@ -121,12 +124,40 @@ class MapAction extends AbstractUserAction
         // what about when it's in transit
 
         $firstPort = $ports[array_key_first($ports)];
+
+        $builder = new MapBuilder($this->applicationConfig->getApiHostname(), $this->user->getRotationSteps());
+        // get all the current ship locations
+        $playerShips = $this->shipsService->getForOwnerIDWithLocation($this->user->getId());
+        foreach ($playerShips as $ship) {
+            $location = $ship->getLocation();
+            if ($location instanceof ShipInPort) {
+                $port = $location->getPort();
+                $builder->addPort($port, true);
+                $builder->addShipInPort($ship, $port);
+
+                $builder = $this->addNearby($builder, $port);
+            } elseif ($location instanceof ShipInChannel) {
+                // todo
+            }
+        }
+
+
         return [
             'svg' => $this->buildSvg($ports, $ships, $highlights, $nearbyLinks, $journeyHistory),
             'viewBox' => $firstPort->getViewBox(),
             'centerX' => $firstPort->getCoordinates($this->user->getRotationSteps())[0],
             'centerY' => $firstPort->getCoordinates($this->user->getRotationSteps())[1],
+            'new' => $builder,
         ];
+    }
+
+    private function addNearby(MapBuilder $builder, Port $port): MapBuilder
+    {
+        $nearby = $this->channelsService->getAllLinkedToPort($port);
+        foreach ($nearby as $nearbyChannel) {
+            $builder->addLink($nearbyChannel);
+        }
+        return $builder;
     }
 
     // todo - a way that doesn't pass by reference
@@ -147,7 +178,7 @@ class MapAction extends AbstractUserAction
     }
 
     // todo - a way that doesn't pass by reference
-    private function attachHistory(array &$journeyHistory, string $color, Ship $ship, int $shipX, int $shipY): void
+    private function attachHistory(array &$journeyHistory, array &$ports, string $color, Ship $ship, int $shipX, int $shipY): void
     {
         // get the ship's last 5 moves. draw lines and planets in decreasing opacity
         $latestLocations = $this->shipLocationsService->getRecentForShip($ship);
@@ -158,7 +189,9 @@ class MapAction extends AbstractUserAction
             if (!$latestLocation instanceof ShipInPort) {
                 throw new \LogicException('This went wrong');
             }
-            $toCoords = $latestLocation->getPort()->getCoordinates($this->user->getRotationSteps());
+            $port = $latestLocation->getPort();
+            $ports[$port->getId()->toString()] = $port;
+            $toCoords = $port->getCoordinates($this->user->getRotationSteps());
             $journeyHistory[] = [
                 'from' => $follow,
                 'to' => $toCoords,
@@ -172,7 +205,10 @@ class MapAction extends AbstractUserAction
 
     /**
      * @param Port[] $ports
+     * @param array $ships
      * @param Port[] $highlights
+     * @param array $nearbyLinks
+     * @param array $journeyHistory
      * @return string
      */
     private function buildSvg(
@@ -211,7 +247,7 @@ class MapAction extends AbstractUserAction
                 continue;
             }
 
-            $radius = self::GRID_WIDTH / 2;
+            $radius = self::GRID_WIDTH / 4;
             $highlightSvgs .= <<<SVG
                 <circle
                 cx="$coords[0]"

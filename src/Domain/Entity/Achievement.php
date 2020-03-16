@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\ValueObject\PlayerRankStatus;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -27,12 +28,22 @@ class Achievement extends Entity implements \JsonSerializable
         $this->collectedAt = $collectedAt;
     }
 
-    public static function getPseudoMissionForPlanets(int $count): self
+    public static function getPseudoMissionForPlanets(PlayerRankStatus $rankStatus): self
     {
+        $nextCount = 0;
+        if ($rankStatus->getNextRank()) {
+            $nextCount = $rankStatus->getNextRank()->getThreshold();
+        }
+        $diff = $nextCount - $rankStatus->getCurrentRank()->getThreshold();
+        $progress = $rankStatus->getPortsVisited() - $rankStatus->getCurrentRank()->getThreshold();
+        $progressString = '';
+        if ($progress > 0) {
+            $progressString = ' (' . $progress .'/' . $diff . ')';
+        }
         return new self(
             Uuid::fromString(Uuid::NIL),
-            (string)$count,
-            'Travel to ' . $count . ' planets overall',
+            (string)$nextCount,
+            'Discover ' . $diff . ' new planet' . ($diff > 1 ? 's' : '') . $progressString,
             '',
         );
     }

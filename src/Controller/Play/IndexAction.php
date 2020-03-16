@@ -47,7 +47,7 @@ class IndexAction extends AbstractUserAction
         $currentMissions = $this->achievementService->findForRank($this->user, $rankStatus->getCurrentRank());
         if (empty($currentMissions) && $rankStatus->getNextRank()) {
             $currentMissions = [
-                Achievement::getPseudoMissionForPlanets($rankStatus->getNextRank()->getThreshold())
+                Achievement::getPseudoMissionForPlanets($rankStatus)
             ];
         }
 

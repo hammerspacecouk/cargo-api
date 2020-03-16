@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Command\Setup;
 
 use App\Command\AbstractCommand;
-use App\Controller\Play\MapAction;
+use App\Service\MapBuilder;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\EntityManager;
 use App\Domain\Entity\Channel;
@@ -137,10 +137,10 @@ class MakeCoordinatesCommand extends AbstractCommand
 
         $output->writeln('Writing coordinates');
         $viewBox = implode(' ', [
-            $limits[0] - MapAction::GRID_WIDTH,
-            $limits[1] - MapAction::GRID_WIDTH,
-            ($limits[2] - $limits[0]) + (MapAction::GRID_WIDTH * 2),
-            ($limits[3] - $limits[1]) + (MapAction::GRID_WIDTH * 2),
+            $limits[0] - MapBuilder::GRID_WIDTH,
+            $limits[1] - MapBuilder::GRID_WIDTH,
+            ($limits[2] - $limits[0]) + (MapBuilder::GRID_WIDTH * 2),
+            ($limits[3] - $limits[1]) + (MapBuilder::GRID_WIDTH * 2),
         ]);
         $progress = new ProgressBar($output, count($portCoords));
         $progress->start();
@@ -181,7 +181,7 @@ class MakeCoordinatesCommand extends AbstractCommand
         if ($reversed) {
             $bearing = $bearing->getOpposite();
         }
-        $lineLength = ($length + 1) * MapAction::GRID_WIDTH;
+        $lineLength = ($length + 1) * MapBuilder::GRID_WIDTH;
 
         $endX = $startX + (
                 (cos(deg2rad($bearing->getDegreesFromHorizon())) * $lineLength) * $bearing->getXMultiplier()
