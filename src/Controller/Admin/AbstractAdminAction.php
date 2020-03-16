@@ -15,7 +15,7 @@ abstract class AbstractAdminAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
-    private $authenticationService;
+    private AuthenticationService $authenticationService;
 
     public function __construct(
         AuthenticationService $authenticationService

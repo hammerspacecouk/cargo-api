@@ -14,17 +14,13 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractEntityRepository extends EntityRepository
 {
-    /** @var DateTimeFactory */
-    protected $dateTimeFactory;
+    protected DateTimeFactory $dateTimeFactory;
 
-    /** @var ApplicationConfig */
-    protected $applicationConfig;
+    protected ApplicationConfig $applicationConfig;
 
-    /** @var CacheInterface */
-    protected $cache;
+    protected CacheInterface $cache;
 
-    /** @var LoggerInterface */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     /** @var EntityManager */
     protected $_em; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore -- must match parent

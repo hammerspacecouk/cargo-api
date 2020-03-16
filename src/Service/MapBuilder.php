@@ -23,17 +23,13 @@ class MapBuilder implements \JsonSerializable
         '223,134,75',
     ];
 
-    /** @var array */
-    private $ports = [];
-    /** @var array */
-    private $highlights = [];
-    /** @var array */
-    private $shipsInPorts = [];
-    /** @var array */
-    private $links = [];
+    private array $ports = [];
+    private array $highlights = [];
+    private array $shipsInPorts = [];
+    private array $links = [];
 
-    private $apiHostname;
-    private $rotationSteps;
+    private string $apiHostname;
+    private int $rotationSteps;
 
     public function __construct(string $apiHostname, int $rotationSteps)
     {

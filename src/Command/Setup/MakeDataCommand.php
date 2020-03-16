@@ -12,21 +12,18 @@ use function App\Functions\DateTimes\jsonDecode;
 
 class MakeDataCommand extends AbstractCommand
 {
-    private $playerRanksCommand;
-    private $makeShipClassesCommand;
-    private $makeClustersCommand;
-    private $makePortsCommand;
-    private $makeChannelsCommand;
-    private $makeEffectsCommand;
-    private $makeCrateTypesCommand;
-    private $makeHintsCommand;
-    private $updateDictionary;
-    private $makeAchievementsCommand;
-    private $makeRankAchievementsCommand;
-    /**
-     * @var MakeCoordinatesCommand
-     */
-    private $makeCoordinatesCommand;
+    private MakePlayerRanksCommand $playerRanksCommand;
+    private MakeShipClassesCommand $makeShipClassesCommand;
+    private MakeClustersCommand $makeClustersCommand;
+    private MakePortsCommand $makePortsCommand;
+    private MakeChannelsCommand $makeChannelsCommand;
+    private MakeEffectsCommand $makeEffectsCommand;
+    private MakeCrateTypesCommand $makeCrateTypesCommand;
+    private MakeHintsCommand $makeHintsCommand;
+    private UpdateDictionary $updateDictionary;
+    private MakeAchievementsCommand $makeAchievementsCommand;
+    private MakeRankAchievementsCommand $makeRankAchievementsCommand;
+    private MakeCoordinatesCommand $makeCoordinatesCommand;
 
     public function __construct(
         MakeAchievementsCommand $makeAchievementsCommand,

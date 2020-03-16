@@ -10,7 +10,7 @@ use ParagonIE\Paseto\JsonToken;
 
 abstract class AbstractActionToken extends AbstractToken implements JsonSerializable
 {
-    private $path;
+    private ?string $path;
 
     public function __construct(JsonToken $token, string $tokenString, ?string $path = null)
     {
