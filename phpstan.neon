@@ -15,4 +15,4 @@ parameters:
         - '#Property App\\Data\\Database\\Entity#'
         # todo - come back to these when in the mood
         - '#no value type specified in iterable type#'
-
+        - '#Call to an undefined method#'
