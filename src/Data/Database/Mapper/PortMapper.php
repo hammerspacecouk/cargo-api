@@ -14,8 +14,8 @@ class PortMapper extends Mapper
             $item['name'],
             $item['isSafeHaven'],
             $item['isAHome'],
-            $item['coordinates']['v'] ?? null,
-            $item['coordinates']['b'] ?? null,
+            $item['coordinates']['v'],
+            $item['coordinates']['b'],
         );
     }
 }

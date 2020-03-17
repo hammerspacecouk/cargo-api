@@ -4,6 +4,7 @@ includes:
 parameters:
     inferPrivatePropertyTypeFromConstructor: true
     checkGenericClassInNonGenericObjectType: false
+    checkMissingIterableValueType: false
     doctrine:
         repositoryClass: App\Data\Database\EntityRepository\AbstractEntityRepository
     ignoreErrors:
@@ -11,8 +12,5 @@ parameters:
         - '#Return type \(App\\Data\\Database\\EntityManager\) of method App\\Data\\Database\\EntityRepository\\AbstractEntityRepository::getEntityManager\(\)#'
         # getXRepo() methods are *designed* to make the return type more specific so will not match ObjectRepository
         - '#but returns App\\Data\\Database\\EntityRepository\\AbstractEntityRepository#'
-        # Type hints for DB entities not worth it until PHP 7.4 #
+        # Type hints for DB entities #
         - '#Property App\\Data\\Database\\Entity#'
-        # todo - come back to these when in the mood
-        - '#no value type specified in iterable type#'
-        - '#Call to an undefined method#'

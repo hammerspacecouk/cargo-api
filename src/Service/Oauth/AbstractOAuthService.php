@@ -25,8 +25,6 @@ abstract class AbstractOAuthService extends UsersService implements OAuthService
         if (!$this instanceof OAuthServiceInterface) {
             throw new \RuntimeException('Called on a non-oauth instance');
         }
-        /** @var OAuthServiceInterface|UsersService $this */
-
         $oauthHash = $this->makeContentHash($id);
         $qb = $this->getQueryBuilder(DbUser::class)
             ->select('COUNT(1)')

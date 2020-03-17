@@ -3,31 +3,26 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\ValueObject\Coordinate;
 use Ramsey\Uuid\UuidInterface;
 
 class Port extends Entity implements \JsonSerializable
 {
     public const TOTAL_PORT_COUNT = 1000;
 
-    private $name;
-    private $isSafe;
-    private $isAHome;
-    /**
-     * @var string
-     */
-    private $viewBox;
-    /**
-     * @var array
-     */
-    private $coordinates;
+    private string $name;
+    private bool $isSafe;
+    private bool $isAHome;
+    private string $viewBox;
+    private array $coordinates;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         bool $isSafe,
         bool $isAHome,
-        ?string $viewBox,
-        ?array $coordinates
+        string $viewBox,
+        array $coordinates
     ) {
         parent::__construct($id);
         $this->name = $name;
@@ -47,17 +42,17 @@ class Port extends Entity implements \JsonSerializable
         return $this->isSafe;
     }
 
-    public function getViewBox(): ?string
+    public function getViewBox(): string
     {
         return $this->viewBox;
     }
 
-    public function getCoordinates(int $rotationStep): ?array
+    public function getCoordinates(int $rotationStep): Coordinate
     {
-        if ($this->coordinates) {
-            return $this->coordinates[$rotationStep];
-        }
-        return null;
+        return new Coordinate(
+            $this->coordinates[$rotationStep][0],
+            $this->coordinates[$rotationStep][1],
+        );
     }
 
     /**

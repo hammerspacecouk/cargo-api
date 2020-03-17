@@ -5,8 +5,8 @@ namespace App\Domain\ValueObject;
 
 class Coordinate implements \JsonSerializable
 {
-    private $x;
-    private $y;
+    private int $x;
+    private int $y;
 
     public function __construct(int $x, int $y)
     {
@@ -22,6 +22,12 @@ class Coordinate implements \JsonSerializable
     public function getY(): int
     {
         return $this->y;
+    }
+
+    /** @deprecated  */
+    public function a(): array
+    {
+        return [$this->x, $this->y]; // todo - temp. delete me
     }
 
     public function jsonSerialize(): array

@@ -43,7 +43,7 @@ class ShipLocationsService extends AbstractService
     {
         $locations = $this->entityManager->getShipLocationRepo()->getRecentForShipID(
             $ship->getId(),
-            5
+            6
         );
         return $this->mapMany($locations);
     }
