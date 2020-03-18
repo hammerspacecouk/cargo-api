@@ -52,3 +52,12 @@ function groupByValue(array $inputArray, callable $valueFinder): array
         return \array_key_exists($key, $uniques);
     }, ARRAY_FILTER_USE_KEY));
 }
+
+/**
+ * @param array $array
+ * @return mixed
+ */
+function firstItem(array $array)
+{
+    return $array[array_key_first($array)];
+}

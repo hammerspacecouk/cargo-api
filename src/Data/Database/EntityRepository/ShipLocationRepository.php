@@ -8,6 +8,7 @@ use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -48,10 +49,12 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'port', 'channel')
+            ->select('tbl', 'ship', 'port', 'channel', 'fromPort', 'toPort')
             ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.ship', 'ship')
             ->leftJoin('tbl.channel', 'channel')
+            ->leftJoin('channel.toPort', 'toPort')
+            ->leftJoin('channel.fromPort', 'fromPort')
             ->where('IDENTITY(tbl.ship) IN (:ships)')
             ->andWhere('tbl.isCurrent = true')
             ->setParameter('ships', $shipIds);
@@ -213,7 +216,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
 
     public function clean(DateTimeImmutable $now): int
     {
-        return $this->removeInactiveBefore($now);
+        return $this->removeInactiveBefore($now->sub(new DateInterval('P14D')));
     }
 
     public function getRecentForShipID(UuidInterface $shipId, int $limit): array

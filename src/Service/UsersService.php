@@ -235,7 +235,7 @@ class UsersService extends AbstractService
             if (!$emblem) {
                 throw new \RuntimeException('Could not get file');
             }
-            $emblem = \str_replace('fefefe', (string)$emblemColour, $emblem);
+            $emblem = \str_replace('#000000', '#' . $emblemColour, $emblem);
 
             // Set the users original home port and persist the user
             $player = $this->entityManager->getUserRepo()->newPlayer(

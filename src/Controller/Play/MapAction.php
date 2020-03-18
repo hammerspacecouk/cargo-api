@@ -53,16 +53,19 @@ class MapAction extends AbstractUserAction
         // get all the current ship locations
         $playerShips = $this->shipsService->getForOwnerIDWithLocation($this->user->getId());
         foreach ($playerShips as $ship) {
+            if ($ship->isDestroyed()) {
+                continue;
+            }
             $location = $ship->getLocation();
             if ($location instanceof ShipInPort) {
                 $port = $location->getPort();
                 $builder->addPort($port, true);
                 $builder->addShipInPort($ship, $port);
                 $builder = $this->addNearbyPlanets($builder, $port);
-                $builder = $this->addShipHistory($builder, $ship);
             } elseif ($location instanceof ShipInChannel) {
-                // todo
+                $builder->addShipInChannel($ship, $location);
             }
+            $builder = $this->addShipHistory($builder, $ship);
         }
 
 

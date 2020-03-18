@@ -484,6 +484,8 @@ class EffectsService extends AbstractService
                 $damage = $applyEffectToken->getDamage();
                 if ($damage === -1) {
                     $damage = $ship->strength; // destroy the ship
+                }
+                if ($damage >= $ship->strength) {
                     $this->entityManager->getUserAchievementRepo()->recordShipDestroyed($victimUserId);
                     $this->entityManager->getUserAchievementRepo()->recordDestroyedShip($playerEffect->user->id);
                 }

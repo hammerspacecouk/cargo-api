@@ -6,9 +6,11 @@ namespace App\Service;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipInChannel;
 use App\Domain\ValueObject\Coordinate;
 use JsonSerializable;
 use function App\Functions\Arrays\find;
+use function App\Functions\Arrays\firstItem;
 use function App\Functions\Numbers\maxOf;
 use function App\Functions\Numbers\minOf;
 
@@ -21,6 +23,7 @@ class MapBuilder implements JsonSerializable
     private array $shipsInPorts = [];
     private array $links = [];
     private array $history = [];
+    private array $travellingShips = [];
 
     private ?int $minX = null;
     private ?int $minY = null;
@@ -54,12 +57,21 @@ class MapBuilder implements JsonSerializable
 
     private function getCenter(): Coordinate
     {
-        return $this->highlights[array_key_first($this->highlights)]->getCoordinates($this->rotationSteps);
+        if (!empty($this->highlights)) {
+            return firstItem($this->highlights)->getCoordinates($this->rotationSteps);
+        }
+        if (!empty($this->ports)) {
+            return firstItem($this->ports)->getCoordinates($this->rotationSteps);
+        }
+        return new Coordinate(0, 0);
     }
 
     private function getViewBox(): string
     {
-        return $this->ports[array_key_first($this->ports)]->getViewBox();
+        if (empty($this->ports)) {
+            return '0 0 0 0';
+        }
+        return firstItem($this->ports)->getViewBox();
     }
 
     public function addPort(Port $port, bool $isHighlighted = false): void
@@ -87,9 +99,28 @@ class MapBuilder implements JsonSerializable
         $this->shipsInPorts[$portKey] = $this->calculateOrbits($this->shipsInPorts[$portKey]);
     }
 
-    public function addShipInChannel(Ship $ship, Channel $channel): void
+    public function addShipInChannel(Ship $ship, ShipInChannel $channel): void
     {
-        // todo
+        // both ports should be in the list of ports
+        $this->addPort($channel->getOrigin());
+        $this->addPort($channel->getDestination());
+
+        $channelKey = $channel->getId()->toString();
+
+        $fromCoords = $channel->getOrigin()->getCoordinates($this->rotationSteps);
+        $toCoords = $channel->getDestination()->getCoordinates($this->rotationSteps);
+        $this->links[$channelKey] = [
+            'id' => $channel->getId(),
+            'from' => $fromCoords,
+            'to' => $toCoords,
+        ];
+
+        $this->travellingShips[$ship->getId()->toString()] = [
+            'id' => $ship->getId(),
+            'name' => $ship->getName(),
+            'center' => $fromCoords->middle($toCoords),
+            'href' => $this->apiHostname . $ship->getShipClass()->getImagePath()
+        ];
     }
 
     public function addLink(Channel $channel): void
@@ -99,7 +130,11 @@ class MapBuilder implements JsonSerializable
         $this->addPort($channel->getDestination());
 
         $channelKey = $channel->getId()->toString();
-        $this->links[$channelKey] = $channel;
+        $this->links[$channelKey] = [
+            'id' => $channel->getId(),
+            'from' => $channel->getOrigin()->getCoordinates($this->rotationSteps),
+            'to' => $channel->getDestination()->getCoordinates($this->rotationSteps),
+        ];
     }
 
     public function addShipHistory(Ship $ship, array $ports): void
@@ -128,13 +163,7 @@ class MapBuilder implements JsonSerializable
 
     private function buildNearby(): array
     {
-        return array_values(array_map(function (Channel $channel) {
-            return [
-                'id' => $channel->getId(),
-                'from' => $channel->getOrigin()->getCoordinates($this->rotationSteps),
-                'to' => $channel->getDestination()->getCoordinates($this->rotationSteps),
-            ];
-        }, $this->links));
+        return array_values($this->links);
     }
 
     private function buildHighlights(): array
@@ -151,14 +180,23 @@ class MapBuilder implements JsonSerializable
     {
         $allPaths = [];
         foreach ($this->history as $shipId => $ports) {
-            $firstPort = array_shift($ports);
-            $shipInPort = find(static function ($ship) use ($shipId) {
-                return $ship['ship']->getId()->toString() === $shipId;
-            }, $this->shipsInPorts[$firstPort->getId()->toString()]);
-            $point = [
-                'angle' => $shipInPort['angle'],
-                'coords' => $firstPort->getCoordinates($this->rotationSteps),
-            ];
+            $firstPort = firstItem($ports);
+
+            if (isset($this->shipsInPorts[$firstPort->getId()->toString()])) {
+                $shipInPort = find(static function ($ship) use ($shipId) {
+                    return $ship['ship']->getId()->toString() === $shipId;
+                }, $this->shipsInPorts[$firstPort->getId()->toString()]);
+                $point = [
+                    'angle' => $shipInPort['angle'],
+                    'coords' => $firstPort->getCoordinates($this->rotationSteps),
+                ];
+                array_shift($ports); // take the first port off the list
+            } else {
+                // in a channel
+                $point = [
+                    'coords' => $this->travellingShips[$shipId]['center'],
+                ];
+            }
 
             $opacity = 1;
             $shipPaths = [];
@@ -194,7 +232,7 @@ class MapBuilder implements JsonSerializable
                 ];
             }
         }
-        return $ships;
+        return array_merge($ships, array_values($this->travellingShips));
     }
 
     private function buildPlanets(): array

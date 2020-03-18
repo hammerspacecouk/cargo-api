@@ -108,7 +108,7 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function updateStrengthValue(Ship $ship, int $strengthDelta = 0): int
     {
-        $newStrength = (int)($ship->strength + $strengthDelta);
+        $newStrength = ($ship->strength + $strengthDelta);
         if ($newStrength < 0) {
             $newStrength = 0;
         }
@@ -118,7 +118,7 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         $this->getEntityManager()->persist($ship);
         $this->getEntityManager()->flush();
 
-        return $newStrength;
+        return (int)$newStrength;
     }
 
     public function removeDestroyed(DateTimeImmutable $before): int
