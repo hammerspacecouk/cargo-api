@@ -149,7 +149,7 @@ class MapBuilder implements JsonSerializable
     private function calculateOrbits(array $shipsInPort): array
     {
         $angleDiff = (M_PI * 2) / count($shipsInPort);
-        $angle = -M_PI_2;
+        $angle = -M_PI_2 * 0.60;
         $ships = [];
         foreach ($shipsInPort as $ship) {
             $ships[] = [
@@ -182,16 +182,22 @@ class MapBuilder implements JsonSerializable
         foreach ($this->history as $shipId => $ports) {
             $firstPort = firstItem($ports);
 
+            $inPort = false;
             if (isset($this->shipsInPorts[$firstPort->getId()->toString()])) {
                 $shipInPort = find(static function ($ship) use ($shipId) {
                     return $ship['ship']->getId()->toString() === $shipId;
                 }, $this->shipsInPorts[$firstPort->getId()->toString()]);
-                $point = [
-                    'angle' => $shipInPort['angle'],
-                    'coords' => $firstPort->getCoordinates($this->rotationSteps),
-                ];
-                array_shift($ports); // take the first port off the list
-            } else {
+                if ($shipInPort) {
+                    $point = [
+                        'angle' => $shipInPort['angle'],
+                        'coords' => $firstPort->getCoordinates($this->rotationSteps),
+                    ];
+                    array_shift($ports); // take the first port off the list
+                    $inPort = true;
+                }
+            }
+
+            if (!$inPort) {
                 // in a channel
                 $point = [
                     'coords' => $this->travellingShips[$shipId]['center'],
