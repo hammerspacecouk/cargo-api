@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
+use App\Data\Database\Entity\User as DbUser;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
@@ -87,6 +88,7 @@ class ShipLocationsService extends AbstractService
         $portVisitRepo = $this->entityManager->getPortVisitRepo();
 
         $ownerId = $ship->owner->id;
+        /** @var DbUser $owner */
         $owner = $usersRepo->getByID($ownerId, Query::HYDRATE_OBJECT);
         $portVisit = $portVisitRepo->getForPortAndUser(
             $destinationPort->id,
@@ -150,7 +152,7 @@ class ShipLocationsService extends AbstractService
                     $crate,
                     $destinationPort
                 );
-                $this->entityManager->getUserAchievementRepo()->recordTravel($owner->id);
+                $this->entityManager->getUserAchievementRepo()->recordFirstTravel($owner->id);
             }
 
             // update the users score
@@ -165,6 +167,12 @@ class ShipLocationsService extends AbstractService
                 $this->entityManager->getUserAchievementRepo()->recordArrivalToUnsafeTerritory($owner->id);
             }
         });
+
+        // as a safety check if some race condition happened, confirm the user delta
+        $expectedDelta = $this->entityManager->getShipLocationRepo()->sumDeltaForUserId($ownerId);
+        $owner->scoreRate = $expectedDelta;
+        $this->entityManager->persist($owner);
+        $this->entityManager->flush();
     }
 
     /**

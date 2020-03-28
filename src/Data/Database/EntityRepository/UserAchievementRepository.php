@@ -55,7 +55,7 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
-    public function recordTravel(UuidInterface $userId): void
+    public function recordFirstTravel(UuidInterface $userId): void
     {
         $this->record(
             $userId,

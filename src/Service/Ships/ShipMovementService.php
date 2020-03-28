@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Service\Ships;
 
+use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\Database\Entity\User as DbUser;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
@@ -82,6 +84,7 @@ class ShipMovementService extends ShipsService
     ): ShipLocation {
         $now = $this->dateTimeFactory->now();
 
+        /** @var DbShip $ship */
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
@@ -140,10 +143,16 @@ class ShipMovementService extends ShipsService
             ));
         });
 
-        $newLocation = $this->entityManager->getShipLocationRepo()->getCurrentForShipId(
-            $shipId
+        // as a safety check if some race condition happened, confirm the user delta
+        $owner = $ship->owner; // lazy loaded
+        $expectedDelta = $this->entityManager->getShipLocationRepo()->sumDeltaForUserId($owner->id);
+        $owner->scoreRate = $expectedDelta;
+        $this->entityManager->persist($owner);
+        $this->entityManager->flush();
+
+        return $this->mapperFactory->createShipLocationMapper()->getShipLocation(
+            $this->entityManager->getShipLocationRepo()->getCurrentForShipId($shipId)
         );
-        return $this->mapperFactory->createShipLocationMapper()->getShipLocation($newLocation);
     }
 
     public function useMoveShipToken(

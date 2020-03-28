@@ -39,6 +39,18 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    public function sumDeltaForUserId(
+        UuidInterface $userId
+    ): int {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('SUM(tbl.scoreDelta)')
+            ->join('tbl.ship', 'ship')
+            ->where('IDENTITY(ship.owner) = :userId')
+            ->andWhere('tbl.isCurrent = true')
+            ->setParameter('userId', $userId->getBytes());
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
     /**
      * @param array $shipIds
      * @param int $resultType
