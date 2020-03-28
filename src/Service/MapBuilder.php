@@ -182,7 +182,6 @@ class MapBuilder implements JsonSerializable
         foreach ($this->history as $shipId => $ports) {
             $firstPort = firstItem($ports);
 
-            $inPort = false;
             if (isset($this->shipsInPorts[$firstPort->getId()->toString()])) {
                 $shipInPort = find(static function ($ship) use ($shipId) {
                     return $ship['ship']->getId()->toString() === $shipId;
@@ -193,11 +192,10 @@ class MapBuilder implements JsonSerializable
                         'coords' => $firstPort->getCoordinates($this->rotationSteps),
                     ];
                     array_shift($ports); // take the first port off the list
-                    $inPort = true;
                 }
             }
 
-            if (!$inPort) {
+            if (!isset($point)) {
                 // in a channel
                 $point = [
                     'coords' => $this->travellingShips[$shipId]['center'],
