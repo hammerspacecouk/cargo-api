@@ -84,7 +84,7 @@ class ShipMovementService extends ShipsService
     ): ShipLocation {
         $now = $this->dateTimeFactory->now();
 
-        /** @var DbShip $ship */
+        /** @var DbShip|null $ship */
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
         if (!$ship) {
             throw new \InvalidArgumentException('No such ship');
