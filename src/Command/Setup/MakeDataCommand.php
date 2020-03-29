@@ -58,19 +58,14 @@ class MakeDataCommand extends AbstractCommand
     {
         $this
             ->setName('game:init:make-data')
-            ->setDescription('One off command for populating all data at once')
-            ->addArgument(
-                'inputMapUrl',
-                InputArgument::REQUIRED,
-                'URL to JSON file containing a map to the rest of the csv files'
-            );
+            ->setDescription('One off command for populating all data at once');
     }
 
     protected function execute(
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $mapUrl = $this->getStringArgument($input, 'inputMapUrl');
+        $mapUrl = $_SERVER['DATA_URL'];
 
         $data = \file_get_contents($mapUrl);
         if (!$data) {

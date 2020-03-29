@@ -49,6 +49,11 @@ class MakePortsCommand extends AbstractCommand
         $progress->start();
 
         foreach ($sourceData as $data) {
+            if ((bool)($data['ignore'] ?? false)) {
+                $progress->advance();
+                continue;
+            }
+
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
             $isSafeHaven = (bool)$data['isSafeHaven'];

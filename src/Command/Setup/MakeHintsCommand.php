@@ -66,6 +66,9 @@ class MakeHintsCommand extends AbstractCommand
 
     private function handleRow(array $data): void
     {
+        if ((bool)($data['ignore'] ?? false)) {
+            return;
+        }
         $id = Uuid::fromString($data['uuid']);
         $text = $data['text'];
 

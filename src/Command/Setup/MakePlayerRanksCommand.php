@@ -49,7 +49,7 @@ class MakePlayerRanksCommand extends AbstractCommand
         $progress->start();
 
         foreach ($sourceData as $data) {
-            if (empty($data['name'])) {
+            if (empty($data['name']) || (bool)($data['ignore'] ?? false)) {
                 $progress->advance();
                 continue;
             }

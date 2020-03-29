@@ -53,7 +53,7 @@ class MakeClustersCommand extends AbstractCommand
             $id = Uuid::fromString($data['uuid']);
             $name = $data['name'];
 
-            if (empty($name)) {
+            if (empty($name) || (bool)($data['ignore'] ?? false)) {
                 $progress->advance();
                 continue;
             }

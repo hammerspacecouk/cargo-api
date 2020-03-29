@@ -50,7 +50,7 @@ class MakeShipClassesCommand extends AbstractCommand
         $progress->start();
 
         foreach ($sourceData as $data) {
-            if (empty($data['name'])) {
+            if (empty($data['name']) || (bool)($data['ignore'] ?? false)) {
                 $progress->advance();
                 continue;
             }
@@ -66,6 +66,7 @@ class MakeShipClassesCommand extends AbstractCommand
             $speedMultiplier = (float)$data['speedMultiplier'];
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
+            $isDefenceShip = (bool)$data['isDefenceShip'];
             $displayStrength = (int)$data['displayStrength'];
             $displaySpeed = (int)$data['displaySpeed'];
             $displayCapacity = (int)$data['displayCapacity'];
@@ -84,6 +85,7 @@ class MakeShipClassesCommand extends AbstractCommand
                 $entity->speedMultiplier = $speedMultiplier;
                 $entity->purchaseCost = $purchaseCost;
                 $entity->isStarterShip = $isStarterShip;
+                $entity->isDefenceShip = $isDefenceShip;
                 $entity->displayCapacity = $displayCapacity;
                 $entity->displaySpeed = $displaySpeed;
                 $entity->displayStrength = $displayStrength;
@@ -98,6 +100,7 @@ class MakeShipClassesCommand extends AbstractCommand
                     $capacity,
                     $speedMultiplier,
                     $isStarterShip,
+                    $isDefenceShip,
                     $purchaseCost,
                     $svg,
                     $displayCapacity,

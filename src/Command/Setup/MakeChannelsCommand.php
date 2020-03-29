@@ -68,7 +68,7 @@ class MakeChannelsCommand extends AbstractCommand
 
     private function handleRow(array $data): void
     {
-        if (empty($data['fromPortId'])) {
+        if (empty($data['fromPortId']) || (bool)($data['ignore'] ?? false)) {
             return;
         }
 

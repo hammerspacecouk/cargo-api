@@ -114,6 +114,12 @@ Resources:
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
           Secrets:
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+
+
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
             - Name: CONFIG_DISTANCE_MULTIPLIER
@@ -206,6 +212,12 @@ Resources:
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
           Secrets:
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+
+
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
             - Name: CONFIG_DISTANCE_MULTIPLIER
@@ -285,6 +297,12 @@ Resources:
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
           Secrets:
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+
+
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
             - Name: CONFIG_DISTANCE_MULTIPLIER
@@ -342,6 +360,42 @@ Resources:
             - "bin/console"
             - "game:worker:cleaner"
 
+  DataTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      TaskRoleArn: !Ref TaskDefinitionRole
+      ExecutionRoleArn: !Ref TaskExecutionRole
+      Family: !Sub ${AWS::StackName}-data
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 1024
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: cargo-api-php
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECSRepository}:latest
+          Cpu: 64
+          Memory: 128
+          Environment:
+            - Name: APP_ENV
+              Value: !Ref Environment
+            - Name: PARAM_PATH
+              Value: !Sub ${Environment}
+          Secrets:
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${CloudWatchPHP}
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-stream-prefix: data
+          Command:
+            - "bin/console"
+            - "game:init:make-data"
+
   MigrationsTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -363,7 +417,17 @@ Resources:
               Value: !Ref Environment
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
+              # get the app config but overwrite DATABASE_URL with DDL version
           Secrets:
+
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+            - Name: DATABASE_URL
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL_DDL
+
+
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
             - Name: CONFIG_DISTANCE_MULTIPLIER
@@ -393,8 +457,6 @@ Resources:
             - Name: OAUTH_TWITTER_API_KEY
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/OAUTH_TWITTER_API_KEY
 
-            - Name: DATABASE_URL
-              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/DATABASE_URL_DDL
             - Name: APP_SECRET
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRET
             - Name: MAILER_PASSWORD
@@ -421,7 +483,6 @@ Resources:
             - "bin/console"
             - "doctrine:migrations:migrate"
             - "-n"
-            - "--env=prod"
 
   TimedTaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -445,6 +506,11 @@ Resources:
             - Name: PARAM_PATH
               Value: !Sub ${Environment}
           Secrets:
+            - Name: APP_CONFIG
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_CONFIG
+            - Name: APP_SECRETS
+              ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/APP_SECRETS
+
             - Name: CONFIG_COOKIE_SCOPE
               ValueFrom: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/api/${Environment}/CONFIG_COOKIE_SCOPE
             - Name: CONFIG_DISTANCE_MULTIPLIER

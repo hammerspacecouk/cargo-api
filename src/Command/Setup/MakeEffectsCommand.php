@@ -68,7 +68,7 @@ class MakeEffectsCommand extends AbstractCommand
     {
         $id = Uuid::fromString($data['uuid']);
         $type = $data['type'];
-        if (empty($type)) {
+        if (empty($type) || (bool)($data['ignore'] ?? false)) {
             return;
         }
 

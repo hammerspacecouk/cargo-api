@@ -64,7 +64,7 @@ class MakeAchievementsCommand extends AbstractCommand
 
     private function handleRow(array $data): void
     {
-        if (empty($data['name'])) {
+        if (empty($data['name']) || (bool)($data['ignore'] ?? false)) {
             return;
         }
 

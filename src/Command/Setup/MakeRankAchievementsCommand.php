@@ -70,7 +70,7 @@ class MakeRankAchievementsCommand extends AbstractCommand
 
     private function handleRow(array $data): void
     {
-        if (empty($data['rank_uuid'])) {
+        if (empty($data['rank_uuid']) || (bool)($data['ignore'] ?? false)) {
             return;
         }
 

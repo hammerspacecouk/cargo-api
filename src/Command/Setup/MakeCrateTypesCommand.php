@@ -55,6 +55,11 @@ class MakeCrateTypesCommand extends AbstractCommand
         $progress->start();
 
         foreach ($inputData as $row) {
+            if ((bool)($row['ignore'] ?? false)) {
+                $progress->advance();
+                continue;
+            }
+
             $crateType = new CrateType(
                 $row['contents'],
                 (int)$row['abundance'],
