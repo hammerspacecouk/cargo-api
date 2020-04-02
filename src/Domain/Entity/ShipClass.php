@@ -8,17 +8,18 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipClass extends Entity implements \JsonSerializable
 {
-    private $name;
-    private $capacity;
-    private $speedMultiplier;
-    private $strength;
-    private $minimumRank;
-    private $purchaseCost;
-    private $description;
-    private $imageSvg;
-    private $displayStrength;
-    private $displaySpeed;
-    private $displayCapacity;
+    private string $name;
+    private int $capacity;
+    private float $speedMultiplier;
+    private int $strength;
+    private ?PlayerRank $minimumRank;
+    private int $purchaseCost;
+    private string $description;
+    private string $imageSvg;
+    private int $displayStrength;
+    private int $displaySpeed;
+    private int $displayCapacity;
+    private bool $autoNavigate;
 
     public function __construct(
         UuidInterface $id,
@@ -27,6 +28,7 @@ class ShipClass extends Entity implements \JsonSerializable
         int $capacity,
         int $strength,
         int $purchaseCost,
+        bool $autoNavigate,
         float $speedMultiplier,
         string $imageSvg,
         int $displayStrength,
@@ -46,6 +48,7 @@ class ShipClass extends Entity implements \JsonSerializable
         $this->displayStrength = $displayStrength;
         $this->displaySpeed = $displaySpeed;
         $this->displayCapacity = $displayCapacity;
+        $this->autoNavigate = $autoNavigate;
     }
 
     public function jsonSerialize(): array
@@ -56,6 +59,7 @@ class ShipClass extends Entity implements \JsonSerializable
             'name' => $this->getName(),
             'description' => $this->getDescription(),
             'capacity' => $this->getCapacity(),
+            'isProbe' => $this->isProbe(),
             'strength' => $this->strength,
             'image' => $this->getImagePath(),
             'stats' => [
@@ -95,7 +99,7 @@ class ShipClass extends Entity implements \JsonSerializable
 
     public function isProbe(): bool
     {
-        return $this->capacity === 0;
+        return $this->autoNavigate && $this->capacity === 0;
     }
 
     public function getSpeedMultiplier(): float

@@ -19,6 +19,7 @@ class ShipClassMapper extends Mapper
             (int)$item['capacity'],
             (int)$item['strength'],
             (int)$item['purchaseCost'],
+            $item['autoNavigate'],
             $item['speedMultiplier'],
             $item['svg'],
             $item['displayStrength'],

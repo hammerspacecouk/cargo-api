@@ -30,7 +30,7 @@ class Port extends AbstractEntity
     public $isOpen = true;
 
     /** @ORM\Column(type="json") */
-    public $coordinates;
+    public $coordinates = ['v' => '', 'b' => []];
 
     /**
      * @ORM\ManyToOne(targetEntity="Cluster")

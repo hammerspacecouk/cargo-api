@@ -42,9 +42,13 @@ class MakeUUIDsCommand extends AbstractCommand
             throw new \InvalidArgumentException('Arrays not allowed');
         }
         $count = (int)$count;
+        $a = [];
         while ($count > 0) {
-            $output->writeln($this->uuidFactory->uuid4()->toString());
+            $a[] = $this->uuidFactory->uuid6()->toString();
             $count--;
+        }
+        foreach ($a as $b) {
+            $output->writeln($b);
         }
         return 0;
     }
