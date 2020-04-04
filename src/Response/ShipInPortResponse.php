@@ -127,6 +127,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $ships = [];
 
+        /** @var Ship[] $defendedPlayers */
+        $defendedPlayers = [];
+
         foreach ($this->shipsService->findAllActiveInPort($port) as $ship) {
             // remove the current ship from view
             if ($ship->getId()->equals($currentShip->getId())) {
@@ -142,26 +145,39 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 }
             }
 
+            $ownerID = $ship->getOwner()->getId();
+            if ($ship->getShipClass()->isDefence()) {
+                $defendedPlayers[(string)$ownerID] = $ship;
+            }
+
             $offence = null;
+            $isVulnerable = $ship->getShipClass()->isDefence() || !isset($defendedPlayers[(string)$ownerID]);
+            $inactiveReason = null;
             // make offence effects if all of the following are satisfied:
             // - it's not your own ship
             // - the current ship is not a probe
             // - the current port is not a safe haven
+            // - a vulnerable ship without a nearby defence ship
             if (!$port->isSafe() &&
                 !$currentShip->getShipClass()->isProbe() &&
                 !$ship->getOwner()->equals($currentShip->getOwner())
             ) {
-                $offence = $this->effectsService->getOffenceOptionsAtShip(
-                    $currentShip,
-                    $ship,
-                    $port,
-                    $tacticalOptions
-                );
+                if ($isVulnerable) {
+                    $offence = $this->effectsService->getOffenceOptionsAtShip(
+                        $currentShip,
+                        $ship,
+                        $port,
+                        $tacticalOptions
+                    );
+                } else {
+                    $inactiveReason = 'Defended by ' .  $defendedPlayers[(string)$ownerID]->getName();
+                }
             }
 
             $ships[] = [
                 'ship' => $ship,
                 'offence' => $offence,
+                'inactiveReason' => $inactiveReason,
             ];
         }
 

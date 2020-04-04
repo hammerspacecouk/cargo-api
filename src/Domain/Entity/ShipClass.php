@@ -20,6 +20,8 @@ class ShipClass extends Entity implements \JsonSerializable
     private int $displaySpeed;
     private int $displayCapacity;
     private bool $autoNavigate;
+    private bool $isDefenceShip;
+    private bool $isStarterShip;
 
     public function __construct(
         UuidInterface $id,
@@ -29,6 +31,8 @@ class ShipClass extends Entity implements \JsonSerializable
         int $strength,
         int $purchaseCost,
         bool $autoNavigate,
+        bool $isDefenceShip,
+        bool $isStarterShip,
         float $speedMultiplier,
         string $imageSvg,
         int $displayStrength,
@@ -49,6 +53,8 @@ class ShipClass extends Entity implements \JsonSerializable
         $this->displaySpeed = $displaySpeed;
         $this->displayCapacity = $displayCapacity;
         $this->autoNavigate = $autoNavigate;
+        $this->isDefenceShip = $isDefenceShip;
+        $this->isStarterShip = $isStarterShip;
     }
 
     public function jsonSerialize(): array
@@ -60,6 +66,7 @@ class ShipClass extends Entity implements \JsonSerializable
             'description' => $this->getDescription(),
             'capacity' => $this->getCapacity(),
             'isProbe' => $this->isProbe(),
+            'isDefence' => $this->isDefenceShip,
             'strength' => $this->strength,
             'image' => $this->getImagePath(),
             'stats' => [
@@ -100,6 +107,11 @@ class ShipClass extends Entity implements \JsonSerializable
     public function isProbe(): bool
     {
         return $this->autoNavigate && $this->capacity === 0;
+    }
+
+    public function isDefence(): bool
+    {
+        return $this->isDefenceShip;
     }
 
     public function getSpeedMultiplier(): float
@@ -145,5 +157,10 @@ class ShipClass extends Entity implements \JsonSerializable
     public function getDisplayCapacity(): int
     {
         return $this->displayCapacity;
+    }
+
+    public function isStarterShip(): bool
+    {
+        return $this->isStarterShip;
     }
 }

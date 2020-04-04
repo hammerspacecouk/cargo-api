@@ -12,7 +12,7 @@ class ShipClassMapper extends Mapper
 
     public function getShipClass(array $item): ShipClass
     {
-        $domainEntity = new ShipClass(
+        return new ShipClass(
             $item['id'],
             $item['name'],
             $item['description'],
@@ -20,6 +20,8 @@ class ShipClassMapper extends Mapper
             (int)$item['strength'],
             (int)$item['purchaseCost'],
             $item['autoNavigate'],
+            $item['isDefenceShip'],
+            $item['isStarterShip'],
             $item['speedMultiplier'],
             $item['svg'],
             $item['displayStrength'],
@@ -27,6 +29,5 @@ class ShipClassMapper extends Mapper
             $item['displayCapacity'],
             $this->getMinimumRank($item),
         );
-        return $domainEntity;
     }
 }

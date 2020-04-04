@@ -125,5 +125,13 @@ class Direction implements \JsonSerializable
         if ($minimumStrength && !$this->ship->meetsStrength($minimumStrength)) {
             $this->denialReasons[] = 'This ship is not currently strong enough for this journey';
         }
+        // starter ship can only go to known or safe territory
+        if (
+            $this->lastVisitTime === null &&
+            !$this->destinationPort->isSafe() &&
+            $this->ship->getShipClass()->isStarterShip()
+        ) {
+            $this->denialReasons[] = 'Too risky for this ship';
+        }
     }
 }
