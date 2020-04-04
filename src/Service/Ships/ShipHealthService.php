@@ -129,6 +129,9 @@ class ShipHealthService extends ShipsService
                 (int)\ceil($amountToAdd)
             );
             $this->consumeCredits($userEntity, $cost);
+
+            $this->entityManager->getUserAchievementRepo()->recordRepairedShip($userEntity->id);
+
             return $newStrength;
         });
 

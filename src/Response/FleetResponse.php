@@ -25,9 +25,14 @@ class FleetResponse
     {
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId());
 
-        $fleetShips = \array_map(function (Ship $ship) {
-            return $this->mapShip($ship);
-        }, $allShips);
+        $fleetShips = [];
+        $hasStarterShip = false;
+        foreach ($allShips as $ship) {
+            $fleetShips[] = $this->mapShip($ship);
+            if (!$ship->isDestroyed() && $ship->getShipClass()->isStarterShip()) {
+                $hasStarterShip = true;
+            }
+        }
 
         // order the ships. At the top should be those that need attention.
         \usort($fleetShips, static function ($a, $b) {
@@ -51,6 +56,7 @@ class FleetResponse
         });
 
         return [
+            'hasStarterShip' => $hasStarterShip,
             'ships' => $fleetShips,
             'events' => $this->eventsService->findLatestForUser($user),
         ];

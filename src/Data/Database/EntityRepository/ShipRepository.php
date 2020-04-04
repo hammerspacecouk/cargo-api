@@ -106,6 +106,18 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         return $mappedResults;
     }
 
+    public function useHasStarterShip(UuidInterface $userId): bool
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('COUNT(1)')
+            ->join('tbl.shipClass', 'shipClass')
+            ->where('IDENTITY(tbl.owner) = :ownerId')
+            ->andWhere('tbl.strength > 0')
+            ->andWhere('shipClass.isStarterShip = true')
+            ->setParameter('ownerId', $userId->getBytes());
+        return (int)$qb->getQuery()->getSingleScalarResult() > 0;
+    }
+
     public function updateStrengthValue(Ship $ship, int $strengthDelta = 0): int
     {
         $newStrength = ($ship->strength + $strengthDelta);

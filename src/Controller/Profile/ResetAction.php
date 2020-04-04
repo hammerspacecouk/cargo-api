@@ -47,14 +47,32 @@ class ResetAction
         if ($request->getMethod() !== 'POST') {
             throw new MethodNotAllowedHttpException(['POST']);
         }
+
+        $user = $this->getUser($request, $this->authenticationService);
+
         $token = $request->get('token');
         if ($token === null || empty($token)) {
-            throw new BadRequestHttpException('Missing Token Parameter');
+            $resetToken = (string)$this->usersService->getResetToken($user);
+            if ($resetToken) {
+                $params = [
+                    'token' => $resetToken,
+                ];
+            } else {
+                $params = [
+                    'ineligible' => 1,
+                ];
+            }
+
+            $response = new RedirectResponse(
+                $this->applicationConfig->getWebHostname() .
+                '/reset?' .
+                http_build_query($params),
+            );
+            return $this->noCacheResponse($response);
         }
 
         $userToReset = $this->usersService->parseResetToken($token);
 
-        $user = $this->getUser($request, $this->authenticationService);
         if (!$user->getId()->equals($userToReset)) {
             throw new BadRequestHttpException('Token not valid for this user');
         }

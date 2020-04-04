@@ -33,7 +33,6 @@ class ProfileResponse
             'isAnonymous' => $user->isAnonymous(),
             'isTrial' => true, // todo - real value
             'canDelete' => $this->usersService->canUserDelete($user),
-            'resetToken' => $this->usersService->getResetToken($user),
             'homePort' => $homePort,
             'authProviders' => $this->authenticationService->getAuthProviders($user),
         ];

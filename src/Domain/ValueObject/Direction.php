@@ -126,8 +126,7 @@ class Direction implements \JsonSerializable
             $this->denialReasons[] = 'This ship is not currently strong enough for this journey';
         }
         // starter ship can only go to known or safe territory
-        if (
-            $this->lastVisitTime === null &&
+        if ($this->lastVisitTime === null &&
             !$this->destinationPort->isSafe() &&
             $this->ship->getShipClass()->isStarterShip()
         ) {

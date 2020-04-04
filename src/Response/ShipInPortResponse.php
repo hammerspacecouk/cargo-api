@@ -170,7 +170,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                         $tacticalOptions
                     );
                 } else {
-                    $inactiveReason = 'Defended by ' .  $defendedPlayers[(string)$ownerID]->getName();
+                    $inactiveReason = 'Defended by ' . $defendedPlayers[(string)$ownerID]->getName();
                 }
             }
 

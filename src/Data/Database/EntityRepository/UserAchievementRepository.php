@@ -135,6 +135,14 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
+    public function recordRepairedShip(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('8dd0a7f3-955a-4b14-8b50-3bc744d2bba2')
+        );
+    }
+
     public function recordWin(UuidInterface $userId): void
     {
         $this->record(
