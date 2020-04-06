@@ -14,7 +14,9 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Direction;
 use App\Domain\ValueObject\TacticalEffect;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Arrays\filteredMap;
 
 class ShipInPortResponse extends AbstractShipInLocationResponse
 {
@@ -97,8 +99,10 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             );
         }
         $otherShips = [];
+        $convoys = [];
         if ($allowOtherShips) {
             $otherShips = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
+            $convoys = $this->getConvoyOptions($ship, $otherShips);
         }
 
         $data['port'] = $port;
@@ -106,6 +110,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $data['tutorialStep'] = $tutorialStep;
         $data['directions'] = $directions;
         $data['shipsInLocation'] = $otherShips;
+        $data['convoys'] = $convoys;
+        $data['leaveConvoy'] = $this->shipsService->getLeaveConvoyToken($ship);
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
         $data['cratesInPort'] = $cratesInPort;
@@ -135,11 +141,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             if ($ship->getId()->equals($currentShip->getId())) {
                 continue;
             }
+
             // get active effects for this victim ship
             $activeEffects = $this->effectsService->getActiveEffectsForShip($ship);
             foreach ($activeEffects as $activeEffect) {
                 $effect = $activeEffect->getEffect();
-                if (($effect instanceof Effect\DefenceEffect) && $effect->isInvisible()) {
+                if (($effect instanceof Effect\DefenceEffect)
+                    && $effect->isInvisible()
+                    && !$ship->getOwner()->equals($currentShip->getOwner())
+                ) {
                     // don't include invisible ships in the list
                     continue 2;
                 }
@@ -334,5 +344,37 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         return $directions;
+    }
+
+    private function getConvoyOptions(Ship $currentShip, array $otherShips): array
+    {
+        if ($currentShip->isInConvoy()) {
+            return [];
+        }
+
+        $me = $currentShip->getOwner();
+        /** @var Ship[] $myShips */
+        $myShips = filteredMap($otherShips, static function ($shipData) use ($me) {
+            if ($me->equals($shipData['ship']->getOwner())) {
+                return $shipData['ship'];
+            }
+            return null;
+        });
+        if (empty($myShips)) {
+            return [];
+        }
+
+        $convoys = [];
+        foreach ($myShips as $myShip) {
+            $convoyId = (string)($myShip->getConvoyId() ?: Uuid::uuid4());
+            if (!isset($convoys[$convoyId])) {
+                $convoys[$convoyId] = [
+                    'token' => $this->shipsService->getConvoyToken($currentShip, $myShip),
+                    'ships' => [],
+                ];
+            }
+            $convoys[$convoyId]['ships'][] = $myShip;
+        }
+        return array_values($convoys);
     }
 }

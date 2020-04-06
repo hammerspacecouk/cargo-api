@@ -16,6 +16,7 @@ class ShipMapper extends Mapper
             $item['id'],
             $item['name'],
             (int)$item['strength'],
+            $item['convoyUuid'],
             $this->getOwner($item),
             $this->getShipClass($item),
             $this->getLocation($item),

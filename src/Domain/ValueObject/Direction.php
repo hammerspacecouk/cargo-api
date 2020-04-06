@@ -130,7 +130,7 @@ class Direction implements \JsonSerializable
             !$this->destinationPort->isSafe() &&
             $this->ship->getShipClass()->isStarterShip()
         ) {
-            $this->denialReasons[] = 'Too risky for this ship';
+            $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
         }
     }
 }
