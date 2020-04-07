@@ -10,8 +10,8 @@ use App\Service\ShipsService;
 
 class FleetResponse
 {
-    private $eventsService;
-    private $shipsService;
+    private EventsService $eventsService;
+    private ShipsService $shipsService;
 
     public function __construct(
         EventsService $eventsService,
@@ -25,39 +25,47 @@ class FleetResponse
     {
         $allShips = $this->shipsService->getForOwnerIDWithLocation($user->getId());
 
-        $fleetShips = [];
         $hasStarterShip = false;
+        $convoys = [];
         foreach ($allShips as $ship) {
-            $fleetShips[] = $this->mapShip($ship);
+            $convoyId = (string)($ship->getConvoyId() ?: $ship->getId());
+            if (!isset($convoys[$convoyId])) {
+                $convoys[$convoyId] = [];
+            }
+
+            $convoys[$convoyId][] = $this->mapShip($ship);
             if (!$ship->isDestroyed() && $ship->getShipClass()->isStarterShip()) {
                 $hasStarterShip = true;
             }
         }
 
-        // order the ships. At the top should be those that need attention.
-        \usort($fleetShips, static function ($a, $b) {
-            /** @var Ship $shipA */
-            $shipA = $a['ship'];
-            /** @var Ship $shipB */
-            $shipB = $b['ship'];
+        foreach ($convoys as $convoyId => $fleetShips) {
+            // order the ships. At the top should be those that need attention.
+            \usort($fleetShips, static function ($a, $b) {
+                /** @var Ship $shipA */
+                $shipA = $a['ship'];
+                /** @var Ship $shipB */
+                $shipB = $b['ship'];
 
-            // damaged ships to the bottom
-            if ($shipA->isDestroyed() !== $shipB->isDestroyed()) {
-                return $shipA->isDestroyed() ? 1 : -1;
-            }
+                // damaged ships to the bottom
+                if ($shipA->isDestroyed() !== $shipB->isDestroyed()) {
+                    return $shipA->isDestroyed() ? 1 : -1;
+                }
 
-            // ships in danger to the top
-            if ($a['needsAttention'] !== $b['needsAttention']) {
-                return $a['needsAttention'] ? -1 : 1;
-            }
+                // ships in danger to the top
+                if ($a['needsAttention'] !== $b['needsAttention']) {
+                    return $a['needsAttention'] ? -1 : 1;
+                }
 
-            // otherwise order by name
-            return $shipA->getName() <=> $shipB->getName();
-        });
+                // otherwise order by name
+                return $shipA->getName() <=> $shipB->getName();
+            });
+            $convoys[$convoyId] = $fleetShips;
+        }
 
         return [
             'hasStarterShip' => $hasStarterShip,
-            'ships' => $fleetShips,
+            'ships' => array_merge(...array_values($convoys)),
             'events' => $this->eventsService->findLatestForUser($user),
         ];
     }

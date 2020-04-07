@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Response\FleetResponse;
 use App\Response\ShipInLocationResponse;
 use App\Service\ShipsService;
 use App\Service\UsersService;
@@ -14,10 +15,12 @@ class JoinConvoyAction
     private ShipInLocationResponse $shipInLocationResponse;
     private ShipsService $shipsService;
     private LoggerInterface $logger;
+    private FleetResponse $fleetResponse;
 
     public function __construct(
         UsersService $usersService,
         ShipsService $shipsService,
+        FleetResponse $fleetResponse,
         ShipInLocationResponse $shipInLocationResponse,
         LoggerInterface $logger
     ) {
@@ -25,6 +28,7 @@ class JoinConvoyAction
         $this->shipInLocationResponse = $shipInLocationResponse;
         $this->shipsService = $shipsService;
         $this->logger = $logger;
+        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole
@@ -43,7 +47,7 @@ class JoinConvoyAction
 
         return [
             'data' => $this->shipInLocationResponse->getResponseData($user, $ship),
-            // todo - return fleet response
+            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
         ];
     }
 }

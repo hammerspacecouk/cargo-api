@@ -18,6 +18,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Arrays\filteredMap;
 
+// todo - break up things to remove this sniff disable
+// phpcs:disable Generic.Metrics.CyclomaticComplexity.TooHigh
 class ShipInPortResponse extends AbstractShipInLocationResponse
 {
     /**
@@ -99,9 +101,13 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             );
         }
         $otherShips = [];
-        $convoys = [];
         if ($allowOtherShips) {
             $otherShips = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
+        }
+
+        $convoys = null;
+        $leaveConvoyToken = $this->shipsService->getLeaveConvoyToken($ship);
+        if ($allowOtherShips && !$leaveConvoyToken) {
             $convoys = $this->getConvoyOptions($ship, $otherShips);
         }
 
@@ -111,7 +117,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $data['directions'] = $directions;
         $data['shipsInLocation'] = $otherShips;
         $data['convoys'] = $convoys;
-        $data['leaveConvoy'] = $this->shipsService->getLeaveConvoyToken($ship);
+        $data['leaveConvoy'] = $leaveConvoyToken;
         $data['events'] = $this->eventsService->findLatestForPort($port);
 
         $data['cratesInPort'] = $cratesInPort;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Actions;
 
+use App\Response\FleetResponse;
 use App\Response\ShipInLocationResponse;
 use App\Service\Ships\ShipHealthService;
 use App\Service\ShipsService;
@@ -11,13 +12,15 @@ use Psr\Log\LoggerInterface;
 
 class AddHealthAction
 {
-    private $shipHealthService;
-    private $usersService;
-    private $shipInLocationResponse;
-    private $shipsService;
-    private $logger;
+    private ShipHealthService $shipHealthService;
+    private UsersService $usersService;
+    private ShipInLocationResponse $shipInLocationResponse;
+    private ShipsService $shipsService;
+    private LoggerInterface $logger;
+    private FleetResponse $fleetResponse;
 
     public function __construct(
+        FleetResponse $fleetResponse,
         ShipHealthService $shipHealthService,
         UsersService $usersService,
         ShipsService $shipsService,
@@ -29,6 +32,7 @@ class AddHealthAction
         $this->shipInLocationResponse = $shipInLocationResponse;
         $this->shipsService = $shipsService;
         $this->logger = $logger;
+        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole
@@ -47,6 +51,7 @@ class AddHealthAction
 
         return [
             'data' => $this->shipInLocationResponse->getResponseData($user, $ship),
+            'fleet' => $this->fleetResponse->getResponseDataForUser($user),
         ];
     }
 }

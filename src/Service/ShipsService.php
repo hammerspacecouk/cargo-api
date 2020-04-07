@@ -235,7 +235,8 @@ class ShipsService extends AbstractService
         }
 
         $token = $this->tokenHandler->makeToken(...LeaveConvoyToken::make(
-            $ship->getId()
+            $ship->getId(),
+            $ship->getOwner()->getId(),
         ));
         return new LeaveConvoyToken(
             $token->getJsonToken(),
@@ -266,8 +267,46 @@ class ShipsService extends AbstractService
         $currentShip->convoyUuid = $targetShip->convoyUuid;
         $this->entityManager->persist($targetShip);
         $this->entityManager->persist($currentShip);
-        $this->entityManager->flush();
 
-        $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        $this->entityManager->transactional(function () use ($token) {
+            $this->entityManager->flush();
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        });
+    }
+
+    public function parseLeaveConvoyToken(
+        string $tokenString
+    ): LeaveConvoyToken {
+        return new LeaveConvoyToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useLeaveConvoyToken(LeaveConvoyToken $token): void
+    {
+        // get the ship
+        /** @var DbShip $currentShip */
+        $currentShip = $this->entityManager->getShipRepo()->getByID($token->getCurrentShipId(), Query::HYDRATE_OBJECT);
+
+        $currentConvoy = $currentShip->convoyUuid;
+        if ($currentConvoy === null) {
+            return;
+        }
+
+        /** @var DbShip[] $shipsInConvoy */
+        $shipsInConvoy = $this->entityManager->getShipRepo()->getByConvoyID($currentConvoy, Query::HYDRATE_OBJECT);
+
+        if (count($shipsInConvoy) <= 2) {
+            foreach ($shipsInConvoy as $ship) {
+                $ship->convoyUuid = null;
+                $this->entityManager->persist($ship);
+            }
+        } else {
+            $currentShip->convoyUuid = null;
+            $this->entityManager->persist($currentShip);
+        }
+
+        $this->entityManager->transactional(function () use ($token) {
+            $this->entityManager->flush();
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        });
     }
 }
