@@ -49,6 +49,14 @@ class ShipLocationsService extends AbstractService
         return $this->mapMany($locations);
     }
 
+    public function getCurrentForShip(Ship $ship): ShipLocation
+    {
+        $result = $this->entityManager->getShipLocationRepo()->getCurrentForShipId($ship->getId());
+        $mapper = $this->mapperFactory->createShipLocationMapper();
+
+        return $mapper->getShipLocation($result);
+    }
+
     /**
      * @param DateTimeImmutable $before
      * @param int $limit

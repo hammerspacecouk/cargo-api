@@ -4,8 +4,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\TokenProvider;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
+use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -63,6 +66,16 @@ class ShipsService extends AbstractService
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($result);
+    }
+
+    public function findAllInConvoy(UuidInterface $convoyId): array
+    {
+        $shipsInConvoy = $this->entityManager->getShipRepo()->getByConvoyID($convoyId);
+        $mapper = $this->mapperFactory->createShipMapper();
+
+        return array_map(static function ($result) use ($mapper) {
+            return $mapper->getShip($result);
+        }, $shipsInConvoy);
     }
 
     public function shipOwnedBy(
@@ -143,7 +156,8 @@ class ShipsService extends AbstractService
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
             ->where('IDENTITY(tbl.owner) = :id')
-            ->orderBy('tbl.strength', 'desc')
+            ->orderBy('tbl.convoyUuid', 'desc')
+            ->addOrderBy('tbl.strength', 'desc')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
             ->setParameter('id', $userId->getBytes());
@@ -207,5 +221,101 @@ class ShipsService extends AbstractService
         return array_map(static function ($result) use ($mapper) {
             return $mapper->getShip($result);
         }, $results);
+    }
+
+    public function getConvoyToken(Ship $currentShip, Ship $ship): JoinConvoyToken
+    {
+        $token = $this->tokenHandler->makeToken(...JoinConvoyToken::make(
+            $currentShip->getId(),
+            $currentShip->getOwner()->getId(),
+            $ship->getId()
+        ));
+        return new JoinConvoyToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(JoinConvoyToken::class, $this->dateTimeFactory->now())
+        );
+    }
+
+    public function getLeaveConvoyToken(Ship $ship): ?LeaveConvoyToken
+    {
+        if (!$ship->isInConvoy()) {
+            return null;
+        }
+
+        $token = $this->tokenHandler->makeToken(...LeaveConvoyToken::make(
+            $ship->getId(),
+            $ship->getOwner()->getId(),
+        ));
+        return new LeaveConvoyToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(LeaveConvoyToken::class, $this->dateTimeFactory->now())
+        );
+    }
+
+    public function parseJoinConvoyToken(
+        string $tokenString
+    ): JoinConvoyToken {
+        return new JoinConvoyToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useJoinConvoyToken(
+        JoinConvoyToken $token
+    ): void {
+        // get the two ships
+        /** @var DbShip $currentShip */
+        $currentShip = $this->entityManager->getShipRepo()->getByID($token->getCurrentShipId(), Query::HYDRATE_OBJECT);
+        /** @var DbShip $targetShip */
+        $targetShip = $this->entityManager->getShipRepo()->getByID($token->getChosenShipId(), Query::HYDRATE_OBJECT);
+
+        if (!$targetShip->convoyUuid) {
+            $targetShip->convoyUuid = $this->uuidFactory->uuid6();
+        }
+
+        $currentShip->convoyUuid = $targetShip->convoyUuid;
+        $this->entityManager->persist($targetShip);
+        $this->entityManager->persist($currentShip);
+
+        $this->entityManager->transactional(function () use ($token) {
+            $this->entityManager->flush();
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        });
+    }
+
+    public function parseLeaveConvoyToken(
+        string $tokenString
+    ): LeaveConvoyToken {
+        return new LeaveConvoyToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useLeaveConvoyToken(LeaveConvoyToken $token): void
+    {
+        // get the ship
+        /** @var DbShip $currentShip */
+        $currentShip = $this->entityManager->getShipRepo()->getByID($token->getCurrentShipId(), Query::HYDRATE_OBJECT);
+
+        $currentConvoy = $currentShip->convoyUuid;
+        if ($currentConvoy === null) {
+            return;
+        }
+
+        /** @var DbShip[] $shipsInConvoy */
+        $shipsInConvoy = $this->entityManager->getShipRepo()->getByConvoyID($currentConvoy, Query::HYDRATE_OBJECT);
+
+        if (count($shipsInConvoy) <= 2) {
+            foreach ($shipsInConvoy as $ship) {
+                $ship->convoyUuid = null;
+                $this->entityManager->persist($ship);
+            }
+        } else {
+            $currentShip->convoyUuid = null;
+            $this->entityManager->persist($currentShip);
+        }
+
+        $this->entityManager->transactional(function () use ($token) {
+            $this->entityManager->flush();
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        });
     }
 }

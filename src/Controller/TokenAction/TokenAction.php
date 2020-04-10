@@ -8,6 +8,8 @@ use App\Controller\Actions\AddHealthAction;
 use App\Controller\Actions\ApplyOffenceEffectAction;
 use App\Controller\Actions\Effects\ApplyShipDefenceEffectAction;
 use App\Controller\Actions\Effects\ApplyShipTravelEffectAction;
+use App\Controller\Actions\JoinConvoyAction;
+use App\Controller\Actions\LeaveConvoyAction;
 use App\Controller\Actions\MoveShipAction;
 use App\Controller\Actions\PortActions\DropCrateAction;
 use App\Controller\Actions\PortActions\PickupCrateAction;
@@ -23,6 +25,8 @@ use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
+use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
+use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
@@ -48,25 +52,24 @@ class TokenAction
 {
     use CacheControlResponseTrait;
 
-    private $now;
-    /**
-     * @var DateTimeImmutable
-     */
-    private $yesterday;
-    private $logger;
-    private $acknowledgePromotionAction;
-    private $addHealthAction;
-    private $applyOffenceEffectAction;
-    private $moveShipAction;
-    private $purchaseEffectAction;
-    private $purchaseShipAction;
-    private $renameShipAction;
-    private $requestShipNameAction;
-    private $applyShipDefenceEffectAction;
-    private $applyShipTravelEffectAction;
-    private $dropCrateAction;
-    private $pickupCrateAction;
-    private $removeAuthProviderAction;
+    private DateTimeImmutable $now;
+    private DateTimeImmutable $yesterday;
+    private LoggerInterface $logger;
+    private AcknowledgePromotionAction $acknowledgePromotionAction;
+    private AddHealthAction $addHealthAction;
+    private ApplyOffenceEffectAction $applyOffenceEffectAction;
+    private MoveShipAction $moveShipAction;
+    private PurchaseEffectAction $purchaseEffectAction;
+    private PurchaseShipAction $purchaseShipAction;
+    private RenameShipAction $renameShipAction;
+    private RequestShipNameAction $requestShipNameAction;
+    private ApplyShipDefenceEffectAction $applyShipDefenceEffectAction;
+    private ApplyShipTravelEffectAction $applyShipTravelEffectAction;
+    private DropCrateAction $dropCrateAction;
+    private PickupCrateAction $pickupCrateAction;
+    private RemoveAuthProviderAction $removeAuthProviderAction;
+    private JoinConvoyAction $joinConvoyAction;
+    private LeaveConvoyAction $leaveConvoyAction;
 
     public static function getRouteDefinition(): Route
     {
@@ -81,6 +84,8 @@ class TokenAction
         AcknowledgePromotionAction $acknowledgePromotionAction,
         AddHealthAction $addHealthAction,
         ApplyOffenceEffectAction $applyOffenceEffectAction,
+        JoinConvoyAction $joinConvoyAction,
+        LeaveConvoyAction $leaveConvoyAction,
         MoveShipAction $moveShipAction,
         PurchaseEffectAction $purchaseEffectAction,
         PurchaseShipAction $purchaseShipAction,
@@ -109,6 +114,8 @@ class TokenAction
         $this->now = $dateTimeFactory->now();
         $this->yesterday = $this->now->sub(new \DateInterval('P1D'));
         $this->removeAuthProviderAction = $removeAuthProviderAction;
+        $this->joinConvoyAction = $joinConvoyAction;
+        $this->leaveConvoyAction = $leaveConvoyAction;
     }
 
     public function __invoke(
@@ -144,6 +151,14 @@ class TokenAction
             case TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->now):
             case TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->yesterday):
                 return $this->applyOffenceEffectAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(JoinConvoyToken::class, $this->now):
+            case TokenProvider::getActionPath(JoinConvoyToken::class, $this->yesterday):
+                return $this->joinConvoyAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(LeaveConvoyToken::class, $this->now):
+            case TokenProvider::getActionPath(LeaveConvoyToken::class, $this->yesterday):
+                return $this->leaveConvoyAction->invoke($tokenString);
 
             case TokenProvider::getActionPath(MoveShipToken::class, $this->now):
             case TokenProvider::getActionPath(MoveShipToken::class, $this->yesterday):

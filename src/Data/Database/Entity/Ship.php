@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Data\Database\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Data\Database\EntityRepository\ShipRepository")
@@ -12,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"},
  *     indexes={
  *          @ORM\Index(name="ships_strength", columns={"strength"}),
+ *          @ORM\Index(name="ships_convoystrength", columns={"convoy_uuid", "strength"}),
  *     }
  * )})
  */
@@ -22,6 +24,9 @@ class Ship extends AbstractEntity
 
     /** @ORM\Column(type="integer") */
     public $strength;
+
+    /** @ORM\Column(type="uuid", nullable=true) */
+    public ?UuidInterface $convoyUuid;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")

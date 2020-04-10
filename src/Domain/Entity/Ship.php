@@ -9,16 +9,18 @@ use function sha1;
 
 class Ship extends Entity implements \JsonSerializable
 {
-    private $name;
-    private $shipClass;
-    private $location;
-    private $owner;
-    private $strength;
+    private string $name;
+    private ?ShipClass $shipClass;
+    private ?ShipLocation $location;
+    private ?User $owner;
+    private int $strength;
+    private ?UuidInterface $convoyId;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         int $strength,
+        ?UuidInterface $convoyId,
         ?User $owner,
         ?ShipClass $shipClass,
         ?ShipLocation $location = null
@@ -29,11 +31,17 @@ class Ship extends Entity implements \JsonSerializable
         $this->location = $location;
         $this->owner = $owner;
         $this->strength = $strength;
+        $this->convoyId = $convoyId;
     }
 
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getStrength(): int
+    {
+        return $this->strength;
     }
 
     public function getStrengthPercent(): int
@@ -54,6 +62,16 @@ class Ship extends Entity implements \JsonSerializable
     public function isHealthy(): bool
     {
         return $this->getStrengthPercent() > 25;
+    }
+
+    public function getConvoyId(): ?UuidInterface
+    {
+        return $this->convoyId;
+    }
+
+    public function isInConvoy(): bool
+    {
+        return $this->convoyId !== null;
     }
 
     public function meetsStrength(int $minimumStrength): bool
@@ -101,6 +119,7 @@ class Ship extends Entity implements \JsonSerializable
             'type' => 'Ship',
             'name' => $this->name,
             'isDestroyed' => $this->isDestroyed(),
+            'convoyId' => $this->convoyId,
         ];
         if ($this->owner) {
             $data['owner'] = $this->owner;

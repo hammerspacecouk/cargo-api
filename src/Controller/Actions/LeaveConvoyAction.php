@@ -10,9 +10,8 @@ use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
-class AddHealthAction
+class LeaveConvoyAction
 {
-    private ShipHealthService $shipHealthService;
     private UsersService $usersService;
     private ShipInLocationResponse $shipInLocationResponse;
     private ShipsService $shipsService;
@@ -21,13 +20,11 @@ class AddHealthAction
 
     public function __construct(
         FleetResponse $fleetResponse,
-        ShipHealthService $shipHealthService,
         UsersService $usersService,
         ShipsService $shipsService,
         ShipInLocationResponse $shipInLocationResponse,
         LoggerInterface $logger
     ) {
-        $this->shipHealthService = $shipHealthService;
         $this->usersService = $usersService;
         $this->shipInLocationResponse = $shipInLocationResponse;
         $this->shipsService = $shipsService;
@@ -38,13 +35,13 @@ class AddHealthAction
     // general status and stats of the game as a whole
     public function invoke(string $tokenString): array
     {
-        $this->logger->notice('[ACTION] [SHIP HEALTH]');
+        $this->logger->notice('[ACTION] [LEAVE CONVOY]');
 
-        $token = $this->shipHealthService->parseShipHealthToken($tokenString);
-        $this->shipHealthService->useShipHealthToken($token);
+        $token = $this->shipsService->parseLeaveConvoyToken($tokenString);
+        $this->shipsService->useLeaveConvoyToken($token);
 
-        $user = $this->usersService->getById($token->getUserId());
-        $ship = $this->shipsService->getByIDWithLocation($token->getShipId());
+        $user = $this->usersService->getById($token->getOwnerId());
+        $ship = $this->shipsService->getByIDWithLocation($token->getCurrentShipId());
         if (!$user || !$ship) {
             throw new \RuntimeException('Something went very wrong here');
         }
