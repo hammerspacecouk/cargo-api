@@ -9,7 +9,6 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
 use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
-use App\Domain\ValueObject\TokenId;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -67,6 +66,16 @@ class ShipsService extends AbstractService
 
         $mapper = $this->mapperFactory->createShipMapper();
         return $mapper->getShip($result);
+    }
+
+    public function findAllInConvoy(UuidInterface $convoyId): array
+    {
+        $shipsInConvoy = $this->entityManager->getShipRepo()->getByConvoyID($convoyId);
+        $mapper = $this->mapperFactory->createShipMapper();
+
+        return array_map(static function ($result) use ($mapper) {
+            return $mapper->getShip($result);
+        }, $shipsInConvoy);
     }
 
     public function shipOwnedBy(

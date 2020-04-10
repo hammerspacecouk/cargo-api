@@ -156,17 +156,34 @@ class ShipMovementService extends ShipsService
     }
 
     public function useMoveShipToken(
-        MoveShipToken $token
+        MoveShipToken $token,
+        ?array $convoyTokens = null
     ): ShipLocation {
-        return $this->moveShip(
-            $token->getShipId(),
-            $token->getChannelId(),
-            $token->isReversed(),
-            $token->getJourneyTime(),
-            $token->getEarnings(),
-            $token,
-            $token->getEffectIdsToExpire(),
-        );
+        return $this->entityManager->transactional(function () use ($token, $convoyTokens) {
+            if ($convoyTokens) {
+                foreach ($convoyTokens as $convoyToken) {
+                    $this->moveShip(
+                        $convoyToken->getShipId(),
+                        $convoyToken->getChannelId(),
+                        $convoyToken->isReversed(),
+                        $convoyToken->getJourneyTime(),
+                        $convoyToken->getEarnings(),
+                        $convoyToken,
+                        $convoyToken->getEffectIdsToExpire(),
+                    );
+                }
+            }
+
+            return $this->moveShip(
+                $token->getShipId(),
+                $token->getChannelId(),
+                $token->isReversed(),
+                $token->getJourneyTime(),
+                $token->getEarnings(),
+                $token,
+                $token->getEffectIdsToExpire(),
+            );
+        });
     }
 
     public function parseMoveShipToken(

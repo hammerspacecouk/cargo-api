@@ -13,22 +13,22 @@ use DateTimeImmutable;
 
 class Direction implements \JsonSerializable
 {
-    private $destinationPort;
-    private $channel;
-    private $playerRank;
-    private $ship;
-    private $time;
-    private $earnings;
-    private $lastVisitTime;
+    private Port $destinationPort;
+    private Channel $channel;
+    private PlayerRank $playerRank;
+    private int $time;
+    private ?int $earnings;
+    private ?DateTimeImmutable $lastVisitTime;
+    private bool $isHomePort;
 
     /**
      * @var string[]
      */
-    private $denialReasons = [];
+    private array $denialReasons = [];
     /**
-     * @var bool
+     * @var Ship[]
      */
-    private $isHomePort;
+    private array $convoyShips;
 
     public function __construct(
         Port $destinationPort,
@@ -37,17 +37,22 @@ class Direction implements \JsonSerializable
         Ship $ship,
         bool $isHomePort,
         int $time,
-        int $earnings = null,
-        DateTimeImmutable $lastVisitTime = null
+        ?int $earnings = null,
+        ?DateTimeImmutable $lastVisitTime = null,
+        array $convoyShips = []
     ) {
         $this->destinationPort = $destinationPort;
         $this->channel = $channel;
         $this->playerRank = $playerRank;
-        $this->ship = $ship;
         $this->time = $time;
         $this->earnings = $earnings;
         $this->isHomePort = $isHomePort;
         $this->lastVisitTime = $lastVisitTime;
+        $this->convoyShips = $convoyShips;
+
+        if (empty($this->convoyShips)) {
+            $this->convoyShips = [$ship];
+        }
 
         $this->calculateEligibility();
     }
@@ -122,15 +127,25 @@ class Direction implements \JsonSerializable
         if (!$this->playerRank->meets($minimumRank)) {
             $this->denialReasons[] = 'Minimum Rank: ' . $minimumRank->getName();
         }
-        if ($minimumStrength && !$this->ship->meetsStrength($minimumStrength)) {
-            $this->denialReasons[] = 'This ship is not currently strong enough for this journey';
+
+        if ($minimumStrength) {
+            $totalStrength = 0;
+            foreach ($this->convoyShips as $convoyShip) {
+                $totalStrength += $convoyShip->getStrength();
+            }
+            if ($minimumStrength && $totalStrength < $minimumStrength) {
+                $this->denialReasons[] = 'This ship/convoy is not currently strong enough for this journey';
+            }
         }
+
         // starter ship can only go to known or safe territory
-        if ($this->lastVisitTime === null &&
-            !$this->destinationPort->isSafe() &&
-            $this->ship->getShipClass()->isStarterShip()
-        ) {
-            $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
+        if ($this->lastVisitTime === null && !$this->destinationPort->isSafe()) {
+            foreach ($this->convoyShips as $convoyShip) {
+
+                if ($convoyShip->getShipClass()->isStarterShip()) {
+                    $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
+                }
+            }
         }
     }
 }

@@ -97,7 +97,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user,
                 (int)$totalCrateValue,
                 $location->getId(),
-                $data['tacticalOptions'],
             );
         }
         $otherShips = [];
@@ -276,7 +275,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
      * @param User $user
      * @param int $totalCrateValue
      * @param UuidInterface $currentLocation
-     * @param TacticalEffect[] $tacticalOptions
      * @return array<string, mixed>
      */
     private function getDirectionsFromPort(
@@ -284,8 +282,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Ship $ship,
         User $user,
         int $totalCrateValue,
-        UuidInterface $currentLocation,
-        array $tacticalOptions
+        UuidInterface $currentLocation
     ): array {
 
         // find all channels for a port, with their bearing and distance
@@ -294,9 +291,18 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $directions = Bearing::getEmptyBearingsList();
 
-        $activeTravelEffects = array_filter($tacticalOptions, static function (TacticalEffect $tacticalEffect) {
-            return $tacticalEffect->getEffect() instanceof Effect\TravelEffect && $tacticalEffect->isActive();
-        });
+        $convoyShips = [$ship];
+        if ($ship->isInConvoy()) {
+            $convoyShips = $this->shipsService->findAllInConvoy($ship->getConvoyId());
+        }
+
+        $activeTravelEffects = [];
+        foreach ($convoyShips as $convoyShip) {
+            $shipEffects = $this->effectsService->getActiveTravelEffectsForShip($convoyShip);
+            foreach ($shipEffects as $shipEffect) {
+                $activeTravelEffects[] = $shipEffect;
+            }
+        }
 
         foreach ($channels as $channel) {
             $bearing = Bearing::getRotatedBearing(
@@ -304,12 +310,20 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user->getRotationSteps()
             );
 
-            $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
-                $channel->getDistance(),
-                $ship,
-                $user->getRank(),
-                $activeTravelEffects
-            );
+            $slowestJourneyTimeSeconds = null;
+            foreach ($convoyShips as $convoyShip) {
+                // combine all the travel effects
+
+                $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
+                    $channel->getDistance(),
+                    $convoyShip,
+                    $user->getRank(),
+                    $activeTravelEffects
+                );
+                if (!$slowestJourneyTimeSeconds || $journeyTimeSeconds > $slowestJourneyTimeSeconds) {
+                    $slowestJourneyTimeSeconds = $journeyTimeSeconds;
+                }
+            }
 
             $earnings = $this->algorithmService->getTotalEarnings(
                 $totalCrateValue,
@@ -324,9 +338,10 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user->getRank(),
                 $ship,
                 $destination->equals($homePort),
-                $journeyTimeSeconds,
+                $slowestJourneyTimeSeconds,
                 $earnings,
-                $this->shipLocationsService->getLatestVisitTimeForPort($user, $destination)
+                $this->shipLocationsService->getLatestVisitTimeForPort($user, $destination),
+                $convoyShips
             );
 
             $token = null;
@@ -336,7 +351,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $channel,
                     $user,
                     $channel->isReversed($port),
-                    $journeyTimeSeconds,
+                    $slowestJourneyTimeSeconds,
                     $earnings,
                     $currentLocation,
                     $activeTravelEffects,
@@ -372,7 +387,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $convoys = [];
         foreach ($myShips as $myShip) {
-            $convoyId = (string)($myShip->getConvoyId() ?: Uuid::uuid4());
+            $convoyId = (string)($myShip->getConvoyId() ?: Uuid::uuid6());
             if (!isset($convoys[$convoyId])) {
                 $convoys[$convoyId] = [
                     'token' => $this->shipsService->getConvoyToken($currentShip, $myShip),

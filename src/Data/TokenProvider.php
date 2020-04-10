@@ -76,7 +76,7 @@ class TokenProvider
         if ($tokenId) {
             $id = (string)$tokenId;
         } else {
-            $id = $this->uuidFactory->uuid4()->toString();
+            $id = $this->uuidFactory->uuid6()->toString();
         }
 
         return (new Builder())

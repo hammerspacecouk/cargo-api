@@ -28,6 +28,7 @@ use App\Domain\ValueObject\TokenId;
 use App\Domain\ValueObject\Transaction;
 use Doctrine\ORM\Query;
 use function App\Functions\Arrays\ensureArray;
+use function App\Functions\Arrays\filteredMap;
 use function App\Functions\Arrays\find;
 
 class EffectsService extends AbstractService
@@ -52,6 +53,28 @@ class EffectsService extends AbstractService
             }
             return $this->getPurchaseEffectTransaction($user, $effect, $ship, $currentPort);
         }, $allEffects);
+    }
+
+    public function getActiveTravelEffectsForShip(Ship $ship): array
+    {
+        $activeShipEffects = $this->getActiveEffectsForShip($ship);
+        return filteredMap($activeShipEffects, static function (ActiveEffect $activeEffect) {
+            $id = $activeEffect->getEffect()->getId()->toString();
+            if (!$activeEffect->getEffect() instanceof Effect\TravelEffect) {
+                return null;
+            }
+
+            return new TacticalEffect(
+                $activeEffect->getEffect(),
+                true,
+                null,
+                $activeEffect,
+                false,
+                $countsOfType[$id] ?? 0,
+                $activeEffect->getRemainingCount(),
+                $activeEffect->getExpiry()
+            );
+        });
     }
 
     /**

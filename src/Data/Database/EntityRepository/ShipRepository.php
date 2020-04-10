@@ -38,6 +38,24 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
+    /**
+     * @param UuidInterface $uuid
+     * @param int $resultType
+     * @return mixed
+     */
+    public function getByConvoyID(
+        UuidInterface $uuid,
+        int $resultType = Query::HYDRATE_ARRAY
+    ) {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'c', 'o')
+            ->join('tbl.shipClass', 'c')
+            ->join('tbl.owner', 'o')
+            ->where('tbl.convoyUuid = :id')
+            ->setParameter('id', $uuid);
+        return $qb->getQuery()->getResult($resultType);
+    }
+
     public function deleteByOwnerId(UuidInterface $userId): void
     {
         $this->createQueryBuilder('tbl')

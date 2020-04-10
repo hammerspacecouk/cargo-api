@@ -70,21 +70,6 @@ abstract class AbstractEntityRepository extends EntityRepository
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 
-    /**
-     * @param UuidInterface $uuid
-     * @param int $resultType
-     * @return mixed
-     */
-    public function getByConvoyID(
-        UuidInterface $uuid,
-        int $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->where('tbl.convoyUuid = :id')
-            ->setParameter('id', $uuid);
-        return $qb->getQuery()->getResult($resultType);
-    }
-
     public function deleteById(UuidInterface $uuid, string $className): void
     {
         $sql = 'DELETE FROM ' . $className . ' t WHERE t.id = :id';
