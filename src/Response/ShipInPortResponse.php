@@ -320,7 +320,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $user->getRank(),
                     $activeTravelEffects
                 );
-                if (!$slowestJourneyTimeSeconds || $journeyTimeSeconds > $slowestJourneyTimeSeconds) {
+                if (!$slowestJourneyTimeSeconds || ($journeyTimeSeconds > $slowestJourneyTimeSeconds)) {
                     $slowestJourneyTimeSeconds = $journeyTimeSeconds;
                 }
             }

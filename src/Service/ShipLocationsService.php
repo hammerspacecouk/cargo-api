@@ -23,13 +23,12 @@ class ShipLocationsService extends AbstractService
     public function processOldestExpired(
         DateTimeImmutable $since,
         int $limit
-    ): int
-    {
+    ): int {
         $locations = $this->entityManager->getShipLocationRepo()->getOldestExpired(
             $since,
             $limit,
             Query::HYDRATE_OBJECT,
-            );
+        );
         $total = count($locations);
 
         $this->logger->info('Processing ' . $total . ' arrivals in this batch');

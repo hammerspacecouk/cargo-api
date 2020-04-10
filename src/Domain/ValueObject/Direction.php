@@ -141,7 +141,6 @@ class Direction implements \JsonSerializable
         // starter ship can only go to known or safe territory
         if ($this->lastVisitTime === null && !$this->destinationPort->isSafe()) {
             foreach ($this->convoyShips as $convoyShip) {
-
                 if ($convoyShip->getShipClass()->isStarterShip()) {
                     $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
                 }
