@@ -145,7 +145,6 @@ class Direction implements \JsonSerializable
             if ($this->destinationPort->isGoal() && !$convoyShip->getShipClass()->isStarterShip()) {
                 $this->denialReasons[] = 'The Reticulum Shuttle must make this journey alone';
             }
-
         }
 
         if ($minimumStrength && $totalStrength < $minimumStrength) {
