@@ -13,7 +13,6 @@ class MakeDataCommand extends AbstractCommand
 {
     private MakePlayerRanksCommand $playerRanksCommand;
     private MakeShipClassesCommand $makeShipClassesCommand;
-    private MakeClustersCommand $makeClustersCommand;
     private MakePortsCommand $makePortsCommand;
     private MakeChannelsCommand $makeChannelsCommand;
     private MakeEffectsCommand $makeEffectsCommand;
@@ -29,7 +28,6 @@ class MakeDataCommand extends AbstractCommand
         MakeCoordinatesCommand $makeCoordinatesCommand,
         MakePlayerRanksCommand $playerRanksCommand,
         MakeShipClassesCommand $makeShipClassesCommand,
-        MakeClustersCommand $makeClustersCommand,
         MakePortsCommand $makePortsCommand,
         MakeChannelsCommand $makeChannelsCommand,
         MakeEffectsCommand $makeEffectsCommand,
@@ -41,7 +39,6 @@ class MakeDataCommand extends AbstractCommand
         parent::__construct();
         $this->playerRanksCommand = $playerRanksCommand;
         $this->makeShipClassesCommand = $makeShipClassesCommand;
-        $this->makeClustersCommand = $makeClustersCommand;
         $this->makePortsCommand = $makePortsCommand;
         $this->makeChannelsCommand = $makeChannelsCommand;
         $this->makeEffectsCommand = $makeEffectsCommand;
@@ -79,9 +76,6 @@ class MakeDataCommand extends AbstractCommand
 
         $output->writeln('ShipClass: ' . $map['ShipClass']);
         $this->makeShipClassesCommand->run($this->getInput($map['ShipClass']), $output);
-
-        $output->writeln('Cluster: ' . $map['Cluster']);
-        $this->makeClustersCommand->run($this->getInput($map['Cluster']), $output);
 
         $output->writeln('Port: ' . $map['Port']);
         $this->makePortsCommand->run($this->getInput($map['Port']), $output);

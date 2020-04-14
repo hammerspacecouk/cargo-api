@@ -23,3 +23,8 @@ cp bin/hooks/pre-commit .git/hooks
 cd .git/hooks
 ln -s ../../bin/hooks/pre-commit.sh pre-commit
 ```
+
+## Data for local
+```bash
+docker-compose exec cargo-api-php php bin/console game:init:make-ports build/Port.csv &&  docker-compose exec cargo-api-php php bin/console game:init:make-channels build/Channel.csv && docker-compose exec cargo-api-php php bin/console game:init:make-coords && docker-compose exec cargo-api-php php bin/console game:admin:map {SECRET}
+```

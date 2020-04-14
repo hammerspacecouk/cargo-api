@@ -66,12 +66,24 @@ class MapBuilder implements JsonSerializable
         return new Coordinate(0, 0);
     }
 
-    private function getViewBox(): string
+    public function getViewBox(): string
     {
         if (empty($this->ports)) {
             return '0 0 0 0';
         }
-        return firstItem($this->ports)->getViewBox();
+        /** @var Port $firstPort */
+        $firstPort = firstItem($this->ports);
+        return $firstPort->getViewBox($this->rotationSteps);
+    }
+
+    public function getPorts(): array
+    {
+        return array_values($this->ports);
+    }
+
+    public function getLinks(): array
+    {
+        return array_values($this->links);
     }
 
     public function addPort(Port $port, bool $isHighlighted = false): void

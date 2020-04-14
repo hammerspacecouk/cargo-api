@@ -61,18 +61,11 @@ class MakePortsCommand extends AbstractCommand
             $isAHome = (bool)$data['isHome'];
             $isDestination = (bool)$data['isDestination'];
 
-            $cluster = null;
-            if ($data['cluster']) {
-                $clusterId = Uuid::fromString($data['cluster']);
-                $cluster = $this->entityManager->getClusterRepo()->getByID($clusterId, Query::HYDRATE_OBJECT);
-            }
-
             /** @var Port|null $entity */
             $entity = $this->entityManager->getPortRepo()->getByID($id, Query::HYDRATE_OBJECT);
 
             if ($entity) {
                 $entity->name = $name;
-                $entity->cluster = $cluster;
                 $entity->isSafeHaven = $isSafeHaven;
                 $entity->isAHome = $isAHome;
                 $entity->isOpen = $isOpen;
@@ -80,7 +73,6 @@ class MakePortsCommand extends AbstractCommand
             } else {
                 $entity = new Port(
                     $name,
-                    $cluster,
                     $isSafeHaven,
                     $isAHome,
                     $isDestination,

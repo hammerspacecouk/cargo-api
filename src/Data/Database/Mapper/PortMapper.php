@@ -14,8 +14,13 @@ class PortMapper extends Mapper
             $item['name'],
             $item['isSafeHaven'],
             $item['isAHome'],
-            $item['coordinates']['v'],
-            $item['coordinates']['b'],
+            $item['isDestination'],
+            array_map(static function ($r) {
+                return $r['c'] ?? [];
+            }, $item['coordinates']),
+            array_map(static function ($r) {
+                return $r['v'] ?? [];
+            }, $item['coordinates']),
         );
     }
 }

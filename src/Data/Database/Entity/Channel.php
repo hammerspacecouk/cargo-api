@@ -60,7 +60,7 @@ class Channel extends AbstractEntity
 
         $bearing = \strtoupper(\trim($bearing));
         if (!\in_array($bearing, self::ALLOWED_BEARINGS, true)) {
-            throw new \InvalidArgumentException('Invalid Bearing');
+            throw new \InvalidArgumentException('Invalid Bearing ' . $bearing);
         }
         $this->bearing = $bearing;
         $this->minimumStrength = $minimumStrength;

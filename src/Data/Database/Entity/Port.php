@@ -32,15 +32,8 @@ class Port extends AbstractEntity
     /** @ORM\Column(type="json") */
     public $coordinates = ['v' => '', 'b' => []];
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Cluster")
-     * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
-     */
-    public $cluster;
-
     public function __construct(
         string $name,
-        ?Cluster $cluster,
         bool $isSafeHaven,
         bool $isAHome,
         bool $isDestination,
@@ -48,7 +41,6 @@ class Port extends AbstractEntity
     ) {
         parent::__construct();
         $this->name = $name;
-        $this->cluster = $cluster;
         $this->isSafeHaven = $isSafeHaven;
         $this->isDestination = $isDestination;
         $this->isOpen = $isOpen;

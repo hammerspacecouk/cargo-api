@@ -5,9 +5,11 @@ namespace App\Command\Admin;
 
 use App\Command\AbstractCommand;
 use App\Domain\Entity\Channel;
-use App\Domain\ValueObject\Bearing;
+use App\Domain\Entity\Port;
+use App\Domain\ValueObject\Coordinate;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\ChannelsService;
+use App\Service\MapBuilder;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +17,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeMapCommand extends AbstractCommand
 {
-    private const HEXAGON_WIDTH = 60;
+    private const ROTATION_STEP = 0;
 
-    private $applicationConfig;
-    private $channelsService;
+    private ApplicationConfig $applicationConfig;
+    private ChannelsService $channelsService;
 
     public function __construct(ApplicationConfig $applicationConfig, ChannelsService $channelsService)
     {
@@ -63,192 +65,109 @@ class MakeMapCommand extends AbstractCommand
         $total = \count($channels);
         $output->writeln($total . ' channels');
 
-        $ports = [];
-        $lines = [];
-
-        // handle the first row separately to mark the centre
-        $firstChannel = \array_shift($channels);
-        if (!$firstChannel) {
-            throw new \InvalidArgumentException('No channels');
-        }
-
-        $firstPort = $firstChannel->getOrigin();
-        $secondPort = $firstChannel->getDestination();
-
-        $ports[$firstPort->getId()->toString()] = [$firstPort, 0, 0];
-
-        [$endX, $endY] = $this->relativeCoords(0, 0, $firstChannel->getBearing(), $firstChannel->getDistance());
-
-        $ports[$secondPort->getId()->toString()] = [$secondPort, $endX, $endY];
-
-        $limits = $this->limits($endX, $endY);
-        $lines[] = [0, 0, $endX, $endY, $this->channelKey($firstChannel), $this->rankKey($firstChannel)];
+        $builder = new MapBuilder($this->applicationConfig->getApiHostname(), self::ROTATION_STEP);
 
         $progress = new ProgressBar($output, $total);
         $progress->start();
-        $progress->advance();
-
-        // now loop the rest
-        while (!empty($channels)) {
-            foreach ($channels as $i => $channel) {
-                $originId = $channel->getOrigin()->getId()->toString();
-                $destinationId = $channel->getDestination()->getId()->toString();
-                if (isset($ports[$originId])) {
-                    $reversed = false;
-                    [, $startX, $startY] = $ports[$originId];
-                    $end = $channel->getDestination();
-                } elseif (isset($ports[$destinationId])) {
-                    $reversed = true;
-                    [, $startX, $startY] = $ports[$destinationId];
-                    $end = $channel->getOrigin();
-                } else {
-                    continue;
-                }
-
-                $endId = $end->getId()->toString();
-                if (isset($ports[$endId])) {
-                    [, $endX, $endY] = $ports[$endId];
-                } else {
-                    // calculate and make it
-                    [$endX, $endY] = $this->relativeCoords(
-                        $startX,
-                        $startY,
-                        $channel->getBearing(),
-                        $channel->getDistance(),
-                        $reversed
-                    );
-                    $ports[$endId] = [$end, $endX, $endY];
-                }
-
-                $limits = $this->limits($endX, $endY, $limits);
-                $lines[] = [$startX, $startY, $endX, $endY, $this->channelKey($channel), $this->rankKey($channel)];
-
-                // remove this channel from the list
-                unset($channels[$i]);
-                $progress->advance();
-            }
+        foreach ($channels as $channel) {
+            $builder->addLink($channel);
+            $progress->advance();
         }
 
         $progress->finish();
         $outputPath = __DIR__ . '/../../../build/map.svg';
-        $viewBox = \implode(' ', [
-            $limits[0] - self::HEXAGON_WIDTH,
-            $limits[1] - self::HEXAGON_WIDTH,
-            ($limits[2] - $limits[0]) + (self::HEXAGON_WIDTH * 2),
-            ($limits[3] - $limits[1]) + (self::HEXAGON_WIDTH * 2),
-        ]);
-        \file_put_contents($outputPath, $this->buildSvg(
-            $lines,
-            $ports,
-            $viewBox,
-        ));
+
+        $ports = $this->buildPorts($builder->getPorts());
+        $lines = $this->buildLines($builder->getLinks());
+        $labels = $this->buildLabels($builder->getLinks());
+
+        $svg = <<<SVG
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="{$builder->getViewBox()}">
+                    $lines
+                    $ports
+                    $labels
+                </svg>
+        SVG;
+
+        \file_put_contents($outputPath, $svg);
         $output->writeln('');
         $output->writeln('Done. Map available at ' . \realpath($outputPath));
 
         return 0;
     }
 
-    private function relativeCoords(
-        int $startX,
-        int $startY,
-        Bearing $bearing,
-        int $length,
-        bool $reversed = false
-    ): array {
-        if ($reversed) {
-            $bearing = $bearing->getOpposite();
-        }
-        $lineLength = ($length + 1) * self::HEXAGON_WIDTH;
-
-        $endX = $startX + (
-                (\cos(\deg2rad($bearing->getDegreesFromHorizon())) * $lineLength) * $bearing->getXMultiplier()
-            );
-        $endY = $startY + (\sin(\deg2rad($bearing->getDegreesFromHorizon())) * $lineLength);
-
-        return [$endX, $endY];
-    }
-
-    private function limits(int $newX, int $newY, array $limits = [0, 0, 0, 0]): array
+    private function buildLines(array $lines): string
     {
-        // sX, sY, bX, bY
-        if ($newX < $limits[0]) {
-            $limits[0] = $newX;
-        }
-        if ($newY < $limits[1]) {
-            $limits[1] = $newY;
-        }
-        if ($newX > $limits[2]) {
-            $limits[2] = $newX;
-        }
-        if ($newY > $limits[3]) {
-            $limits[3] = $newY;
-        }
-        return $limits;
+        return \implode('', \array_map(static function (array $line) {
+            /** @var Coordinate $from */
+            $from = $line['from'];
+            /** @var Coordinate $to */
+            $to = $line['to'];
+            return '<line x1="' .
+                $from->getX() . '" y1="' .
+                $from->getY() . '" x2="' .
+                $to->getX() . '" y2="' .
+                $to->getY() . '" stroke="black" />';
+        }, $lines));
     }
 
-    private function buildSvg(
-        array $lines,
-        array $ports,
-        string $viewBox
-    ): string {
-        $lineSvgs = \implode('', \array_map(static function (array $line) {
-            return '<line x1="' .
-                $line[0] . '" y1="' .
-                $line[1] . '" x2="' .
-                $line[2] . '" y2="' .
-                $line[3] . '" stroke="black" />';
-        }, $lines));
-
-        $lineRatings = \implode('', \array_map(static function (array $line) {
-            $halfX = (($line[2] - $line[0]) / 2) + $line[0];
-            $halfY = ((($line[3] - $line[1]) / 2) + $line[1]) - 2;
+    private function buildLabels(array $lines): string
+    {
+        return \implode('', \array_map(static function (array $line) {
+            /** @var Coordinate $from */
+            $from = $line['from'];
+            /** @var Coordinate $to */
+            $to = $line['to'];
+            $halfX = (($to->getX() - $from->getX()) / 2) + $from->getX();
+            $halfY = ((($to->getY() - $from->getY()) / 2) + $from->getY()) - 8;
 
             return '<text text-anchor="middle" y="' . $halfY . '" ' .
-                'style="font-family:sans-serif;font-size: 8px;fill:blue;text-shadow:0 0 1px #fff">' .
-                '<tspan x="' . $halfX . '" text-anchor="middle">' . $line[4] . '</tspan>' .
-                '<tspan x="' . $halfX . '" text-anchor="middle" dy="10">' . $line[5] . '</tspan>' .
+                'style="font-family:sans-serif;font-size: 10px;fill:blue;text-shadow:0 0 1px #fff">' .
+                '<tspan x="' . $halfX . '" text-anchor="middle">' . $line['id'] . '</tspan>' .
                 '</text>';
         }, $lines));
+    }
 
-        $hexSvgs = \implode('', \array_map(function (array $port) {
+    /**
+     * @param Port[] $ports
+     */
+    private function buildPorts(array $ports): string
+    {
+        $hexSvgs = \implode('', \array_map(function (Port $port) {
             $color = '#ff9999';
-            if ($port[0]->isSafe()) {
+            if ($port->isSafe()) {
                 $color = '#ffff99';
             }
-            if ($port[0]->isAHome()) {
+            if ($port->isAHome()) {
                 $color = '#99ff99';
             }
-            return '<polygon data-id="' . $port[0]->getId() .
-                '" points="' . $this->getHexPoints($port[1], $port[2]) . '"' .
+            return '<polygon data-id="' . $port->getId() .
+                '" points="' . $this->getHexPoints($port->getCoordinates(self::ROTATION_STEP)) . '"' .
                 ' stroke="black" fill="' . $color . '" />';
         }, $ports));
 
-        $texts = \implode('', \array_map(static function (array $port) {
-            $lines = explode(' ', $port[0]->getName());
-            $x = $port[1];
+        $texts = \implode('', \array_map(static function (Port $port) {
+            $coord = $port->getCoordinates(self::ROTATION_STEP);
+            $lines = explode(' ', $port->getName());
+            $x = $coord->getX();
             $outputs = [];
             $outputs[] = '<tspan x="' . $x . '" text-anchor="middle">' . array_shift($lines) . '</tspan>';
             foreach ($lines as $line) {
                 $outputs[] = '<tspan x="' . $x . '" text-anchor="middle" dy="12">' . $line . '</tspan>';
             }
 
-            return '<text y="' . $port[2] . '" style="font-family:sans-serif;font-size: 10px;">' .
+            return '<text y="' . $coord->getY() . '" style="font-family:sans-serif;font-size: 16px;">' .
                 implode($outputs) . '</text>';
         }, $ports));
 
-        return <<<SVG
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="$viewBox">
-                $lineSvgs
-                $hexSvgs
-                $texts
-                $lineRatings
-            </svg>
-        SVG;
+        return $hexSvgs . $texts;
     }
 
-    private function getHexPoints(int $x, int $y): string
+    private function getHexPoints(Coordinate $coordinate): string
     {
-        $height = self::HEXAGON_WIDTH / (\sqrt(3) / 2);
+        $x = $coordinate->getX();
+        $y = $coordinate->getY();
+        $height = MapBuilder::GRID_WIDTH / (\sqrt(3) / 2);
         $size = $height / 2;
 
         $points = [];

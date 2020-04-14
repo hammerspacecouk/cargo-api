@@ -135,13 +135,14 @@ class MakeCoordinatesCommand extends AbstractCommand
         $progress->finish();
         $output->writeln('');
 
-        $output->writeln('Writing coordinates');
         $viewBox = implode(' ', [
             $limits[0] - MapBuilder::GRID_WIDTH,
             $limits[1] - MapBuilder::GRID_WIDTH,
             ($limits[2] - $limits[0]) + (MapBuilder::GRID_WIDTH * 2),
             ($limits[3] - $limits[1]) + (MapBuilder::GRID_WIDTH * 2),
         ]);
+        $output->writeln('Viewbox: ' . $viewBox);
+        $output->writeln('Writing coordinates');
         $progress = new ProgressBar($output, count($portCoords));
         $progress->start();
         foreach ($portCoords as $port) {
@@ -195,14 +196,14 @@ class MakeCoordinatesCommand extends AbstractCommand
     {
         /** @var DbPort $entity */
         $entity = $this->entityManager->getPortRepo()->getByID($id, Query::HYDRATE_OBJECT);
-        if (!is_array($entity->coordinates)) {
+        if ($step === 0) {
             $entity->coordinates = [];
         }
-        if (!isset($entity->coordinates['b'])) {
-            $entity->coordinates['b'] = [];
-        }
-        $entity->coordinates['b'][$step] = [$x, $y];
-        $entity->coordinates['v'] = $viewBox;
+
+        $entity->coordinates[$step] = [
+            'v' => $viewBox,
+            'c' => [$x, $y],
+        ];
         $this->entityManager->persist($entity);
     }
 }

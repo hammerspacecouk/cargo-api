@@ -126,25 +126,32 @@ class Direction implements \JsonSerializable
         $minimumStrength = $this->channel->getMinimumStrength();
         if (!$this->playerRank->meets($minimumRank)) {
             $this->denialReasons[] = 'Minimum Rank: ' . $minimumRank->getName();
+            return;
         }
 
-        if ($minimumStrength) {
-            $totalStrength = 0;
-            foreach ($this->convoyShips as $convoyShip) {
-                $totalStrength += $convoyShip->getStrength();
+        $totalStrength = 0;
+        foreach ($this->convoyShips as $convoyShip) {
+            $totalStrength += $convoyShip->getStrength();
+
+            // starter ship can only go to known or safe territory
+            if ($this->lastVisitTime === null &&
+                !$this->destinationPort->isSafe() &&
+                $convoyShip->getShipClass()->isStarterShip()
+            ) {
+                $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
             }
-            if ($minimumStrength && $totalStrength < $minimumStrength) {
-                $this->denialReasons[] = 'This ship/convoy is not currently strong enough for this journey';
+
+            // only the starter ship can get to the goal
+            if ($this->destinationPort->isGoal() && !$convoyShip->getShipClass()->isStarterShip()) {
+                $this->denialReasons[] = 'The Reticulum Shuttle must make this journey alone';
             }
+
         }
 
-        // starter ship can only go to known or safe territory
-        if ($this->lastVisitTime === null && !$this->destinationPort->isSafe()) {
-            foreach ($this->convoyShips as $convoyShip) {
-                if ($convoyShip->getShipClass()->isStarterShip()) {
-                    $this->denialReasons[] = 'Too risky for Reticulum Shuttle';
-                }
-            }
+        if ($minimumStrength && $totalStrength < $minimumStrength) {
+            $this->denialReasons[] = 'This ship/convoy is not currently strong enough for this journey';
         }
+
+        $this->denialReasons = array_unique($this->denialReasons);
     }
 }

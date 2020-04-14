@@ -115,11 +115,6 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\Channel::class);
     }
 
-    public function getClusterRepo(): EntityRepository\ClusterRepository
-    {
-        return $this->getRepository(Entity\Cluster::class);
-    }
-
     public function getConfigRepo(): EntityRepository\ConfigRepository
     {
         return $this->getRepository(Entity\Config::class);

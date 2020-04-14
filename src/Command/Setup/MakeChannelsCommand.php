@@ -68,11 +68,18 @@ class MakeChannelsCommand extends AbstractCommand
 
     private function handleRow(array $data): void
     {
+        if (!isset($data['uuid']) || empty($data['uuid'])) {
+            return;
+        }
+        $id = Uuid::fromString($data['uuid']);
         if (empty($data['fromPortId']) || (bool)($data['ignore'] ?? false)) {
+            $entity = $this->entityManager->getChannelRepo()->getByID($id, Query::HYDRATE_OBJECT);
+            if ($entity) {
+                $this->entityManager->remove($entity);
+            }
             return;
         }
 
-        $id = Uuid::fromString($data['uuid']);
         $fromPort = $this->getPort($data['fromPortId']);
         $toPort = $this->getPort($data['toPortId']);
 
