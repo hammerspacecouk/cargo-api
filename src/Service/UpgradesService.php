@@ -37,7 +37,8 @@ class UpgradesService extends AbstractService
             $alreadyOwned = $shipCountsByClassId[$mapped->getId()->toString()] ?? 0;
 
             $token = null;
-            if ($mapped->getPurchaseCost()) {
+            $cost = $mapped->getPurchaseCost($alreadyOwned);
+            if ($cost) {
                 $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                     $user->getId(),
                     $mapped->getId()
@@ -50,7 +51,7 @@ class UpgradesService extends AbstractService
             }
 
             return new Transaction(
-                $mapped->getPurchaseCost(),
+                $cost,
                 $token,
                 $alreadyOwned,
                 $mapped

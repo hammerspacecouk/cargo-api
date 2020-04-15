@@ -134,9 +134,10 @@ class ShipClass extends Entity implements \JsonSerializable
         return $this->minimumRank;
     }
 
-    public function getPurchaseCost(): int
+    public function getPurchaseCost(int $numberOwned = 0): int
     {
-        return $this->purchaseCost;
+        // exponential growth
+        return (int)round($this->purchaseCost + (($this->purchaseCost / 2) * (0.2 * ($numberOwned ** 2))));
     }
 
     public function getDescription(): string
