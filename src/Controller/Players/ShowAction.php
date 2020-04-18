@@ -8,7 +8,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Service\ShipsService;
 use App\Service\UsersService;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,15 +18,15 @@ class ShowAction
 {
     use IDRequestTrait;
 
-    private $usersService;
-    private $shipsService;
+    private UsersService $usersService;
+    private ShipsService $shipsService;
 
     public static function getRouteDefinition(): Route
     {
         return new Route('/players/{uuid}', [
             '_controller' => self::class,
         ], [
-            'uuid' => Uuid::VALID_PATTERN,
+            'uuid' => (new GenericValidator())->getPattern(),
         ]);
     }
 

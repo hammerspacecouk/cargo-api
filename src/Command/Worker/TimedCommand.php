@@ -20,7 +20,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function array_filter;
 use function array_map;
-use function array_rand;
 use function ceil;
 use function count;
 
@@ -130,31 +129,25 @@ class TimedCommand extends Command
             }, $channels);
 
             // of the possible directions, find which ones the ship is allowed to travel
+            /** @var Direction[] $directions */
             $directions = array_filter($directions, static function (Direction $direction) {
                 return $direction->isAllowedToEnter();
             });
 
-            // of the remaining directions, find one which the player has NOT been to before
-            /** @var Direction[] $nextOptions */
-            // Use dumb selection for now. todo - navigation computer upgrade that checks hasVisited()
-            $nextOptions = $directions;
+            usort($directions, static function (?Direction $a, ?Direction $b) {
+                if ($a === $b) {
+                    return 0;
+                }
+                if ($a === null) {
+                    return -1;
+                }
+                if ($b === null) {
+                    return 1;
+                }
+                return $a->getLastVisitTime() <=> $b->getLastVisitTime();
+            });
 
-            $direction = null;
-            if (!empty($nextOptions)) {
-                $this->logger->info('Moving ship ' . $ship->getName() . ' to a new port');
-                $direction = $nextOptions[array_rand($nextOptions)];
-            }
-
-            // if not found, choose the one the player hasn't been to most recently
-            if (!$direction) {
-                usort($directions, static function (Direction $a, Direction $b) {
-                    // todo -check this sort is correct
-                    return $a->getLastVisitTime() <=> $b->getLastVisitTime();
-                });
-
-                $this->logger->info('Moving ship ' . $ship->getName() . ' to a previously visited port');
-                $direction = $directions[0];
-            }
+            $direction = $directions[0];
 
             $channel = $direction->getChannel();
             $this->shipMovementService->moveShip(

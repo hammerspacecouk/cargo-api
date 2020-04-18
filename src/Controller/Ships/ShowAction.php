@@ -5,7 +5,7 @@ namespace App\Controller\Ships;
 
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -19,7 +19,7 @@ class ShowAction
         return new Route('/ships/{uuid}', [
             '_controller' => self::class,
         ], [
-            'uuid' => Uuid::VALID_PATTERN,
+            'uuid' => (new GenericValidator())->getPattern(),
         ]);
     }
 

@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Domain\Entity\Effect\TravelEffect;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\TacticalEffect;
 
 class AlgorithmService extends AbstractService

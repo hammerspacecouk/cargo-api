@@ -6,11 +6,11 @@ namespace App\Domain\ValueObject;
 class Costs
 {
     // costs of things to do
-    public const ACTION_REQUEST_SHIP_NAME = 500;
+    public const ACTION_REQUEST_SHIP_NAME = 5000;
 
     // health
-    public const SMALL_HEALTH = 500;
+    public const SMALL_HEALTH = 2000;
     public const SMALL_HEALTH_INCREASE = 100;
-    public const LARGE_HEALTH = 1500;
+    public const LARGE_HEALTH = 5000;
     public const LARGE_HEALTH_INCREASE = 500;
 }

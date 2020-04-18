@@ -40,10 +40,10 @@ class ShipHealthService extends ShipsService
     ): Transaction {
         if ($ship->isFullStrength()) {
             return new Transaction(
-                Costs::SMALL_HEALTH_INCREASE,
+                Costs::SMALL_HEALTH,
                 null,
                 0,
-                Costs::SMALL_HEALTH,
+                Costs::SMALL_HEALTH_INCREASE,
             );
         }
 
@@ -61,10 +61,10 @@ class ShipHealthService extends ShipsService
     ): Transaction {
         if ($ship->isFullStrength()) {
             return new Transaction(
-                Costs::LARGE_HEALTH_INCREASE,
+                Costs::LARGE_HEALTH,
                 null,
                 0,
-                Costs::LARGE_HEALTH,
+                Costs::LARGE_HEALTH_INCREASE,
             );
         }
 

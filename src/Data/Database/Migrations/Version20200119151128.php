@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Migrations;
 
-use App\Domain\ValueObject\Colour;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 

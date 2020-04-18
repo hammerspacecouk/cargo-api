@@ -12,15 +12,15 @@ use function strtoupper;
 
 class User extends Entity implements \JsonSerializable
 {
-    private $rotationSteps;
-    private $score;
-    private $homePort;
-    private $isAnonymous;
-    private $playStartTime;
-    private $playerRank;
-    private $permissionLevel;
-    private $emblem;
-    private $displayName;
+    private int $rotationSteps;
+    private Score $score;
+    private ?Port $homePort;
+    private bool $isAnonymous;
+    private DateTimeImmutable $playStartTime;
+    private ?PlayerRank $playerRank;
+    private int $permissionLevel;
+    private string $emblem;
+    private ?string $displayName;
 
     public function __construct(
         UuidInterface $id,
@@ -72,7 +72,7 @@ class User extends Entity implements \JsonSerializable
         if ($this->displayName) {
             return $this->displayName;
         }
-        return 'Recruit #' . strtoupper($this->getId()->getTimeLowHex());
+        return 'Recruit #' . strtoupper(substr($this->getId()->toString(), 4, 8));
     }
 
     public function getEmblemPath(): string

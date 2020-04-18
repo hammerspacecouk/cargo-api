@@ -5,7 +5,7 @@ namespace App\Controller\Ports;
 
 use App\Service\PortsService;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
@@ -19,7 +19,7 @@ class ShowAction
         return new Route('/ports/{uuid}', [
             '_controller' => self::class,
         ], [
-            'uuid' => Uuid::VALID_PATTERN,
+            'uuid' => (new GenericValidator())->getPattern(),
         ]);
     }
 

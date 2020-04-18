@@ -148,7 +148,11 @@ class Direction implements \JsonSerializable
         }
 
         if ($minimumStrength && $totalStrength < $minimumStrength) {
-            $this->denialReasons[] = 'This ship/convoy is not currently strong enough for this journey';
+            $this->denialReasons[] = sprintf(
+                'This ship/convoy is not currently strong enough for this journey (%d/%d)',
+                $totalStrength,
+                $minimumStrength
+            );
         }
 
         $this->denialReasons = array_unique($this->denialReasons);

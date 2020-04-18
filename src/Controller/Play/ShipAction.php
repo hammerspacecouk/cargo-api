@@ -11,7 +11,7 @@ use App\Response\ShipInLocationResponse;
 use App\Service\AuthenticationService;
 use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
@@ -20,15 +20,15 @@ class ShipAction extends AbstractUserAction
 {
     use GetShipTrait;
 
-    private $shipsService;
-    private $shipInLocationResponse;
+    private ShipsService $shipsService;
+    private ShipInLocationResponse $shipInLocationResponse;
 
     public static function getRouteDefinition(): Route
     {
         return new Route('/play/{uuid}', [
             '_controller' => self::class,
         ], [
-            'uuid' => Uuid::VALID_PATTERN,
+            'uuid' => (new GenericValidator())->getPattern(),
         ]);
     }
 

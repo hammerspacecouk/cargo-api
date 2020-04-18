@@ -5,7 +5,7 @@ namespace App\Controller\Home;
 
 use App\Controller\IDRequestTrait;
 use App\Service\Ships\ShipClassService;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,7 +20,7 @@ class ShipClassImageAction
         return new Route('/ship-class/{uuid}-{hash}.svg', [
             '_controller' => self::class,
         ], [
-            'uuid' => Uuid::VALID_PATTERN,
+            'uuid' => (new GenericValidator())->getPattern(),
             'hash' => '^[0-9a-f]{40}$',
         ]);
     }

@@ -4,13 +4,11 @@ declare(strict_types=1);
 namespace App\Service\Ships;
 
 use App\Data\Database\Entity\Ship as DbShip;
-use App\Data\Database\Entity\User as DbUser;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\TokenId;

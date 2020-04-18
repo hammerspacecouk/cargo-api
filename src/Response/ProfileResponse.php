@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Response;
 
 use App\Domain\Entity\User;
-use App\Service\AchievementService;
 use App\Service\AuthenticationService;
 use App\Service\PortsService;
 use App\Service\UsersService;

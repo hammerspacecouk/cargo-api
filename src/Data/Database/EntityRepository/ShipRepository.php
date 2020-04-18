@@ -6,7 +6,6 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
-use App\Data\Database\Entity\ShipLocation;
 use App\Data\Database\Entity\User;
 use DateInterval;
 use DateTimeImmutable;

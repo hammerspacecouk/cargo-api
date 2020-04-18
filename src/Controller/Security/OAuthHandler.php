@@ -5,7 +5,6 @@ namespace App\Controller\Security;
 
 use App\Service\Oauth\OAuthServiceInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;
-use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

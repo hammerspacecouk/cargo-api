@@ -5,7 +5,6 @@ namespace App\Controller\Actions;
 
 use App\Response\FleetResponse;
 use App\Response\ShipInLocationResponse;
-use App\Service\Ships\ShipHealthService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Data\Database;
 
 use App\Data\Database\Entity\AbstractEntity;
-use App\Data\Database\Entity\Achievement;
 use App\Data\Database\EntityRepository\AbstractEntityRepository;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
