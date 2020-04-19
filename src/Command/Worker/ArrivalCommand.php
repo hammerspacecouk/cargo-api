@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 
 class ArrivalCommand extends ContinuousWorkerCommand
 {
-    private $locationsService;
+    private ShipLocationsService $locationsService;
 
     public function __construct(
         ShipLocationsService $shipLocationsService,

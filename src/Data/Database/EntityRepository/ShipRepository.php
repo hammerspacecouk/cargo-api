@@ -164,4 +164,30 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
     {
         return $this->removeDestroyed($now->sub(new DateInterval('P14D')));
     }
+
+    public function infectRandomShip(): ?Ship
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->join('tbl.shipClass', 'shipClass')
+            ->where('tbl.hasPlague = false')
+            ->andWhere('shipClass.isHospitalShip = false')
+            ->andWhere('shipClass.autoNavigate = false');
+        $cQb = clone $qb;
+        $count = (int)$cQb->select('COUNT(1)')
+            ->getQuery()->getSingleScalarResult();
+
+        $randomOffset = random_int(0, $count - 1);
+
+        $qb->select('tbl', 'shipClass')
+            ->setFirstResult($randomOffset)
+            ->setMaxResults(1);
+        $ship = $qb->getQuery()->getOneOrNullResult();
+        if ($ship) {
+            $ship->hasPlague = true;
+            $this->getEntityManager()->persist($ship);
+            $this->getEntityManager()->flush();
+            return $ship;
+        }
+        return null;
+    }
 }

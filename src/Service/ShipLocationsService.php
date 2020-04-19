@@ -4,15 +4,21 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\CrateLocation;
+use App\Data\Database\Entity\Port as DbPort;
+use App\Data\Database\Entity\Ship as DbShip;
 use App\Data\Database\Entity\ShipLocation as DbShipLocation;
 use App\Data\Database\Entity\User as DbUser;
+use App\Domain\Entity\Effect;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\UuidInterface;
+use function App\Functions\Arrays\find;
 use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
 
@@ -67,9 +73,8 @@ class ShipLocationsService extends AbstractService
         int $limit
     ): array {
         $results = $this->entityManager->getShipLocationRepo()
-            ->getInPortOfCapacity(
+            ->getProbesThatArrivedInPortBeforeTime(
                 $before->sub(new DateInterval(self::AUTO_MOVE_TIME)),
-                0,
                 $limit
             );
         return $this->mapMany($results);
@@ -117,6 +122,12 @@ class ShipLocationsService extends AbstractService
             Query::HYDRATE_OBJECT,
         );
 
+        /** @var DbShipLocation[] $shipsInPort */
+        $shipsInPort = $this->entityManager->getShipLocationRepo()->getActiveShipsForPortId(
+            $destinationPort->id,
+            Query::HYDRATE_OBJECT
+        );
+
         $this->entityManager->transactional(function () use (
             $currentLocation,
             $ship,
@@ -125,7 +136,8 @@ class ShipLocationsService extends AbstractService
             $owner,
             $crateLocations,
             $delta,
-            $isFirstJourney
+            $isFirstJourney,
+            $shipsInPort
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
@@ -166,7 +178,7 @@ class ShipLocationsService extends AbstractService
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
 
-            $timeInChannel = $currentLocation->entryTime->diff($currentLocation->entryTime);
+            $timeInChannel = $currentLocation->entryTime->diff($this->dateTimeFactory->now());
             if (intervalToSeconds($timeInChannel) >= 60 * 60 * 24) {
                 $this->entityManager->getUserAchievementRepo()->recordLongTravel($owner->id);
             }
@@ -174,6 +186,12 @@ class ShipLocationsService extends AbstractService
             if (!$destinationPort->isSafeHaven) {
                 $this->entityManager->getUserAchievementRepo()->recordArrivalToUnsafeTerritory($owner->id);
             }
+            $this->handlePlague(
+                $destinationPort,
+                $ship,
+                $shipsInPort,
+                $owner,
+            );
         });
 
         // as a safety check if some race condition happened, confirm the user delta
@@ -181,6 +199,139 @@ class ShipLocationsService extends AbstractService
         $owner->scoreRate = $expectedDelta;
         $this->entityManager->persist($owner);
         $this->entityManager->flush();
+    }
+
+    private function handlePlague(
+        DbPort $destinationPort,
+        DbShip $ship,
+        array $shipsInPort,
+        DbUser $owner
+    ): void {
+        shuffle($shipsInPort);
+
+        $ownersWithHospitalShip = [];
+        $infectedShip = null;
+        foreach ($shipsInPort as $shipInPort) {
+            if ($shipInPort->ship->hasPlague) {
+                // are there any infected ships already here that will infect you?
+                $infectedShip = $shipInPort->ship;
+            }
+            if ($shipInPort->ship->shipClass->isHospitalShip) {
+                // does anybody have any hospital ships here?
+                $ownersWithHospitalShip[$shipInPort->ship->owner->id->toString()] = true;
+            }
+        }
+
+        if (!$destinationPort->isSafeHaven) {
+            if ($ship->hasPlague) {
+                $this->infectShips($shipsInPort, $ship, $destinationPort);
+            } elseif ($infectedShip &&
+                !$ship->shipClass->isHospitalShip &&
+                !($ownersWithHospitalShip[$owner->id->toString()] ?? false)
+            ) {
+                $this->exposedToInfection($ship, $infectedShip, $destinationPort);
+            }
+        }
+
+        $isCured = false;
+        if ($ship->shipClass->isHospitalShip) {
+            $isCured = $this->cureOnArrival($shipsInPort, $owner, $destinationPort);
+        } elseif ($ship->hasPlague && ($ownersWithHospitalShip[$owner->id->toString()] ?? false)) {
+            // if there is a hospital ship here, cure this ship
+            $ship->hasPlague = false;
+            $this->entityManager->persist($ship);
+            $this->entityManager->getEventRepo()->logCured(
+                $ship,
+                $destinationPort
+            );
+            $isCured = true;
+        }
+        if ($isCured) {
+            $this->entityManager->getUserAchievementRepo()->recordCured($owner->id);
+        }
+    }
+
+    private function cureOnArrival(array $shipsInPort, DbUser $owner, DbPort $destinationPort): bool
+    {
+        $isCured = false;
+        // if this ship is a hospital ship, cure other ships of yours here
+        foreach ($shipsInPort as $shipInPort) {
+            if (!$shipInPort->ship->hasPlague ||
+                !$shipInPort->ship->owner->id->equals($owner->id)
+            ) {
+                continue;
+            }
+            $shipInPort->ship->hasPlague = false;
+            $this->entityManager->persist($shipInPort->ship);
+            $this->entityManager->getEventRepo()->logCured(
+                $shipInPort->ship,
+                $destinationPort
+            );
+            $isCured = true;
+        }
+        return $isCured;
+    }
+
+    private function exposedToInfection(DbShip $ship, DbShip $infectedShip, DbPort $destinationPort): void
+    {
+        // get infected if you don't have a hospital ship and you're not immune
+        $activeEffects = $this->getActiveEffectsForShipId($ship->id);
+        $isImmune = false;
+        foreach ($activeEffects as $activeEffect) {
+            $effect = $activeEffect->getEffect();
+            if (($effect instanceof Effect\DefenceEffect) && $effect->isImmuneToPlague()) {
+                $isImmune = true;
+            }
+        }
+
+        if (!$isImmune) {
+            $ship->hasPlague = true;
+            $this->entityManager->persist($ship);
+            $this->entityManager->getEventRepo()->logInfection(
+                $infectedShip,
+                $ship,
+                $destinationPort
+            );
+            $this->entityManager->getUserAchievementRepo()->recordContactWithInfected($ship->owner->id);
+        }
+    }
+
+    private function infectShips(array $shipsInPort, DbShip $ship, DbPort $destinationPort): void
+    {
+        // infect all ships that don't have a hospital ship
+        foreach ($shipsInPort as $shipInPort) {
+            // probes can't catch it, and it can't be caught if the player has a hospital ship here
+            if (!$shipInPort->ship->hasPlague &&
+                !$shipInPort->ship->shipClass->autoNavigate &&
+                !($ownersWithHospitalShip[$shipInPort->ship->owner->id->toString()] ?? false)
+            ) {
+                $this->attemptToInfectShip($shipInPort, $ship, $destinationPort);
+            }
+        }
+    }
+
+    private function attemptToInfectShip(DbShipLocation $shipInPort, DbShip $ship, DbPort $destinationPort): void
+    {
+        $activeEffects = $this->getActiveEffectsForShipId($shipInPort->ship->id);
+        $isImmune = false;
+        foreach ($activeEffects as $activeEffect) {
+            $effect = $activeEffect->getEffect();
+            if (($effect instanceof Effect\DefenceEffect) && $effect->isImmuneToPlague()) {
+                $isImmune = true;
+            }
+        }
+        if (!$isImmune) {
+            $shipInPort->ship->hasPlague = true;
+            $this->entityManager->persist($shipInPort->ship);
+            $this->entityManager->getEventRepo()->logInfection(
+                $ship,
+                $shipInPort->ship,
+                $destinationPort
+            );
+            $this->entityManager->getUserAchievementRepo()->recordContactWithInfected(
+                $shipInPort->ship->owner->id
+            );
+        }
     }
 
     /**
@@ -194,5 +345,14 @@ class ShipLocationsService extends AbstractService
         return array_map(static function ($result) use ($mapper) {
             return $mapper->getShipLocation($result);
         }, $results);
+    }
+
+    private function getActiveEffectsForShipId(UuidInterface $id): array
+    {
+        // todo - duplicate from EffectsService. Be tidier
+        $mapper = $this->mapperFactory->createActiveEffectMapper();
+        return \array_map(static function ($result) use ($mapper) {
+            return $mapper->getActiveEffect($result);
+        }, $this->entityManager->getActiveEffectRepo()->findActiveForShipId($id));
     }
 }

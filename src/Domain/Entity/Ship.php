@@ -15,11 +15,13 @@ class Ship extends Entity implements \JsonSerializable
     private ?User $owner;
     private int $strength;
     private ?UuidInterface $convoyId;
+    private bool $hasPlague;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         int $strength,
+        bool $hasPlague,
         ?UuidInterface $convoyId,
         ?User $owner,
         ?ShipClass $shipClass,
@@ -32,6 +34,7 @@ class Ship extends Entity implements \JsonSerializable
         $this->owner = $owner;
         $this->strength = $strength;
         $this->convoyId = $convoyId;
+        $this->hasPlague = $hasPlague;
     }
 
     public function getName(): string
@@ -72,6 +75,11 @@ class Ship extends Entity implements \JsonSerializable
     public function isInConvoy(): bool
     {
         return $this->convoyId !== null;
+    }
+
+    public function hasPlague(): bool
+    {
+        return $this->hasPlague;
     }
 
     public function meetsStrength(int $minimumStrength): bool
@@ -120,6 +128,7 @@ class Ship extends Entity implements \JsonSerializable
             'name' => $this->name,
             'isDestroyed' => $this->isDestroyed(),
             'convoyId' => $this->convoyId,
+            'hasPlague' => $this->hasPlague,
         ];
         if ($this->owner) {
             $data['owner'] = $this->owner;

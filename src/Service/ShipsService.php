@@ -9,6 +9,7 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
 use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
+use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -317,5 +318,29 @@ class ShipsService extends AbstractService
             $this->entityManager->flush();
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
         });
+    }
+
+    public function reduceHealthOfInfected(float $newPercent): void
+    {
+        $query = <<<SQL
+            UPDATE ships SET strength = (CEIL(strength * :percent)) WHERE has_plague = 1;
+        SQL;
+        $result = $this->entityManager->getConnection()->executeQuery($query, ['percent' => $newPercent,]);
+        if ($result instanceof ResultCacheStatement) {
+            $this->logger->notice('[PLAGUE] ' . $result->rowCount() . ' infected lost health');
+        }
+    }
+
+    public function randomOutbreak(): void
+    {
+        // 1 in 100 chance
+        if (random_int(1, 100) !== 1) {
+            return;
+        }
+
+        $ship = $this->entityManager->getShipRepo()->infectRandomShip();
+        if ($ship) {
+            $this->logger->notice('[PLAGUE] New Outbreak occurred on ' . $ship->name);
+        }
     }
 }

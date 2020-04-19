@@ -453,10 +453,9 @@ class EffectsService extends AbstractService
     public function getActiveEffectsForShip(Ship $ship): array
     {
         $mapper = $this->mapperFactory->createActiveEffectMapper();
-        $results = \array_map(static function ($result) use ($mapper) {
+        return \array_map(static function ($result) use ($mapper) {
             return $mapper->getActiveEffect($result);
         }, $this->entityManager->getActiveEffectRepo()->findActiveForShipId($ship->getId()));
-        return $results;
     }
 
     public function parseUseOffenceEffectToken(string $tokenString): UseOffenceEffectToken

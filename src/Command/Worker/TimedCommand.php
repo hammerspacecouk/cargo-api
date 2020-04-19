@@ -12,6 +12,7 @@ use App\Service\ChannelsService;
 use App\Service\CratesService;
 use App\Service\ShipLocationsService;
 use App\Service\Ships\ShipMovementService;
+use App\Service\ShipsService;
 use DateTimeImmutable;
 use LogicException;
 use Psr\Log\LoggerInterface;
@@ -34,11 +35,16 @@ class TimedCommand extends Command
     private $algorithmService;
     private $dateTimeFactory;
     private $logger;
+    /**
+     * @var ShipsService
+     */
+    private ShipsService $shipsService;
 
     public function __construct(
         AlgorithmService $algorithmService,
         ChannelsService $channelsService,
         CratesService $cratesService,
+        ShipsService $shipsService,
         ShipLocationsService $shipLocationsService,
         ShipMovementService $shipMovementService,
         DateTimeFactory $dateTimeFactory,
@@ -52,6 +58,7 @@ class TimedCommand extends Command
         $this->algorithmService = $algorithmService;
         $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
+        $this->shipsService = $shipsService;
     }
 
     protected function configure(): void
@@ -71,12 +78,17 @@ class TimedCommand extends Command
         // move stagnant probes. been in a port for one hour
         $this->autoMoveShips($now);
 
+        // decrease the health of infected
+        $this->shipsService->reduceHealthOfInfected(0.99);
+        $this->shipsService->randomOutbreak();
+
         // move hoarded crates back to the port after one hour
         $this->cratesService->restoreHoardedBackToPort($now, self::BATCH_SIZE);
 
         $this->cratesService->ensureEnoughGoalCrates();
 
         $this->cratesService->retrieveLostCrates();
+
 
         $this->logger->notice(
             '[WORKER] [TIMED] [SHUTDOWN] ' . ceil((microtime(true) - $start) * 1000) . 'ms'
@@ -87,7 +99,7 @@ class TimedCommand extends Command
 
     private function autoMoveShips(DateTimeImmutable $now): void
     {
-        // find ships of capacity 0 that have been sitting in a port for a while
+        // find probes that have been sitting in a port for a while
         $shipsToMove = $this->shipLocationsService->getStagnantProbes($now, self::BATCH_SIZE);
 
         if (empty($shipsToMove)) {

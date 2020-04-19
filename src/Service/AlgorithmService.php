@@ -49,6 +49,10 @@ class AlgorithmService extends AbstractService
             }
         }
 
+        if ($ship->hasPlague()) {
+            $time *= 2;
+        }
+
         return self::MINIMUM_JOURNEY_TIME_SECONDS + (int)\round($time);
     }
 

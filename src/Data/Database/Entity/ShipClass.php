@@ -44,6 +44,9 @@ class ShipClass extends AbstractEntity
     /** @ORM\Column(type="boolean") */
     public $isDefenceShip = false;
 
+    /** @ORM\Column(type="boolean") */
+    public $isHospitalShip = false;
+
     /** @ORM\Column(type="integer") */
     public $purchaseCost;
 
@@ -74,6 +77,7 @@ class ShipClass extends AbstractEntity
         float $speedMultiplier,
         bool $isStarterShip,
         bool $isDefenceShip,
+        bool $isHospitalShip,
         int $purchaseCost,
         string $svg,
         int $displayCapacity,
@@ -97,5 +101,6 @@ class ShipClass extends AbstractEntity
         $this->displayCapacity = $displayCapacity;
         $this->displaySpeed = $displaySpeed;
         $this->displayStrength = $displayStrength;
+        $this->isHospitalShip = $isHospitalShip;
     }
 }

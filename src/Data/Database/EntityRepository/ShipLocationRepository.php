@@ -199,14 +199,12 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
 
     /**
      * @param DateTimeImmutable $before
-     * @param int $capacity
      * @param int $limit
      * @param int $resultType
      * @return mixed
      */
-    public function getInPortOfCapacity(
+    public function getProbesThatArrivedInPortBeforeTime(
         DateTimeImmutable $before,
-        int $capacity,
         int $limit,
         int $resultType = Query::HYDRATE_ARRAY
     ) {
@@ -219,11 +217,10 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->join('ship.shipClass', 'shipClass')
             ->where('tbl.isCurrent = 1')
             ->andWhere('ship.strength > 0')
-            ->andWhere('shipClass.capacity = :capacity')
+            ->andWhere('shipClass.autoNavigate = true')
             ->andWhere('tbl.entryTime <= :before')
             ->setMaxResults($limit)
-            ->setParameter('before', $before)
-            ->setParameter('capacity', $capacity);
+            ->setParameter('before', $before);
         return $qb->getQuery()->getResult($resultType);
     }
 

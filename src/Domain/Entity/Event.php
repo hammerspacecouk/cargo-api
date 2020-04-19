@@ -24,16 +24,19 @@ class Event extends Entity implements \JsonSerializable
     public const ACTION_SHIP_DEPARTURE = 'ship_departure';
     public const ACTION_SHIP_RENAME = 'ship_rename';
 
-    private $action;
-    private $time;
-    private $value;
-    private $actioningPlayer;
-    private $actioningShip;
-    private $rank;
-    private $ship;
-    private $port;
-    private $crate;
-    private $effect;
+    public const ACTION_SHIP_INFECTED = 'ship_infected';
+    public const ACTION_SHIP_CURED = 'ship_cured';
+
+    private string $action;
+    private DateTimeImmutable $time;
+    private ?string $value;
+    private ?User $actioningPlayer;
+    private ?Ship $actioningShip;
+    private ?PlayerRank $rank;
+    private ?Ship $ship;
+    private ?Port $port;
+    private ?Crate $crate;
+    private ?Effect $effect;
 
     public function __construct(
         UuidInterface $id,

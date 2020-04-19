@@ -20,10 +20,13 @@ use Ramsey\Uuid\UuidInterface;
 class Ship extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="integer") */
-    public $strength;
+    public int $strength;
+
+    /** @ORM\Column(type="boolean") */
+    public bool $hasPlague = false;
 
     /** @ORM\Column(type="uuid", nullable=true) */
     public ?UuidInterface $convoyUuid;
@@ -32,13 +35,13 @@ class Ship extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $owner;
+    public User $owner;
 
     /**
      * @ORM\ManyToOne(targetEntity="ShipClass")
      * @ORM\JoinColumn()
      */
-    public $shipClass;
+    public ShipClass $shipClass;
 
     public function __construct(
         string $name,

@@ -67,6 +67,7 @@ class MakeShipClassesCommand extends AbstractCommand
             $purchaseCost = (int)$data['purchaseCost'];
             $isStarterShip = (bool)$data['isStarterShip'];
             $isDefenceShip = (bool)$data['isDefenceShip'];
+            $isHospitalShip = (bool)$data['isHospitalShip'];
             $displayStrength = (int)$data['displayStrength'];
             $displaySpeed = (int)$data['displaySpeed'];
             $displayCapacity = (int)$data['displayCapacity'];
@@ -86,6 +87,7 @@ class MakeShipClassesCommand extends AbstractCommand
                 $entity->purchaseCost = $purchaseCost;
                 $entity->isStarterShip = $isStarterShip;
                 $entity->isDefenceShip = $isDefenceShip;
+                $entity->isHospitalShip = $isHospitalShip;
                 $entity->displayCapacity = $displayCapacity;
                 $entity->displaySpeed = $displaySpeed;
                 $entity->displayStrength = $displayStrength;
@@ -101,6 +103,7 @@ class MakeShipClassesCommand extends AbstractCommand
                     $speedMultiplier,
                     $isStarterShip,
                     $isDefenceShip,
+                    $isHospitalShip,
                     $purchaseCost,
                     $svg,
                     $displayCapacity,

@@ -224,6 +224,36 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
+    public function logInfection(
+        Ship $infected,
+        Ship $affected,
+        Port $inPort
+    ): Event {
+        return $this->log(
+            DomainEvent::ACTION_SHIP_INFECTED,
+            static function (Event $entity) use ($infected, $affected, $inPort) {
+                $entity->actioningShip = $infected;
+                $entity->subjectShip = $affected;
+                $entity->subjectPort = $inPort;
+                return $entity;
+            },
+        );
+    }
+
+    public function logCured(
+        Ship $affected,
+        Port $inPort
+    ): Event {
+        return $this->log(
+            DomainEvent::ACTION_SHIP_CURED,
+            static function (Event $entity) use ($affected, $inPort) {
+                $entity->subjectShip = $affected;
+                $entity->subjectPort = $inPort;
+                return $entity;
+            },
+        );
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeOld($now);
@@ -276,7 +306,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         $entity = $values($entity);
 
         $this->getEntityManager()->persist($entity);
-        $this->getEntityManager()->flush($entity);
+        $this->getEntityManager()->flush();
 
         $this->logger->notice('[GAME_EVENT] [' . $eventType . ']');
 
