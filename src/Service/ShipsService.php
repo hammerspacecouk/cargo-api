@@ -323,7 +323,10 @@ class ShipsService extends AbstractService
     public function reduceHealthOfInfected(float $newPercent): void
     {
         $query = <<<SQL
-            UPDATE ships SET strength = (CEIL(strength * :percent)) WHERE has_plague = 1;
+            UPDATE ships
+            SET strength = (GREATEST(1, FLOOR(strength * :percent)))
+            WHERE strength > 1
+            AND has_plague = 1;
         SQL;
         $result = $this->entityManager->getConnection()->executeQuery($query, ['percent' => $newPercent,]);
         if ($result instanceof ResultCacheStatement) {
@@ -333,8 +336,7 @@ class ShipsService extends AbstractService
 
     public function randomOutbreak(): void
     {
-        // 1 in 100 chance
-        if (random_int(1, 100) !== 1) {
+        if (random_int(1, 10_000) !== 1) {
             return;
         }
 

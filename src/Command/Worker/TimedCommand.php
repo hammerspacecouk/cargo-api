@@ -73,13 +73,16 @@ class TimedCommand extends Command
     {
         $start = microtime(true);
         $now = $this->dateTimeFactory->now();
+        $minute = (int)$now->format('i');
         $this->logger->notice('[WORKER] [TIMED] [STARTUP]');
 
         // move stagnant probes. been in a port for one hour
         $this->autoMoveShips($now);
 
         // decrease the health of infected
-        $this->shipsService->reduceHealthOfInfected(0.99);
+        if ($minute < 10) {
+            $this->shipsService->reduceHealthOfInfected(0.99);
+        }
         $this->shipsService->randomOutbreak();
 
         // move hoarded crates back to the port after one hour

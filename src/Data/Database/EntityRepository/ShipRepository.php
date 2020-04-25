@@ -167,6 +167,17 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function infectRandomShip(): ?Ship
     {
+        $countQuery = $this->createQueryBuilder('tbl')
+            ->select('COUNT(1)')
+            ->join('tbl.shipClass', 'shipClass')
+            ->where('tbl.hasPlague = true')
+            ->andWhere('shipClass.isHospitalShip = false')
+            ->andWhere('shipClass.autoNavigate = false');
+        if ((int)$countQuery->getQuery()->getSingleScalarResult() > 5) {
+            // enough are already infected
+            return null;
+        }
+
         $qb = $this->createQueryBuilder('tbl')
             ->join('tbl.shipClass', 'shipClass')
             ->where('tbl.hasPlague = false')
@@ -175,6 +186,9 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         $cQb = clone $qb;
         $count = (int)$cQb->select('COUNT(1)')
             ->getQuery()->getSingleScalarResult();
+        if ($count === 0) {
+            return null;
+        }
 
         $randomOffset = random_int(0, $count - 1);
 
