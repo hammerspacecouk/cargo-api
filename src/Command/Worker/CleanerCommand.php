@@ -5,7 +5,10 @@ namespace App\Command\Worker;
 
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\EntityManager;
+use App\Data\Database\EntityRepository\AbstractEntityRepository;
+use App\Data\Database\Filters\DeletedItemsFilter;
 use App\Infrastructure\DateTimeFactory;
+use DateInterval;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,9 +17,11 @@ use function App\Functions\Classes\whoImplements;
 
 class CleanerCommand extends Command
 {
-    private $entityManager;
-    private $dateTimeFactory;
-    private $logger;
+    private const DURATION_TO_KEEP_DELETED = 'P7D';
+
+    private EntityManager $entityManager;
+    private DateTimeFactory $dateTimeFactory;
+    private LoggerInterface $logger;
 
     public function __construct(
         EntityManager $entityManager,
@@ -47,7 +52,26 @@ class CleanerCommand extends Command
 
         $this->logger->notice('[WORKER] [CLEANER] [STARTUP]');
 
-        $list = whoImplements(CleanableInterface::class, $this->entityManager->getAll());
+        // the Cleaner must be able to see deleted items (in order to clean them)
+        $this->entityManager->getFilters()->disable(DeletedItemsFilter::FILTER_NAME);
+
+        /** @var AbstractEntityRepository[] $entityRepositories */
+        $entityRepositories = $this->entityManager->getAll();
+        $deleteOlderThan = $now->sub(new DateInterval(self::DURATION_TO_KEEP_DELETED));
+        $this->logger->info('[CLEANER_DELETES] Cleaning rows deleted before ' . $deleteOlderThan->format('c'));
+
+        foreach ($entityRepositories as $entityRepository) {
+            $done = $entityRepository->removeDeletedBefore($deleteOlderThan);
+            $msg = '[CLEANER_DELETES] ' . \get_class($entityRepository) . ' ' . $done;
+            if ($done) {
+                // only log if we actually did something
+                $this->logger->notice($msg);
+            } else {
+                $this->logger->info($msg);
+            }
+        }
+
+        $list = whoImplements(CleanableInterface::class, $entityRepositories);
         $this->logger->info('[CLEANER ACTIVE] ' . \count($list) . ' Cleaners');
 
         foreach ($list as $repo) {

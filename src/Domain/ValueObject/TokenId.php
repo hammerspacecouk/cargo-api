@@ -11,8 +11,8 @@ class TokenId
 {
     private const SEPARATOR = '/';
 
-    private $deterministicItemId;
-    private $groupId;
+    private UuidInterface $deterministicItemId;
+    private ?UuidInterface $groupId;
 
     public function __construct(
         UuidInterface $deterministicItemId,

@@ -137,7 +137,7 @@ class ShipClass extends Entity implements \JsonSerializable
     public function getPurchaseCost(int $numberOwned = 0): int
     {
         // exponential growth
-        return (int)round($this->purchaseCost + (($this->purchaseCost / 2) * (0.2 * ($numberOwned ** 2))));
+        return (int)round($this->purchaseCost * (1.4 ** $numberOwned));
     }
 
     public function getDescription(): string

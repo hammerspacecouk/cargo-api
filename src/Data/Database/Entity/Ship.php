@@ -23,6 +23,9 @@ class Ship extends AbstractEntity
     public string $name;
 
     /** @ORM\Column(type="integer") */
+    public int $originalPurchaseCost = 0;
+
+    /** @ORM\Column(type="integer") */
     public int $strength;
 
     /** @ORM\Column(type="boolean") */
@@ -46,12 +49,14 @@ class Ship extends AbstractEntity
     public function __construct(
         string $name,
         ShipClass $shipClass,
-        User $owner
+        User $owner,
+        int $originalPurchaseCost
     ) {
         parent::__construct();
         $this->name = $name;
         $this->shipClass = $shipClass;
         $this->strength = $shipClass->strength; // starts with the full strength of the class
         $this->owner = $owner;
+        $this->originalPurchaseCost = $originalPurchaseCost;
     }
 }

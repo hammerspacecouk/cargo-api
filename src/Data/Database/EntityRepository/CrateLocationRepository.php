@@ -3,17 +3,19 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Crate;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Ramsey\Uuid\UuidInterface;
 
-class CrateLocationRepository extends AbstractEntityRepository
+class CrateLocationRepository extends AbstractEntityRepository implements CleanableInterface
 {
 
     public function findWithCrateForPortId(
@@ -209,7 +211,8 @@ class CrateLocationRepository extends AbstractEntityRepository
     {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
-            ->where('tbl.ship IS NULL')
+            ->leftJoin('tbl.ship', 'ship')
+            ->where('ship.id IS NULL')
             ->andWhere('tbl.port IS NULL')
             ->andWhere('tbl.isCurrent = true');
         return $qb->getQuery()->getResult($resultType);
@@ -228,5 +231,20 @@ class CrateLocationRepository extends AbstractEntityRepository
             ->setMaxResults(1)
             ->setParameter('crateId', $id->getBytes());
         return $qb->getQuery()->getSingleResult($resultType);
+    }
+
+    public function removeInactiveBefore(DateTimeImmutable $before): int
+    {
+        $entity = CrateLocation::class;
+        $sql = "DELETE FROM $entity t WHERE t.isCurrent = 0 AND t.updatedAt < :beforeTime";
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('beforeTime', $before);
+        return $query->execute();
+    }
+
+    public function clean(DateTimeImmutable $now): int
+    {
+        return $this->removeInactiveBefore($now->sub(new DateInterval('P14D')));
     }
 }

@@ -27,12 +27,10 @@ use Ramsey\Uuid\UuidInterface;
 
 class TokenProvider
 {
-    private const ACTIONS_PATH_PREFIX = '/actions';
-
-    private $applicationConfig;
-    private $dateTimeFactory;
-    private $uuidFactory;
-    private $entityManager;
+    private ApplicationConfig $applicationConfig;
+    private DateTimeFactory $dateTimeFactory;
+    private UuidFactoryInterface $uuidFactory;
+    private EntityManager $entityManager;
 
     public function __construct(
         EntityManager $entityManager,

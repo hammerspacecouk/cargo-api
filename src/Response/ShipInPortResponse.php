@@ -110,6 +110,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
             $convoys = $this->getConvoyOptions($ship, $otherShips);
         }
 
+        $sellToken = $this->shipsService->getSellToken($ship);
+
         $data['port'] = $port;
         $data['effectsToPurchase'] = $this->effectsService->getEffectsForLocation($ship, $user, $port);
         $data['tutorialStep'] = $tutorialStep;
@@ -121,6 +123,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $data['cratesInPort'] = $cratesInPort;
         $data['cratesOnShip'] = $cratesOnShip;
+        $data['sellToken'] = $sellToken;
         return $data;
     }
 

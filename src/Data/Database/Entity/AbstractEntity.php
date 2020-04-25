@@ -29,6 +29,9 @@ abstract class AbstractEntity
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
     public $updatedAt;
 
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
+    public $deletedAt;
+
     public function __construct()
     {
         $this->id = Uuid::uuid6();

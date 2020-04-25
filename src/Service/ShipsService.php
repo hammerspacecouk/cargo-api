@@ -4,11 +4,15 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\Ship as DbShip;
+use App\Data\Database\Entity\User as DbUser;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
 use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
+use App\Domain\ValueObject\Token\Action\SellShipToken;
+use App\Domain\ValueObject\Transaction;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -90,7 +94,6 @@ class ShipsService extends AbstractService
         UuidInterface $shipId,
         UuidInterface $ownerId
     ): ?Ship {
-
         $qb = $this->getQueryBuilder(DbShip::class)
             ->select('tbl', 'c')
             ->join('tbl.shipClass', 'c')
@@ -222,6 +225,61 @@ class ShipsService extends AbstractService
         return array_map(static function ($result) use ($mapper) {
             return $mapper->getShip($result);
         }, $results);
+    }
+
+    public function getSellToken(Ship $ship): ?Transaction
+    {
+        if ($ship->isStarterShip()) {
+            return null;
+        }
+
+        $earnings = $ship->calculateValue($this->dateTimeFactory->now());
+
+        $token = $this->tokenHandler->makeToken(...SellShipToken::make(
+            $ship->getId(),
+            $ship->getOwner()->getId(),
+            $earnings
+        ));
+        $sellToken = new SellShipToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(SellShipToken::class, $this->dateTimeFactory->now())
+        );
+        return new Transaction(
+            $earnings,
+            $sellToken
+        );
+    }
+
+    public function parseSellShipToken(
+        string $tokenString
+    ): SellShipToken {
+        return new SellShipToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useSellShipToken(
+        SellShipToken $token
+    ): void {
+        $userRepo = $this->entityManager->getUserRepo();
+
+        /** @var DbShip $ship */
+        $ship = $this->entityManager->getShipRepo()->getByID($token->getShipId(), Query::HYDRATE_OBJECT);
+        /** @var DbUser $userEntity */
+        $userEntity = $userRepo->getByID($token->getOwnerId(), Query::HYDRATE_OBJECT);
+
+        $this->entityManager->transactional(function () use ($ship, $token, $userRepo, $userEntity) {
+
+            // mark the ship as deleted
+            $ship->deletedAt = $this->dateTimeFactory->now();
+            $ship->strength = 0;
+            $this->entityManager->persist($ship);
+
+            // save the player's new credits value
+            $userRepo->updateScoreValue($userEntity, $token->getEarnings());
+
+            $this->entityManager->flush();
+            $this->tokenHandler->markAsUsed($token->getOriginalToken());
+        });
     }
 
     public function getConvoyToken(Ship $currentShip, Ship $ship): JoinConvoyToken

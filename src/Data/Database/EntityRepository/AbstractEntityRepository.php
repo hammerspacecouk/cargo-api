@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
+use App\Data\Database\Entity\UsedActionToken;
 use App\Data\Database\EntityManager;
 use App\Infrastructure\ApplicationConfig;
 use App\Infrastructure\DateTimeFactory;
@@ -77,6 +78,15 @@ abstract class AbstractEntityRepository extends EntityRepository
             ->createQuery($sql)
             ->setParameter('id', $uuid->getBytes());
         $query->execute();
+    }
+
+    public function removeDeletedBefore(\DateTimeImmutable $deleteBeforeTime): int
+    {
+        $sql = 'DELETE FROM ' . $this->getEntityName() . ' t WHERE t.deletedAt IS NOT NULL AND t.deletedAt <= :before';
+        $query = $this->getEntityManager()
+            ->createQuery($sql)
+            ->setParameter('before', $deleteBeforeTime);
+        return $query->execute();
     }
 
     /** @noinspection SenselessMethodDuplicationInspection */

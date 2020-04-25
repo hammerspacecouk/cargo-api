@@ -7,6 +7,7 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipClass;
 use App\Data\Database\Entity\User;
+use App\Data\Database\Filters\DeletedItemsFilter;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -87,12 +88,14 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
     public function createNewShip(
         string $shipName,
         ShipClass $starterShipClass,
-        User $owner
+        User $owner,
+        int $purchasePrice = 0
     ): Ship {
         $ship = new Ship(
             $shipName,
             $starterShipClass,
             $owner,
+            $purchasePrice
         );
         $this->getEntityManager()->persist($ship);
 
@@ -104,6 +107,21 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         $this->getEntityManager()->flush();
 
         return $ship;
+    }
+
+
+    public function getEntireFleetForOwner(UuidInterface $userId): array
+    {
+        // Also include deleted items
+        $this->_em->getFilters()->disable(DeletedItemsFilter::FILTER_NAME);
+
+        $qb = $this->createQueryBuilder('tbl')
+            ->where('IDENTITY(tbl.owner) = :ownerId')
+            ->setParameter('ownerId', $userId->getBytes());
+        $result = $qb->getQuery()->getArrayResult();
+
+        $this->_em->getFilters()->enable(DeletedItemsFilter::FILTER_NAME);
+        return $result;
     }
 
     public function countClassesForUserId(UuidInterface $userId): array

@@ -18,6 +18,7 @@ use App\Controller\Actions\PurchaseShipAction;
 use App\Controller\Actions\RemoveAuthProviderAction;
 use App\Controller\Actions\RenameShipAction;
 use App\Controller\Actions\RequestShipNameAction;
+use App\Controller\Actions\SellShipAction;
 use App\Controller\CacheControlResponseTrait;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
@@ -35,6 +36,7 @@ use App\Domain\ValueObject\Token\Action\PurchaseShipToken;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
+use App\Domain\ValueObject\Token\Action\SellShipToken;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Infrastructure\DateTimeFactory;
@@ -70,6 +72,7 @@ class TokenAction
     private RemoveAuthProviderAction $removeAuthProviderAction;
     private JoinConvoyAction $joinConvoyAction;
     private LeaveConvoyAction $leaveConvoyAction;
+    private SellShipAction $sellShipAction;
 
     public static function getRouteDefinition(): Route
     {
@@ -89,6 +92,7 @@ class TokenAction
         MoveShipAction $moveShipAction,
         PurchaseEffectAction $purchaseEffectAction,
         PurchaseShipAction $purchaseShipAction,
+        SellShipAction $sellShipAction,
         RenameShipAction $renameShipAction,
         RequestShipNameAction $requestShipNameAction,
         ApplyShipDefenceEffectAction $applyShipDefenceEffectAction,
@@ -116,6 +120,7 @@ class TokenAction
         $this->removeAuthProviderAction = $removeAuthProviderAction;
         $this->joinConvoyAction = $joinConvoyAction;
         $this->leaveConvoyAction = $leaveConvoyAction;
+        $this->sellShipAction = $sellShipAction;
     }
 
     public function __invoke(
@@ -167,6 +172,10 @@ class TokenAction
             case TokenProvider::getActionPath(PurchaseShipToken::class, $this->now):
             case TokenProvider::getActionPath(PurchaseShipToken::class, $this->yesterday):
                 return $this->purchaseShipAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(SellShipToken::class, $this->now):
+            case TokenProvider::getActionPath(SellShipToken::class, $this->yesterday):
+                return $this->sellShipAction->invoke($tokenString);
 
             case TokenProvider::getActionPath(PurchaseEffectToken::class, $this->now):
             case TokenProvider::getActionPath(PurchaseEffectToken::class, $this->yesterday):

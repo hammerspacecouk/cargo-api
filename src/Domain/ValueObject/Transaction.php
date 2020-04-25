@@ -8,9 +8,10 @@ use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 
 class Transaction implements \JsonSerializable
 {
-    private $cost;
-    private $token;
-    private $currentCount;
+    private ?int $cost;
+    private ?AbstractActionToken $token;
+    private int $currentCount;
+    /** @var mixed */
     private $item;
 
     /**

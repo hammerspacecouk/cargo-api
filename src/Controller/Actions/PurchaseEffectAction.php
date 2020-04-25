@@ -10,10 +10,10 @@ use App\Service\UsersService;
 
 class PurchaseEffectAction
 {
-    private $upgradesService;
-    private $usersService;
-    private $shipInLocationResponse;
-    private $shipsService;
+    private UpgradesService $upgradesService;
+    private UsersService $usersService;
+    private ShipInLocationResponse $shipInLocationResponse;
+    private ShipsService $shipsService;
 
     public function __construct(
         UpgradesService $upgradesService,

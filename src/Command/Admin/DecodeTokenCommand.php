@@ -35,7 +35,8 @@ class DecodeTokenCommand extends AbstractCommand
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $tokenString = $this->getStringArgument($input, 'tokenString');
+        $inputString = $this->getStringArgument($input, 'tokenString');
+        [, $tokenString] = TokenProvider::splitToken($inputString);
         $token = $this->tokenProvider->parseTokenFromString($tokenString, false);
 
         $output->writeln(

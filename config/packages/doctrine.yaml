@@ -35,3 +35,7 @@ doctrine:
                 is_bundle: false
                 type: annotation
                 prefix: App\Data\Database\Entity
+        filters:
+          deleted_items_filter:
+            class: App\Data\Database\Filters\DeletedItemsFilter
+            enabled: true

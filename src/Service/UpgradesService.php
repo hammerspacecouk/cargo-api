@@ -15,6 +15,8 @@ use Doctrine\ORM\Query;
 
 class UpgradesService extends AbstractService
 {
+    private const MAX_SHIP_COUNT = 100;
+
     /**
      * @param User $user
      * @return Transaction[]
@@ -27,8 +29,24 @@ class UpgradesService extends AbstractService
         // get the counts for all the ship types for this user
         $shipCountsByClassId = $this->entityManager->getShipRepo()->countClassesForUserId($user->getId());
 
+        $allUserShips = $this->entityManager->getShipRepo()->getEntireFleetForOwner($user->getId());
+        $allIds = [];
+        $totalCount = 0;
+        foreach ($allUserShips as $ship) {
+            $allIds[] = $ship['id']->toString();
+            if ($ship['strength'] > 0) {
+                $totalCount++;
+            }
+        }
+
         $mapper = $this->mapperFactory->createShipClassMapper();
-        return array_map(function ($result) use ($user, $mapper, $shipCountsByClassId): Transaction {
+        return array_map(function ($result) use (
+            $user,
+            $mapper,
+            $shipCountsByClassId,
+            $totalCount,
+            $allIds
+        ): Transaction {
             $mapped = $mapper->getShipClass($result);
             if (!$user->getRank()->meets($mapped->getMinimumRank())) {
                 return new LockedTransaction($mapped->getMinimumRank());
@@ -38,10 +56,12 @@ class UpgradesService extends AbstractService
 
             $token = null;
             $cost = $mapped->getPurchaseCost($alreadyOwned);
-            if ($cost) {
+            if ($cost && $totalCount < self::MAX_SHIP_COUNT) {
                 $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                     $user->getId(),
-                    $mapped->getId()
+                    $mapped->getId(),
+                    $cost,
+                    $allIds
                 ));
                 $token = new PurchaseShipToken(
                     $rawToken->getJsonToken(),
@@ -54,7 +74,7 @@ class UpgradesService extends AbstractService
                 $cost,
                 $token,
                 $alreadyOwned,
-                $mapped
+                $mapped,
             );
         }, $allClasses);
     }
@@ -85,12 +105,17 @@ class UpgradesService extends AbstractService
         $ship = $this->entityManager->getConnection()->transactional(
             function () use ($shipName, $shipClassEntity, $userEntity, $token) {
                 $this->logger->info('Making new ship');
-                $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $shipClassEntity, $userEntity);
+                $ship = $this->entityManager->getShipRepo()->createNewShip(
+                    $shipName,
+                    $shipClassEntity,
+                    $userEntity,
+                    $token->getCost()
+                );
 
                 $this->logger->info('Placing ship in home port');
                 $this->entityManager->getShipLocationRepo()->makeInPort($ship, $userEntity->homePort, true);
 
-                $this->consumeCredits($userEntity, $shipClassEntity->purchaseCost);
+                $this->consumeCredits($userEntity, $token->getCost());
                 $this->tokenHandler->markAsUsed($token->getOriginalToken());
 
                 $this->entityManager->getUserAchievementRepo()->recordLaunchedShip($userEntity->id);
