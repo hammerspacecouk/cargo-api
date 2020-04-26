@@ -293,12 +293,17 @@ class CratesService extends AbstractService
 
         $this->entityManager->getConnection()->transactional(function () use ($crates, $toSetCurrent) {
             foreach ($crates as $crateLocation) {
-                $this->entityManager->remove($crateLocation);
+                $crateLocation->isCurrent = false;
+                $this->entityManager->persist($crateLocation);
             }
             foreach ($toSetCurrent as $oldLocation) {
                 /** @var DbCrateLocation $oldLocation */
-                $oldLocation->isCurrent = true;
-                $this->entityManager->persist($oldLocation);
+                $newLocation = new DbCrateLocation(
+                    $oldLocation->crate,
+                    $oldLocation->port,
+                    $oldLocation->ship
+                );
+                $this->entityManager->persist($newLocation);
             }
             $this->entityManager->flush();
         });

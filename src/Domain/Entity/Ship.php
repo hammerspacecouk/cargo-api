@@ -170,8 +170,8 @@ class Ship extends Entity implements \JsonSerializable
     public function calculateValue(DateTimeImmutable $now): int
     {
         // the value of the ship decreases with age and damage
-        // loses 1% of the purchase cost per day
-        $days = 100 - min(1 + $now->diff($this->launchTime)->days, 99);
+        // loses 1% of the purchase cost per day + initial 5%
+        $days = 100 - min(5 + $now->diff($this->launchTime)->days, 99);
         $value = ($this->originalPurchaseCost / 100) * $days;
         // directly match the shield strength percent
         $value = $value / 100 * $this->getStrengthPercent();
