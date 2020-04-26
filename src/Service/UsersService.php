@@ -111,7 +111,7 @@ class UsersService extends AbstractService
     {
         // You can't reset your game until you've played for a little bit.
         // This is to prevent abuse.
-        $hasStarterShip = $this->entityManager->getShipRepo()->useHasStarterShip($user->getId());
+        $hasStarterShip = $this->entityManager->getShipRepo()->userHasStarterShip($user->getId());
         if (!(
             !$user->isAnonymous() &&
             ($user->getRank()->getThreshold() > 10 || !$hasStarterShip)

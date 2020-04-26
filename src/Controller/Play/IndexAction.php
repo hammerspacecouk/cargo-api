@@ -16,9 +16,9 @@ use Symfony\Component\Routing\Route;
 
 class IndexAction extends AbstractUserAction
 {
-    private $playerRanksService;
-    private $fleetResponse;
-    private $achievementService;
+    private PlayerRanksService $playerRanksService;
+    private FleetResponse $fleetResponse;
+    private AchievementService $achievementService;
 
     public static function getRouteDefinition(): Route
     {

@@ -141,7 +141,7 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         return $mappedResults;
     }
 
-    public function useHasStarterShip(UuidInterface $userId): bool
+    public function userHasStarterShip(UuidInterface $userId): bool
     {
         $qb = $this->createQueryBuilder('tbl')
             ->select('COUNT(1)')

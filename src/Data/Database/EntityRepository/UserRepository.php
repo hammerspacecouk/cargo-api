@@ -51,6 +51,8 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         $user->score = 0;
         $user->scoreRate = 0;
         $user->scoreCalculationTime = (new DateTimeImmutable())->setTimestamp(0);
+        $user->gameStartDateTime = (new DateTimeImmutable());
+        $user->gameCompletionTime = null;
         $user->lastRankSeen = $initialRank;
 
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $user->homePort);
@@ -97,7 +99,11 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function recordWinner(User $user): void
     {
-        $user->gameCompletionTime = intervalToSeconds($user->gameStartDateTime->diff($this->dateTimeFactory->now()));
+        $completionTime = intervalToSeconds($user->gameStartDateTime->diff($this->dateTimeFactory->now()));
+        $user->gameCompletionTime = $completionTime;
+        if (!$user->bestCompletionTime || $completionTime < $user->bestCompletionTime) {
+            $user->bestCompletionTime = $completionTime;
+        }
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
@@ -168,6 +174,16 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         return $qb->getQuery()->getArrayResult();
     }
 
+    public function countFasterFinishers(?int $bestCompletionTime): int
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('COUNT(1)')
+            ->where('tbl.bestCompletionTime IS NOT NULL')
+            ->andWhere('tbl.bestCompletionTime < :compareTime')
+            ->setParameter('compareTime', $bestCompletionTime);
+        return (int)$qb->getQuery()->getSingleScalarResult();
+    }
+
     /**
      * @return array
      */
@@ -175,8 +191,8 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
     {
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
-            ->where('tbl.gameCompletionTime IS NOT NULL')
-            ->orderBy('tbl.gameCompletionTime', 'ASC')
+            ->where('tbl.bestCompletionTime IS NOT NULL')
+            ->orderBy('tbl.bestCompletionTime', 'ASC')
             ->setMaxResults(100);
         return $qb->getQuery()->getArrayResult();
     }

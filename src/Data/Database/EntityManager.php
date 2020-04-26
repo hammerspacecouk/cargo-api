@@ -14,15 +14,15 @@ use Psr\SimpleCache\CacheInterface;
 
 class EntityManager extends EntityManagerDecorator
 {
-    private $dateTimeFactory;
-    private $cache;
-    private $logger;
-    private $applicationConfig;
+    private DateTimeFactory $dateTimeFactory;
+    private CacheInterface $cache;
+    private LoggerInterface $logger;
+    private ApplicationConfig $applicationConfig;
 
     /**
      * @var array<string, AbstractEntityRepository>
      */
-    private $classCache = [];
+    private array $classCache = [];
 
     public function __construct(
         EntityManagerInterface $entityManager,

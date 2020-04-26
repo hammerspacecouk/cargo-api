@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Data\Database\Entity\User as DbUser;
 use App\Data\TokenProvider;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
 class PlayerRanksService extends AbstractService
@@ -76,6 +78,21 @@ class PlayerRanksService extends AbstractService
             );
         }
 
+        $latestCompletionTime = null;
+        $bestCompletionTime = null;
+        $position = null;
+        if (!$nextRank) {
+            // user is in the win state
+            // get their stats. get their position on the leaderboard
+            /** @var DbUser $rawUser */
+            $rawUser = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
+            $latestCompletionTime = $rawUser->gameCompletionTime;
+            if ($latestCompletionTime) {
+                $bestCompletionTime = $rawUser->bestCompletionTime;
+                $position = 1 + $this->entityManager->getUserRepo()->countFasterFinishers($bestCompletionTime);
+            }
+        }
+
         return new PlayerRankStatus(
             $portVisitCount,
             $currentRank,
@@ -83,6 +100,9 @@ class PlayerRanksService extends AbstractService
             $nextRank,
             $olderRanks,
             $acknowledgeToken,
+            $latestCompletionTime,
+            $bestCompletionTime,
+            $position
         );
     }
 }

@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  *          @ORM\Index(name="user_microsoft", columns={"microsoft_id"}),
  *          @ORM\Index(name="user_reddit", columns={"reddit_id"}),
  *          @ORM\Index(name="user_ip_hash", columns={"anonymous_ip_hash"}),
- *          @ORM\Index(name="user_completion_time", columns={"game_completion_time"})
+ *          @ORM\Index(name="user_completion_time", columns={"best_completion_time"})
  *     }
  * )
  */
@@ -38,39 +38,42 @@ class User extends AbstractEntity
     public $nickname;
 
     /** @ORM\Column(type="integer") */
-    public $rotationSteps;
+    public int $rotationSteps;
 
     /** @ORM\Column(type="integer", nullable=false, options={"default":0}) */
-    public $permissionLevel = 0;
+    public int $permissionLevel = 0;
 
     /** @ORM\Column(type="bigint") */
-    public $score = 0;
+    public int $score = 0;
 
     /** @ORM\Column(type="bigint") */
-    public $scoreRate = 0;
+    public int $scoreRate = 0;
 
     /** @ORM\Column(type="datetime_microsecond") */
     public $scoreCalculationTime;
 
     /** @ORM\Column(type="datetime_microsecond") */
-    public $gameStartDateTime;
+    public DateTimeImmutable $gameStartDateTime;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $gameCompletionTime;
+    public ?int $gameCompletionTime;
+
+    /** @ORM\Column(type="integer", nullable=true) */
+    public ?int $bestCompletionTime;
 
     /** @ORM\Column(type="text") */
-    public $emblemSvg;
+    public string $emblemSvg;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      */
-    public $homePort;
+    public Port $homePort;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      * @ORM\JoinColumn()
      */
-    public $lastRankSeen;
+    public PlayerRank $lastRankSeen;
 
     public function __construct(
         ?string $ipHash,

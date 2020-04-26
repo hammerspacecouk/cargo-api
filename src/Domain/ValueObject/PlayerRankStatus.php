@@ -8,12 +8,15 @@ use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 
 class PlayerRankStatus implements \JsonSerializable
 {
-    private $portsVisited;
-    private $currentRank;
-    private $nextRank;
-    private $previousRank;
-    private $acknowledgePromotionToken;
-    private $olderRanks;
+    private int $portsVisited;
+    private PlayerRank $currentRank;
+    private ?PlayerRank $nextRank;
+    private ?PlayerRank $previousRank;
+    private ?AcknowledgePromotionToken $acknowledgePromotionToken;
+    private array $olderRanks;
+    private ?int $latestCompletionTime;
+    private ?int $bestCompletionTime;
+    private ?int $leaderBoardPosition;
 
     public function __construct(
         int $portsVisited,
@@ -21,7 +24,10 @@ class PlayerRankStatus implements \JsonSerializable
         PlayerRank $previousRank = null,
         PlayerRank $nextRank = null,
         array $olderRanks = [],
-        AcknowledgePromotionToken $acknowledgePromotionToken = null
+        AcknowledgePromotionToken $acknowledgePromotionToken = null,
+        ?int $latestCompletionTime = null,
+        ?int $bestCompletionTime = null,
+        ?int $leaderBoardPosition = null
     ) {
         $this->portsVisited = $portsVisited;
         $this->currentRank = $currentRank;
@@ -29,6 +35,9 @@ class PlayerRankStatus implements \JsonSerializable
         $this->previousRank = $previousRank;
         $this->acknowledgePromotionToken = $acknowledgePromotionToken;
         $this->olderRanks = $olderRanks;
+        $this->latestCompletionTime = $latestCompletionTime;
+        $this->bestCompletionTime = $bestCompletionTime;
+        $this->leaderBoardPosition = $leaderBoardPosition;
     }
 
     public function jsonSerialize(): array
@@ -42,6 +51,7 @@ class PlayerRankStatus implements \JsonSerializable
             'olderRanks' => $this->olderRanks,
             'nextRank' => $this->nextRank,
             'description' => $this->currentRank->getDescription(),
+            'winState' => $this->getWinState(),
         ];
     }
 
@@ -82,5 +92,18 @@ class PlayerRankStatus implements \JsonSerializable
     public function getAcknowledgePromotionToken(): ?AcknowledgePromotionToken
     {
         return $this->acknowledgePromotionToken;
+    }
+
+    private function getWinState(): ?array
+    {
+        if (!$this->latestCompletionTime) {
+            return null;
+        }
+        return [
+            'completionTime' => $this->latestCompletionTime,
+            'isPersonalBest' => $this->latestCompletionTime === $this->bestCompletionTime,
+            'isWorldRecord' => $this->leaderBoardPosition === 1,
+            'leaderboardPosition' => $this->leaderBoardPosition,
+        ];
     }
 }
