@@ -19,21 +19,15 @@ abstract class ContinuousWorkerCommand extends Command
     private const MAX_MEMORY_PERCENT = 90;
     private const MAX_TIME = 60 * 60 * 12;
 
-    /** @var LoggerInterface  */
-    protected $logger;
-    /** @var DateTimeFactory  */
-    protected $dateTimeFactory;
-    /** @var EntityManager  */
-    protected $entityManager;
+    protected LoggerInterface $logger;
+    protected EntityManager $entityManager;
 
     public function __construct(
-        DateTimeFactory $dateTimeFactory,
         EntityManager $entityManager,
         LoggerInterface $logger
     ) {
         parent::__construct();
         $this->logger = $logger;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->entityManager = $entityManager;
     }
 
@@ -55,10 +49,10 @@ abstract class ContinuousWorkerCommand extends Command
         $nowTime = 0;
         while ($memoryPercent < self::MAX_MEMORY_PERCENT && $nowTime < self::MAX_TIME) {
             // reset the time at the start each loop
-            $now = $this->dateTimeFactory->now();
+            $now = DateTimeFactory::now();
 
             // handle the batch
-            $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format(DateTimeFactory::FULL)}");
+            $this->logger->info("[WORKER] [$workerName] [CHECKING] {$now->format('c')}");
             $processed = $this->handle($now);
             $this->logger->info("[WORKER] [$workerName] [BATCH] $processed");
 

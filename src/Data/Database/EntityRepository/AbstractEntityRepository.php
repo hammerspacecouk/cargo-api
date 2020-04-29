@@ -15,8 +15,6 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractEntityRepository extends EntityRepository
 {
-    protected DateTimeFactory $dateTimeFactory;
-
     protected ApplicationConfig $applicationConfig;
 
     protected CacheInterface $cache;
@@ -34,11 +32,6 @@ abstract class AbstractEntityRepository extends EntityRepository
     public function setApplicationConfig(ApplicationConfig $config): void
     {
         $this->applicationConfig = $config;
-    }
-
-    public function setDateTimeFactory(DateTimeFactory $dateTimeFactory): void
-    {
-        $this->dateTimeFactory = $dateTimeFactory;
     }
 
     public function setCache(CacheInterface $cache): void

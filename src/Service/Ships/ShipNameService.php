@@ -8,6 +8,7 @@ use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\RenameShipToken;
 use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Transaction;
+use App\Infrastructure\DateTimeFactory;
 use App\Service\ShipsService;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -27,7 +28,7 @@ class ShipNameService extends ShipsService
             new RequestShipNameToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(RequestShipNameToken::class, $this->dateTimeFactory->now()),
+                TokenProvider::getActionPath(RequestShipNameToken::class),
             ),
         );
     }
@@ -45,7 +46,7 @@ class ShipNameService extends ShipsService
         return new RenameShipToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(RenameShipToken::class, $this->dateTimeFactory->now()),
+            TokenProvider::getActionPath(RenameShipToken::class),
         );
     }
 

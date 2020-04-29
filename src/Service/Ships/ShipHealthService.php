@@ -9,6 +9,7 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\Costs;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Domain\ValueObject\Transaction;
+use App\Infrastructure\DateTimeFactory;
 use App\Service\ShipsService;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -93,7 +94,7 @@ class ShipHealthService extends ShipsService
             new ShipHealthToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(ShipHealthToken::class, $this->dateTimeFactory->now())
+                TokenProvider::getActionPath(ShipHealthToken::class)
             ),
             0,
             $amount,

@@ -17,19 +17,16 @@ class TestEmailCommand extends AbstractCommand
 {
     private $applicationConfig;
     private $mailer;
-    private $dateTimeFactory;
     private $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
         Swift_Mailer $mailer,
-        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
         parent::__construct();
         $this->applicationConfig = $applicationConfig;
         $this->mailer = $mailer;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
     }
 
@@ -56,7 +53,7 @@ class TestEmailCommand extends AbstractCommand
 
         $message = new Swift_Message(
             'This is a test',
-            'Sent at <i>' . $this->dateTimeFactory->now()->format(DateTimeFactory::FULL) . '</i>',
+            'Sent at <i>' . DateTimeFactory::now()->format('c') . '</i>',
             'text/html',
         );
         $message->addFrom(

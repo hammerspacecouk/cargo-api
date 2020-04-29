@@ -6,6 +6,7 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\PortVisit;
 use App\Data\Database\Entity\User;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -61,10 +62,10 @@ class PortVisitRepository extends AbstractEntityRepository
             $visit = new PortVisit(
                 $owner,
                 $port,
-                $this->dateTimeFactory->now(),
+                DateTimeFactory::now(),
             );
         } else {
-            $visit->lastVisited = $this->dateTimeFactory->now();
+            $visit->lastVisited = DateTimeFactory::now();
         }
         $this->getEntityManager()->persist($visit);
         $this->getEntityManager()->flush();

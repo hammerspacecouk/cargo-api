@@ -28,24 +28,25 @@ use Ramsey\Uuid\UuidInterface;
 class TokenProvider
 {
     private ApplicationConfig $applicationConfig;
-    private DateTimeFactory $dateTimeFactory;
     private UuidFactoryInterface $uuidFactory;
     private EntityManager $entityManager;
 
     public function __construct(
         EntityManager $entityManager,
-        DateTimeFactory $dateTimeFactory,
         UuidFactoryInterface $uuidFactory,
         ApplicationConfig $applicationConfig
     ) {
         $this->applicationConfig = $applicationConfig;
         $this->entityManager = $entityManager;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->uuidFactory = $uuidFactory;
     }
 
-    public static function getActionPath(string $tokenClass, DateTimeImmutable $dateTime): string
+    public static function getActionPath(string $tokenClass, DateTimeImmutable $dateTime = null): string
     {
+        if (!$dateTime) {
+            $dateTime = DateTimeFactory::now();
+        }
+
         // change the action paths every day - but make them a bit unpredictable
         if (!\is_subclass_of($tokenClass, AbstractActionToken::class)) {
             throw new \InvalidArgumentException($tokenClass . ' is not an ActionToken');
@@ -83,7 +84,7 @@ class TokenProvider
             ->setSubject($subject)
             ->setVersion(new Version2())
             ->setPurpose(Purpose::local())
-            ->setExpiration($this->dateTimeFactory->now()->add(new DateInterval($expiryInterval)))
+            ->setExpiration(DateTimeFactory::now()->add(new DateInterval($expiryInterval)))
             ->setClaims($claims);
     }
 
@@ -95,7 +96,7 @@ class TokenProvider
         $parser = (new Parser())
             ->setKey($this->applicationConfig->getTokenPrivateKey())
             // Adding rules to be checked against the token
-            ->addRule(new NotExpired(\DateTime::createFromImmutable($this->dateTimeFactory->now())))
+            ->addRule(new NotExpired(\DateTime::createFromImmutable(DateTimeFactory::now())))
             ->setPurpose(Purpose::local())
             // Only allow version 2
             ->setAllowedVersions(ProtocolCollection::v2());

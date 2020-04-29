@@ -7,6 +7,7 @@ use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\PlayerRank;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\User;
+use App\Infrastructure\DateTimeFactory;
 use App\Service\Oauth\OAuthServiceInterface;
 use App\Service\UsersService;
 use DateTimeImmutable;
@@ -34,7 +35,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             $rotationSteps,
             $homePort,
             $initialRank,
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
         );
         if ($oauthHash && $service instanceof OAuthServiceInterface) {
             $user = $service->attachHash($user, $oauthHash);
@@ -99,7 +100,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function recordWinner(User $user): void
     {
-        $completionTime = intervalToSeconds($user->gameStartDateTime->diff($this->dateTimeFactory->now()));
+        $completionTime = intervalToSeconds($user->gameStartDateTime->diff(DateTimeFactory::now()));
         $user->gameCompletionTime = $completionTime;
         if (!$user->bestCompletionTime || $completionTime < $user->bestCompletionTime) {
             $user->bestCompletionTime = $completionTime;
@@ -115,7 +116,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
         $user->score = $newScore;
         $user->scoreRate = $this->clampRate($rate);
-        $user->scoreCalculationTime = $this->dateTimeFactory->now();
+        $user->scoreCalculationTime = DateTimeFactory::now();
 
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
@@ -123,7 +124,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function updateScoreValue(User $user, int $scoreDelta = 0): void
     {
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $newScore = ($this->currentScore($user) + $scoreDelta);
 
         $user->score = $this->clampScore($newScore);
@@ -135,7 +136,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function currentScore(User $user): int
     {
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $currentScore = $user->score;
         $rate = $user->scoreRate;
         $previousTime = ($user->scoreCalculationTime ?? $now);
@@ -231,7 +232,7 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
             ->where('tbl.anonymousIpHash IS NOT NULL')
             ->andWhere('tbl.createdAt < :before')
             ->setParameter('before', $before)
-            ->setParameter('now', $this->dateTimeFactory->now());
+            ->setParameter('now', DateTimeFactory::now());
         return $qb->getQuery()->execute();
     }
 }

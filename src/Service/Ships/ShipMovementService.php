@@ -12,6 +12,7 @@ use App\Domain\Entity\User;
 use App\Domain\ValueObject\TacticalEffect;
 use App\Domain\ValueObject\Token\Action\MoveShipToken;
 use App\Domain\ValueObject\TokenId;
+use App\Infrastructure\DateTimeFactory;
 use App\Service\ShipsService;
 use DateInterval;
 use Doctrine\ORM\Query;
@@ -57,7 +58,7 @@ class ShipMovementService extends ShipsService
         return new MoveShipToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(MoveShipToken::class, $this->dateTimeFactory->now()),
+            TokenProvider::getActionPath(MoveShipToken::class),
         );
     }
 
@@ -80,7 +81,7 @@ class ShipMovementService extends ShipsService
         MoveShipToken $token = null,
         array $effectIdsToExpire = []
     ): ShipLocation {
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
 
         /** @var DbShip|null $ship */
         $ship = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);

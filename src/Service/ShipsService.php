@@ -13,6 +13,7 @@ use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
 use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
 use App\Domain\ValueObject\Token\Action\SellShipToken;
 use App\Domain\ValueObject\Transaction;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -233,7 +234,7 @@ class ShipsService extends AbstractService
             return null;
         }
 
-        $earnings = $ship->calculateValue($this->dateTimeFactory->now());
+        $earnings = $ship->calculateValue();
 
         $token = $this->tokenHandler->makeToken(...SellShipToken::make(
             $ship->getId(),
@@ -243,7 +244,7 @@ class ShipsService extends AbstractService
         $sellToken = new SellShipToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(SellShipToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(SellShipToken::class)
         );
         return new Transaction(
             $earnings,
@@ -270,7 +271,7 @@ class ShipsService extends AbstractService
         $this->entityManager->transactional(function () use ($ship, $token, $userRepo, $userEntity) {
 
             // mark the ship as deleted
-            $ship->deletedAt = $this->dateTimeFactory->now();
+            $ship->deletedAt = DateTimeFactory::now();
             $ship->strength = 0;
             $this->entityManager->persist($ship);
 
@@ -292,7 +293,7 @@ class ShipsService extends AbstractService
         return new JoinConvoyToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(JoinConvoyToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(JoinConvoyToken::class)
         );
     }
 
@@ -309,7 +310,7 @@ class ShipsService extends AbstractService
         return new LeaveConvoyToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(LeaveConvoyToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(LeaveConvoyToken::class)
         );
     }
 

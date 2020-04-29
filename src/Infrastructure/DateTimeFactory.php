@@ -8,10 +8,33 @@ use DateTimeZone;
 
 class DateTimeFactory
 {
-    public const FULL = 'Y-m-d\TH:i:s.uP';
+    private const FORMAT = 'Y-m-d\TH:i:s.uP'; // todo - make private
 
-    public function now(): DateTimeImmutable
+    private static ?DateTimeImmutable $instance = null;
+
+    public static function now(): DateTimeImmutable
     {
-        return new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        if (!static::$instance) {
+            static::reset();
+        }
+        return static::$instance;
+    }
+
+    public static function reset(): void
+    {
+        static::$instance = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+    }
+
+    public static function set(DateTimeImmutable $newDate): void
+    {
+        static::$instance = $newDate;
+    }
+
+    public static function toJson(?DateTimeImmutable $dateTime): ?string
+    {
+        if ($dateTime) {
+            return $dateTime->format(self::FORMAT);
+        }
+        return null;
     }
 }

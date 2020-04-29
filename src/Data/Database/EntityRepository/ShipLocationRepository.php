@@ -8,6 +8,7 @@ use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -26,11 +27,12 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'port', 'channel', 'fromPort', 'toPort')
+            ->select('tbl', 'port', 'channel', 'fromPort', 'toPort', 'blockadedBy')
             ->leftJoin('tbl.port', 'port')
             ->leftJoin('tbl.channel', 'channel')
             ->leftJoin('channel.toPort', 'toPort')
             ->leftJoin('channel.fromPort', 'fromPort')
+            ->leftJoin('port.blockadedBy', 'blockadedBy')
             ->where('IDENTITY(tbl.ship) = :ship')
             ->andWhere('tbl.isCurrent = true')
             ->orderBy('tbl.createdAt', 'DESC')
@@ -119,7 +121,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->setParameter('ship', $ship->id->getBytes());
 
         $location = $qb->getQuery()->getSingleResult();
-        $location->exitTime = $this->dateTimeFactory->now();
+        $location->exitTime = DateTimeFactory::now();
         $location->isCurrent = false;
 
         if ($location->port) {
@@ -161,7 +163,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             $ship,
             $port,
             null,
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
         );
         $this->getEntityManager()->persist($location);
 

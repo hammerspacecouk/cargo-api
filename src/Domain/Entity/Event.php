@@ -72,7 +72,7 @@ class Event extends Entity implements \JsonSerializable
         return [
             'id' => $this->id,
             'action' => $this->action,
-            'time' => $this->time->format(DateTimeFactory::FULL),
+            'time' => DateTimeFactory::toJson($this->time),
             'value' => $this->value,
             'actioningPlayer' => $this->actioningPlayer,
             'actioningShip' => $this->actioningShip,

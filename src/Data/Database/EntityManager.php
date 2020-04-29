@@ -14,7 +14,6 @@ use Psr\SimpleCache\CacheInterface;
 
 class EntityManager extends EntityManagerDecorator
 {
-    private DateTimeFactory $dateTimeFactory;
     private CacheInterface $cache;
     private LoggerInterface $logger;
     private ApplicationConfig $applicationConfig;
@@ -27,12 +26,10 @@ class EntityManager extends EntityManagerDecorator
     public function __construct(
         EntityManagerInterface $entityManager,
         ApplicationConfig $applicationConfig,
-        DateTimeFactory $dateTimeFactory,
         CacheInterface $cache,
         LoggerInterface $logger
     ) {
         parent::__construct($entityManager);
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->logger = $logger;
         $this->applicationConfig = $applicationConfig;
@@ -44,7 +41,7 @@ class EntityManager extends EntityManagerDecorator
     public function persist($entity): void
     {
         // interject to update the created_at/updated_at fields (for audit purposes)
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $entity->updatedAt = $now;
         if (!$entity->createdAt) {
             $entity->createdAt = $now;
@@ -65,7 +62,6 @@ class EntityManager extends EntityManagerDecorator
             // set dependencies (which could not be injected via construct)
             $repo->setEntityManager($this);
             $repo->setApplicationConfig($this->applicationConfig);
-            $repo->setDateTimeFactory($this->dateTimeFactory);
             $repo->setCache($this->cache);
             $repo->setLogger($this->logger);
 

@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Data\Database\Entity\AuthenticationToken as DbAuthenticationToken;
 use App\Data\Database\Entity\User as DbUser;
 use App\Domain\ValueObject\AuthProvider;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -21,7 +22,7 @@ class StatsService extends AbstractService
 
     public function countActiveUsers(): int
     {
-        $oneMonthAgo = $this->dateTimeFactory->now()->sub(new \DateInterval('P1M'));
+        $oneMonthAgo = DateTimeFactory::now()->sub(new \DateInterval('P1M'));
 
         $qb = $this->getQueryBuilder(DbAuthenticationToken::class)
             ->select('COUNT(DISTINCT(IDENTITY(tbl.user)))')

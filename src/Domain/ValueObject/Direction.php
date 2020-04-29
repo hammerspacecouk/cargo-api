@@ -8,6 +8,7 @@ use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Exception\DataNotFetchedException;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 
@@ -70,7 +71,7 @@ class Direction implements \JsonSerializable
             'isAllowed' => $this->isAllowedToEnter(),
             'denialReason' => $this->getDenialReason(),
             'isHomePort' => $this->isHomePort,
-            'lastVisitTime' => $this->lastVisitTime ? $this->lastVisitTime->format('c') : null,
+            'lastVisitTime' => DateTimeFactory::toJson($this->lastVisitTime),
         ];
     }
 

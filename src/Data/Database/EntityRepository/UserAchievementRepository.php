@@ -6,6 +6,7 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Achievement;
 use App\Data\Database\Entity\User;
 use App\Data\Database\Entity\UserAchievement;
+use App\Infrastructure\DateTimeFactory;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -195,7 +196,7 @@ class UserAchievementRepository extends AbstractEntityRepository
         $userAchievement = new UserAchievement(
             $user,
             $achievement,
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
         );
 
         $this->getEntityManager()->persist($userAchievement);

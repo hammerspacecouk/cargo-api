@@ -14,6 +14,7 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -178,7 +179,7 @@ class ShipLocationsService extends AbstractService
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
 
-            $timeInChannel = $currentLocation->entryTime->diff($this->dateTimeFactory->now());
+            $timeInChannel = $currentLocation->entryTime->diff(DateTimeFactory::now());
             if (intervalToSeconds($timeInChannel) >= 60 * 60 * 24) {
                 $this->entityManager->getUserAchievementRepo()->recordLongTravel($owner->id);
             }

@@ -12,6 +12,7 @@ use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\User;
 use App\Domain\Entity\Event as DomainEvent;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -299,7 +300,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     private function log(string $eventType, callable $values): Event
     {
         $entity = new Event(
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
             $eventType,
         );
 

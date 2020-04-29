@@ -32,6 +32,15 @@ class Port extends AbstractEntity
     /** @ORM\Column(type="json") */
     public $coordinates = ['v' => '', 'b' => []];
 
+    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
+    public $blockadedUntil;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
+    public $blockadedBy;
+
     public function __construct(
         string $name,
         bool $isSafeHaven,

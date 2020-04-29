@@ -16,6 +16,7 @@ use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use App\Domain\ValueObject\TokenId;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -127,7 +128,7 @@ class CratesService extends AbstractService
         return new PickupCrateToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(PickupCrateToken::class, $this->dateTimeFactory->now()),
+            TokenProvider::getActionPath(PickupCrateToken::class),
         );
     }
 
@@ -150,7 +151,7 @@ class CratesService extends AbstractService
         return new DropCrateToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(DropCrateToken::class, $this->dateTimeFactory->now()),
+            TokenProvider::getActionPath(DropCrateToken::class),
         );
     }
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Mapper;
 
+use App\Domain\Entity\Null\NullUser;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
@@ -14,8 +15,12 @@ class UserMapper extends Mapper
      * @param array<mixed> $item
      * @return User
      */
-    public function getUser(array $item): User
+    public function getUser(?array $item): User
     {
+        if ($item === null) {
+            return new NullUser();
+        }
+
         return new User(
             $item['id'],
             $item['nickname'],

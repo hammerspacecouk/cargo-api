@@ -82,7 +82,6 @@ class TokenAction
     }
 
     public function __construct(
-        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger,
         AcknowledgePromotionAction $acknowledgePromotionAction,
         AddHealthAction $addHealthAction,
@@ -115,7 +114,7 @@ class TokenAction
         $this->dropCrateAction = $dropCrateAction;
         $this->pickupCrateAction = $pickupCrateAction;
 
-        $this->now = $dateTimeFactory->now();
+        $this->now = DateTimeFactory::now();
         $this->yesterday = $this->now->sub(new \DateInterval('P1D'));
         $this->removeAuthProviderAction = $removeAuthProviderAction;
         $this->joinConvoyAction = $joinConvoyAction;

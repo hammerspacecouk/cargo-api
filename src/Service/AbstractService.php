@@ -22,45 +22,19 @@ abstract class AbstractService
     protected const DEFAULT_LIMIT = 50;
     protected const DEFAULT_PAGE = 1;
 
-    /**
-     * @var EntityManager
-     */
-    protected $entityManager;
-    /**
-     * @var MapperFactory
-     */
-    protected $mapperFactory;
-    /**
-     * @var ApplicationConfig
-     */
-    protected $applicationConfig;
-    /**
-     * @var TokenProvider
-     */
-    protected $tokenHandler;
-    /**
-     * @var DateTimeFactory
-     */
-    protected $dateTimeFactory;
-    /**
-     * @var CacheInterface
-     */
-    protected $cache;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var UuidFactoryInterface
-     */
-    protected $uuidFactory;
+    protected EntityManager $entityManager;
+    protected MapperFactory $mapperFactory;
+    protected ApplicationConfig $applicationConfig;
+    protected TokenProvider $tokenHandler;
+    protected CacheInterface $cache;
+    protected LoggerInterface $logger;
+    protected UuidFactoryInterface $uuidFactory;
 
     public function __construct(
         EntityManager $entityManager,
         MapperFactory $mapperFactory,
         ApplicationConfig $applicationConfig,
         TokenProvider $tokenHandler,
-        DateTimeFactory $dateTimeFactory,
         UuidFactoryInterface $uuidFactory,
         CacheInterface $cache,
         LoggerInterface $logger
@@ -69,7 +43,6 @@ abstract class AbstractService
         $this->mapperFactory = $mapperFactory;
         $this->applicationConfig = $applicationConfig;
         $this->tokenHandler = $tokenHandler;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->logger = $logger;
         $this->uuidFactory = $uuidFactory;

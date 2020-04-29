@@ -26,6 +26,7 @@ use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Domain\ValueObject\TokenId;
 use App\Domain\ValueObject\Transaction;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use function App\Functions\Arrays\ensureArray;
 use function App\Functions\Arrays\filteredMap;
@@ -222,7 +223,7 @@ class EffectsService extends AbstractService
         $purchaseToken = new PurchaseEffectToken(
             $rawToken->getJsonToken(),
             (string)$rawToken,
-            TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(PurchaseEffectToken::class)
         );
         return new Transaction($cost, $purchaseToken, 0, $effect);
     }
@@ -249,7 +250,7 @@ class EffectsService extends AbstractService
         return new UseOffenceEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(UseOffenceEffectToken::class)
         );
     }
 
@@ -269,7 +270,7 @@ class EffectsService extends AbstractService
         return new ShipDefenceEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(ShipDefenceEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(ShipDefenceEffectToken::class)
         );
     }
 
@@ -289,7 +290,7 @@ class EffectsService extends AbstractService
         return new ShipTravelEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(ShipTravelEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(ShipTravelEffectToken::class)
         );
     }
 
@@ -329,7 +330,7 @@ class EffectsService extends AbstractService
             $actionToken = new UseOffenceEffectToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+                TokenProvider::getActionPath(UseOffenceEffectToken::class)
             );
 
             $offenceEffects[] = [
@@ -544,7 +545,7 @@ class EffectsService extends AbstractService
 
         $expiry = null;
         if ($applyEffectToken->getDuration()) {
-            $expiry = $this->dateTimeFactory->now()->add($applyEffectToken->getDuration());
+            $expiry = DateTimeFactory::now()->add($applyEffectToken->getDuration());
         }
 
         $shipEntity = null;

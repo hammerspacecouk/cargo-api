@@ -9,6 +9,7 @@ use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -74,7 +75,7 @@ class PlayerRanksService extends AbstractService
             $acknowledgeToken = new AcknowledgePromotionToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(AcknowledgePromotionToken::class, $this->dateTimeFactory->now())
+                TokenProvider::getActionPath(AcknowledgePromotionToken::class,DateTimeFactory::now())
             );
         }
 

@@ -134,7 +134,7 @@ class Ship extends Entity implements \JsonSerializable
             'id' => $this->id,
             'type' => 'Ship',
             'name' => $this->name,
-            'launchDate' => $this->launchTime->format(DateTimeFactory::FULL),
+            'launchDate' => DateTimeFactory::toJson($this->launchTime),
             'isDestroyed' => $this->isDestroyed(),
             'convoyId' => $this->convoyId,
             'hasPlague' => $this->hasPlague,
@@ -167,11 +167,11 @@ class Ship extends Entity implements \JsonSerializable
         return $this->getShipClass()->isStarterShip();
     }
 
-    public function calculateValue(DateTimeImmutable $now): int
+    public function calculateValue(): int
     {
         // the value of the ship decreases with age and damage
         // loses 1% of the purchase cost per day + initial 5%
-        $days = 100 - min(5 + $now->diff($this->launchTime)->days, 99);
+        $days = 100 - min(5 + DateTimeFactory::now()->diff($this->launchTime)->days, 99);
         $value = ($this->originalPurchaseCost / 100) * $days;
         // directly match the shield strength percent
         $value = $value / 100 * $this->getStrengthPercent();
