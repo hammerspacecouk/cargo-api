@@ -22,7 +22,7 @@ class UsersService extends AbstractService
 {
     private const DELETE_DELAY = 'PT15M';
 
-    private ?UserMapper $userMapper;
+    private ?UserMapper $userMapper = null;
 
     public function getById(
         UuidInterface $uuid
