@@ -12,6 +12,7 @@ use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\User;
 use App\Domain\Entity\Event as DomainEvent;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -254,6 +255,20 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
+    public function logBlockade(
+        User $actioningPlayer,
+        Port $affectedPort
+    ): Event {
+        return $this->log(
+            DomainEvent::ACTION_EFFECT_BLOCKADE,
+            static function (Event $entity) use ($actioningPlayer, $affectedPort) {
+                $entity->actioningPlayer = $actioningPlayer;
+                $entity->subjectPort = $affectedPort;
+                return $entity;
+            },
+        );
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeOld($now);
@@ -299,7 +314,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
     private function log(string $eventType, callable $values): Event
     {
         $entity = new Event(
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
             $eventType,
         );
 

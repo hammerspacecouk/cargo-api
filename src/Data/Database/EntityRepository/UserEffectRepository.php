@@ -6,6 +6,7 @@ namespace App\Data\Database\EntityRepository;
 use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\User;
 use App\Data\Database\Entity\UserEffect;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -74,7 +75,7 @@ class UserEffectRepository extends AbstractEntityRepository
         $effect = new UserEffect(
             $user,
             $effectEntity,
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
         );
         $this->getEntityManager()->persist($effect);
 
@@ -86,7 +87,7 @@ class UserEffectRepository extends AbstractEntityRepository
     public function useEffect(
         UserEffect $effect
     ): void {
-        $effect->usedAt = $this->dateTimeFactory->now();
+        $effect->usedAt = DateTimeFactory::now();
 
         $this->getEntityManager()->persist($effect);
         $this->getEntityManager()->flush();

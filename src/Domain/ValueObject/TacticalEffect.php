@@ -7,19 +7,20 @@ use App\Domain\Entity\ActiveEffect;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\UserEffect;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 
 class TacticalEffect implements \JsonSerializable
 {
-    private $effect;
-    private $currentCount;
-    private $hitsRemaining;
-    private $activeExpiry;
-    private $actionToken;
-    private $shipSelect;
-    private $userEffect;
-    private $isActive;
-    private $activeEffect;
+    private Effect $effect;
+    private int $currentCount;
+    private ?int $hitsRemaining;
+    private ?DateTimeImmutable $activeExpiry;
+    private ?AbstractActionToken $actionToken;
+    private bool $shipSelect;
+    private ?UserEffect $userEffect;
+    private bool $isActive;
+    private ?ActiveEffect $activeEffect;
 
     public function __construct(
         Effect $effect,
@@ -54,7 +55,7 @@ class TacticalEffect implements \JsonSerializable
             'currentCount' => $this->currentCount,
             'actionToken' => $this->actionToken,
             'hitsRemaining' => $this->hitsRemaining,
-            'expiry' => $this->activeExpiry ? $this->activeExpiry->format('c') : null,
+            'expiry' => DateTimeFactory::toJson($this->activeExpiry),
             'isActive' => $this->isActive,
             'mustSelectShip' => $this->shipSelect,
         ];

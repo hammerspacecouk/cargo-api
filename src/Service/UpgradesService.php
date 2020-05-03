@@ -66,7 +66,7 @@ class UpgradesService extends AbstractService
                 $token = new PurchaseShipToken(
                     $rawToken->getJsonToken(),
                     (string)$rawToken,
-                    TokenProvider::getActionPath(PurchaseShipToken::class, $this->dateTimeFactory->now())
+                    TokenProvider::getActionPath(PurchaseShipToken::class)
                 );
             }
 

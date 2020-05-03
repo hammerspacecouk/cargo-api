@@ -89,6 +89,21 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         }
 
         $cratesOnShip = $this->getCratesOnShip($cratesOnShip, $user, $port, $ship, $moveCrateKey);
+
+        $allShipsInPort = $this->shipsService->findAllActiveInPort($port);
+        $otherShips = $this->getOtherShipsInPort($allShipsInPort, $port, $ship, $data['tacticalOptions']);
+
+        $blockadeStrength = null;
+        $yourStrength = null;
+        $blockadedBy = $location->getPort()->getBlockadedBy();
+        if ($blockadedBy && $location->getPort()->isBlockaded()) {
+            // calculate the blockade strength
+            $blockadeStrength = $this->strengthForOwner($blockadedBy, $allShipsInPort);
+            if (!$blockadedBy->equals($user)) {
+                $yourStrength = $this->strengthForOwner($user, $allShipsInPort);
+            }
+        }
+
         $directions = [];
         if ($allowDirections) {
             $directions = $this->getDirectionsFromPort(
@@ -97,17 +112,15 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user,
                 (int)$totalCrateValue,
                 $location->getId(),
+                $blockadeStrength,
+                $yourStrength
             );
-        }
-        $otherShips = [];
-        if ($allowOtherShips) {
-            $otherShips = $this->getShipsInPort($port, $ship, $data['tacticalOptions']);
         }
 
         $convoys = null;
         $leaveConvoyToken = $this->shipsService->getLeaveConvoyToken($ship);
         if ($allowOtherShips && !$leaveConvoyToken) {
-            $convoys = $this->getConvoyOptions($ship, $otherShips);
+            $convoys = $this->getConvoyOptions($ship, $allShipsInPort);
         }
 
         $sellToken = $this->shipsService->getSellToken($ship);
@@ -116,7 +129,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $data['effectsToPurchase'] = $this->effectsService->getEffectsForLocation($ship, $user, $port);
         $data['tutorialStep'] = $tutorialStep;
         $data['directions'] = $directions;
-        $data['shipsInLocation'] = $otherShips;
+        $data['shipsInLocation'] = $allowOtherShips ? $otherShips : [];
         $data['convoys'] = $convoys;
         $data['leaveConvoy'] = $leaveConvoyToken;
         $data['events'] = $this->eventsService->findLatestForPort($port);
@@ -124,16 +137,38 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $data['cratesInPort'] = $cratesInPort;
         $data['cratesOnShip'] = $cratesOnShip;
         $data['sellToken'] = $sellToken;
+        $data['blockadeStrength'] = $blockadeStrength;
         return $data;
     }
 
     /**
+     * @param User $owner
+     * @param Ship[] $allShips
+     * @return int
+     */
+    private function strengthForOwner(User $owner, array $allShips): int
+    {
+        return array_reduce(
+            $allShips,
+            static function (int $carry, Ship $ship) use ($owner) {
+                if ($ship->getOwner()->equals($owner)) {
+                    return $carry + $ship->getStrength();
+                }
+                return $carry;
+            },
+            0
+        );
+    }
+
+    /**
+     * @param Ship[] $allShips
      * @param Port $port
      * @param Ship $currentShip
      * @param TacticalEffect[] $tacticalOptions
      * @return array<int, array<string, mixed>>
      */
-    private function getShipsInPort(
+    private function getOtherShipsInPort(
+        array $allShips,
         Port $port,
         Ship $currentShip,
         array $tacticalOptions
@@ -144,7 +179,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         /** @var Ship[] $defendedPlayers */
         $defendedPlayers = [];
 
-        foreach ($this->shipsService->findAllActiveInPort($port) as $ship) {
+        foreach ($allShips as $ship) {
             // remove the current ship from view
             if ($ship->getId()->equals($currentShip->getId())) {
                 continue;
@@ -278,6 +313,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
      * @param User $user
      * @param int $totalCrateValue
      * @param UuidInterface $currentLocation
+     * @param int|null $blockadeStrength
+     * @param int|null $yourStrength - null if it is your blockade
      * @return array<string, mixed>
      */
     private function getDirectionsFromPort(
@@ -285,7 +322,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         Ship $ship,
         User $user,
         int $totalCrateValue,
-        UuidInterface $currentLocation
+        UuidInterface $currentLocation,
+        ?int $blockadeStrength,
+        ?int $yourStrength
     ): array {
 
         // find all channels for a port, with their bearing and distance
@@ -344,7 +383,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $slowestJourneyTimeSeconds,
                 $earnings,
                 $this->shipLocationsService->getLatestVisitTimeForPort($user, $destination),
-                $convoyShips
+                $convoyShips,
+                $blockadeStrength,
+                $yourStrength,
             );
 
             $token = null;
@@ -370,7 +411,12 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         return $directions;
     }
 
-    private function getConvoyOptions(Ship $currentShip, array $otherShips): array
+    /**
+     * @param Ship $currentShip
+     * @param Ship[] $allShips
+     * @return array
+     */
+    private function getConvoyOptions(Ship $currentShip, array $allShips): array
     {
         if ($currentShip->isInConvoy()) {
             return [];
@@ -378,9 +424,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $me = $currentShip->getOwner();
         /** @var Ship[] $myShips */
-        $myShips = filteredMap($otherShips, static function ($shipData) use ($me) {
-            if ($me->equals($shipData['ship']->getOwner())) {
-                return $shipData['ship'];
+        $myShips = filteredMap($allShips, static function (Ship $shipData) use ($me, $currentShip) {
+            if (!$shipData->equals($currentShip) && $me->equals($shipData->getOwner())) {
+                return $shipData;
             }
             return null;
         });

@@ -20,17 +20,14 @@ class CleanerCommand extends Command
     private const DURATION_TO_KEEP_DELETED = 'P7D';
 
     private EntityManager $entityManager;
-    private DateTimeFactory $dateTimeFactory;
     private LoggerInterface $logger;
 
     public function __construct(
         EntityManager $entityManager,
-        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
         parent::__construct();
         $this->entityManager = $entityManager;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
     }
 
@@ -48,7 +45,7 @@ class CleanerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $start = microtime(true);
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
 
         $this->logger->notice('[WORKER] [CLEANER] [STARTUP]');
 

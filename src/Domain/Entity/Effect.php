@@ -9,17 +9,17 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class Effect extends Entity implements \JsonSerializable
 {
-    private $minimumRank;
-    private $name;
-    private $description;
-    private $cost;
-    private $durationSeconds;
-    private $hitCount;
-    private $displayGroup;
+    private ?PlayerRank $minimumRank;
+    private string $name;
+    private string $description;
+    private ?int $cost;
+    private ?int $durationSeconds;
+    private ?int $hitCount;
+    private string $displayGroup;
     /**
      * @var array<mixed>|null
      */
-    protected $value;
+    protected ?array $value;
 
     public function __construct(
         UuidInterface $id,

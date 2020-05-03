@@ -28,16 +28,12 @@ class TimedCommand extends Command
 {
     private const BATCH_SIZE = 100;
 
-    private $cratesService;
-    private $shipLocationsService;
-    private $channelsService;
-    private $shipMovementService;
-    private $algorithmService;
-    private $dateTimeFactory;
-    private $logger;
-    /**
-     * @var ShipsService
-     */
+    private CratesService $cratesService;
+    private ShipLocationsService $shipLocationsService;
+    private ChannelsService $channelsService;
+    private ShipMovementService $shipMovementService;
+    private AlgorithmService $algorithmService;
+    private LoggerInterface $logger;
     private ShipsService $shipsService;
 
     public function __construct(
@@ -47,7 +43,6 @@ class TimedCommand extends Command
         ShipsService $shipsService,
         ShipLocationsService $shipLocationsService,
         ShipMovementService $shipMovementService,
-        DateTimeFactory $dateTimeFactory,
         LoggerInterface $logger
     ) {
         parent::__construct();
@@ -56,7 +51,6 @@ class TimedCommand extends Command
         $this->channelsService = $channelsService;
         $this->shipMovementService = $shipMovementService;
         $this->algorithmService = $algorithmService;
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->logger = $logger;
         $this->shipsService = $shipsService;
     }
@@ -72,7 +66,7 @@ class TimedCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
         $start = microtime(true);
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $minute = (int)$now->format('i');
         $this->logger->notice('[WORKER] [TIMED] [STARTUP]');
 

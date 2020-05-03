@@ -12,10 +12,9 @@ use Symfony\Component\Routing\Route;
 
 class StatusAction
 {
-    private $dateTimeFactory;
-    private $cache;
-    private $applicationConfig;
-    private $logger;
+    private CacheInterface $cache;
+    private ApplicationConfig $applicationConfig;
+    private LoggerInterface $logger;
 
     public static function getRouteDefinition(): Route
     {
@@ -25,12 +24,10 @@ class StatusAction
     }
 
     public function __construct(
-        DateTimeFactory $dateTimeFactory,
         CacheInterface $cache,
         ApplicationConfig $applicationConfig,
         LoggerInterface $logger
     ) {
-        $this->dateTimeFactory = $dateTimeFactory;
         $this->cache = $cache;
         $this->applicationConfig = $applicationConfig;
         $this->logger = $logger;
@@ -63,7 +60,7 @@ class StatusAction
     private function getRequestStatus(): array
     {
         return [
-            'time' => $this->dateTimeFactory->now()->format(DateTimeFactory::FULL),
+            'time' => DateTimeFactory::toJson(DateTimeFactory::now()),
             'host' => getenv('HOSTNAME') ?? 'dev',
         ];
     }

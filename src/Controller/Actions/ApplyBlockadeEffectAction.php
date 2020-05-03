@@ -1,20 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controller\Actions\Effects;
+namespace App\Controller\Actions;
 
-use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Response\ShipInLocationResponse;
 use App\Service\EffectsService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 
-class ApplyShipDefenceEffectAction extends AbstractApplySimpleEffectAction
+class ApplyBlockadeEffectAction
 {
     private UsersService $usersService;
     private ShipsService $shipsService;
     private ShipInLocationResponse $shipInLocationResponse;
+    private EffectsService $effectsService;
+    private LoggerInterface $logger;
 
     public function __construct(
         UsersService $usersService,
@@ -23,19 +24,26 @@ class ApplyShipDefenceEffectAction extends AbstractApplySimpleEffectAction
         EffectsService $effectsService,
         LoggerInterface $logger
     ) {
-        parent::__construct($effectsService, $logger);
         $this->usersService = $usersService;
         $this->shipsService = $shipsService;
         $this->shipInLocationResponse = $shipInLocationResponse;
+        $this->effectsService = $effectsService;
+        $this->logger = $logger;
     }
 
-    public function getResponse(GenericApplyEffectToken $token): array
+    public function invoke(string $tokenString): array
     {
-        $user = $this->usersService->getById($token->getTriggeredById());
-        $shipWithLocation = $this->shipsService->getByIDWithLocation($token->getShipId());
+        $this->logger->notice('[ACTION] [BLOCKADE]');
+
+        $applyEffectToken = $this->effectsService->parseApplySimpleEffectToken($tokenString);
+        $this->effectsService->useBlockadeToken($applyEffectToken);
+
+        $user = $this->usersService->getById($applyEffectToken->getTriggeredById());
+        $shipWithLocation = $this->shipsService->getByIDWithLocation($applyEffectToken->getShipId());
         if (!$user || !$shipWithLocation) {
             throw new \RuntimeException('Something went very wrong');
         }
+
         return [
             'data' => $this->shipInLocationResponse->getResponseData($user, $shipWithLocation),
             'error' => null,

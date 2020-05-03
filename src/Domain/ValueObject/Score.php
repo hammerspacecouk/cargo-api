@@ -46,7 +46,7 @@ class Score implements \JsonSerializable
             'type' => 'Score',
             'value' => $this->getScore(),
             'rate' => $this->getRate(),
-            'datetime' => $this->getCalculationTime()->format(DateTimeFactory::FULL),
+            'datetime' => DateTimeFactory::toJson($this->getCalculationTime()),
         ];
     }
 }

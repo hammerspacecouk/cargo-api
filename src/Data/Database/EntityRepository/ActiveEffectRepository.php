@@ -9,6 +9,7 @@ use App\Data\Database\Entity\Effect;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\User;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -27,7 +28,7 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
     ): ActiveEffect {
         if (!$expiry) {
             // everything will expire eventually. use it or lose it
-            $expiry = $this->dateTimeFactory->now()->add(new DateInterval('P3M'));
+            $expiry = DateTimeFactory::now()->add(new DateInterval('P3M'));
         }
 
         $activeEffect = new ActiveEffect(
@@ -69,7 +70,7 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
             ->where('IDENTITY(tbl.appliesToShip) = (:shipId)')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('shipId', $shipId->getBytes())
-            ->setParameter('now', $this->dateTimeFactory->now());
+            ->setParameter('now', DateTimeFactory::now());
 
         if ($effectType) {
             $qb = $qb->andWhere('e.type = :type')
@@ -120,7 +121,7 @@ class ActiveEffectRepository extends AbstractEntityRepository implements Cleanab
             'cl.updatedAt = :now ' .
             'WHERE cl.id IN (:ids)'
         );
-        $q->setParameter('now', $this->dateTimeFactory->now());
+        $q->setParameter('now', DateTimeFactory::now());
         $q->setParameter('ids', $ids);
         $q->execute();
     }

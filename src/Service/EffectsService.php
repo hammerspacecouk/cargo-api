@@ -19,6 +19,7 @@ use App\Domain\Entity\UserEffect;
 use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\LockedTransaction;
 use App\Domain\ValueObject\TacticalEffect;
+use App\Domain\ValueObject\Token\Action\ApplyEffect\BlockadeEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\GenericApplyEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
@@ -26,6 +27,7 @@ use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
 use App\Domain\ValueObject\TokenId;
 use App\Domain\ValueObject\Transaction;
+use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use function App\Functions\Arrays\ensureArray;
 use function App\Functions\Arrays\filteredMap;
@@ -181,7 +183,15 @@ class EffectsService extends AbstractService
             $actionToken = $this->getDefenceEffectToken($userEffect, $user, $ship);
         } elseif ($canBeUsedHere && $effect instanceof Effect\TravelEffect && !$ship->isProbe()) {
             $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
+        } elseif ($canBeUsedHere && $effect instanceof Effect\BlockadeEffect &&
+            $shipLocation instanceof ShipInPort &&
+            !$shipLocation->getPort()->isBlockaded() &&
+            !$shipLocation->getPort()->isSafe()
+        ) {
+            $actionToken = $this->getBlockadeEffectToken($userEffect, $user, $shipLocation->getPort(), $ship);
         }
+
+
 
         if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
             $shipSelect = true; // no actionToken
@@ -222,7 +232,7 @@ class EffectsService extends AbstractService
         $purchaseToken = new PurchaseEffectToken(
             $rawToken->getJsonToken(),
             (string)$rawToken,
-            TokenProvider::getActionPath(PurchaseEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(PurchaseEffectToken::class)
         );
         return new Transaction($cost, $purchaseToken, 0, $effect);
     }
@@ -249,7 +259,7 @@ class EffectsService extends AbstractService
         return new UseOffenceEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(UseOffenceEffectToken::class)
         );
     }
 
@@ -269,7 +279,7 @@ class EffectsService extends AbstractService
         return new ShipDefenceEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(ShipDefenceEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(ShipDefenceEffectToken::class)
         );
     }
 
@@ -289,7 +299,30 @@ class EffectsService extends AbstractService
         return new ShipTravelEffectToken(
             $token->getJsonToken(),
             (string)$token,
-            TokenProvider::getActionPath(ShipTravelEffectToken::class, $this->dateTimeFactory->now())
+            TokenProvider::getActionPath(ShipTravelEffectToken::class)
+        );
+    }
+
+    private function getBlockadeEffectToken(
+        UserEffect $userEffect,
+        User $user,
+        Port $port,
+        Ship $ship
+    ): BlockadeEffectToken {
+        $token = $this->tokenHandler->makeToken(...BlockadeEffectToken::make(
+            new TokenId($userEffect->getId()),
+            $userEffect->getId(),
+            $userEffect->getEffect()->getId(),
+            $user->getId(),
+            $ship->getId(),
+            $port->getId(),
+            null,
+            $userEffect->getEffect()->getDurationSeconds(),
+        ));
+        return new BlockadeEffectToken(
+            $token->getJsonToken(),
+            (string)$token,
+            TokenProvider::getActionPath(BlockadeEffectToken::class)
         );
     }
 
@@ -329,7 +362,7 @@ class EffectsService extends AbstractService
             $actionToken = new UseOffenceEffectToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->dateTimeFactory->now())
+                TokenProvider::getActionPath(UseOffenceEffectToken::class)
             );
 
             $offenceEffects[] = [
@@ -529,6 +562,40 @@ class EffectsService extends AbstractService
         return new GenericApplyEffectToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
     }
 
+    public function useBlockadeToken(GenericApplyEffectToken $applyEffectToken): void
+    {
+        /** @var \App\Data\Database\Entity\UserEffect $originalEffectEntity */
+        $originalEffectEntity = $this->entityManager->getUserEffectRepo()->getByID(
+            $applyEffectToken->getUserEffectId(),
+            Query::HYDRATE_OBJECT
+        );
+
+        $triggeredByUserEntity = $this->entityManager->getUserRepo()
+            ->getByID($applyEffectToken->getTriggeredById(), Query::HYDRATE_OBJECT);
+        $portEntity = $this->entityManager->getPortRepo()
+            ->getByID($applyEffectToken->getPortId(), Query::HYDRATE_OBJECT);
+
+        $portEntity->blockadedBy = $triggeredByUserEntity;
+        $portEntity->blockadedUntil = DateTimeFactory::now()->add($applyEffectToken->getDuration());
+
+        $this->entityManager->persist($portEntity);
+        $this->entityManager->flush();
+
+        $this->entityManager->transactional(function () use (
+            $applyEffectToken,
+            $originalEffectEntity,
+            $portEntity,
+            $triggeredByUserEntity
+        ) {
+            $this->entityManager->persist($portEntity);
+            $this->entityManager->getUserAchievementRepo()->recordBlockade($applyEffectToken->getTriggeredById());
+            $this->entityManager->getEventRepo()->logBlockade($triggeredByUserEntity, $portEntity);
+            $this->entityManager->getUserEffectRepo()->useEffect($originalEffectEntity);
+            $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
+            $this->entityManager->flush();
+        });
+    }
+
     public function useSimpleEffectToken(GenericApplyEffectToken $applyEffectToken): void
     {
         /** @var \App\Data\Database\Entity\UserEffect $originalEffectEntity */
@@ -544,7 +611,7 @@ class EffectsService extends AbstractService
 
         $expiry = null;
         if ($applyEffectToken->getDuration()) {
-            $expiry = $this->dateTimeFactory->now()->add($applyEffectToken->getDuration());
+            $expiry = DateTimeFactory::now()->add($applyEffectToken->getDuration());
         }
 
         $shipEntity = null;

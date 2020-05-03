@@ -5,6 +5,7 @@ namespace App\Data\Database\EntityRepository;
 
 use App\Data\Database\CleanableInterface;
 use App\Data\Database\Entity\AuthenticationToken;
+use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -27,7 +28,7 @@ class AuthenticationTokenRepository extends AbstractEntityRepository implements 
             ->where('tbl.id = :id')
             ->andWhere('tbl.expiry > :now')
             ->setParameter('id', $tokenId->getBytes())
-            ->setParameter('now', $this->dateTimeFactory->now());
+            ->setParameter('now', DateTimeFactory::now());
         return $qb->getQuery()->getOneOrNullResult($resultType);
     }
 

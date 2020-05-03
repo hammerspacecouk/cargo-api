@@ -13,6 +13,7 @@ use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
@@ -21,10 +22,7 @@ class UsersService extends AbstractService
 {
     private const DELETE_DELAY = 'PT15M';
 
-    /**
-     * @var UserMapper|null
-     */
-    private $userMapper;
+    private ?UserMapper $userMapper = null;
 
     public function getById(
         UuidInterface $uuid
@@ -103,7 +101,7 @@ class UsersService extends AbstractService
 
     public function canUserDelete(User $user): bool
     {
-        $threshold = $this->dateTimeFactory->now()->sub(new DateInterval(self::DELETE_DELAY));
+        $threshold = DateTimeFactory::now()->sub(new DateInterval(self::DELETE_DELAY));
         return $user->getPlayStartTime() < $threshold;
     }
 
@@ -216,7 +214,7 @@ class UsersService extends AbstractService
         // this is so that users can't keep deleting and recreating accounts to get new starting variables
         if ($ipHash) {
             // for anonymous users, add the ipHash to the date (so shared IPs are more unlikely to match)
-            $seed = \crc32(\sha1($ipHash . $this->dateTimeFactory->now()->format('dd-MM-yyyy')));
+            $seed = \crc32(\sha1($ipHash . DateTimeFactory::now()->format('dd-MM-yyyy')));
         } else {
             // email based users will get the same outcome for that same email
             $seed = \crc32((string)$oauthHash);

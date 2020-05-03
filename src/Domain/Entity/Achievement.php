@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\ValueObject\PlayerRankStatus;
+use App\Infrastructure\DateTimeFactory;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -56,7 +57,7 @@ class Achievement extends Entity implements \JsonSerializable
         return [
             'name' => $this->name,
             'description' => $this->description,
-            'collectedAt' => $this->collectedAt ? $this->collectedAt->format('c') : null,
+            'collectedAt' => DateTimeFactory::toJson($this->collectedAt),
         ];
     }
 

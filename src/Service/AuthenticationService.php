@@ -11,6 +11,7 @@ use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
 use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
@@ -43,9 +44,9 @@ class AuthenticationService extends AbstractService
     public function makeNewAuthenticationCookie(
         User $user
     ): Cookie {
-        $expiry = $this->dateTimeFactory->now()->add(new \DateInterval(self::TOKEN_EXPIRY));
+        $expiry = DateTimeFactory::now()->add(new \DateInterval(self::TOKEN_EXPIRY));
         $secret = \bin2hex(\random_bytes(32));
-        $creationTime = $this->dateTimeFactory->now();
+        $creationTime = DateTimeFactory::now();
 
         $digest = $this->getDigest($user->getId(), $creationTime, $secret);
 
@@ -53,7 +54,7 @@ class AuthenticationService extends AbstractService
 
         $tokenEntity = new AuthenticationToken(
             $creationTime,
-            $this->dateTimeFactory->now(),
+            DateTimeFactory::now(),
             $expiry,
             $digest,
             $userEntity,
@@ -72,7 +73,7 @@ class AuthenticationService extends AbstractService
         return $this->makeCookie(
             '',
             self::COOKIE_NAME,
-            $this->dateTimeFactory->now()->sub(new DateInterval('P1Y')),
+            DateTimeFactory::now()->sub(new DateInterval('P1Y')),
         );
     }
 
@@ -114,7 +115,7 @@ class AuthenticationService extends AbstractService
 
         // to lower churn (and thundering herd), we'll only extend the token every so often (not every request)
         $timeToUpdate = $authentication->getLastUsed()->add(new DateInterval(self::WAIT_BEFORE_REFRESH));
-        if ($withRefresh && $timeToUpdate < $this->dateTimeFactory->now()) {
+        if ($withRefresh && $timeToUpdate < DateTimeFactory::now()) {
             $this->extendAuthentication($authentication);
         }
 
@@ -194,7 +195,7 @@ class AuthenticationService extends AbstractService
             $removalToken = new RemoveAuthProviderToken(
                 $tokenData->getJsonToken(),
                 (string)$tokenData,
-                TokenProvider::getActionPath(RemoveAuthProviderToken::class, $this->dateTimeFactory->now())
+                TokenProvider::getActionPath(RemoveAuthProviderToken::class)
             );
         }
 
@@ -225,7 +226,7 @@ class AuthenticationService extends AbstractService
             Query::HYDRATE_OBJECT
         );
 
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $tokenEntity->expiry = $now->add(new DateInterval(self::TOKEN_EXPIRY));
         $tokenEntity->lastUsed = $now;
         $this->entityManager->persist($tokenEntity);

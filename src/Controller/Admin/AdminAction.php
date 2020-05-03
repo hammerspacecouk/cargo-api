@@ -13,11 +13,7 @@ use Symfony\Component\Routing\Route;
 
 class AdminAction extends AbstractAdminAction
 {
-    private $statsService;
-    /**
-     * @var DateTimeFactory
-     */
-    private $dateTimeFactory;
+    private StatsService $statsService;
 
     public static function getRouteDefinition(): Route
     {
@@ -28,12 +24,10 @@ class AdminAction extends AbstractAdminAction
 
     public function __construct(
         AuthenticationService $authenticationService,
-        DateTimeFactory $dateTimeFactory,
         StatsService $statsService
     ) {
         parent::__construct($authenticationService);
         $this->statsService = $statsService;
-        $this->dateTimeFactory = $dateTimeFactory;
     }
 
     public function invoke(Request $request): Response
@@ -49,8 +43,8 @@ class AdminAction extends AbstractAdminAction
         <head>
             <title>Admin</title>
             <style>
-                body { 
-                    font-family: sans-serif; 
+                body {
+                    font-family: sans-serif;
                     font-weight: lighter;
                     margin: 32px auto;
                     max-width: 768px;
@@ -102,7 +96,7 @@ class AdminAction extends AbstractAdminAction
             <thead>
                 <tr>
                 <th>Provider</th>
-                <th>Count</th>    
+                <th>Count</th>
                 </tr>
             </thead>
             <tbody>
@@ -130,7 +124,7 @@ class AdminAction extends AbstractAdminAction
             <thead>
                 <tr>
                 <th>Rank</th>
-                <th>Count</th>    
+                <th>Count</th>
                 </tr>
             </thead>
             <tbody>
@@ -142,7 +136,7 @@ class AdminAction extends AbstractAdminAction
 
     private function getRegistrationsPerDay(): string
     {
-        $now = $this->dateTimeFactory->now();
+        $now = DateTimeFactory::now();
         $start = $now->sub(new DateInterval('P7D'));
 
         $rows = '';
@@ -160,7 +154,7 @@ class AdminAction extends AbstractAdminAction
         <thead>
             <tr>
             <th>Date</th>
-            <th>Count</th>    
+            <th>Count</th>
             </tr>
         </thead>
         <tbody>

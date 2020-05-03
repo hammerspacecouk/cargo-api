@@ -37,8 +37,8 @@ class ShipInChannel extends AbstractShipLocation
     {
         $data = [
             'type' => 'Channel',
-            'startTime' => $this->getEntryTime()->format(DateTimeFactory::FULL),
-            'arrival' => $this->getExitTime()->format(DateTimeFactory::FULL),
+            'startTime' => DateTimeFactory::toJson($this->getEntryTime()),
+            'arrival' => DateTimeFactory::toJson($this->getExitTime()),
             'travelTime' => $this->getTravelTime(),
         ];
         if ($this->destination) {

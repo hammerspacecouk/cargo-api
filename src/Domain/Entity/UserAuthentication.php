@@ -58,9 +58,9 @@ class UserAuthentication extends Entity implements \JsonSerializable
     public function jsonSerialize(): array
     {
         $data = [
-            'creationTime' => $this->getCreationTime()->format(DateTimeFactory::FULL),
-            'lastUsed' => $this->getLastUsed()->format(DateTimeFactory::FULL),
-            'expiry' => $this->getExpiry()->format(DateTimeFactory::FULL),
+            'creationTime' => DateTimeFactory::toJson($this->getCreationTime()),
+            'lastUsed' => DateTimeFactory::toJson($this->getLastUsed()),
+            'expiry' => DateTimeFactory::toJson($this->getExpiry()),
         ];
         if ($this->user) {
             $data['user'] = $this->getUser();
