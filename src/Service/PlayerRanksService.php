@@ -75,7 +75,7 @@ class PlayerRanksService extends AbstractService
             $acknowledgeToken = new AcknowledgePromotionToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(AcknowledgePromotionToken::class,DateTimeFactory::now())
+                TokenProvider::getActionPath(AcknowledgePromotionToken::class, DateTimeFactory::now())
             );
         }
 

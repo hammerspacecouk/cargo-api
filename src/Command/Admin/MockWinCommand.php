@@ -5,10 +5,8 @@ namespace App\Command\Admin;
 
 use App\Command\AbstractCommand;
 use App\Data\Database\Entity\Crate as DbCrate;
-use App\Data\Database\Entity\CrateType;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\PortVisit;
-use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
 use App\Data\Database\Entity\User as DbUser;
 use App\Data\Database\EntityManager;

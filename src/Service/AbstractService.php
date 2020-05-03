@@ -9,7 +9,6 @@ use App\Data\Database\Mapper\MapperFactory;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Infrastructure\ApplicationConfig;
-use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;

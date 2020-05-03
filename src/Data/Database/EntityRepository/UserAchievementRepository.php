@@ -160,11 +160,11 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
-    public function recordAddedToLeaderBoard(UuidInterface $userId): void
+    public function recordBlockade(UuidInterface $userId): void
     {
         $this->record(
             $userId,
-            Uuid::fromString('5d75b968-6080-46e6-a269-1b09adbf1216')
+            Uuid::fromString('0e6e4a49-18c8-4e81-bef4-cb0bb386562d')
         );
     }
 

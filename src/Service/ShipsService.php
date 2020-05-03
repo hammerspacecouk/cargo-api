@@ -8,7 +8,6 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Data\TokenProvider;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Exception\IllegalMoveException;
 use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
 use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
 use App\Domain\ValueObject\Token\Action\SellShipToken;

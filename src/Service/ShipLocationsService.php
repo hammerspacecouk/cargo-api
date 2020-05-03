@@ -11,7 +11,6 @@ use App\Data\Database\Entity\User as DbUser;
 use App\Domain\Entity\Effect;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
 use App\Infrastructure\DateTimeFactory;
@@ -19,7 +18,6 @@ use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
-use function App\Functions\Arrays\find;
 use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
 

@@ -11,10 +11,10 @@ use Psr\Log\LoggerInterface;
 
 class ApplyOffenceEffectAction
 {
-    private $shipsService;
-    private $shipInPortResponse;
-    private $effectsService;
-    private $logger;
+    private ShipsService $shipsService;
+    private ShipInPortResponse $shipInPortResponse;
+    private EffectsService $effectsService;
+    private LoggerInterface $logger;
 
     public function __construct(
         EffectsService $effectsService,

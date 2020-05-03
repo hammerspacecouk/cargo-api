@@ -12,15 +12,15 @@ use DateTimeImmutable;
 
 class TacticalEffect implements \JsonSerializable
 {
-    private $effect;
-    private $currentCount;
-    private $hitsRemaining;
-    private $activeExpiry;
-    private $actionToken;
-    private $shipSelect;
-    private $userEffect;
-    private $isActive;
-    private $activeEffect;
+    private Effect $effect;
+    private int $currentCount;
+    private ?int $hitsRemaining;
+    private ?DateTimeImmutable $activeExpiry;
+    private ?AbstractActionToken $actionToken;
+    private bool $shipSelect;
+    private ?UserEffect $userEffect;
+    private bool $isActive;
+    private ?ActiveEffect $activeEffect;
 
     public function __construct(
         Effect $effect,

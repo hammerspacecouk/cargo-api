@@ -33,8 +33,7 @@ class Port extends Entity implements \JsonSerializable
         array $viewBoxes,
         ?DateTimeImmutable $blockadedUntil,
         ?User $blockadedBy = null
-    )
-    {
+    ) {
         parent::__construct($id);
         $this->name = $name;
         $this->isSafe = $isSafe;

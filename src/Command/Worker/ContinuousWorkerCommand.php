@@ -49,6 +49,7 @@ abstract class ContinuousWorkerCommand extends Command
         $nowTime = 0;
         while ($memoryPercent < self::MAX_MEMORY_PERCENT && $nowTime < self::MAX_TIME) {
             // reset the time at the start each loop
+            DateTimeFactory::reset();
             $now = DateTimeFactory::now();
 
             // handle the batch

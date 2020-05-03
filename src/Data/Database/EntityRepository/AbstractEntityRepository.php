@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace App\Data\Database\EntityRepository;
 
-use App\Data\Database\Entity\UsedActionToken;
 use App\Data\Database\EntityManager;
 use App\Infrastructure\ApplicationConfig;
-use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Psr\Log\LoggerInterface;

@@ -12,15 +12,11 @@ use Ramsey\Uuid\UuidInterface;
 
 class PortsService extends AbstractService
 {
-    /**
-     * @var PortMapper|null
-     */
-    private $portMapper;
+    private ?PortMapper $portMapper = null;
 
     public function getByID(
         UuidInterface $uuid
     ): ?Port {
-
         return $this->mapSingle(
             $this->entityManager->getPortRepo()->getByID($uuid)
         );

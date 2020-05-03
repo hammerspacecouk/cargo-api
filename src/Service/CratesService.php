@@ -16,7 +16,6 @@ use App\Domain\Exception\OutdatedMoveException;
 use App\Domain\ValueObject\Token\Action\MoveCrate\DropCrateToken;
 use App\Domain\ValueObject\Token\Action\MoveCrate\PickupCrateToken;
 use App\Domain\ValueObject\TokenId;
-use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;

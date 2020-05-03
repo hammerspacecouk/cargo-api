@@ -6,6 +6,7 @@ namespace App\Controller\TokenAction;
 use App\Controller\Actions\AcknowledgePromotionAction;
 use App\Controller\Actions\AddHealthAction;
 use App\Controller\Actions\ApplyOffenceEffectAction;
+use App\Controller\Actions\ApplyBlockadeEffectAction;
 use App\Controller\Actions\Effects\ApplyShipDefenceEffectAction;
 use App\Controller\Actions\Effects\ApplyShipTravelEffectAction;
 use App\Controller\Actions\JoinConvoyAction;
@@ -24,6 +25,7 @@ use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\TokenException;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use App\Domain\ValueObject\Token\Action\ApplyEffect\BlockadeEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use App\Domain\ValueObject\Token\Action\JoinConvoyToken;
@@ -73,6 +75,7 @@ class TokenAction
     private JoinConvoyAction $joinConvoyAction;
     private LeaveConvoyAction $leaveConvoyAction;
     private SellShipAction $sellShipAction;
+    private ApplyBlockadeEffectAction $applyBlockadeEffectAction;
 
     public static function getRouteDefinition(): Route
     {
@@ -96,6 +99,7 @@ class TokenAction
         RequestShipNameAction $requestShipNameAction,
         ApplyShipDefenceEffectAction $applyShipDefenceEffectAction,
         ApplyShipTravelEffectAction $applyShipTravelEffectAction,
+        ApplyBlockadeEffectAction $applyBlockadeEffectAction,
         DropCrateAction $dropCrateAction,
         PickupCrateAction $pickupCrateAction,
         RemoveAuthProviderAction $removeAuthProviderAction
@@ -120,6 +124,7 @@ class TokenAction
         $this->joinConvoyAction = $joinConvoyAction;
         $this->leaveConvoyAction = $leaveConvoyAction;
         $this->sellShipAction = $sellShipAction;
+        $this->applyBlockadeEffectAction = $applyBlockadeEffectAction;
     }
 
     public function __invoke(
@@ -195,6 +200,10 @@ class TokenAction
             case TokenProvider::getActionPath(ShipTravelEffectToken::class, $this->now):
             case TokenProvider::getActionPath(ShipTravelEffectToken::class, $this->yesterday):
                 return $this->applyShipTravelEffectAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(BlockadeEffectToken::class, $this->now):
+            case TokenProvider::getActionPath(BlockadeEffectToken::class, $this->yesterday):
+                return $this->applyBlockadeEffectAction->invoke($tokenString);
 
             case TokenProvider::getActionPath(DropCrateToken::class, $this->now):
             case TokenProvider::getActionPath(DropCrateToken::class, $this->yesterday):

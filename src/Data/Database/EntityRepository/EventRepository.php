@@ -255,6 +255,20 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
         );
     }
 
+    public function logBlockade(
+        User $actioningPlayer,
+        Port $affectedPort
+    ): Event {
+        return $this->log(
+            DomainEvent::ACTION_EFFECT_BLOCKADE,
+            static function (Event $entity) use ($actioningPlayer, $affectedPort) {
+                $entity->actioningPlayer = $actioningPlayer;
+                $entity->subjectPort = $affectedPort;
+                return $entity;
+            },
+        );
+    }
+
     public function clean(\DateTimeImmutable $now): int
     {
         return $this->removeOld($now);

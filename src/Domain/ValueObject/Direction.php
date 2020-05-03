@@ -21,6 +21,8 @@ class Direction implements \JsonSerializable
     private ?int $earnings;
     private ?DateTimeImmutable $lastVisitTime;
     private bool $isHomePort;
+    private ?int $blockadeStrength;
+    private ?int $yourStrength;
 
     /**
      * @var string[]
@@ -40,7 +42,9 @@ class Direction implements \JsonSerializable
         int $time,
         ?int $earnings = null,
         ?DateTimeImmutable $lastVisitTime = null,
-        array $convoyShips = []
+        array $convoyShips = [],
+        ?int $blockadeStrength = null,
+        ?int $yourStrength = null
     ) {
         $this->destinationPort = $destinationPort;
         $this->channel = $channel;
@@ -50,6 +54,8 @@ class Direction implements \JsonSerializable
         $this->isHomePort = $isHomePort;
         $this->lastVisitTime = $lastVisitTime;
         $this->convoyShips = $convoyShips;
+        $this->blockadeStrength = $blockadeStrength;
+        $this->yourStrength = $yourStrength;
 
         if (empty($this->convoyShips)) {
             $this->convoyShips = [$ship];
@@ -153,6 +159,19 @@ class Direction implements \JsonSerializable
                 'This ship/convoy is not currently strong enough for this journey (%d/%d)',
                 $totalStrength,
                 $minimumStrength
+            );
+        }
+
+        // if yourStrength is not set then it's your blockade. also doesn't apply until level 120
+        if ($this->yourStrength !== null &&
+            $this->blockadeStrength !== null &&
+            $this->yourStrength < $this->blockadeStrength &&
+            $this->playerRank->getThreshold() >= 120
+        ) {
+            $this->denialReasons[] = sprintf(
+                'Your total ship strength here is not a match for the Blockade strength (%d/%d)',
+                $this->yourStrength,
+                $this->blockadeStrength
             );
         }
 

@@ -13,7 +13,6 @@ class NullUser extends User
     public function __construct()
     {
         parent::__construct(
-
             Uuid::fromString(Uuid::NIL),
             null,
             0,
