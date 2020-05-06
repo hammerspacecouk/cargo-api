@@ -8,12 +8,15 @@ class OauthState
     public const EXPIRY = 'PT1H';
     public const SUBJECT = 'state';
 
-    private $returnUrl;
+    private string $returnUrl;
+    private string $stateId;
 
     public function __construct(
+        string $stateId,
         string $returnUrl
     ) {
         $this->returnUrl = $returnUrl;
+        $this->stateId = $stateId;
     }
 
     /**
@@ -22,7 +25,7 @@ class OauthState
      */
     public static function createFromClaims(array $claims): OauthState
     {
-        return new self($claims['r']);
+        return new self($claims['id'], $claims['r']);
     }
 
     /**
@@ -30,11 +33,16 @@ class OauthState
      */
     public function getClaims(): array
     {
-        return ['r' => $this->returnUrl];
+        return ['id' => $this->stateId, 'r' => $this->returnUrl];
     }
 
     public function getReturnUrl(): string
     {
         return $this->returnUrl;
+    }
+
+    public function getStateId(): string
+    {
+        return $this->stateId;
     }
 }

@@ -7,6 +7,7 @@ use App\Data\Database\Entity\AuthenticationToken;
 use App\Data\TokenProvider;
 use App\Domain\Entity\User;
 use App\Domain\Entity\UserAuthentication;
+use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
@@ -25,26 +26,45 @@ class AuthenticationService extends AbstractService
     use Traits\CookieTrait;
 
     private const COOKIE_NAME = 'AUTHENTICATION_TOKEN';
+    private const OAUTH_COOKIE_NAME = 'TEMP_LOCAL_AUTH_STATE';
     private const TOKEN_EXPIRY = 'P3M';
     private const WAIT_BEFORE_REFRESH = 'P7D';
 
-    public function getOAuthState(string $redirectUrl): string
+    public function getOAuthStateCookie(string $stateId, string $redirectUrl): Cookie
     {
-        $state = new OauthState($redirectUrl);
+        $state = new OauthState($stateId, $redirectUrl);
         $token = $this->tokenHandler->makeToken(...SimpleDataToken::make($state->getClaims()));
-        return (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+        $data = (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+        return $this->makeCookie(
+            $data,
+            self::OAUTH_COOKIE_NAME,
+            DateTimeFactory::now()->add(new DateInterval('PT10M')),
+            'none'
+        );
     }
 
-    public function parseOauthState(string $tokenString): OauthState
+    public function parseOauthState(Request $request): OauthState
     {
-        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
-        return OauthState::createFromClaims($token->getData());
+        $stateId = $request->get('state');
+        $cookie = $request->cookies->get(self::OAUTH_COOKIE_NAME);
+        if (!$cookie || !$stateId) {
+            throw new InvalidTokenException('No state cookie or state ID found');
+        }
+
+        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($cookie, false), $cookie);
+        $state = OauthState::createFromClaims($token->getData());
+
+        if ($state->getStateId() !== $stateId) {
+            throw new InvalidTokenException('Invalid state');
+        }
+
+        return $state;
     }
 
     public function makeNewAuthenticationCookie(
         User $user
     ): Cookie {
-        $expiry = DateTimeFactory::now()->add(new \DateInterval(self::TOKEN_EXPIRY));
+        $expiry = DateTimeFactory::now()->add(new DateInterval(self::TOKEN_EXPIRY));
         $secret = \bin2hex(\random_bytes(32));
         $creationTime = DateTimeFactory::now();
 

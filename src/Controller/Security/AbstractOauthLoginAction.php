@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractOauthLoginAction
 {
-    private $oAuthProvider;
-    private $oAuthHandler;
-    private $oAuthService;
+    private AbstractProvider $oAuthProvider;
+    private OAuthHandler $oAuthHandler;
+    private OAuthServiceInterface $oAuthService;
 
     public function __construct(
         AbstractProvider $oAuthProvider,

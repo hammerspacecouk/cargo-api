@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller\Security;
 
 use App\Service\Oauth\OAuthServiceInterface;
+use Exception;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,25 +22,28 @@ class OAuthHandler extends AbstractLoginAction
     ): Response {
         $code = $request->get('code');
         $error = $request->get('error');
-        $state = $request->get('state', '');
 
         if ($error) {
             throw new AccessDeniedHttpException('Correct credentials not supplied'); // todo - standard error format
         }
 
         if (!$code) {
-            return new RedirectResponse($oauthProvider->getAuthorizationUrl([
-                'state' => $this->authenticationService->getOAuthState($this->getRedirectUrl($request)),
-            ]));
+            $url = $oauthProvider->getAuthorizationUrl();
+            $stateId = $oauthProvider->getState();
+            $stateCookie = $this->authenticationService->getOAuthStateCookie($stateId, $this->getRedirectUrl($request));
+
+            $response = new RedirectResponse($url);
+            $response->headers->setCookie($stateCookie);
+            return $response;
         }
 
         // check the code
         try {
             /** @var AccessToken $token */
+            $state = $this->authenticationService->parseOauthState($request);
             $token = $oauthProvider->getAccessToken('authorization_code', ['code' => $code,]);
             $ownerId = (string)$oauthProvider->getResourceOwner($token)->getId();
-            $state = $this->authenticationService->parseOauthState($state);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new BadRequestHttpException($e->getMessage());
         }
 
