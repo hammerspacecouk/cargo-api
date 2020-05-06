@@ -13,7 +13,7 @@ trait CookieTrait
         string $name,
         ?DateTimeImmutable $expire,
         ?string $sameSite = 'lax'
-    ): Cookie{
+    ): Cookie {
         $expireValue = 0; // session cookie
         if ($expire) {
             $expireValue = $expire;

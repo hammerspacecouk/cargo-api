@@ -39,8 +39,8 @@ class OAuthHandler extends AbstractLoginAction
 
         // check the code
         try {
-            /** @var AccessToken $token */
             $state = $this->authenticationService->parseOauthState($request);
+            /** @var AccessToken $token */
             $token = $oauthProvider->getAccessToken('authorization_code', ['code' => $code,]);
             $ownerId = (string)$oauthProvider->getResourceOwner($token)->getId();
         } catch (Exception $e) {
