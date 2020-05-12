@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeCrateCommand extends Command
 {
-    private $cratesService;
+    private CratesService $cratesService;
 
     public function __construct(CratesService $cratesService)
     {

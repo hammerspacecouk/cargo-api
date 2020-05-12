@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeAdminCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

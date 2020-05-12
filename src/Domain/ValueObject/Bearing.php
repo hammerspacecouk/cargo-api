@@ -24,7 +24,7 @@ class Bearing implements \JsonSerializable
         'W' => 0,
     ];
 
-    private $bearing;
+    private string $bearing;
 
     public function __construct(
         string $bearing

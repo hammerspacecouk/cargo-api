@@ -16,7 +16,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakePlayerRanksCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Config extends AbstractEntity
 {
     /** @ORM\Column(type="json") */
-    public $value;
+    public array $value;
 
     public function __construct(
         array $value

@@ -16,7 +16,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakeAchievementsCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

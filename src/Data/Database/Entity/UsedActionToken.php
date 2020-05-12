@@ -18,8 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UsedActionToken extends AbstractEntity
 {
-    /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $expiry;
+    /** @ORM\Column(type="datetime_microsecond", nullable=false) */
+    public DateTimeImmutable $expiry;
 
     public function __construct(
         DateTimeImmutable $expiry

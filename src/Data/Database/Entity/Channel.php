@@ -23,26 +23,26 @@ class Channel extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $fromPort;
+    public Port $fromPort;
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $toPort;
+    public Port $toPort;
 
     /** @ORM\Column(type="string") */
-    public $bearing;
+    public string $bearing;
 
     /** @ORM\Column(type="integer") */
-    public $distance;
+    public int $distance;
 
     /** @ORM\Column(type="integer") */
-    public $minimumStrength;
+    public int $minimumStrength;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
-    public $minimumEntryRank;
+    public ?PlayerRank $minimumEntryRank;
 
     public function __construct(
         Port $fromPort,

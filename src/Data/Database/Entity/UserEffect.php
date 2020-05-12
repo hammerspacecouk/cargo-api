@@ -20,21 +20,21 @@ use Doctrine\ORM\Mapping as ORM;
 class UserEffect extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond") */
-    public $collectedAt;
+    public DateTimeImmutable $collectedAt;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $usedAt;
+    public ?DateTimeImmutable $usedAt = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Effect")
      */
-    public $effect;
+    public Effect $effect;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $user;
+    public User $user;
 
     public function __construct(
         User $user,

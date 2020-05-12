@@ -38,7 +38,7 @@ class EffectsService extends AbstractService
     /**
      * @var array<string, mixed>
      */
-    private $userEffectsCache = [];
+    private array $userEffectsCache = [];
 
     /**
      * @param Ship $ship

@@ -15,12 +15,9 @@ abstract class AbstractUserAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
-    /** @var AuthenticationService */
-    protected $authenticationService;
-    /** @var User */
-    protected $user;
-    /** @var LoggerInterface */
-    protected $logger;
+    protected AuthenticationService $authenticationService;
+    protected User $user;
+    protected LoggerInterface $logger;
 
     public function __construct(
         AuthenticationService $authenticationService,

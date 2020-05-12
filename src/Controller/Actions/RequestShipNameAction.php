@@ -9,9 +9,9 @@ use Psr\Log\LoggerInterface;
 
 class RequestShipNameAction
 {
-    private $shipNameService;
-    private $usersService;
-    private $logger;
+    private ShipNameService $shipNameService;
+    private UsersService $usersService;
+    private LoggerInterface $logger;
 
     public function __construct(
         ShipNameService $shipNameService,

@@ -21,51 +21,51 @@ class ShipClass extends AbstractEntity
     use OrderNumberTrait;
 
     /** @ORM\Column(type="text") */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="text") */
-    public $description;
+    public string $description;
 
     /** @ORM\Column(type="integer") */
-    public $strength;
+    public int $strength;
 
     /** @ORM\Column(type="boolean") */
-    public $autoNavigate = false;
+    public bool $autoNavigate = false;
 
     /** @ORM\Column(type="integer") */
-    public $capacity;
+    public int $capacity;
 
     /** @ORM\Column(type="float") */
-    public $speedMultiplier = 1;
+    public float $speedMultiplier = 1;
 
     /** @ORM\Column(type="boolean") */
-    public $isStarterShip;
+    public bool $isStarterShip;
 
     /** @ORM\Column(type="boolean") */
-    public $isDefenceShip = false;
+    public bool $isDefenceShip = false;
 
     /** @ORM\Column(type="boolean") */
-    public $isHospitalShip = false;
+    public bool $isHospitalShip = false;
 
     /** @ORM\Column(type="integer") */
-    public $purchaseCost;
+    public int $purchaseCost;
 
     /** @ORM\Column(type="text") */
-    public $svg;
+    public string $svg;
 
     /** @ORM\Column(type="integer") */
-    public $displayCapacity;
+    public int $displayCapacity;
 
     /** @ORM\Column(type="integer") */
-    public $displaySpeed;
+    public int $displaySpeed;
 
     /** @ORM\Column(type="integer") */
-    public $displayStrength;
+    public int $displayStrength;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
-    public $minimumRank;
+    public PlayerRank $minimumRank;
 
     public function __construct(
         string $name,

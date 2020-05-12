@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Route;
 
 class ShowAction extends AbstractUserAction
 {
-    private $profileResponse;
+    private ProfileResponse $profileResponse;
 
     public static function getRouteDefinition(): Route
     {

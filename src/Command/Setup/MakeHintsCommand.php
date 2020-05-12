@@ -18,7 +18,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakeHintsCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

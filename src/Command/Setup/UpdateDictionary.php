@@ -20,7 +20,7 @@ class UpdateDictionary extends AbstractCommand
         'shipName2' => Dictionary::CONTEXT_SHIP_NAME_2,
     ];
 
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

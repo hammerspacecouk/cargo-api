@@ -8,7 +8,7 @@ abstract class Message implements \JsonSerializable
     public const WEIGHTING = 0;
     protected const TYPE = null;
 
-    private $message;
+    private string $message;
 
     public function __construct(string $message)
     {

@@ -13,7 +13,7 @@ class EventsService extends AbstractService
     /**
      * @var EventMapper|null
      */
-    private $eventMapper;
+    private ?EventMapper $eventMapper;
 
     /**
      * @param int $limit

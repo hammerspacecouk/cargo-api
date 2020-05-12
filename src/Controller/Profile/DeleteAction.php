@@ -22,10 +22,10 @@ class DeleteAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
-    private $authenticationService;
-    private $applicationConfig;
-    private $logger;
-    private $usersService;
+    private AuthenticationService $authenticationService;
+    private ApplicationConfig $applicationConfig;
+    private LoggerInterface $logger;
+    private UsersService $usersService;
 
     public static function getRouteDefinition(): Route
     {

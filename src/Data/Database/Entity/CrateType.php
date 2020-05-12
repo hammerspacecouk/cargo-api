@@ -15,16 +15,16 @@ use Doctrine\ORM\Mapping as ORM;
 class CrateType extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $contents;
+    public string $contents;
 
     /** @ORM\Column(type="integer") */
-    public $abundance;
+    public int $abundance;
 
     /** @ORM\Column(type="integer") */
-    public $value;
+    public int $value;
 
     /** @ORM\Column(type="boolean") */
-    public $isGoal = false;
+    public bool $isGoal = false;
 
     public function __construct(
         string $contents,

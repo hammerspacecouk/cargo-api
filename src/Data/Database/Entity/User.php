@@ -22,20 +22,22 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class User extends AbstractEntity
 {
-    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public $googleId;
+    /**
+     * @ORM\Column(type="binary", nullable=true, unique=true))
+     */
+    public ?string $googleId = null;
 
     /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public $microsoftId;
+    public ?string $microsoftId = null;
 
     /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public $redditId;
+    public ?string $redditId = null;
 
     /** @ORM\Column(type="binary", nullable=true)) */
-    public $anonymousIpHash;
+    public ?string $anonymousIpHash = null;
 
     /** @ORM\Column(type="text", length=50, nullable=true) */
-    public $nickname;
+    public ?string $nickname = null;
 
     /** @ORM\Column(type="integer") */
     public int $rotationSteps;

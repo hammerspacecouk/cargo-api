@@ -9,8 +9,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AcknowledgePromotionAction
 {
-    private $usersService;
-    private $playerRanksService;
+    private UsersService $usersService;
+    private PlayerRanksService $playerRanksService;
 
     public function __construct(
         UsersService $usersService,

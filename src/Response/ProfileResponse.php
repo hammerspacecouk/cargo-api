@@ -10,9 +10,9 @@ use App\Service\UsersService;
 
 class ProfileResponse
 {
-    private $authenticationService;
-    private $portsService;
-    private $usersService;
+    private AuthenticationService $authenticationService;
+    private PortsService $portsService;
+    private UsersService $usersService;
 
     public function __construct(
         AuthenticationService $authenticationService,

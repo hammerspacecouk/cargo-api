@@ -8,7 +8,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class UserEffect extends Entity
 {
-    private $effect;
+    private ?Effect $effect;
 
     public function __construct(
         UuidInterface $id,

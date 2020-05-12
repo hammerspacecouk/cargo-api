@@ -16,13 +16,13 @@ use Doctrine\ORM\Mapping as ORM;
 class PlayerRank extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="text") */
-    public $description;
+    public string $description;
 
     /** @ORM\Column(type="integer", unique=true) */
-    public $threshold;
+    public int $threshold;
 
     public function __construct(
         string $name,

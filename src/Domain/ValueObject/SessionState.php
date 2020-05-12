@@ -7,8 +7,8 @@ use App\Domain\Entity\User;
 
 class SessionState implements \JsonSerializable
 {
-    private $player;
-    private $rankStatus;
+    private ?User $player;
+    private ?PlayerRankStatus $rankStatus;
 
     public function __construct(
         ?User $player = null,

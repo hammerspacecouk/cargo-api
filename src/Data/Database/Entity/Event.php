@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,58 +19,58 @@ use Doctrine\ORM\Mapping as ORM;
 class Event extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond") */
-    public $time;
+    public DateTimeImmutable $time;
 
     /** @ORM\Column(type="string") */
-    public $action;
+    public string $action;
 
     /** @ORM\Column(type="string", nullable=true) */
-    public $value;
+    public ?string $value = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    public $actioningPlayer;
+    public ?User $actioningPlayer = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    public $actioningShip;
+    public ?Ship $actioningShip = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      * @ORM\JoinColumn(nullable=true)
      */
-    public $subjectRank;
+    public ?PlayerRank $subjectRank = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    public $subjectShip;
+    public ?Ship $subjectShip = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(nullable=true)
      */
-    public $subjectPort;
+    public ?Port $subjectPort = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Crate")
      * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      */
-    public $subjectCrate;
+    public ?Crate $subjectCrate = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Effect")
      * @ORM\JoinColumn(nullable=true)
      */
-    public $subjectEffect;
+    public ?Effect $subjectEffect = null;
 
     public function __construct(
-        \DateTimeImmutable $time,
+        DateTimeImmutable $time,
         string $action
     ) {
         parent::__construct();

@@ -26,34 +26,34 @@ class ShipLocation extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="Ship")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $ship;
+    public Ship $ship;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
-    public $port;
+    public ?Port $port = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Channel")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
-    public $channel;
+    public ?Channel $channel = null;
 
     /** @ORM\Column(type="boolean") */
-    public $isCurrent = true;
+    public bool $isCurrent = true;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $scoreDelta;
+    public ?int $scoreDelta = null;
 
     /** @ORM\Column(type="boolean") */
-    public $reverseDirection = false;
+    public bool $reverseDirection = false;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $entryTime;
+    public DateTimeImmutable $entryTime;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $exitTime;
+    public ?DateTimeImmutable $exitTime = null;
 
     public function __construct(
         Ship $ship,

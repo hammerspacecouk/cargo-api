@@ -8,8 +8,8 @@ use Ramsey\Uuid\UuidInterface;
 
 class CrateLocation extends Entity
 {
-    private $crate;
-    private $isCurrent;
+    private ?Crate $crate;
+    private bool $isCurrent;
 
     public function __construct(
         UuidInterface $id,

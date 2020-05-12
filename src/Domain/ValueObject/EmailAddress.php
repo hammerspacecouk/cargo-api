@@ -10,7 +10,7 @@ use App\Domain\Exception\InvalidEmailAddressException;
  */
 class EmailAddress implements \JsonSerializable
 {
-    private $emailAddress;
+    private string $emailAddress;
 
     public function __construct(string $emailAddress)
     {

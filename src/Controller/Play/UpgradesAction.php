@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Route;
 
 class UpgradesAction extends AbstractUserAction
 {
-    private $upgradesResponse;
+    private UpgradesResponse $upgradesResponse;
 
     public static function getRouteDefinition(): Route
     {

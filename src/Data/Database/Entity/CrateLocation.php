@@ -19,22 +19,22 @@ class CrateLocation extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="Crate")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $crate;
+    public Crate $crate;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
-    public $port;
+    public ?Port $port;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
      * @ORM\JoinColumn(nullable=true, onDelete="SET NULL")
      */
-    public $ship;
+    public ?Ship $ship;
 
     /** @ORM\Column(type="boolean") */
-    public $isCurrent = true;
+    public bool $isCurrent = true;
 
     public function __construct(
         Crate $crate,

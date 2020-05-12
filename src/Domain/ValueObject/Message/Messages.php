@@ -5,7 +5,7 @@ namespace App\Domain\ValueObject\Message;
 
 class Messages implements \JsonSerializable
 {
-    private $messages;
+    private array $messages;
 
     public function __construct(array $messages)
     {

@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\MappedSuperclass
@@ -16,21 +18,21 @@ abstract class AbstractEntity
      * @ORM\Column(type="uuid_binary")
      * @ORM\GeneratedValue(strategy="NONE")
      */
-    public $id;
+    public UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", nullable=false)
      */
-    public $uuid;
+    public string $uuid;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $createdAt;
+    public DateTimeImmutable $createdAt;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $updatedAt;
+    public DateTimeImmutable $updatedAt;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $deletedAt;
+    public ?DateTimeImmutable $deletedAt = null;
 
     public function __construct()
     {

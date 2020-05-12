@@ -15,9 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestEmailCommand extends AbstractCommand
 {
-    private $applicationConfig;
-    private $mailer;
-    private $logger;
+    private ApplicationConfig $applicationConfig;
+    private Swift_Mailer $mailer;
+    private LoggerInterface $logger;
 
     public function __construct(
         ApplicationConfig $applicationConfig,

@@ -19,18 +19,18 @@ use Doctrine\ORM\Mapping as ORM;
 class UserAchievement extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond") */
-    public $collectedAt;
+    public DateTimeImmutable $collectedAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="Achievement")
      */
-    public $achievement;
+    public Achievement $achievement;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $user;
+    public User $user;
 
     public function __construct(
         User $user,

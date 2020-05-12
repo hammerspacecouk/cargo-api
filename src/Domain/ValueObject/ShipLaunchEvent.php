@@ -8,8 +8,8 @@ use App\Domain\Entity\Ship;
 
 class ShipLaunchEvent implements \JsonSerializable
 {
-    private $ship;
-    private $port;
+    private Ship $ship;
+    private Port $port;
 
     public function __construct(
         Ship $ship,

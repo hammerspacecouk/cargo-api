@@ -20,22 +20,22 @@ use Doctrine\ORM\Mapping as ORM;
 class AuthenticationToken extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond") */
-    public $originalCreationTime;
+    public DateTimeImmutable $originalCreationTime;
 
     /** @ORM\Column(type="datetime_microsecond") */
-    public $lastUsed;
+    public DateTimeImmutable $lastUsed;
 
     /** @ORM\Column(type="datetime_microsecond") */
-    public $expiry;
+    public DateTimeImmutable $expiry;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
-    public $user;
+    public User $user;
 
     /** @ORM\Column(type="text") */
-    public $digest;
+    public string $digest;
 
     public function __construct(
         DateTimeImmutable $originalCreationTime,

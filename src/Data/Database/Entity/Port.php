@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,31 +16,31 @@ use Doctrine\ORM\Mapping as ORM;
 class Port extends AbstractEntity
 {
     /** @ORM\Column(type="string", unique=true, length=191) */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="boolean") */
-    public $isSafeHaven = false;
+    public bool $isSafeHaven = false;
 
     /** @ORM\Column(type="boolean") */
-    public $isAHome = false;
+    public bool $isAHome = false;
 
     /** @ORM\Column(type="boolean") */
-    public $isDestination = false;
+    public bool $isDestination = false;
 
     /** @ORM\Column(type="boolean") */
-    public $isOpen = true;
+    public bool $isOpen = true;
 
     /** @ORM\Column(type="json") */
-    public $coordinates = ['v' => '', 'b' => []];
+    public array $coordinates = ['v' => '', 'b' => []];
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $blockadedUntil;
+    public ?DateTimeImmutable $blockadedUntil = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
-    public $blockadedBy;
+    public ?User $blockadedBy = null;
 
     public function __construct(
         string $name,

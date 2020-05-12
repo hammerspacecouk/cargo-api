@@ -22,19 +22,19 @@ class PortVisit extends AbstractEntity
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $player;
+    public User $player;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $port;
+    public Port $port;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $firstVisited;
+    public DateTimeInterface $firstVisited;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $lastVisited;
+    public DateTimeInterface $lastVisited;
 
     public function __construct(
         User $player,

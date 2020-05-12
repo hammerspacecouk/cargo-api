@@ -20,7 +20,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakeChannelsCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {
