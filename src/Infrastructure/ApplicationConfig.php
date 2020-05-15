@@ -15,24 +15,24 @@ class ApplicationConfig
     private const LOGIN_MICROSOFT   = 1 << 4;
     private const LOGIN_REDDIT      = 1 << 5;
 
-    private $environment;
-    private $hostnameApi;
-    private $hostnameWeb;
-    private $cookieScope;
-    private $maxUsersPerIp;
-    private $ipLifetimeSeconds;
-    private $distanceMultiplier;
-    private $emailFromName;
-    private $emailFromAddress;
-    private $tokenPrivateKey;
-    private $version;
-    private $applicationSecret;
-    private $loginAnonEnabled;
-    private $loginGoogleEnabled;
-    private $loginFacebookEnabled;
-    private $loginTwitterEnabled;
-    private $loginMicrosoftEnabled;
-    private $loginRedditEnabled;
+    private string $environment;
+    private string $hostnameApi;
+    private string $hostnameWeb;
+    private string $cookieScope;
+    private int $maxUsersPerIp;
+    private int $ipLifetimeSeconds;
+    private int $distanceMultiplier;
+    private string $emailFromName;
+    private string $emailFromAddress;
+    private string $tokenPrivateKey;
+    private ?string $version;
+    private string $applicationSecret;
+    private bool $loginAnonEnabled;
+    private bool $loginGoogleEnabled;
+    private bool $loginFacebookEnabled;
+    private bool $loginTwitterEnabled;
+    private bool $loginMicrosoftEnabled;
+    private bool $loginRedditEnabled;
 
     public function __construct(
         string $environment,

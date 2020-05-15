@@ -16,6 +16,7 @@ abstract class Effect extends Entity implements \JsonSerializable
     private ?int $durationSeconds;
     private ?int $hitCount;
     private string $displayGroup;
+    private int $sortOrder;
     /**
      * @var array<mixed>|null
      */
@@ -26,6 +27,7 @@ abstract class Effect extends Entity implements \JsonSerializable
         string $name,
         string $description,
         string $displayGroup,
+        int $sortOrder,
         int $cost = null,
         ?int $durationSeconds = null,
         ?int $hitCount = null,
@@ -41,6 +43,7 @@ abstract class Effect extends Entity implements \JsonSerializable
         $this->hitCount = $hitCount;
         $this->value = $value;
         $this->displayGroup = $displayGroup;
+        $this->sortOrder = $sortOrder;
     }
 
     /**
@@ -69,6 +72,11 @@ abstract class Effect extends Entity implements \JsonSerializable
     public function getDisplayGroup(): string
     {
         return $this->displayGroup;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sortOrder;
     }
 
     public function canBePurchased(): bool
@@ -122,7 +130,7 @@ abstract class Effect extends Entity implements \JsonSerializable
         $positions = array_flip(EnumEffectsDisplayGroupType::ALL_TYPES);
         $compare = $positions[$this->getDisplayGroup()] <=> $positions[$effect->getDisplayGroup()];
         if ($compare === 0) {
-            $compare = $this->getName() <=> $effect->getName(); // https://youtu.be/7TYJyCCO8Dc?t=41
+            $compare = $this->getSortOrder() <=> $effect->getSortOrder(); // https://youtu.be/7TYJyCCO8Dc?t=41
         }
         return $compare;
     }

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeUUIDsCommand extends AbstractCommand
 {
-    private $uuidFactory;
+    private UuidFactoryInterface $uuidFactory;
 
     public function __construct(
         UuidFactoryInterface $uuidFactory

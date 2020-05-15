@@ -16,8 +16,8 @@ class AuthProvider implements \JsonSerializable
         self::PROVIDER_MICROSOFT,
     ];
 
-    private $provider;
-    private $removalToken;
+    private string $provider;
+    private ?RemoveAuthProviderToken $removalToken;
 
     public function __construct(
         string $provider,

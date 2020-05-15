@@ -22,38 +22,38 @@ use Doctrine\ORM\Mapping as ORM;
 class ActiveEffect extends AbstractEntity
 {
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public $expiry;
+    public DateTimeImmutable $expiry;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $remainingCount;
+    public ?int $remainingCount;
 
     /**
      * @ORM\ManyToOne(targetEntity="Effect")
      */
-    public $effect;
+    public ?Effect $effect;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $triggeredBy;
+    public User $triggeredBy;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      */
-    public $appliesToPort;
+    public ?Port $appliesToPort = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ship")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $appliesToShip;
+    public ?Ship $appliesToShip = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
-    public $appliesToUser;
+    public ?User $appliesToUser = null;
 
     public function __construct(
         ?Effect $effect,

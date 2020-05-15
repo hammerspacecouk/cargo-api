@@ -15,19 +15,19 @@ use Doctrine\ORM\Mapping as ORM;
 class Achievement extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="text") */
-    public $description;
+    public string $description;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $displayOrder;
+    public int $displayOrder;
 
     /** @ORM\Column(type="text") */
-    public $svg;
+    public string $svg;
 
     /** @ORM\Column(type="boolean") */
-    public $isHidden;
+    public bool $isHidden;
 
     public function __construct(
         string $name,

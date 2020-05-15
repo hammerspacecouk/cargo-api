@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DecodeTokenCommand extends AbstractCommand
 {
-    private $tokenProvider;
+    private TokenProvider $tokenProvider;
 
     public function __construct(TokenProvider $tokenProvider)
     {

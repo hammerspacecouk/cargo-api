@@ -20,18 +20,12 @@ class RankAchievement extends AbstractEntity
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
-    public $rank;
+    public PlayerRank $rank;
 
     /**
      * @ORM\ManyToOne(targetEntity="Achievement")
      */
-    public $achievement;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    public $user;
+    public Achievement $achievement;
 
     public function __construct(
         PlayerRank $rank,

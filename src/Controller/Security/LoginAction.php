@@ -12,8 +12,8 @@ use Symfony\Component\Routing\Route;
 
 class LoginAction
 {
-    private $applicationConfig;
-    private $usersService;
+    private ApplicationConfig $applicationConfig;
+    private UsersService $usersService;
 
     public static function getRouteDefinition(): Route
     {

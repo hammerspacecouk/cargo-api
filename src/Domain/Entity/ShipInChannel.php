@@ -10,9 +10,9 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipInChannel extends AbstractShipLocation
 {
-    private $origin;
-    private $destination;
-    private $exitTime;
+    private ?Port $origin;
+    private ?Port $destination;
+    private DateTimeImmutable $exitTime;
 
     public function __construct(
         UuidInterface $id,

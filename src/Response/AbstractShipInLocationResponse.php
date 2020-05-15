@@ -25,70 +25,22 @@ use App\Service\UsersService;
 
 abstract class AbstractShipInLocationResponse
 {
-    /**
-     * @var PlayerRanksService
-     */
-    protected $playerRanksService;
-    /**
-     * @var CratesService
-     */
-    protected $cratesService;
-    /**
-     * @var ApplicationConfig
-     */
-    protected $applicationConfig;
-    /**
-     * @var EffectsService
-     */
-    protected $effectsService;
-    /**
-     * @var EventsService
-     */
-    protected $eventsService;
-    /**
-     * @var ShipsService
-     */
-    protected $shipsService;
-    /**
-     * @var ChannelsService
-     */
-    protected $channelsService;
-    /**
-     * @var AlgorithmService
-     */
-    protected $algorithmService;
-    /**
-     * @var ShipMovementService
-     */
-    protected $shipMovementService;
-    /**
-     * @var UsersService
-     */
-    protected $usersService;
-    /**
-     * @var ShipNameService
-     */
-    protected $shipNameService;
-    /**
-     * @var ShipHealthService
-     */
-    protected $shipHealthService;
-    /**
-     * @var UpgradesService
-     */
-    protected $upgradesService;
-    /**
-     * @var AuthenticationService
-     */
-    protected $authenticationService;
-    /**
-     * @var PortsService
-     */
-    protected $portsService;
-    /**
-     * @var ShipLocationsService
-     */
-    protected $shipLocationsService;
+    protected PlayerRanksService $playerRanksService;
+    protected CratesService $cratesService;
+    protected ApplicationConfig $applicationConfig;
+    protected EffectsService $effectsService;
+    protected EventsService $eventsService;
+    protected ShipsService $shipsService;
+    protected ChannelsService $channelsService;
+    protected AlgorithmService $algorithmService;
+    protected ShipMovementService $shipMovementService;
+    protected UsersService $usersService;
+    protected ShipNameService $shipNameService;
+    protected ShipHealthService $shipHealthService;
+    protected UpgradesService $upgradesService;
+    protected AuthenticationService $authenticationService;
+    protected PortsService $portsService;
+    protected ShipLocationsService $shipLocationsService;
 
     public function __construct(
         AlgorithmService $algorithmService,

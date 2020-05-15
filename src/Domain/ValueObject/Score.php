@@ -8,9 +8,9 @@ use DateTimeImmutable;
 
 class Score implements \JsonSerializable
 {
-    private $score;
-    private $scoreRate;
-    private $calculationTime;
+    private int $score;
+    private int $scoreRate;
+    private DateTimeImmutable $calculationTime;
 
     public function __construct(
         int $score,

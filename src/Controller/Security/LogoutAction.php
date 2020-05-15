@@ -16,8 +16,8 @@ class LogoutAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
-    private $authenticationService;
-    private $applicationConfig;
+    private AuthenticationService $authenticationService;
+    private ApplicationConfig $applicationConfig;
 
     public static function getRouteDefinition(): Route
     {

@@ -7,8 +7,8 @@ use Ramsey\Uuid\UuidInterface;
 
 class Crate extends Entity implements \JsonSerializable
 {
-    private $contents;
-    private $value;
+    private string $contents;
+    private int $value;
 
     public function __construct(
         UuidInterface $id,

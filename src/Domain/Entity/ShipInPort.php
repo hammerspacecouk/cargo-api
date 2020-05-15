@@ -9,7 +9,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipInPort extends AbstractShipLocation
 {
-    private $port;
+    private ?Port $port;
 
     public function __construct(
         UuidInterface $id,

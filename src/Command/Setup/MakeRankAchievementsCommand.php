@@ -18,7 +18,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakeRankAchievementsCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

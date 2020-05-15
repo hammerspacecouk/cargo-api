@@ -5,15 +5,15 @@ namespace App\Domain\ValueObject;
 
 class Pagination implements \JsonSerializable
 {
-    private $currentPage;
+    private int $currentPage;
 
-    private $perPage;
+    private int $perPage;
 
-    private $totalCount;
+    private int $totalCount;
 
-    private $totalPages;
+    private int $totalPages;
 
-    private $baseUrl;
+    private string $baseUrl;
 
     public function __construct(
         int $currentPage,

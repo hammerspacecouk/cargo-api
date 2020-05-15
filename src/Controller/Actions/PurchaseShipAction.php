@@ -12,11 +12,11 @@ use App\Service\UsersService;
 
 class PurchaseShipAction
 {
-    private $upgradesService;
-    private $usersService;
-    private $upgradesResponse;
-    private $playerRanksService;
-    private $fleetResponse;
+    private UpgradesService $upgradesService;
+    private UsersService $usersService;
+    private UpgradesResponse $upgradesResponse;
+    private PlayerRanksService $playerRanksService;
+    private FleetResponse $fleetResponse;
 
     public function __construct(
         FleetResponse $fleetResponse,

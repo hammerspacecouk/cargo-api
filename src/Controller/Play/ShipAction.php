@@ -13,6 +13,7 @@ use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\GoneHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
@@ -59,6 +60,9 @@ class ShipAction extends AbstractUserAction
         $ship = $this->shipsService->getByIDWithLocation($uuid);
         if (!$ship || !$ship->getOwner()->equals($user)) {
             throw new NotFoundHttpException('No such ship');
+        }
+        if ($ship->isDestroyed()) {
+            throw new GoneHttpException('Ship destroyed');
         }
         return $ship;
     }

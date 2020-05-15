@@ -10,14 +10,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ExceptionListener
 {
-    /**
-     * @var bool
-     */
-    private $debug;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private bool $debug;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger, bool $debug = false)
     {

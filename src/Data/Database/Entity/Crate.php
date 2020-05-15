@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Data\Database\Entity;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -15,28 +16,28 @@ use Doctrine\ORM\Mapping as ORM;
 class Crate extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $contents;
+    public string $contents;
 
     /** @ORM\Column(type="integer") */
-    public $value;
+    public int $value;
 
     /** @ORM\Column(type="boolean") */
-    public $isGoal = false;
+    public bool $isGoal = false;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
-    public $valueCalculationDate;
+    public ?DateTimeImmutable $valueCalculationDate = null;
 
     /** @ORM\Column(type="integer") */
-    public $valueChangeRate = 0;
+    public int $valueChangeRate = 0;
 
     /** @ORM\Column(type="boolean") */
-    public $isDestroyed = false;
+    public bool $isDestroyed = false;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=true)
      */
-    public $reservedFor;
+    public ?User $reservedFor = null;
 
     public function __construct(
         string $contents,

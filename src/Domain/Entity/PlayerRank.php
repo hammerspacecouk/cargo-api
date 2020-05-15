@@ -7,9 +7,9 @@ use Ramsey\Uuid\UuidInterface;
 
 class PlayerRank extends Entity implements \JsonSerializable
 {
-    private $name;
-    private $threshold;
-    private $description;
+    private string $name;
+    private int $threshold;
+    private ?string $description;
 
     public function __construct(
         UuidInterface $id,

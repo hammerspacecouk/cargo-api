@@ -15,12 +15,12 @@ use Doctrine\ORM\Mapping as ORM;
 class Hint extends AbstractEntity
 {
     /** @ORM\Column(type="text") */
-    public $text;
+    public string $text;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
-    public $minimumRank;
+    public PlayerRank $minimumRank;
 
     public function __construct(
         string $text,

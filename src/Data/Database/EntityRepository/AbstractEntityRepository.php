@@ -19,7 +19,10 @@ abstract class AbstractEntityRepository extends EntityRepository
 
     protected LoggerInterface $logger;
 
-    /** @var EntityManager */
+    /**
+     * Cannot type hint due to overriding inheritance
+     * @var EntityManager
+     */
     protected $_em; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore -- must match parent
 
     /*

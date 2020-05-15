@@ -7,7 +7,7 @@ use App\Domain\Entity\PlayerRank;
 
 class LockedTransaction extends Transaction
 {
-    private $minimumRank;
+    private PlayerRank $minimumRank;
 
     public function __construct(
         PlayerRank $minimumRank

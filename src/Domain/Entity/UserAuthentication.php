@@ -10,10 +10,10 @@ use Ramsey\Uuid\UuidInterface;
 
 class UserAuthentication extends Entity implements \JsonSerializable
 {
-    private $user;
-    private $creationTime;
-    private $lastUsed;
-    private $expiry;
+    private ?User $user;
+    private DateTimeImmutable $creationTime;
+    private DateTimeImmutable $lastUsed;
+    private DateTimeImmutable $expiry;
 
     public function __construct(
         UuidInterface $id,

@@ -15,7 +15,7 @@ class UserEffectRepository extends AbstractEntityRepository
     /**
      * @var array<string, mixed>
      */
-    private $userCache = [];
+    private array $userCache = [];
 
     /**
      * @param UuidInterface $uuid

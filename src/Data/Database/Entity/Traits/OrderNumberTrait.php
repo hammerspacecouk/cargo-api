@@ -6,5 +6,5 @@ namespace App\Data\Database\Entity\Traits;
 trait OrderNumberTrait
 {
     /** @ORM\Column(type="integer", unique=true) */
-    public $orderNumber;
+    public int $orderNumber;
 }

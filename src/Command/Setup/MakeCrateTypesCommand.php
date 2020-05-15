@@ -14,7 +14,7 @@ use function App\Functions\Transforms\csvToArray;
 
 class MakeCrateTypesCommand extends AbstractCommand
 {
-    private $entityManager;
+    private EntityManager $entityManager;
 
     public function __construct(EntityManager $entityManager)
     {

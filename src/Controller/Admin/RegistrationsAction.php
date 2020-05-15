@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Route;
 
 class RegistrationsAction extends AbstractAdminAction
 {
-    private $statsService;
+    private StatsService $statsService;
 
     public static function getRouteDefinition(): Route
     {

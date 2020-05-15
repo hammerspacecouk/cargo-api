@@ -7,12 +7,12 @@ use App\Domain\ValueObject\Token\SimpleDataToken;
 
 class LoginOptions implements \JsonSerializable
 {
-    private $loginAnonToken;
-    private $facebook;
-    private $google;
-    private $microsoft;
-    private $twitter;
-    private $reddit;
+    private ?SimpleDataToken $loginAnonToken;
+    private bool $facebook;
+    private bool $google;
+    private bool $microsoft;
+    private bool $twitter;
+    private bool $reddit;
 
     public function __construct(
         ?SimpleDataToken $loginAnonToken = null,

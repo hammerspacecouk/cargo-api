@@ -11,8 +11,8 @@ use Psr\Log\LoggerInterface;
 
 class ApplyShipTravelEffectAction extends AbstractApplySimpleEffectAction
 {
-    private $shipInPortResponse;
-    private $shipsService;
+    private ShipInPortResponse $shipInPortResponse;
+    private ShipsService $shipsService;
 
     public function __construct(
         ShipInPortResponse $shipInPortResponse,

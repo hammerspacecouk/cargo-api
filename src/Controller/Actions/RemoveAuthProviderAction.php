@@ -9,9 +9,9 @@ use App\Service\UsersService;
 
 class RemoveAuthProviderAction
 {
-    private $authenticationService;
-    private $profileResponse;
-    private $usersService;
+    private AuthenticationService $authenticationService;
+    private ProfileResponse $profileResponse;
+    private UsersService $usersService;
 
     public function __construct(
         AuthenticationService $authenticationService,

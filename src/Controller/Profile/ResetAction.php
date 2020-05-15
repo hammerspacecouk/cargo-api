@@ -20,9 +20,9 @@ class ResetAction
     use CacheControlResponseTrait;
     use UserAuthenticationTrait;
 
-    private $authenticationService;
-    private $applicationConfig;
-    private $usersService;
+    private AuthenticationService $authenticationService;
+    private ApplicationConfig $applicationConfig;
+    private UsersService $usersService;
 
     public static function getRouteDefinition(): Route
     {

@@ -10,7 +10,7 @@ class Colour implements \JsonSerializable
     private const INITIAL_BRIGHTNESS_MIN = 100;
     private const INITIAL_BRIGHTNESS_MAX = 200;
 
-    private $hex;
+    private string $hex;
 
     public function __construct(
         string $hex

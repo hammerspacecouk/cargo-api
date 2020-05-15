@@ -166,7 +166,7 @@ class Direction implements \JsonSerializable
         if ($this->yourStrength !== null &&
             $this->blockadeStrength !== null &&
             $this->yourStrength < $this->blockadeStrength &&
-            $this->playerRank->getThreshold() >= 120
+            $this->playerRank->getThreshold() >= 120 // not a threat yet
         ) {
             $this->denialReasons[] = sprintf(
                 'Your total ship strength here is not a match for the Blockade strength (%d/%d)',

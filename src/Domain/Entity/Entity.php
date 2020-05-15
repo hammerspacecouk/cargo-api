@@ -7,10 +7,7 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class Entity
 {
-    /**
-     * @var UuidInterface
-     */
-    protected $id;
+    protected UuidInterface $id;
 
     public function __construct(
         UuidInterface $id

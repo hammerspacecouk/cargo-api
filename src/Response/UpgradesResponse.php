@@ -8,7 +8,7 @@ use App\Service\UpgradesService;
 
 class UpgradesResponse
 {
-    private $upgradesService;
+    private UpgradesService $upgradesService;
 
     public function __construct(
         UpgradesService $upgradesService

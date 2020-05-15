@@ -22,44 +22,42 @@ class Effect extends AbstractEntity
     use OrderNumberTrait;
 
     /** @ORM\Column(type="enum_effects") */
-    public $type;
+    public string $type;
 
     /** @ORM\Column(type="enum_effect_display_group") */
-    public $displayGroup;
+    public string $displayGroup;
 
     /** @ORM\Column(type="text") */
-    public $name;
+    public string $name;
 
     /** @ORM\Column(type="text") */
-    public $description;
+    public string $description;
 
     /** @ORM\Column(type="integer") */
-    public $oddsOfWinning;
+    public int $oddsOfWinning;
 
     /** @ORM\Column(type="text") */
-    public $svg;
+    public string $svg;
 
-    /** @ORM\Column(type="json", nullable=true) */
+    /**
+     * @var mixed
+     * @ORM\Column(type="json", nullable=true)
+     */
     public $value;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $purchaseCost;
+    public ?int $purchaseCost = null;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $duration;
+    public ?int $duration = null;
 
     /** @ORM\Column(type="integer", nullable=true) */
-    public $count;
+    public ?int $count = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="PlayerRank")
      */
-    public $minimumRank;
-
-    /**
-     * @var PlayerRank
-     */
-    public $playerRank;
+    public ?PlayerRank $minimumRank = null;
 
     public function __construct(
         string $type,
@@ -69,7 +67,7 @@ class Effect extends AbstractEntity
         string $description,
         int $oddsOfWinning,
         string $svg,
-        PlayerRank $playerRank
+        PlayerRank $minimumRank
     ) {
         parent::__construct();
         $this->type = $type;
@@ -78,7 +76,7 @@ class Effect extends AbstractEntity
         $this->svg = $svg;
         $this->orderNumber = $orderNumber;
         $this->oddsOfWinning = $oddsOfWinning;
-        $this->playerRank = $playerRank;
+        $this->minimumRank = $minimumRank;
         $this->displayGroup = $displayGroup;
     }
 }

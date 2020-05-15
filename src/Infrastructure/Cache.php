@@ -12,9 +12,9 @@ class Cache implements CacheInterface
     private const CACHE_HIT_KEY = 'HIT';
     private const CACHE_MISS_KEY = 'MISS';
 
-    private $adapter;
-    private $logger;
-    private $applicationConfig;
+    private CacheInterface $adapter;
+    private LoggerInterface $logger;
+    private ApplicationConfig $applicationConfig;
 
     public function __construct(
         CacheInterface $installedCacheAdapter,

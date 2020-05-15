@@ -167,6 +167,16 @@ class Ship extends Entity implements \JsonSerializable
         return $this->getShipClass()->isStarterShip();
     }
 
+    public function canUseOffence(): bool
+    {
+        return !$this->isProbe();
+    }
+
+    public function canJoinConvoy(): bool
+    {
+        return !$this->isProbe();
+    }
+
     public function calculateValue(): int
     {
         // the value of the ship decreases with age and damage

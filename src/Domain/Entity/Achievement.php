@@ -10,10 +10,10 @@ use Ramsey\Uuid\UuidInterface;
 
 class Achievement extends Entity implements \JsonSerializable
 {
-    private $name;
-    private $description;
-    private $svg;
-    private $collectedAt;
+    private string $name;
+    private string $description;
+    private string $svg;
+    private ?\DateTimeImmutable $collectedAt;
 
     public function __construct(
         UuidInterface $id,

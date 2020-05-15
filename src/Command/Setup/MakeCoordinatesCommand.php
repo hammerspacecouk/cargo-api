@@ -25,8 +25,8 @@ use function sin;
 
 class MakeCoordinatesCommand extends AbstractCommand
 {
-    private $entityManager;
-    private $channelsService;
+    private EntityManager $entityManager;
+    private ChannelsService $channelsService;
 
     public function __construct(EntityManager $entityManager, ChannelsService $channelsService)
     {

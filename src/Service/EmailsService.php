@@ -12,8 +12,8 @@ class EmailsService
 {
     private const EMAIL_MIME_TYPE = 'text/html';
 
-    private $mailer;
-    private $applicationConfig;
+    private Swift_Mailer $mailer;
+    private ApplicationConfig $applicationConfig;
 
     public function __construct(
         Swift_Mailer $mailer,

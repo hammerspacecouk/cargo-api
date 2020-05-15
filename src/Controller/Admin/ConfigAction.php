@@ -12,7 +12,7 @@ use function App\Functions\DateTimes\jsonDecode;
 
 class ConfigAction extends AbstractAdminAction
 {
-    private $configService;
+    private ConfigService $configService;
 
     public static function getRouteDefinition(): Route
     {

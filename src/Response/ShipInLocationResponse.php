@@ -10,8 +10,8 @@ use App\Domain\Entity\User;
 
 class ShipInLocationResponse
 {
-    private $shipInPortResponse;
-    private $shipInChannelResponse;
+    private ShipInPortResponse $shipInPortResponse;
+    private ShipInChannelResponse $shipInChannelResponse;
 
     public function __construct(
         ShipInChannelResponse $shipInChannelResponse,
