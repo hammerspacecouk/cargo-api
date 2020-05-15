@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace App\Command\Worker;
 
 use App\Domain\Entity\Channel;
+use App\Domain\Entity\Port;
+use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInPort;
+use App\Domain\Entity\User;
 use App\Domain\ValueObject\Direction;
 use App\Infrastructure\DateTimeFactory;
 use App\Service\AlgorithmService;
@@ -117,44 +120,12 @@ class TimedCommand extends Command
             // find all channels for a port, with their bearing and distance
             $channels = $this->channelsService->getAllLinkedToPort($port);
 
-            // make direction objects
-            $directions = array_map(function (Channel $channel) use ($port, $player, $ship) {
-                $destination = $channel->getDestination($port);
+            $directions = $this->getDirections($port, $player, $ship, $channels);
 
-                return new Direction(
-                    $destination,
-                    $channel,
-                    $player->getRank(),
-                    $ship,
-                    false,
-                    $this->algorithmService->getJourneyTime(
-                        $channel->getDistance(),
-                        $ship,
-                        $player->getRank(),
-                    ),
-                    null,
-                    $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),
-                );
-            }, $channels);
-
-            // of the possible directions, find which ones the ship is allowed to travel
-            /** @var Direction[] $directions */
-            $directions = array_filter($directions, static function (Direction $direction) {
-                return $direction->isAllowedToEnter();
-            });
-
-            usort($directions, static function (?Direction $a, ?Direction $b) {
-                if ($a === $b) {
-                    return 0;
-                }
-                if ($a === null) {
-                    return -1;
-                }
-                if ($b === null) {
-                    return 1;
-                }
-                return $a->getLastVisitTime() <=> $b->getLastVisitTime();
-            });
+            if (empty($directions)) {
+                $this->logger->info('[AUTO_MOVE_SHIP] ' . $ship->getName() . ' NOWHERE TO GO');
+                return;
+            }
 
             $direction = $directions[0];
 
@@ -168,5 +139,84 @@ class TimedCommand extends Command
             );
             $this->logger->info('[AUTO_MOVE_SHIP] ' . $ship->getName());
         }
+    }
+
+    private function getDirections(Port $port, User $player, Ship $ship, array $channels): array
+    {
+        // make direction objects
+        $directions = array_map(function (Channel $channel) use ($port, $player, $ship) {
+            $destination = $channel->getDestination($port);
+            $origin = $channel->getDestination($destination);
+
+            $allShipsInPort = $this->shipsService->findAllActiveInPort($port);
+            $blockadeStrength = null;
+            $yourStrength = null;
+            $blockadedBy = $origin->getBlockadedBy();
+            if ($blockadedBy && $origin->isBlockaded()) {
+                // calculate the blockade strength
+                $blockadeStrength = $this->strengthForOwner($blockadedBy, $allShipsInPort);
+                if (!$blockadedBy->equals($player)) {
+                    $yourStrength = $this->strengthForOwner($player, $allShipsInPort);
+                }
+            }
+
+            return new Direction(
+                $destination,
+                $channel,
+                $player->getRank(),
+                $ship,
+                false,
+                $this->algorithmService->getJourneyTime(
+                    $channel->getDistance(),
+                    $ship,
+                    $player->getRank(),
+                ),
+                null,
+                $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),
+                [],
+                $blockadeStrength,
+                $yourStrength
+            );
+        }, $channels);
+
+        // of the possible directions, find which ones the ship is allowed to travel
+        /** @var Direction[] $directions */
+        $directions = array_filter($directions, static function (Direction $direction) {
+            return $direction->isAllowedToEnter();
+        });
+
+        usort($directions, static function (?Direction $a, ?Direction $b) {
+            if ($a === $b) {
+                return 0;
+            }
+            if ($a === null) {
+                return -1;
+            }
+            if ($b === null) {
+                return 1;
+            }
+            return $a->getLastVisitTime() <=> $b->getLastVisitTime();
+        });
+
+        return $directions;
+    }
+
+    /**
+     * @param User $owner
+     * @param Ship[] $allShips
+     * @return int
+     */
+    private function strengthForOwner(User $owner, array $allShips): int
+    {
+        return array_reduce(
+            $allShips,
+            static function (int $carry, Ship $ship) use ($owner) {
+                if ($ship->getOwner()->equals($owner)) {
+                    return $carry + $ship->getStrength();
+                }
+                return $carry;
+            },
+            0
+        );
     }
 }

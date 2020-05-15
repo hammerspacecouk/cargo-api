@@ -26,10 +26,10 @@ abstract class AbstractEntity
     public string $uuid;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public DateTimeImmutable $createdAt;
+    public ?DateTimeImmutable $createdAt = null;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=false) */
-    public DateTimeImmutable $updatedAt;
+    public ?DateTimeImmutable $updatedAt = null;
 
     /** @ORM\Column(type="datetime_microsecond", nullable=true) */
     public ?DateTimeImmutable $deletedAt = null;

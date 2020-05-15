@@ -171,7 +171,9 @@ class EffectsService extends AbstractService
         // if it's in active effects. populate hitsRemaining or expiry
         if ($canBeUsedHere &&
             $shipLocation instanceof ShipInPort &&
-            $effect instanceof Effect\OffenceEffect && $effect->affectsAllShips()
+            $effect instanceof Effect\OffenceEffect &&
+            $effect->affectsAllShips() &&
+            $ship->canUseOffence()
         ) {
             $actionToken = $this->getOffenceEffectToken(
                 $effect,
@@ -185,6 +187,7 @@ class EffectsService extends AbstractService
             $actionToken = $this->getTravelEffectToken($userEffect, $user, $ship);
         } elseif ($canBeUsedHere && $effect instanceof Effect\BlockadeEffect &&
             $shipLocation instanceof ShipInPort &&
+            $ship->canUseOffence() &&
             !$shipLocation->getPort()->isBlockaded() &&
             !$shipLocation->getPort()->isSafe()
         ) {

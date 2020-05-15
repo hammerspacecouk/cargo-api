@@ -43,7 +43,7 @@ class Effect extends AbstractEntity
      * @var mixed
      * @ORM\Column(type="json", nullable=true)
      */
-    public $value = null;
+    public $value;
 
     /** @ORM\Column(type="integer", nullable=true) */
     public ?int $purchaseCost = null;

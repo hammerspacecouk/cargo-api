@@ -24,17 +24,27 @@ class User extends AbstractEntity
 {
     /**
      * @ORM\Column(type="binary", nullable=true, unique=true))
+     * @var string|resource|null
      */
-    public ?string $googleId = null;
+    public $googleId;
 
-    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public ?string $microsoftId = null;
+    /**
+     * @ORM\Column(type="binary", nullable=true, unique=true))
+     * @var string|resource|null
+     */
+    public $microsoftId;
 
-    /** @ORM\Column(type="binary", nullable=true, unique=true)) */
-    public ?string $redditId = null;
+    /**
+     * @ORM\Column(type="binary", nullable=true, unique=true))
+     * @var string|resource|null
+     */
+    public $redditId;
 
-    /** @ORM\Column(type="binary", nullable=true)) */
-    public ?string $anonymousIpHash = null;
+    /**
+     * @ORM\Column(type="binary", nullable=true, unique=true))
+     * @var string|resource|null
+     */
+    public $anonymousIpHash;
 
     /** @ORM\Column(type="text", length=50, nullable=true) */
     public ?string $nickname = null;

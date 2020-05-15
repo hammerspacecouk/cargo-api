@@ -193,6 +193,7 @@ class MapBuilder implements JsonSerializable
         $allPaths = [];
         foreach ($this->history as $shipId => $ports) {
             $firstPort = firstItem($ports);
+            $point = null;
 
             if (isset($this->shipsInPorts[$firstPort->getId()->toString()])) {
                 $shipInPort = find(static function ($ship) use ($shipId) {

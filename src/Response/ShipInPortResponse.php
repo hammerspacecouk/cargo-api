@@ -119,7 +119,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
         $convoys = null;
         $leaveConvoyToken = $this->shipsService->getLeaveConvoyToken($ship);
-        if ($allowOtherShips && !$leaveConvoyToken) {
+        if ($allowOtherShips && !$leaveConvoyToken && $ship->canJoinConvoy()) {
             $convoys = $this->getConvoyOptions($ship, $allShipsInPort);
         }
 
@@ -425,7 +425,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $me = $currentShip->getOwner();
         /** @var Ship[] $myShips */
         $myShips = filteredMap($allShips, static function (Ship $shipData) use ($me, $currentShip) {
-            if (!$shipData->equals($currentShip) && $me->equals($shipData->getOwner())) {
+            if (!$shipData->equals($currentShip) && $shipData->canJoinConvoy() && $me->equals($shipData->getOwner())) {
                 return $shipData;
             }
             return null;

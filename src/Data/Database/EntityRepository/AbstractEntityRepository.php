@@ -19,6 +19,12 @@ abstract class AbstractEntityRepository extends EntityRepository
 
     protected LoggerInterface $logger;
 
+    /**
+     * Cannot type hint due to overriding inheritance
+     * @var EntityManager
+     */
+    protected $_em; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore -- must match parent
+
     /*
      * We are away from dependency injection via constructors territory, so we have to rely on the (risky) strategy
      * of having setters for these. Everything is safe and predictable as long as repositories are only EVER called
@@ -77,10 +83,9 @@ abstract class AbstractEntityRepository extends EntityRepository
         return $query->execute();
     }
 
+    /** @noinspection SenselessMethodDuplicationInspection */
     protected function getEntityManager(): EntityManager
     {
-        /** @var $em EntityManager */
-        $em = $this->_em;
-        return $em;
+        return $this->_em;
     }
 }
