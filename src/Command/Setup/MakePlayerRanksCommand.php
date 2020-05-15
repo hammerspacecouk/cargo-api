@@ -61,7 +61,7 @@ class MakePlayerRanksCommand extends AbstractCommand
 
             if ($entity) {
                 $entity->name = $data['name'];
-                $entity->threshold = $data['threshold'];
+                $entity->threshold = (int)$data['threshold'];
                 $entity->description = $data['description'];
             } else {
                 $entity = new PlayerRank(
