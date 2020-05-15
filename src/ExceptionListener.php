@@ -33,7 +33,27 @@ class ExceptionListener
         if ($exception instanceof NotFoundHttpException) {
             $response->setContent('Not found');
         } else {
-            $this->logger->critical($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $e = $exception;
+            $previous = [];
+            while ($e) {
+                $previous[] = sprintf(
+                    "%s:%d %s (%d) [%s]",
+                    $e->getFile(),
+                    $e->getLine(),
+                    $e->getMessage(),
+                    $e->getCode(),
+                    get_class($e)
+                );
+                $e = $e->getPrevious();
+            }
+            $this->logger->critical(
+                $exception->getMessage(),
+                [
+                    'ex' => get_class($exception),
+                    'prev' => json_encode($previous, JSON_THROW_ON_ERROR),
+                    'trace' => $exception->getTraceAsString(),
+                ],
+            );
             $response->setContent('Sorry an error occurred. Please try again');
         }
         $event->setResponse($response);
