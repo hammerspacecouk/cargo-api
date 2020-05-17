@@ -390,6 +390,9 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
 
             $token = null;
             if ($directionDetail->isAllowedToEnter()) {
+                $breakingBlockade = $user->getRank()->isAffectedByBlockades() &&
+                    $yourStrength &&
+                    $yourStrength >= $blockadeStrength;
                 $token = $this->shipMovementService->getMoveShipToken(
                     $ship,
                     $channel,
@@ -399,6 +402,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                     $earnings,
                     $currentLocation,
                     $activeTravelEffects,
+                    $breakingBlockade
                 );
             }
 

@@ -153,6 +153,9 @@ class UpgradesService extends AbstractService
             // update the user's balance
             $this->consumeCredits($userEntity, (int)$purchaseEffectToken->getCost());
 
+            // add the achievement
+            $this->entityManager->getUserAchievementRepo()->recordPurchase($userEntity->id);
+
             // consume the token
             $this->tokenHandler->markAsUsed($purchaseEffectToken->getOriginalToken());
         });

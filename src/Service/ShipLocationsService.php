@@ -146,6 +146,7 @@ class ShipLocationsService extends AbstractService
 
             // add this port to the list of visited ports for this user
             $this->entityManager->getPortVisitRepo()->recordVisit($portVisit, $owner, $destinationPort);
+            $this->entityManager->getUserAchievementRepo()->recordSpecialVisit($owner->id, $destinationPort->id);
 
             // move all the crates to the port
             foreach ($crateLocations as $crateLocation) {

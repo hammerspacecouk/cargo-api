@@ -26,7 +26,11 @@ abstract class AbstractApplySimpleEffectAction
     public function invoke(string $tokenString): array
     {
         $applyEffectToken = $this->effectsService->parseApplySimpleEffectToken($tokenString);
-        $this->effectsService->useSimpleEffectToken($applyEffectToken);
+        $this->effectsService->useSimpleEffectToken(
+            $applyEffectToken,
+            static::class === ApplyShipDefenceEffectAction::class,
+            static::class === ApplyShipTravelEffectAction::class,
+        );
 
         return $this->getResponse($applyEffectToken);
     }

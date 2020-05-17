@@ -551,6 +551,9 @@ class EffectsService extends AbstractService
                     ->logOffence($actioningShipEntity, $portEntity, $ship, $playerEffect->effect, $damage);
                 $this->entityManager->getShipRepo()->updateStrengthValue($ship, (int)-$damage);
                 $this->entityManager->getUserAchievementRepo()->recordShipAttacked($victimUserId);
+                if ($ship->shipClass->isHospitalShip) {
+                    $this->entityManager->getUserAchievementRepo()->recordAttackHospitalShip($playerEffect->user->id);
+                }
             }
 
             $this->entityManager->getUserAchievementRepo()->recordAttackedShip($playerEffect->user->id);
@@ -599,8 +602,11 @@ class EffectsService extends AbstractService
         });
     }
 
-    public function useSimpleEffectToken(GenericApplyEffectToken $applyEffectToken): void
-    {
+    public function useSimpleEffectToken(
+        GenericApplyEffectToken $applyEffectToken,
+        bool $isDefence,
+        bool $isTravel
+    ): void {
         /** @var \App\Data\Database\Entity\UserEffect $originalEffectEntity */
         $originalEffectEntity = $this->entityManager->getUserEffectRepo()->getByID(
             $applyEffectToken->getUserEffectId(),
@@ -642,7 +648,9 @@ class EffectsService extends AbstractService
             $expiry,
             $shipEntity,
             $userEntity,
-            $portEntity
+            $portEntity,
+            $isDefence,
+            $isTravel
         ) {
             $this->entityManager->getUserEffectRepo()->useEffect($originalEffectEntity);
             $this->entityManager->getActiveEffectRepo()->makeNew(
@@ -654,6 +662,15 @@ class EffectsService extends AbstractService
                 $userEntity,
                 $portEntity,
             );
+
+            if ($isDefence) {
+                $this->entityManager->getUserAchievementRepo()->recordDefenceEffect($triggeredByUserEntity->id);
+            }
+
+            if ($isTravel) {
+                $this->entityManager->getUserAchievementRepo()->recordTravelEffect($triggeredByUserEntity->id);
+            }
+
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }

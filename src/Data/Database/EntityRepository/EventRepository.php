@@ -219,7 +219,7 @@ class EventRepository extends AbstractEntityRepository implements CleanableInter
                 $entity->subjectShip = $affectedShip;
                 $entity->subjectPort = $inPort;
                 $entity->subjectEffect = $effect;
-                $entity->value = $damage;
+                $entity->value = (string)$damage;
                 return $entity;
             },
         );

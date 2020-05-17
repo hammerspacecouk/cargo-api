@@ -338,6 +338,7 @@ class ShipsService extends AbstractService
 
         $this->entityManager->transactional(function () use ($token) {
             $this->entityManager->flush();
+            $this->entityManager->getUserAchievementRepo()->recordMakeConvoy($token->getOwnerId());
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
         });
     }

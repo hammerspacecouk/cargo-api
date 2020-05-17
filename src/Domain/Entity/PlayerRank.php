@@ -63,4 +63,9 @@ class PlayerRank extends Entity implements \JsonSerializable
     {
         return $this->threshold >= $minimumRank->getThreshold();
     }
+
+    public function isAffectedByBlockades(): bool
+    {
+        return $this->threshold >= 120;
+    }
 }

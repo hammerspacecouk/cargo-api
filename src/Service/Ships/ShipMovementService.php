@@ -30,6 +30,7 @@ class ShipMovementService extends ShipsService
      * @param int $earnings
      * @param UuidInterface $currentLocation
      * @param TacticalEffect[] $tacticalEffectsToExpire
+     * @param bool $isBreakingBlockade
      * @return MoveShipToken
      */
     public function getMoveShipToken(
@@ -40,7 +41,8 @@ class ShipMovementService extends ShipsService
         int $journeyTime,
         int $earnings,
         UuidInterface $currentLocation,
-        array $tacticalEffectsToExpire
+        array $tacticalEffectsToExpire,
+        bool $isBreakingBlockade
     ): MoveShipToken {
         $token = $this->tokenHandler->makeToken(...MoveShipToken::make(
             new TokenId($this->uuidFactory->uuid5(
@@ -54,6 +56,7 @@ class ShipMovementService extends ShipsService
             $journeyTime,
             $earnings,
             $tacticalEffectsToExpire,
+            $isBreakingBlockade,
         ));
         return new MoveShipToken(
             $token->getJsonToken(),
@@ -171,6 +174,10 @@ class ShipMovementService extends ShipsService
                         $convoyToken->getEffectIdsToExpire(),
                     );
                 }
+            }
+
+            if ($token->isBreakingBlockade()) {
+                $this->entityManager->getUserAchievementRepo()->recordBreakBlockade($token->getOwnerId());
             }
 
             return $this->moveShip(

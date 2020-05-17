@@ -19,6 +19,7 @@ class MoveShipToken extends AbstractActionToken
     public const KEY_JOURNEY_TIME = 'jt';
     public const KEY_EARNINGS = 'ern';
     public const KEY_EXPIRE_EFFECTS = 'eex';
+    public const KEY_BREAKING_BLOCKADE = 'bb';
 
     public static function make(
         TokenId $tokenId,
@@ -28,7 +29,8 @@ class MoveShipToken extends AbstractActionToken
         bool $isReversed,
         int $journeyTime,
         int $earnings,
-        array $tacticalEffectsToExpire
+        array $tacticalEffectsToExpire,
+        bool $isBreakingBlockade
     ): array {
         return parent::create([
             self::KEY_SHIP => $shipId->toString(),
@@ -37,6 +39,7 @@ class MoveShipToken extends AbstractActionToken
             self::KEY_REVERSED => $isReversed,
             self::KEY_JOURNEY_TIME => $journeyTime,
             self::KEY_EARNINGS => $earnings,
+            self::KEY_BREAKING_BLOCKADE => $isBreakingBlockade,
             self::KEY_EXPIRE_EFFECTS => \array_map(static function (TacticalEffect $tacticalEffect) {
                 if ($tacticalEffect->getActiveEffect() instanceof ActiveEffect) {
                     return $tacticalEffect->getActiveEffect()->getId()->toString();
@@ -64,6 +67,11 @@ class MoveShipToken extends AbstractActionToken
     public function isReversed(): bool
     {
         return $this->token->get(self::KEY_REVERSED);
+    }
+
+    public function isBreakingBlockade(): bool
+    {
+        return $this->token->get(self::KEY_BREAKING_BLOCKADE);
     }
 
     public function getJourneyTime(): DateInterval

@@ -162,11 +162,11 @@ class Direction implements \JsonSerializable
             );
         }
 
-        // if yourStrength is not set then it's your blockade. also doesn't apply until level 120
+        // if yourStrength is not set then it's your blockade
         if ($this->yourStrength !== null &&
             $this->blockadeStrength !== null &&
             $this->yourStrength < $this->blockadeStrength &&
-            $this->playerRank->getThreshold() >= 120 // not a threat yet
+            $this->playerRank->isAffectedByBlockades()
         ) {
             $this->denialReasons[] = sprintf(
                 'Your total ship strength here is not a match for the Blockade strength (%d/%d)',

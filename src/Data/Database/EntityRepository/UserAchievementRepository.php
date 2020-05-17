@@ -12,6 +12,12 @@ use Ramsey\Uuid\UuidInterface;
 
 class UserAchievementRepository extends AbstractEntityRepository
 {
+    private const SPECIAL_VISITS = [
+        // portId -> achievementId
+        'd21215ca-03fe-4ff1-9f7a-64ff50141b31' => '55091f43-3c30-47a8-a770-46299b3cd168',
+        '00000000-0000-4000-8000-000000000000' => 'd3bb9496-2a24-425a-89bb-e066bf9da31b',
+    ];
+
     public function findForUserId(UuidInterface $userId): array
     {
         $qb = $this->createQueryBuilder('tbl')
@@ -53,6 +59,14 @@ class UserAchievementRepository extends AbstractEntityRepository
         $this->record(
             $userId,
             Uuid::fromString('f02aff86-47f0-4848-9b63-674a4247d7dd')
+        );
+    }
+
+    public function recordPurchase(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('9447676b-9437-4c43-8ba4-506a5039293d')
         );
     }
 
@@ -112,11 +126,35 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
+    public function recordAttackHospitalShip(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('7bf3208d-2ab2-418e-bb8c-c8cd61fa5e67')
+        );
+    }
+
     public function recordDestroyedShip(UuidInterface $userId): void
     {
         $this->record(
             $userId,
             Uuid::fromString('6c81e527-7be2-4b3a-86f8-a13de9507d67')
+        );
+    }
+
+    public function recordDefenceEffect(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('a758f828-0d16-4d9e-b234-b75369883ae0')
+        );
+    }
+
+    public function recordTravelEffect(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('d5e330da-e0d8-4af4-a161-6962bce43287')
         );
     }
 
@@ -166,6 +204,33 @@ class UserAchievementRepository extends AbstractEntityRepository
             $userId,
             Uuid::fromString('0e6e4a49-18c8-4e81-bef4-cb0bb386562d')
         );
+    }
+
+    public function recordBreakBlockade(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('92a86003-772d-4616-8bda-e1da1735926a')
+        );
+    }
+
+    public function recordMakeConvoy(UuidInterface $userId): void
+    {
+        $this->record(
+            $userId,
+            Uuid::fromString('3e555a89-0c50-40ee-a608-9944f8af2506')
+        );
+    }
+
+    public function recordSpecialVisit(UuidInterface $userId, UuidInterface $portId): void
+    {
+        $id = self::SPECIAL_VISITS[$portId->toString()] ?? null;
+        if ($id) {
+            $this->record(
+                $userId,
+                Uuid::fromString($id)
+            );
+        }
     }
 
     private function record(UuidInterface $userId, UuidInterface $achievementId): void
