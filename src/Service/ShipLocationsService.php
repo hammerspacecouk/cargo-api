@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use _HumbugBox01d8f9a04075\Symfony\Component\Console\Exception\LogicException;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
@@ -95,6 +96,10 @@ class ShipLocationsService extends AbstractService
     {
         $ship = $currentLocation->ship;
         $destinationPort = $currentLocation->getDestination();
+        $channel = $currentLocation->channel;
+        if (!$channel) {
+            throw new LogicException('Tried to move from a channel but did not have a channel object');
+        }
 
         $usersRepo = $this->entityManager->getUserRepo();
         $portVisitRepo = $this->entityManager->getPortVisitRepo();
@@ -127,6 +132,8 @@ class ShipLocationsService extends AbstractService
             Query::HYDRATE_OBJECT
         );
 
+        $centiDistance = max(1, $channel->distance * 100);
+
         $this->entityManager->transactional(function () use (
             $currentLocation,
             $ship,
@@ -136,7 +143,8 @@ class ShipLocationsService extends AbstractService
             $crateLocations,
             $delta,
             $isFirstJourney,
-            $shipsInPort
+            $shipsInPort,
+            $centiDistance
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
@@ -174,6 +182,18 @@ class ShipLocationsService extends AbstractService
                 );
                 $this->entityManager->getUserAchievementRepo()->recordFirstTravel($owner->id);
             }
+
+            // update the user's total travel distance and record achievements
+            $owner->centiDistanceTravelled += $centiDistance;
+
+
+
+
+            ///// TODO - ACHIEVEMENTS
+
+
+
+
 
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);

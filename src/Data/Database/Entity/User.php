@@ -41,7 +41,7 @@ class User extends AbstractEntity
     public $redditId;
 
     /**
-     * @ORM\Column(type="binary", nullable=true, unique=true))
+     * @ORM\Column(type="binary", nullable=true))
      * @var string|resource|null
      */
     public $anonymousIpHash;
@@ -75,6 +75,9 @@ class User extends AbstractEntity
 
     /** @ORM\Column(type="text") */
     public string $emblemSvg;
+
+    /** @ORM\Column(type="integer") */
+    public int $centiDistanceTravelled = 0;
 
     /**
      * @ORM\ManyToOne(targetEntity="Port")

@@ -21,6 +21,7 @@ class User extends Entity implements \JsonSerializable
     private int $permissionLevel;
     private string $emblem;
     private ?string $displayName;
+    private int $centiDistanceTravelled;
 
     public function __construct(
         UuidInterface $id,
@@ -31,6 +32,7 @@ class User extends Entity implements \JsonSerializable
         bool $isAnonymous,
         DateTimeImmutable $playStartTime,
         int $permissionLevel,
+        int $centiDistanceTravelled,
         ?Port $homePort,
         ?PlayerRank $playerRank
     ) {
@@ -44,6 +46,7 @@ class User extends Entity implements \JsonSerializable
         $this->permissionLevel = $permissionLevel;
         $this->emblem = $emblem;
         $this->displayName = $displayName;
+        $this->centiDistanceTravelled = $centiDistanceTravelled;
     }
 
     /**
@@ -111,6 +114,11 @@ class User extends Entity implements \JsonSerializable
             throw new DataNotFetchedException('Data for Home Port was not fetched');
         }
         return $this->homePort;
+    }
+
+    public function getLightYearsTravelled(): float
+    {
+        return round($this->centiDistanceTravelled / 100, 2);
     }
 
     public function getRank(): PlayerRank

@@ -30,6 +30,7 @@ class UserMapper extends Mapper
             $this->isAnonymous($item),
             $item['gameStartDateTime'],
             $item['permissionLevel'],
+            $item['centiDistanceTravelled'],
             $this->mapHomePort($item),
             $this->mapRank($item),
         );

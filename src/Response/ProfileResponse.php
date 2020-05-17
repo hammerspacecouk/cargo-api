@@ -33,6 +33,7 @@ class ProfileResponse
             'isTrial' => true, // todo - real value
             'canDelete' => $this->usersService->canUserDelete($user),
             'homePort' => $homePort,
+            'distanceTravelled' => $user->getLightYearsTravelled(),
             'authProviders' => $this->authenticationService->getAuthProviders($user),
         ];
     }
