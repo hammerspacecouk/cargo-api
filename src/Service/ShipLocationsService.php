@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use _HumbugBox01d8f9a04075\Symfony\Component\Console\Exception\LogicException;
 use App\Data\Database\Entity\CrateLocation;
 use App\Data\Database\Entity\Port as DbPort;
 use App\Data\Database\Entity\Ship as DbShip;
@@ -18,6 +17,7 @@ use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use LogicException;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
