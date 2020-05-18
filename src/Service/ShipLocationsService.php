@@ -17,6 +17,7 @@ use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
+use LogicException;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
@@ -95,6 +96,10 @@ class ShipLocationsService extends AbstractService
     {
         $ship = $currentLocation->ship;
         $destinationPort = $currentLocation->getDestination();
+        $channel = $currentLocation->channel;
+        if (!$channel) {
+            throw new LogicException('Tried to move from a channel but did not have a channel object');
+        }
 
         $usersRepo = $this->entityManager->getUserRepo();
         $portVisitRepo = $this->entityManager->getPortVisitRepo();
@@ -127,6 +132,8 @@ class ShipLocationsService extends AbstractService
             Query::HYDRATE_OBJECT
         );
 
+        $centiDistance = max(1, $channel->distance * 100);
+
         $this->entityManager->transactional(function () use (
             $currentLocation,
             $ship,
@@ -136,7 +143,8 @@ class ShipLocationsService extends AbstractService
             $crateLocations,
             $delta,
             $isFirstJourney,
-            $shipsInPort
+            $shipsInPort,
+            $centiDistance
         ) {
             // remove the old ship location
             $currentLocation->isCurrent = false;
@@ -174,6 +182,12 @@ class ShipLocationsService extends AbstractService
                 );
                 $this->entityManager->getUserAchievementRepo()->recordFirstTravel($owner->id);
             }
+
+            // update the user's total travel distance and record achievements
+            $beforeValue = $owner->centiDistanceTravelled;
+            $afterValue = $beforeValue + $centiDistance;
+            $owner->centiDistanceTravelled = $afterValue;
+            $this->entityManager->getUserAchievementRepo()->recordDistance($owner->id, $beforeValue, $afterValue);
 
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);

@@ -21,6 +21,7 @@ class NullUser extends User
             true,
             new DateTimeImmutable(),
             0,
+            0,
             null,
             null,
         );

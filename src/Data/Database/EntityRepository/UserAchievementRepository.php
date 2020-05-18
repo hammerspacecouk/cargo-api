@@ -78,6 +78,32 @@ class UserAchievementRepository extends AbstractEntityRepository
         );
     }
 
+    public function recordDistance(UuidInterface $userId, int $beforeValue, int $afterValue): void
+    {
+        $t1 = 100 * 10;
+        $t2 = 100 * 100;
+        $t3 = 100 * 1000;
+        $t4 = 100 * 10000;
+
+        $a = null;
+        if ($beforeValue < $t1 && $afterValue >= $t1) {
+            $a = 'c634acb9-1924-45fc-9d3c-8e78ee609218';
+        }
+        if ($beforeValue < $t2 && $afterValue >= $t2) {
+            $a = 'cfcefa80-f6a9-4a89-8977-11db52bd6f16';
+        }
+        if ($beforeValue < $t3 && $afterValue >= $t3) {
+            $a = 'f7f3b544-f854-4005-8a4d-a0570dd53e67';
+        }
+        if ($beforeValue < $t4 && $afterValue >= $t4) {
+            $a = '36f2633c-4474-4015-ba86-6822db4b0dc5';
+        }
+
+        if ($a) {
+            $this->record($userId, Uuid::fromString($a));
+        }
+    }
+
     public function recordLongTravel(UuidInterface $userId): void
     {
         $this->record(
