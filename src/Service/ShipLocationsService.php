@@ -184,16 +184,10 @@ class ShipLocationsService extends AbstractService
             }
 
             // update the user's total travel distance and record achievements
-            $owner->centiDistanceTravelled += $centiDistance;
-
-
-
-
-            ///// TODO - ACHIEVEMENTS
-
-
-
-
+            $beforeValue = $owner->centiDistanceTravelled;
+            $afterValue = $beforeValue + $centiDistance;
+            $owner->centiDistanceTravelled = $afterValue;
+            $this->entityManager->getUserAchievementRepo()->recordDistance($owner->id, $beforeValue, $afterValue);
 
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
