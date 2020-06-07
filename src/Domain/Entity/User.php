@@ -12,6 +12,10 @@ use function strtoupper;
 
 class User extends Entity implements \JsonSerializable
 {
+    public const PERMISSION_TRIAL = 0;
+    public const PERMISSION_ADMIN = 100;
+    public const PERMISSION_FULL = 10;
+
     private int $rotationSteps;
     private Score $score;
     private ?Port $homePort;
@@ -141,6 +145,24 @@ class User extends Entity implements \JsonSerializable
 
     public function isAdmin(): bool
     {
-        return $this->permissionLevel === 100; // todo - other levels?
+        return $this->permissionLevel === self::PERMISSION_ADMIN;
+    }
+
+    public function isTrial(): bool
+    {
+        return $this->permissionLevel === self::PERMISSION_TRIAL;
+    }
+
+    public function getStatus(): string
+    {
+        switch ($this->permissionLevel) {
+            case self::PERMISSION_ADMIN:
+                return 'Admin';
+            case self::PERMISSION_FULL:
+                return 'Full';
+            case self::PERMISSION_TRIAL:
+            default:
+                return 'Trial';
+        }
     }
 }

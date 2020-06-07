@@ -165,6 +165,11 @@ class EntityManager extends EntityManagerDecorator
         return $this->getRepository(Entity\PortVisit::class);
     }
 
+    public function getPurchaseRepo(): EntityRepository\PurchaseRepository
+    {
+        return $this->getRepository(Entity\Purchase::class);
+    }
+
     public function getRankAchievementRepo(): EntityRepository\RankAchievementRepository
     {
         return $this->getRepository(Entity\RankAchievement::class);

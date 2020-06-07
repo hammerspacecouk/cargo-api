@@ -44,6 +44,11 @@ $actions = [
     Controller\Profile\DeleteAction::class,
     Controller\Profile\ResetAction::class,
 
+    // purchasing
+    Controller\Purchase\HandleAction::class,
+    Controller\Purchase\UpgradeAction::class,
+    Controller\Purchase\CheckAction::class,
+
     // play (requires cookie)
     Controller\Play\IndexAction::class,
     Controller\Play\UpgradesAction::class,

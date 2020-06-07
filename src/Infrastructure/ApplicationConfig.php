@@ -5,6 +5,7 @@ namespace App\Infrastructure;
 
 use DateInterval;
 use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
+use Stripe\Stripe;
 
 class ApplicationConfig
 {
@@ -33,6 +34,7 @@ class ApplicationConfig
     private bool $loginTwitterEnabled;
     private bool $loginMicrosoftEnabled;
     private bool $loginRedditEnabled;
+    private string $stripeWebhookKey;
 
     public function __construct(
         string $environment,
@@ -47,6 +49,8 @@ class ApplicationConfig
         string $applicationSecret,
         string $loginFlags,
         string $tokenPrivateKey,
+        string $stripeApiKey,
+        string $stripeWebhookKey,
         ?string $version
     ) {
         $this->environment = $environment;
@@ -69,6 +73,9 @@ class ApplicationConfig
         $this->loginTwitterEnabled = (bool)($flags & self::LOGIN_TWITTER);
         $this->loginMicrosoftEnabled = (bool)($flags & self::LOGIN_MICROSOFT);
         $this->loginRedditEnabled = (bool)($flags & self::LOGIN_REDDIT);
+
+        Stripe::setApiKey($stripeApiKey);
+        $this->stripeWebhookKey = $stripeWebhookKey;
     }
 
     public function getEnvironment(): string
@@ -168,5 +175,10 @@ class ApplicationConfig
     public function isLoginRedditEnabled(): bool
     {
         return $this->loginRedditEnabled;
+    }
+
+    public function getStripeWebhookKey(): string
+    {
+        return $this->stripeWebhookKey;
     }
 }

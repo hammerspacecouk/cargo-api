@@ -68,6 +68,9 @@
     "doctrine/reflection": {
         "version": "v1.0.0"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.1.0"
+    },
     "egulias/email-validator": {
         "version": "2.1.3"
     },
@@ -94,9 +97,6 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
-    },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
@@ -280,6 +280,9 @@
     "squizlabs/php_codesniffer": {
         "version": "3.2.3"
     },
+    "stripe/stripe-php": {
+        "version": "v7.36.2"
+    },
     "swiftmailer/swiftmailer": {
         "version": "v6.0.2"
     },
@@ -303,6 +306,9 @@
     },
     "symfony/dependency-injection": {
         "version": "v4.0.6"
+    },
+    "symfony/deprecation-contracts": {
+        "version": "v2.1.2"
     },
     "symfony/doctrine-bridge": {
         "version": "v4.0.1"
@@ -349,9 +355,6 @@
     "symfony/http-kernel": {
         "version": "v4.0.6"
     },
-    "symfony/mime": {
-        "version": "v4.3.1"
-    },
     "symfony/monolog-bridge": {
         "version": "v4.0.6"
     },
@@ -373,8 +376,14 @@
     "symfony/polyfill-iconv": {
         "version": "v1.11.0"
     },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.17.0"
+    },
     "symfony/polyfill-intl-idn": {
         "version": "v1.11.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.17.0"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.7.0"
@@ -384,6 +393,9 @@
     },
     "symfony/polyfill-php73": {
         "version": "v1.11.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.3"
@@ -402,6 +414,9 @@
     },
     "symfony/stopwatch": {
         "version": "v4.0.4"
+    },
+    "symfony/string": {
+        "version": "v5.1.0"
     },
     "symfony/swiftmailer-bundle": {
         "version": "2.5",

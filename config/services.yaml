@@ -31,6 +31,8 @@ parameters:
   env(MAILER_HOST): ''
   env(MAILER_USERNAME): ''
   env(MAILER_PASSWORD): ''
+  env(STRIPE_API_KEY): ''
+  env(STRIPE_WEBHOOK_SIGNATURE): ''
 
 services:
   # default configuration for services in *this* file
@@ -72,6 +74,8 @@ services:
       - '%env(APP_SECRET)%'
       - '%env(LOGIN_FLAGS)%'
       - '%env(TOKEN_PRIVATE_KEY)%'
+      - '%env(STRIPE_API_KEY)%'
+      - '%env(STRIPE_WEBHOOK_SIGNATURE)%'
       - '%env(APP_VERSION)%'
 
   GuzzleHttp\Client:

@@ -30,7 +30,8 @@ class ProfileResponse
 
         return [
             'isAnonymous' => $user->isAnonymous(),
-            'isTrial' => true, // todo - real value
+            'isTrial' => $user->isTrial(),
+            'status' => $user->getStatus(),
             'canDelete' => $this->usersService->canUserDelete($user),
             'homePort' => $homePort,
             'distanceTravelled' => $user->getLightYearsTravelled(),
