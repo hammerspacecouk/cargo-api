@@ -15,8 +15,8 @@ use Stripe\Webhook;
 class PurchasesService extends AbstractService
 {
     private const PRODUCTS = [
-        PurchasesService::PRODUCT_FULL_ACCOUNT => 'price_1Gq3KQI7mUkfbXAwhJtciLcv',
-        PurchasesService::PRODUCT_NEW_SHUTTLE => 'price_1Gq3MqI7mUkfbXAwOLJg7Bwh',
+        PurchasesService::PRODUCT_FULL_ACCOUNT => 'price_1GrQmxHmbr44mHgjerk7alxW',
+        PurchasesService::PRODUCT_NEW_SHUTTLE => 'price_1GrQnOHmbr44mHgjDPalcHfK',
     ];
     private const PRODUCT_FULL_ACCOUNT = 'full_account';
     private const PRODUCT_NEW_SHUTTLE = 'new_shuttle';
