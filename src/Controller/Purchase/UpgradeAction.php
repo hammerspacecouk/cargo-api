@@ -34,7 +34,7 @@ class UpgradeAction extends AbstractUserAction
     public function invoke(
         Request $request
     ): array {
-        if (!$this->user->isTrial()) {
+        if (!$this->user->isTrial() || $this->user->isAnonymous()) {
             // can't purchase again
             throw new NotFoundHttpException('Cannot purchase this');
         }
