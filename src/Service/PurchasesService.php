@@ -47,7 +47,7 @@ class PurchasesService extends AbstractService
                 'quantity' => 1,
             ]
             ],
-            'client_reference_id' => (string)$user->getId(),
+            'client_reference_id' => $user->getId() . ':' . self::getFullProductId(),
             'mode' => 'payment',
             'success_url' =>
                 $this->applicationConfig->getWebHostname() . '/play/profile?purchaseId={CHECKOUT_SESSION_ID}',
@@ -62,27 +62,37 @@ class PurchasesService extends AbstractService
 
     public function handlePurchase(string $payload, string $signature): void
     {
+        $this->logger->debug('event data', [
+            'payload' => $payload,
+        ]);
+
         $event = Webhook::constructEvent(
             $payload,
             $signature,
             $this->applicationConfig->getStripeWebhookKey(),
         );
 
+        $this->logger->debug('event data', [
+            'type' => $event->type ?? null,
+        ]);
+
         if (!isset($event->type, $event->data->object) || $event->type !== 'checkout.session.completed') {
             throw new InvalidArgumentException('Unprocessable event type');
         }
         $session = $event->data->object;
 
-        $userId = $session->client_reference_id;
         $checkoutId = $session->id;
-        $productId = $session->payment_intent;
+        [$userId, $productId] = explode(':', $session->client_reference_id);
+
+        $user = $this->entityManager->getUserRepo()->getByID(Uuid::fromString($userId), Query::HYDRATE_OBJECT);
+        if (!$user) {
+            return;
+        }
 
         $product = self::getKeyFromProductId($productId);
         if (!$product) {
             throw new InvalidArgumentException('Unrecognised product');
         }
-
-        $user = $this->entityManager->getUserRepo()->getByID(Uuid::fromString($userId), Query::HYDRATE_OBJECT);
 
         // add purchase object
         $this->entityManager->transactional(function () use ($user, $product, $checkoutId, $productId) {
