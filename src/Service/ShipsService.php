@@ -404,4 +404,17 @@ class ShipsService extends AbstractService
             $this->logger->notice('[PLAGUE] New Outbreak occurred on ' . $ship->name);
         }
     }
+
+    public function quickEditShip(UuidInterface $shipId, $fields): void
+    {
+        /** @var DbUser $shipEntity */
+        $shipEntity = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);
+
+        foreach ($fields as $key => $value) {
+            $shipEntity->{$key} = $value === '' ? null : $value;
+        }
+
+        $this->entityManager->persist($shipEntity);
+        $this->entityManager->flush();
+    }
 }

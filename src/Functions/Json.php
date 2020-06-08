@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Functions\DateTimes;
+namespace App\Functions\Json;
 
 /**
  * A json_decode with this application's preferred settings

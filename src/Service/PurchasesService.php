@@ -60,6 +60,28 @@ class PurchasesService extends AbstractService
         ];
     }
 
+    public function getSessionForContinue(User $user): array
+    {
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price' => self::getNewShuttleId(),
+                'quantity' => 1,
+            ]
+            ],
+            'client_reference_id' => $user->getId() . ':' . self::getNewShuttleId(),
+            'mode' => 'payment',
+            'success_url' =>
+                $this->applicationConfig->getWebHostname() . '/play/profile?purchaseId={CHECKOUT_SESSION_ID}',
+            'cancel_url' =>
+                $this->applicationConfig->getWebHostname() . '/purchase/continue',
+        ]);
+
+        return [
+            'sessionId' => $session->id,
+        ];
+    }
+
     public function handlePurchase(string $payload, string $signature): void
     {
         $this->logger->debug('event data', [
@@ -128,6 +150,12 @@ class PurchasesService extends AbstractService
 
     private function addShuttle(DbUser $user): void
     {
+        $starterShipClass = $this->entityManager->getShipClassRepo()->getStarter(Query::HYDRATE_OBJECT);
+        $shipName = $this->entityManager->getDictionaryRepo()->getRandomShipName();
+
+        // make the player an initial ship and place it in the home port
+        $ship = $this->entityManager->getShipRepo()->createNewShip($shipName, $starterShipClass, $user);
+        $this->entityManager->getShipLocationRepo()->makeInPort($ship, $user->homePort, true);
     }
 
     public function purchaseExistsForUser(string $purchaseId, User $user): bool

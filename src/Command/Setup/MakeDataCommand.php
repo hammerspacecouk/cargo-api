@@ -7,7 +7,7 @@ use App\Command\AbstractCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use function App\Functions\DateTimes\jsonDecode;
+use function App\Functions\Json\jsonDecode;
 
 class MakeDataCommand extends AbstractCommand
 {

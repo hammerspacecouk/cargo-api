@@ -180,6 +180,19 @@ class UsersService extends AbstractService
         });
     }
 
+    public function quickEditUser(UuidInterface $userId, $fields): void
+    {
+        /** @var DbUser $userEntity */
+        $userEntity = $this->entityManager->getUserRepo()->getByID($userId, Query::HYDRATE_OBJECT);
+
+        foreach ($fields as $key => $value) {
+            $userEntity->{$key} = $value === '' ? null : $value;
+        }
+
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
+    }
+
     public function parseAcknowledgePromotionToken(
         string $tokenString
     ): AcknowledgePromotionToken {

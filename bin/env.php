@@ -1,7 +1,7 @@
 <?php
 
 use Symfony\Component\Dotenv\Dotenv;
-use function App\Functions\DateTimes\jsonDecode;
+use function App\Functions\Json\jsonDecode;
 
 date_default_timezone_set('UTC'); // servers should always be UTC
 

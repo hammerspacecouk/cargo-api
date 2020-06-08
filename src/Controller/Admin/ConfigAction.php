@@ -8,7 +8,7 @@ use App\Service\ConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
-use function App\Functions\DateTimes\jsonDecode;
+use function App\Functions\Json\jsonDecode;
 
 class ConfigAction extends AbstractAdminAction
 {

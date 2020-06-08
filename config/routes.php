@@ -18,6 +18,8 @@ $actions = [
     Controller\Admin\AdminAction::class,
     Controller\Admin\ConfigAction::class,
     Controller\Admin\RegistrationsAction::class,
+    Controller\Admin\PlayerEditAction::class,
+    Controller\Admin\ShipEditAction::class,
 
     // login
     Controller\Security\LoginAction::class,
@@ -45,6 +47,7 @@ $actions = [
     Controller\Profile\ResetAction::class,
 
     // purchasing
+    Controller\Purchase\ContinueAction::class,
     Controller\Purchase\HandleAction::class,
     Controller\Purchase\UpgradeAction::class,
     Controller\Purchase\CheckAction::class,

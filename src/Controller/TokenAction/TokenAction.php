@@ -50,7 +50,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Routing\Route;
-use function App\Functions\DateTimes\jsonDecode;
+use function App\Functions\Json\jsonDecode;
 
 class TokenAction
 {

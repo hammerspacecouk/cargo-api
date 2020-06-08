@@ -145,12 +145,22 @@ class User extends Entity implements \JsonSerializable
 
     public function isAdmin(): bool
     {
-        return $this->permissionLevel === self::PERMISSION_ADMIN;
+        return $this->permissionLevel >= self::PERMISSION_ADMIN;
     }
 
     public function isTrial(): bool
     {
-        return $this->permissionLevel === self::PERMISSION_TRIAL;
+        return $this->permissionLevel <= self::PERMISSION_TRIAL;
+    }
+
+    public function getPermissionLevel(): int
+    {
+        return $this->permissionLevel;
+    }
+
+    public function hasCustomNickname(): bool
+    {
+        return $this->displayName !== null;
     }
 
     public function getStatus(): string

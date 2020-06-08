@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject\Token;
 
-use function App\Functions\DateTimes\jsonDecode;
+use function App\Functions\Json\jsonDecode;
 use function json_encode;
 
 class SimpleDataToken extends AbstractToken
