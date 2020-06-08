@@ -405,7 +405,7 @@ class ShipsService extends AbstractService
         }
     }
 
-    public function quickEditShip(UuidInterface $shipId, $fields): void
+    public function quickEditShip(UuidInterface $shipId, array $fields): void
     {
         /** @var DbUser $shipEntity */
         $shipEntity = $this->entityManager->getShipRepo()->getByID($shipId, Query::HYDRATE_OBJECT);

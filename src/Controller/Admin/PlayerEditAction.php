@@ -86,7 +86,7 @@ class PlayerEditAction extends AbstractAdminAction
         // do updates
         $this->usersService->quickEditUser($user->getId(), [
             'nickname' => $request->get('nickname'),
-            'permissionLevel' => (int) $request->get('permissionLevel'),
+            'permissionLevel' => (int)$request->get('permissionLevel'),
         ]);
 
         // re-fetch user now that it has been updated

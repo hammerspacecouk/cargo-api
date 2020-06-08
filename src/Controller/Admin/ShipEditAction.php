@@ -29,8 +29,7 @@ class ShipEditAction extends AbstractAdminAction
         AuthenticationService $authenticationService,
         LoggerInterface $logger,
         ShipsService $shipsService
-    )
-    {
+    ) {
         parent::__construct($authenticationService);
         $this->shipsService = $shipsService;
         $this->logger = $logger;
@@ -86,7 +85,7 @@ class ShipEditAction extends AbstractAdminAction
         // do updates
         $this->shipsService->quickEditShip($ship->getId(), [
             'name' => $request->get('name'),
-            'strength' => (int) $request->get('strength'),
+            'strength' => (int)$request->get('strength'),
         ]);
 
 

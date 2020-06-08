@@ -180,7 +180,7 @@ class UsersService extends AbstractService
         });
     }
 
-    public function quickEditUser(UuidInterface $userId, $fields): void
+    public function quickEditUser(UuidInterface $userId, array $fields): void
     {
         /** @var DbUser $userEntity */
         $userEntity = $this->entityManager->getUserRepo()->getByID($userId, Query::HYDRATE_OBJECT);
