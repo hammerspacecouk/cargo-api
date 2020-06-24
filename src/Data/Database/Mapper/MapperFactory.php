@@ -51,6 +51,11 @@ class MapperFactory
         return new PortMapper($this);
     }
 
+    public function createPurchaseMapper(): PurchaseMapper
+    {
+        return new PurchaseMapper($this);
+    }
+
     public function createShipMapper(): ShipMapper
     {
         return new ShipMapper($this);

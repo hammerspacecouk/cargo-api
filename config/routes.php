@@ -51,6 +51,7 @@ $actions = [
     Controller\Purchase\HandleAction::class,
     Controller\Purchase\UpgradeAction::class,
     Controller\Purchase\CheckAction::class,
+    Controller\Purchase\ReceiptAction::class,
 
     // play (requires cookie)
     Controller\Play\IndexAction::class,
