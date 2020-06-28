@@ -13,7 +13,9 @@ use App\Service\ShipsService;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Validator\GenericValidator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\GoneHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
@@ -49,6 +51,11 @@ class ShipAction extends AbstractUserAction
     ): array {
         $this->logger->debug(__CLASS__);
         $ship = $this->getShipWithLocation($request, $this->user);
+
+        if ($this->user->isTrial() && !$this->user->getRank()->isTrialRange()) {
+            throw new HttpException(Response::HTTP_PAYMENT_REQUIRED, 'Full account required');
+        }
+
         return $this->shipInLocationResponse->getResponseData($this->user, $ship);
     }
 

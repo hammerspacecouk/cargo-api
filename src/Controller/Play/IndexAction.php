@@ -51,7 +51,12 @@ class IndexAction extends AbstractUserAction
             ];
         }
 
+        $isBlocked = !$this->user->getRank()->isTrialRange() && $this->user->isTrial();
+        $showTrialWarning = $this->user->getRank()->isNearTrialEnd() && $this->user->isTrial();
+
         return [
+            'showTrialEnded' => $isBlocked,
+            'showTrialWarning' => $showTrialWarning,
             'sessionState' => new SessionState(
                 $this->user,
                 $rankStatus,

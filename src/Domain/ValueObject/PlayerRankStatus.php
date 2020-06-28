@@ -5,8 +5,9 @@ namespace App\Domain\ValueObject;
 
 use App\Domain\Entity\PlayerRank;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use JsonSerializable;
 
-class PlayerRankStatus implements \JsonSerializable
+class PlayerRankStatus implements JsonSerializable
 {
     private int $portsVisited;
     private PlayerRank $currentRank;
@@ -82,16 +83,6 @@ class PlayerRankStatus implements \JsonSerializable
     public function getNextRank(): ?PlayerRank
     {
         return $this->nextRank;
-    }
-
-    public function isTutorial(): bool
-    {
-        return $this->getPortsVisited() === 0;
-    }
-
-    public function getAcknowledgePromotionToken(): ?AcknowledgePromotionToken
-    {
-        return $this->acknowledgePromotionToken;
     }
 
     private function getWinState(): ?array

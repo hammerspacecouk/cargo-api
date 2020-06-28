@@ -117,6 +117,14 @@ class TimedCommand extends Command
             $ship = $shipLocation->getShip();
             $player = $shipLocation->getShip()->getOwner();
 
+            if ($player->isTrial() && (
+                !$player->getRank()->isTrialRange() ||
+                $player->getRank()->isNearTrialEnd()
+                )) {
+                // don't auto-move users who's trials have ended
+                continue;
+            }
+
             // find all channels for a port, with their bearing and distance
             $channels = $this->channelsService->getAllLinkedToPort($port);
 
