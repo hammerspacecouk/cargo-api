@@ -6,7 +6,7 @@ namespace App\Domain\ValueObject\Token;
 use function App\Functions\Json\jsonDecode;
 use function json_encode;
 
-class SimpleDataToken extends AbstractToken
+abstract class SimpleDataToken extends AbstractToken
 {
     private const KEY_DATA = 'da';
 

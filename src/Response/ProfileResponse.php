@@ -41,6 +41,7 @@ class ProfileResponse
             'purchases' => $this->purchasesService->getAllForUser($user),
             'distanceTravelled' => $user->getLightYearsTravelled(),
             'authProviders' => $this->authenticationService->getAuthProviders($user),
+            'setNickname' => $this->usersService->getNicknameToken($user),
         ];
     }
 }

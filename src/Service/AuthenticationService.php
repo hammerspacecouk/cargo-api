@@ -11,7 +11,7 @@ use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\AuthProvider;
 use App\Domain\ValueObject\OauthState;
 use App\Domain\ValueObject\Token\Action\RemoveAuthProviderToken;
-use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Domain\ValueObject\Token\SimpleDataToken\OauthLoginToken;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
@@ -33,8 +33,8 @@ class AuthenticationService extends AbstractService
     public function getOAuthStateCookie(string $stateId, string $redirectUrl): Cookie
     {
         $state = new OauthState($stateId, $redirectUrl);
-        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make($state->getClaims()));
-        $data = (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+        $token = $this->tokenHandler->makeToken(...OauthLoginToken::make($state->getClaims()));
+        $data = (string)new OauthLoginToken($token->getJsonToken(), (string)$token);
         return $this->makeCookie(
             $data,
             self::OAUTH_COOKIE_NAME,
@@ -51,7 +51,7 @@ class AuthenticationService extends AbstractService
             throw new InvalidTokenException('No state cookie or state ID found');
         }
 
-        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($cookie, false), $cookie);
+        $token = new OauthLoginToken($this->tokenHandler->parseTokenFromString($cookie, false), $cookie);
         $state = OauthState::createFromClaims($token->getData());
 
         if ($state->getStateId() !== $stateId) {

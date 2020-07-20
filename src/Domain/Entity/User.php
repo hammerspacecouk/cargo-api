@@ -163,6 +163,11 @@ class User extends Entity implements \JsonSerializable
         return $this->displayName !== null;
     }
 
+    public function canSetNickname(): bool
+    {
+        return $this->permissionLevel >= self::PERMISSION_FULL;
+    }
+
     public function getStatus(): string
     {
         switch ($this->permissionLevel) {

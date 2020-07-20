@@ -11,8 +11,10 @@ use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\Bearing;
 use App\Domain\ValueObject\Colour;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
+use App\Domain\ValueObject\Token\SimpleDataToken\AnonLoginToken;
 use App\Domain\ValueObject\Token\DeleteAccountToken;
-use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Domain\ValueObject\Token\SimpleDataToken\ResetToken;
+use App\Domain\ValueObject\Token\SimpleDataToken\SetNicknameToken;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use Doctrine\ORM\Query;
@@ -49,16 +51,16 @@ class UsersService extends AbstractService
         }, $this->entityManager->getUserRepo()->findWinners());
     }
 
-    public function getLoginToken(string $type): SimpleDataToken
+    public function getLoginToken(string $type): AnonLoginToken
     {
-        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make(['login' => $type]));
-        return new SimpleDataToken($token->getJsonToken(), (string)$token);
+        $token = $this->tokenHandler->makeToken(...AnonLoginToken::make(['login' => $type]));
+        return new AnonLoginToken($token->getJsonToken(), (string)$token);
     }
 
     public function verifyLoginToken(string $tokenString, string $type): bool
     {
         // will throw if the token is expired or invalid
-        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        $token = new AnonLoginToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
         if ($token->getData()['login'] === $type) {
             return true;
         }
@@ -116,8 +118,19 @@ class UsersService extends AbstractService
         )) {
             return null;
         }
-        $token = $this->tokenHandler->makeToken(...SimpleDataToken::make(['id'=>$user->getId()]));
-        return (string)new SimpleDataToken($token->getJsonToken(), (string)$token);
+        $token = $this->tokenHandler->makeToken(...ResetToken::make(['id'=>$user->getId()]));
+        return (string)new ResetToken($token->getJsonToken(), (string)$token);
+    }
+
+    public function getNicknameToken(User $user): ?string
+    {
+        if (!$user->canSetNickname()) {
+            return null;
+        }
+        $token = $this->tokenHandler->makeToken(...SetNicknameToken::make([
+            'id'=>$user->getId()
+        ]));
+        return (string)new SetNicknameToken($token->getJsonToken(), (string)$token);
     }
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
@@ -149,7 +162,7 @@ class UsersService extends AbstractService
 
     public function parseResetToken(string $tokenString): UuidInterface
     {
-        $token = new SimpleDataToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
+        $token = new ResetToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
         return $this->uuidFactory->fromString($token->getData()['id']);
     }
 
@@ -323,5 +336,20 @@ class UsersService extends AbstractService
             return null;
         }
         return $this->getMapper()->getUser($result);
+    }
+
+    public function setNickname(User $user, string $tokenString, string $nickname): void
+    {
+        $tokenData = new SetNicknameToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        $id = $this->uuidFactory->fromString($tokenData->getData()['id'] ?? null);
+        if (!$user->getId()->equals($id)) {
+            throw new InvalidTokenException('Token not for this user');
+        }
+
+        /** @var DbUser $userEntity */
+        $userEntity = $this->entityManager->getUserRepo()->getByID($user->getId(), Query::HYDRATE_OBJECT);
+        $userEntity->nickname = $nickname;
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
     }
 }

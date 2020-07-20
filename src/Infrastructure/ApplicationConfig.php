@@ -41,9 +41,9 @@ class ApplicationConfig
         string $hostnameApi,
         string $hostnameWeb,
         string $cookieScope,
-        int $maxUsersPerIp,
-        int $ipLifetimeSeconds,
-        int $distanceMultiplier,
+        string $maxUsersPerIp,
+        string $ipLifetimeSeconds,
+        string $distanceMultiplier,
         string $emailFromName,
         string $emailFromAddress,
         string $applicationSecret,
@@ -64,7 +64,7 @@ class ApplicationConfig
         $this->tokenPrivateKey = $tokenPrivateKey;
         $this->version = $version;
         $this->applicationSecret = $applicationSecret;
-        $this->ipLifetimeSeconds = $ipLifetimeSeconds;
+        $this->ipLifetimeSeconds = (int)$ipLifetimeSeconds;
 
         $flags = \bindec($loginFlags);
         $this->loginAnonEnabled = (bool)($flags & self::LOGIN_ANON);

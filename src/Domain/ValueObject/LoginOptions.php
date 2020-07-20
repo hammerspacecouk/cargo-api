@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
-use App\Domain\ValueObject\Token\SimpleDataToken;
+use App\Domain\ValueObject\Token\SimpleDataToken\AnonLoginToken;
 
 class LoginOptions implements \JsonSerializable
 {
-    private ?SimpleDataToken $loginAnonToken;
+    private ?AnonLoginToken $loginAnonToken;
     private bool $facebook;
     private bool $google;
     private bool $microsoft;
@@ -15,7 +15,7 @@ class LoginOptions implements \JsonSerializable
     private bool $reddit;
 
     public function __construct(
-        ?SimpleDataToken $loginAnonToken = null,
+        ?AnonLoginToken $loginAnonToken = null,
         bool $facebook = false,
         bool $google = false,
         bool $microsoft = false,
