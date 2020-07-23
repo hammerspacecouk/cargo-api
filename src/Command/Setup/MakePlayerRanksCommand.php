@@ -67,7 +67,8 @@ class MakePlayerRanksCommand extends AbstractCommand
                 $entity = new PlayerRank(
                     $data['name'],
                     $data['description'],
-                    (int)$data['threshold']
+                    (int)$data['threshold'],
+                    (int)$data['marketCredits'],
                 );
                 $entity->id = $id;
             }

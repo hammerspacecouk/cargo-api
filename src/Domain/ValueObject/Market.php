@@ -3,38 +3,23 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObject;
 
-use App\Infrastructure\DateTimeFactory;
-use DateTimeImmutable;
-
-class Score implements \JsonSerializable
+class Market implements \JsonSerializable
 {
-    private int $score;
-    private int $scoreRate;
-    private DateTimeImmutable $calculationTime;
+    private int $history;
+    private int $discovery;
+    private int $economy;
+    private int $military;
 
     public function __construct(
-        int $score,
-        int $scoreRate,
-        DateTimeImmutable $calculationTime
+        int $history,
+        int $discovery,
+        int $economy,
+        int $military
     ) {
-        $this->score = $score;
-        $this->scoreRate = $scoreRate;
-        $this->calculationTime = $calculationTime;
-    }
-
-    public function getScore():int
-    {
-        return $this->score;
-    }
-
-    public function getRate(): int
-    {
-        return $this->scoreRate;
-    }
-
-    public function getCalculationTime(): DateTimeImmutable
-    {
-        return $this->calculationTime;
+        $this->history = $history;
+        $this->discovery = $discovery;
+        $this->economy = $economy;
+        $this->military = $military;
     }
 
     /**
@@ -43,10 +28,10 @@ class Score implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'type' => 'Score',
-            'value' => $this->getScore(),
-            'rate' => $this->getRate(),
-            'datetime' => DateTimeFactory::toJson($this->getCalculationTime()),
+            'history' => 0,
+            'discovery' => 0,
+            'economy' => 0,
+            'military' => 0,
         ];
     }
 }

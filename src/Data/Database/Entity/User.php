@@ -79,6 +79,18 @@ class User extends AbstractEntity
     /** @ORM\Column(type="integer") */
     public int $centiDistanceTravelled = 0;
 
+    /** @ORM\Column(type="integer") */
+    public int $marketHistory = 0;
+
+    /** @ORM\Column(type="integer") */
+    public int $marketDiscovery = 0;
+
+    /** @ORM\Column(type="integer") */
+    public int $marketEconomy = 0;
+
+    /** @ORM\Column(type="integer") */
+    public int $marketMilitary = 0;
+
     /**
      * @ORM\ManyToOne(targetEntity="Port")
      */

@@ -7,6 +7,7 @@ use App\Domain\Entity\Null\NullUser;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\Market;
 use App\Domain\ValueObject\Score;
 
 class UserMapper extends Mapper
@@ -31,6 +32,12 @@ class UserMapper extends Mapper
             $item['gameStartDateTime'],
             $item['permissionLevel'],
             $item['centiDistanceTravelled'],
+            new Market(
+                $item['marketHistory'],
+                $item['marketDiscovery'],
+                $item['marketEconomy'],
+                $item['marketMilitary'],
+            ),
             $this->mapHomePort($item),
             $this->mapRank($item),
         );

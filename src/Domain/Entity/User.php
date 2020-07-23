@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\DataNotFetchedException;
+use App\Domain\ValueObject\Market;
 use App\Domain\ValueObject\Score;
 use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
@@ -26,6 +27,7 @@ class User extends Entity implements \JsonSerializable
     private string $emblem;
     private ?string $displayName;
     private int $centiDistanceTravelled;
+    private Market $market;
 
     public function __construct(
         UuidInterface $id,
@@ -37,6 +39,7 @@ class User extends Entity implements \JsonSerializable
         DateTimeImmutable $playStartTime,
         int $permissionLevel,
         int $centiDistanceTravelled,
+        Market $market,
         ?Port $homePort,
         ?PlayerRank $playerRank
     ) {
@@ -51,6 +54,7 @@ class User extends Entity implements \JsonSerializable
         $this->emblem = $emblem;
         $this->displayName = $displayName;
         $this->centiDistanceTravelled = $centiDistanceTravelled;
+        $this->market = $market;
     }
 
     /**
@@ -179,5 +183,10 @@ class User extends Entity implements \JsonSerializable
             default:
                 return 'Trial';
         }
+    }
+
+    public function getMarket(): Market
+    {
+        return $this->market;
     }
 }

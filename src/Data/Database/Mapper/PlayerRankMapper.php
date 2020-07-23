@@ -13,6 +13,7 @@ class PlayerRankMapper extends Mapper
             $item['id'],
             $item['name'],
             $item['threshold'],
+            $item['marketCredits'],
             !empty($item['description']) ? $item['description'] : null,
         );
     }
