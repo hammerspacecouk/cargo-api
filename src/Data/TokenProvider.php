@@ -105,7 +105,7 @@ class TokenProvider
             $token = $parser->parse($tokenString);
         } catch (PasetoException $ex) {
             throw new InvalidTokenException(
-                'Token was tampered with or otherwise invalid or expired: ' . $ex->getMessage()
+                'Token was tampered with or otherwise invalid or expired: ' . $ex->getMessage() . $tokenString
             );
         }
 

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Controller\TokenAction;
 
-use App\Controller\Actions\AcknowledgePromotionAction;
 use App\Controller\Actions\AddHealthAction;
 use App\Controller\Actions\ApplyOffenceEffectAction;
 use App\Controller\Actions\ApplyBlockadeEffectAction;
@@ -24,7 +23,6 @@ use App\Controller\CacheControlResponseTrait;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
 use App\Domain\Exception\TokenException;
-use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\BlockadeEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
@@ -59,7 +57,6 @@ class TokenAction
     private DateTimeImmutable $now;
     private DateTimeImmutable $yesterday;
     private LoggerInterface $logger;
-    private AcknowledgePromotionAction $acknowledgePromotionAction;
     private AddHealthAction $addHealthAction;
     private ApplyOffenceEffectAction $applyOffenceEffectAction;
     private MoveShipAction $moveShipAction;
@@ -86,7 +83,6 @@ class TokenAction
 
     public function __construct(
         LoggerInterface $logger,
-        AcknowledgePromotionAction $acknowledgePromotionAction,
         AddHealthAction $addHealthAction,
         ApplyOffenceEffectAction $applyOffenceEffectAction,
         JoinConvoyAction $joinConvoyAction,
@@ -105,7 +101,6 @@ class TokenAction
         RemoveAuthProviderAction $removeAuthProviderAction
     ) {
         $this->logger = $logger;
-        $this->acknowledgePromotionAction = $acknowledgePromotionAction;
         $this->addHealthAction = $addHealthAction;
         $this->applyOffenceEffectAction = $applyOffenceEffectAction;
         $this->moveShipAction = $moveShipAction;
@@ -149,10 +144,6 @@ class TokenAction
     {
         // route the tokens. also allow tokens from yesterday to cater for the date boundary
         switch ($tokenKey) {
-            case TokenProvider::getActionPath(AcknowledgePromotionToken::class, $this->now):
-            case TokenProvider::getActionPath(AcknowledgePromotionToken::class, $this->yesterday):
-                return $this->acknowledgePromotionAction->invoke($tokenString);
-
             case TokenProvider::getActionPath(ShipHealthToken::class, $this->now):
             case TokenProvider::getActionPath(ShipHealthToken::class, $this->yesterday):
                 return $this->addHealthAction->invoke($tokenString);

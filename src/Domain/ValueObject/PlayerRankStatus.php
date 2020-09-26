@@ -51,7 +51,7 @@ class PlayerRankStatus implements JsonSerializable
     {
         return [
             'portsVisited' => $this->portsVisited,
-            'acknowledgeToken' => $this->acknowledgePromotionToken,
+            'acknowledgeToken' => (string)$this->acknowledgePromotionToken,
             'availableCredits' => $this->availableCredits,
             'market' => $this->market,
             'levelProgress' => $this->getLevelProgress(),

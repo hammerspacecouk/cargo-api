@@ -28,10 +28,10 @@ class Market implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'history' => 0,
-            'discovery' => 0,
-            'economy' => 0,
-            'military' => 0,
+            'history' => $this->history,
+            'discovery' => $this->discovery,
+            'economy' => $this->economy,
+            'military' => $this->military,
         ];
     }
 }
