@@ -217,6 +217,7 @@ class MapBuilder implements JsonSerializable
 
             $opacity = 1;
             $shipPaths = [];
+            $opacityStep = 1 / max(4, count($ports));
             foreach ($ports as $port) {
                 $to = ['coords' => $port->getCoordinates($this->rotationSteps)];
                 $shipPaths[] = [
@@ -225,7 +226,7 @@ class MapBuilder implements JsonSerializable
                     'opacity' => $opacity,
                 ];
                 $point = $to;
-                $opacity -= 0.2;
+                $opacity -= $opacityStep;
             }
             $allPaths[] = $shipPaths;
         }

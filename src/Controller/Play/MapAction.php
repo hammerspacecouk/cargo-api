@@ -65,7 +65,7 @@ class MapAction extends AbstractUserAction
             } elseif ($location instanceof ShipInChannel) {
                 $builder->addShipInChannel($ship, $location);
             }
-            $builder = $this->addShipHistory($builder, $ship);
+            $builder = $this->addShipHistory($builder, $ship, $this->user->getMarket()->getHistory());
         }
 
 
@@ -83,10 +83,10 @@ class MapAction extends AbstractUserAction
         return $builder;
     }
 
-    private function addShipHistory(MapBuilder $builder, Ship $ship): MapBuilder
+    private function addShipHistory(MapBuilder $builder, Ship $ship, int $historyLength): MapBuilder
     {
-        // get the ship's last 5 moves. draw lines and planets in decreasing opacity
-        $latestLocations = $this->shipLocationsService->getRecentForShip($ship);
+        // get the ship's last X moves. draw lines and planets in decreasing opacity. Add 1 for current location
+        $latestLocations = $this->shipLocationsService->getRecentForShip($ship, $historyLength + 1);
         $ports = array_map(static function (ShipInPort $shipInPort) {
             return $shipInPort->getPort();
         }, $latestLocations);

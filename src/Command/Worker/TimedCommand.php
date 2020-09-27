@@ -177,7 +177,7 @@ class TimedCommand extends Command
                 $this->algorithmService->getJourneyTime(
                     $channel->getDistance(),
                     $ship,
-                    $player->getRank(),
+                    $player,
                 ),
                 null,
                 $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),

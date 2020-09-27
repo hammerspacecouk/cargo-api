@@ -220,7 +220,8 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                         $currentShip,
                         $ship,
                         $port,
-                        $tacticalOptions
+                        $tacticalOptions,
+                        $currentShip->getOwner()->getMarket()->getMilitaryMultiplier()
                     );
                 } else {
                     $inactiveReason = 'Defended by ' . $defendedPlayers[(string)$ownerID]->getName();
@@ -359,7 +360,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $journeyTimeSeconds = $this->algorithmService->getJourneyTime(
                     $channel->getDistance(),
                     $convoyShip,
-                    $user->getRank(),
+                    $user,
                     $activeTravelEffects
                 );
                 if (!$slowestJourneyTimeSeconds || ($journeyTimeSeconds > $slowestJourneyTimeSeconds)) {
