@@ -55,7 +55,7 @@ class UpgradesService extends AbstractService
             $alreadyOwned = $shipCountsByClassId[$mapped->getId()->toString()] ?? 0;
 
             $token = null;
-            $cost = $mapped->getPurchaseCost($alreadyOwned);
+            $cost = $mapped->getPurchaseCost($alreadyOwned, $user->getMarket()->getEconomyMultiplier());
             if ($cost && $totalCount < self::MAX_SHIP_COUNT) {
                 $rawToken = $this->tokenHandler->makeToken(...PurchaseShipToken::make(
                     $user->getId(),

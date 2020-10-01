@@ -46,6 +46,7 @@ $actions = [
     Controller\Profile\DeleteAction::class,
     Controller\Profile\ResetAction::class,
     Controller\Profile\SetNicknameAction::class,
+    Controller\Profile\AcknowledgePromotionAction::class,
 
     // purchasing
     Controller\Purchase\ContinueAction::class,

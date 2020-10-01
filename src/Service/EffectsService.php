@@ -179,7 +179,8 @@ class EffectsService extends AbstractService
                 $effect,
                 $userEffect,
                 $ship,
-                $shipLocation->getPort()
+                $shipLocation->getPort(),
+                $user->getMarket()->getMilitaryMultiplier(),
             );
         } elseif ($canBeUsedHere && $effect instanceof Effect\DefenceEffect) {
             $actionToken = $this->getDefenceEffectToken($userEffect, $user, $ship);
@@ -220,11 +221,12 @@ class EffectsService extends AbstractService
         Port $port
     ): Transaction {
         $cost = $effect->getPurchaseCost();
+        $cost *= $user->getMarket()->getEconomyMultiplier();
         if ($port->isSafe()) {
             // prices are more expensive in safe places
-            $cost = (int)round($cost * 2.5);
-            // todo - more port rules for whether you can buy here and how much the costs differs
+            $cost *= 2.5;
         }
+        $cost = (int)round($cost);
 
         $rawToken = $this->tokenHandler->makeToken(...PurchaseEffectToken::make(
             $user->getId(),
@@ -244,7 +246,8 @@ class EffectsService extends AbstractService
         Effect\OffenceEffect $effect,
         UserEffect $userEffect,
         Ship $ship,
-        Port $port
+        Port $port,
+        float $militaryMultiplier
     ): ?UseOffenceEffectToken {
         if ($port->isSafe()) {
             // can't use any offence effects in Sanctuaries
@@ -256,7 +259,7 @@ class EffectsService extends AbstractService
             $userEffect->getId(),
             $ship->getId(),
             $port->getId(),
-            $effect->getDamage(),
+            $effect->getDamage($militaryMultiplier),
             null
         ));
         return new UseOffenceEffectToken(
@@ -340,7 +343,8 @@ class EffectsService extends AbstractService
         Ship $playingShip,
         Ship $victimShip,
         Port $currentPort,
-        array $tacticalOptions
+        array $tacticalOptions,
+        float $militaryMultiplier
     ): array {
         $availableOffenceEffects = array_filter($tacticalOptions, static function (TacticalEffect $tacticalEffect) {
             return $tacticalEffect->isAvailableShipOffence();
@@ -359,7 +363,7 @@ class EffectsService extends AbstractService
                 $userEffect->getId(),
                 $playingShip->getId(),
                 $currentPort->getId(),
-                $effect->getDamage(),
+                $effect->getDamage($militaryMultiplier),
                 $victimShip->getId(),
             ));
             $actionToken = new UseOffenceEffectToken(

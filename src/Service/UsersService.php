@@ -215,8 +215,13 @@ class UsersService extends AbstractService
         );
     }
 
-    public function useAcknowledgePromotionToken(AcknowledgePromotionToken $token): void
-    {
+    public function useAcknowledgePromotionToken(
+        AcknowledgePromotionToken $token,
+        int $marketHistory,
+        int $marketDiscovery,
+        int $marketEconomy,
+        int $marketMilitary
+    ): void {
         $userId = $token->getUserId();
         $rankId = $token->getRankId();
 
@@ -225,6 +230,11 @@ class UsersService extends AbstractService
         $rankEntity = $this->entityManager->getPlayerRankRepo()->getByID($rankId, Query::HYDRATE_OBJECT);
 
         $userEntity->lastRankSeen = $rankEntity;
+        $userEntity->marketEconomy = $marketEconomy;
+        $userEntity->marketDiscovery = $marketDiscovery;
+        $userEntity->marketHistory = $marketHistory;
+        $userEntity->marketMilitary = $marketMilitary;
+
         $this->entityManager->getEventRepo()->logPromotion($userEntity, $rankEntity);
         $this->entityManager->persist($userEntity);
         $this->entityManager->flush();

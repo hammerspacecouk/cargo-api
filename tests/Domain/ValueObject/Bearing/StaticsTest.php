@@ -10,7 +10,6 @@ class StaticsTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetInitialRandomNumber(): void
     {
-        Assert::markTestSkipped('Randomness comes later');
         $maxAttempts = 1000;
         $attempts = 0;
         $found = [];

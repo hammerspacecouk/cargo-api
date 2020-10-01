@@ -7,9 +7,9 @@ use App\Domain\Entity\Effect;
 
 class OffenceEffect extends Effect
 {
-    public function getDamage(): int
+    public function getDamage(float $multiplier = 1): int
     {
-        return $this->value['damage'];
+        return (int)round($this->value['damage'] * $multiplier);
     }
 
     public function affectsAllShips(): bool

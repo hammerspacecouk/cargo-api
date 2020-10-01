@@ -66,16 +66,19 @@ class PlayerRanksService extends AbstractService
         }
 
         $acknowledgeToken = null;
+        $availableCredits = null;
         if ($portVisitCount > 1 && !$hasAcknowledgedPromotion) {
+            $availableCredits = $currentRank->getMarketCredits();
+
             // make a token to acknowledge the promotion
             $token = $this->tokenHandler->makeToken(...AcknowledgePromotionToken::make(
                 $user->getId(),
-                $currentRank->getId()
+                $currentRank->getId(),
+                $availableCredits
             ));
             $acknowledgeToken = new AcknowledgePromotionToken(
                 $token->getJsonToken(),
                 (string)$token,
-                TokenProvider::getActionPath(AcknowledgePromotionToken::class, DateTimeFactory::now())
             );
         }
 
@@ -103,7 +106,9 @@ class PlayerRanksService extends AbstractService
             $acknowledgeToken,
             $latestCompletionTime,
             $bestCompletionTime,
-            $position
+            $position,
+            $availableCredits,
+            $user->getMarket(),
         );
     }
 }

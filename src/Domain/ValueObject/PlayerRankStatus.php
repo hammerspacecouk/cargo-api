@@ -18,6 +18,8 @@ class PlayerRankStatus implements JsonSerializable
     private ?int $latestCompletionTime;
     private ?int $bestCompletionTime;
     private ?int $leaderBoardPosition;
+    private ?int $availableCredits;
+    private ?Market $market;
 
     public function __construct(
         int $portsVisited,
@@ -28,7 +30,9 @@ class PlayerRankStatus implements JsonSerializable
         AcknowledgePromotionToken $acknowledgePromotionToken = null,
         ?int $latestCompletionTime = null,
         ?int $bestCompletionTime = null,
-        ?int $leaderBoardPosition = null
+        ?int $leaderBoardPosition = null,
+        ?int $availableCredits = null,
+        ?Market $market = null
     ) {
         $this->portsVisited = $portsVisited;
         $this->currentRank = $currentRank;
@@ -39,13 +43,17 @@ class PlayerRankStatus implements JsonSerializable
         $this->latestCompletionTime = $latestCompletionTime;
         $this->bestCompletionTime = $bestCompletionTime;
         $this->leaderBoardPosition = $leaderBoardPosition;
+        $this->availableCredits = $availableCredits;
+        $this->market = $market;
     }
 
     public function jsonSerialize(): array
     {
         return [
             'portsVisited' => $this->portsVisited,
-            'acknowledgeToken' => $this->acknowledgePromotionToken,
+            'acknowledgeToken' => (string)$this->acknowledgePromotionToken,
+            'availableCredits' => $this->availableCredits,
+            'market' => $this->market,
             'levelProgress' => $this->getLevelProgress(),
             'currentRank' => $this->currentRank,
             'previousRank' => $this->previousRank,

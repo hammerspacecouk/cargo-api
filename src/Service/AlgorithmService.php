@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Domain\Entity\Effect\TravelEffect;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\User;
 use App\Domain\ValueObject\TacticalEffect;
 
 class AlgorithmService extends AbstractService
@@ -17,14 +18,14 @@ class AlgorithmService extends AbstractService
     /**
      * @param int $distanceUnits
      * @param Ship $ship
-     * @param PlayerRank $playerRank
+     * @param User $user
      * @param TacticalEffect[] $activeTravelEffects
      * @return int
      */
     public function getJourneyTime(
         int $distanceUnits,
         Ship $ship,
-        PlayerRank $playerRank,
+        User $user,
         $activeTravelEffects = []
     ): int {
         // base time is the longest without modifications (except really slow ships)
@@ -34,7 +35,10 @@ class AlgorithmService extends AbstractService
         $time *= $ship->getShipClass()->getSpeedMultiplier();
 
         // earlier classes are faster
-        $time *= $playerRank->getSpeedMultiplier();
+        $time *= $user->getRank()->getSpeedMultiplier();
+
+        // market multiplier (lowest = 0, highest = 100)
+        $time *= $user->getMarket()->getDiscoveryMultiplier();
 
         foreach ($activeTravelEffects as $activeTravelEffect) {
             $effect = $activeTravelEffect->getEffect();

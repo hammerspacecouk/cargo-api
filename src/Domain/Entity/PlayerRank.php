@@ -13,17 +13,20 @@ class PlayerRank extends Entity implements \JsonSerializable
     private string $name;
     private int $threshold;
     private ?string $description;
+    private int $marketCredits;
 
     public function __construct(
         UuidInterface $id,
         string $name,
         int $threshold,
+        int $marketCredits,
         ?string $description
     ) {
         parent::__construct($id);
         $this->name = $name;
         $this->threshold = $threshold;
         $this->description = $description;
+        $this->marketCredits = $marketCredits;
     }
 
     /**
@@ -80,5 +83,10 @@ class PlayerRank extends Entity implements \JsonSerializable
     public function isAffectedByBlockades(): bool
     {
         return $this->threshold >= 120;
+    }
+
+    public function getMarketCredits(): int
+    {
+        return $this->marketCredits;
     }
 }

@@ -46,11 +46,11 @@ class ShipLocationsService extends AbstractService
         return $total;
     }
 
-    public function getRecentForShip(Ship $ship): array
+    public function getRecentForShip(Ship $ship, int $limit = 6): array
     {
         $locations = $this->entityManager->getShipLocationRepo()->getRecentForShipID(
             $ship->getId(),
-            6
+            $limit
         );
         return $this->mapMany($locations);
     }

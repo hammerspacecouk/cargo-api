@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity\Null;
 
 use App\Domain\Entity\User;
+use App\Domain\ValueObject\Market;
 use App\Domain\ValueObject\Score;
 use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
@@ -22,6 +23,7 @@ class NullUser extends User
             new DateTimeImmutable(),
             0,
             0,
+            new Market(0, 0, 0, 0),
             null,
             null,
         );

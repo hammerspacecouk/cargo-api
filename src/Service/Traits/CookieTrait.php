@@ -19,7 +19,7 @@ trait CookieTrait
             $expireValue = $expire;
         }
         $secure = true;
-        if ($this->applicationConfig->getCookieScope() === 'localhost') {
+        if ($this->applicationConfig->getCookieScope() === '') {
             $secure = false; // todo - localhost on https so this isn't needed
         }
 
