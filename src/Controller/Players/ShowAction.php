@@ -26,7 +26,7 @@ class ShowAction
         return new Route('/players/{uuid}', [
             '_controller' => self::class,
         ], [
-            'uuid' => (new GenericValidator())->getPattern(),
+            'uuid' => '^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$', // TODO - Symfony 5.2 // (new GenericValidator())->getPattern(),
         ]);
     }
 
