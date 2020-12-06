@@ -45,6 +45,9 @@ class MakePortsCommand extends AbstractCommand
         $filePath = $this->getStringArgument($input, 'inputList');
         $sourceData = csvToArray($filePath);
 
+        $sql = 'UPDATE ' . Port::class . ' tbl SET tbl.name = tbl.uuid';
+        $this->entityManager->createQuery($sql)->execute();
+
         $progress = new ProgressBar($output, count($sourceData));
         $progress->start();
 
