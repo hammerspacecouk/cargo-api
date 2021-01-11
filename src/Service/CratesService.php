@@ -125,8 +125,7 @@ class CratesService extends AbstractService
             $ship->getId(),
         ));
         return new PickupCrateToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(PickupCrateToken::class),
         );
     }
@@ -148,8 +147,7 @@ class CratesService extends AbstractService
             $ship->getId(),
         ));
         return new DropCrateToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(DropCrateToken::class),
         );
     }
@@ -264,6 +262,10 @@ class CratesService extends AbstractService
                 $crateLocation->ship->id,
                 Query::HYDRATE_OBJECT
             );
+
+            if (!$shipLocation->port) {
+                throw new \LogicException('Could not obtain a port');
+            }
 
             $this->entityManager->transactional(function () use ($crateLocation, $shipLocation) {
                 $this->entityManager->getCrateLocationRepo()->exitLocation($crateLocation->crate);

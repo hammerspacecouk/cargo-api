@@ -6,7 +6,6 @@ namespace App\Data;
 use App\Data\Database\EntityManager;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\Exception\UsedTokenException;
-use App\Domain\ValueObject\Token\AbstractToken;
 use App\Domain\ValueObject\Token\Action\AbstractActionToken;
 use App\Domain\ValueObject\TokenId;
 use App\Infrastructure\ApplicationConfig;
@@ -14,14 +13,18 @@ use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use ParagonIE\Paseto\Builder;
-use ParagonIE\Paseto\Exception\PasetoException;
-use ParagonIE\Paseto\JsonToken;
-use ParagonIE\Paseto\Parser;
-use ParagonIE\Paseto\Protocol\Version2;
-use ParagonIE\Paseto\ProtocolCollection;
-use ParagonIE\Paseto\Purpose;
-use ParagonIE\Paseto\Rules\NotExpired;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Token\Builder;
+use Lcobucci\JWT\Token\InvalidTokenStructure;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Token\RegisteredClaims;
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Constraint\ValidAt;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Ramsey\Uuid\UuidFactoryInterface;
 use Ramsey\Uuid\UuidInterface;
 
@@ -70,7 +73,7 @@ class TokenProvider
         string $subject,
         string $expiryInterval,
         TokenId $tokenId = null
-    ): Builder {
+    ): Plain {
 
         if ($tokenId) {
             $id = (string)$tokenId;
@@ -78,32 +81,28 @@ class TokenProvider
             $id = $this->uuidFactory->uuid6()->toString();
         }
 
-        return (new Builder())
-            ->setKey($this->applicationConfig->getTokenPrivateKey())
-            ->setJti($id)
-            ->setSubject($subject)
-            ->setVersion(new Version2())
-            ->setPurpose(Purpose::local())
-            ->setExpiration(DateTimeFactory::now()->add(new DateInterval($expiryInterval)))
-            ->setClaims($claims);
+        $config = $this->getSymmetricConfig();
+        $token = $config->builder()
+            ->identifiedBy($id)
+            ->relatedTo($subject)
+            ->expiresAt(DateTimeFactory::now()->add(new DateInterval($expiryInterval)));
+
+        foreach ($claims as $claim => $value) {
+            $token = $token->withClaim($claim, $value);
+        }
+        return $token->getToken($config->signer(), $config->signingKey());
     }
 
     public function parseTokenFromString(
         string $tokenString,
         bool $confirmSingleUse = true
-    ): JsonToken {
-        $tokenString = AbstractToken::TOKEN_HEADER . $tokenString;
-        $parser = (new Parser())
-            ->setKey($this->applicationConfig->getTokenPrivateKey())
-            // Adding rules to be checked against the token
-            ->addRule(new NotExpired(\DateTime::createFromImmutable(DateTimeFactory::now())))
-            ->setPurpose(Purpose::local())
-            // Only allow version 2
-            ->setAllowedVersions(ProtocolCollection::v2());
-
+    ): Plain {
+        $config = $this->getSymmetricConfig();
         try {
-            $token = $parser->parse($tokenString);
-        } catch (PasetoException $ex) {
+            /** @var Plain $token */
+            $token = $config->parser()->parse($tokenString);
+            $config->validator()->assert($token, ...$config->validationConstraints());
+        } catch (RequiredConstraintsViolated | InvalidTokenStructure | CannotDecodeContent $ex) {
             throw new InvalidTokenException(
                 'Token was tampered with or otherwise invalid or expired: ' . $ex->getMessage() . $tokenString
             );
@@ -117,7 +116,7 @@ class TokenProvider
         return $token;
     }
 
-    public function markAsUsed(JsonToken $token): void
+    public function markAsUsed(Plain $token): void
     {
         /** @var UuidInterface[] $ids */
         $ids = $this->uuidsFromToken($token);
@@ -135,14 +134,30 @@ class TokenProvider
     }
 
     private function uuidsFromToken(
-        JsonToken $token
+        Plain $token
     ): array {
-        return TokenId::toIds($token->getJti());
+        return TokenId::toIds($token->claims()->get(RegisteredClaims::ID));
     }
 
     private function expiryFromToken(
-        JsonToken $token
+        Plain $token
     ): DateTimeImmutable {
-        return DateTimeImmutable::createFromMutable($token->getExpiration());
+        return $token->claims()->get(RegisteredClaims::EXPIRATION_TIME);
+    }
+
+    private function getSymmetricConfig(): Configuration
+    {
+        $config = Configuration::forSymmetricSigner(
+            new
+            Sha256(),
+            InMemory::plainText($this->applicationConfig->getTokenPrivateKey())
+        );
+
+        $config->setValidationConstraints(
+            new ValidAt(SystemClock::fromUTC()),
+            new SignedWith($config->signer(), $config->verificationKey()),
+        );
+
+        return $config;
     }
 }

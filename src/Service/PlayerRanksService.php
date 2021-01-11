@@ -4,12 +4,10 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Data\Database\Entity\User as DbUser;
-use App\Data\TokenProvider;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\PlayerRankStatus;
 use App\Domain\ValueObject\Token\Action\AcknowledgePromotionToken;
-use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -59,6 +57,10 @@ class PlayerRanksService extends AbstractService
             }
         }
 
+        if (!$currentRank) {
+            throw new \LogicException('Could not calculate a rank');
+        }
+
         $hasAcknowledgedPromotion = false;
         $rankEntity = $this->entityManager->getUserRepo()->findWithLastSeenRank($user->getId());
         if ($rankEntity && $currentRank->getId()->equals($rankEntity['lastRankSeen']['id'])) {
@@ -77,8 +79,7 @@ class PlayerRanksService extends AbstractService
                 $availableCredits
             ));
             $acknowledgeToken = new AcknowledgePromotionToken(
-                $token->getJsonToken(),
-                (string)$token,
+                $token
             );
         }
 

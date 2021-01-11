@@ -51,37 +51,37 @@ class MoveShipToken extends AbstractActionToken
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP));
     }
 
     public function getChannelId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_CHANNEL));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_CHANNEL));
     }
 
     public function getOwnerId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_OWNER));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_OWNER));
     }
 
     public function isReversed(): bool
     {
-        return $this->token->get(self::KEY_REVERSED);
+        return $this->token->claims()->get(self::KEY_REVERSED);
     }
 
     public function isBreakingBlockade(): bool
     {
-        return $this->token->get(self::KEY_BREAKING_BLOCKADE);
+        return $this->token->claims()->get(self::KEY_BREAKING_BLOCKADE);
     }
 
     public function getJourneyTime(): DateInterval
     {
-        return new DateInterval('PT' . $this->token->get(self::KEY_JOURNEY_TIME) . 'S');
+        return new DateInterval('PT' . $this->token->claims()->get(self::KEY_JOURNEY_TIME) . 'S');
     }
 
     public function getEarnings(): int
     {
-        return $this->token->get(self::KEY_EARNINGS);
+        return $this->token->claims()->get(self::KEY_EARNINGS);
     }
 
     /**
@@ -91,6 +91,6 @@ class MoveShipToken extends AbstractActionToken
     {
         return \array_map(function (string $id) {
             return Uuid::fromString($id);
-        }, $this->token->get(self::KEY_EXPIRE_EFFECTS));
+        }, $this->token->claims()->get(self::KEY_EXPIRE_EFFECTS));
     }
 }

@@ -23,11 +23,11 @@ class RequestShipNameToken extends AbstractActionToken
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP_ID));
     }
 
     public function getUserId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_ID));
     }
 }

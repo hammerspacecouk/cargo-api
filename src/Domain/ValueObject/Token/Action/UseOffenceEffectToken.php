@@ -39,21 +39,21 @@ class UseOffenceEffectToken extends AbstractActionToken
 
     public function getDamage(): int
     {
-        return (int)$this->token->get(self::KEY_DAMAGE);
+        return (int)$this->token->claims()->get(self::KEY_DAMAGE);
     }
 
     public function getPortId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_PORT_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_PORT_ID));
     }
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP_ID));
     }
 
     public function getUserEffectId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_EFFECT_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_EFFECT_ID));
     }
 }

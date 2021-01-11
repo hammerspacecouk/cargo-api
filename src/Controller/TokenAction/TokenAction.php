@@ -125,6 +125,7 @@ class TokenAction
     public function __invoke(
         Request $request
     ): Response {
+        $this->logger->alert('asdadgasd');
         $fullTokenString = $this->getTokenString($request);
         [$tokenKey, $tokenString] = TokenProvider::splitToken($fullTokenString);
 

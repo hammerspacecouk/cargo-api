@@ -25,11 +25,11 @@ class DeleteAccountToken extends AbstractToken
 
     public function getUserId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_ID));
     }
 
     public function getStage(): int
     {
-        return $this->token->get(self::KEY_STAGE);
+        return $this->token->claims()->get(self::KEY_STAGE);
     }
 }

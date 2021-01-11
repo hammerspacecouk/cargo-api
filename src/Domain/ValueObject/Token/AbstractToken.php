@@ -6,7 +6,8 @@ namespace App\Domain\ValueObject\Token;
 use App\Domain\Exception\InvalidTokenException;
 use App\Domain\ValueObject\TokenId;
 use DateTimeImmutable;
-use ParagonIE\Paseto\JsonToken;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Token\RegisteredClaims;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use function App\Functions\Strings\shortHash;
@@ -14,9 +15,8 @@ use function App\Functions\Strings\shortHash;
 abstract class AbstractToken
 {
     public const EXPIRY = 'PT1H';
-    public const TOKEN_HEADER = 'v2.local.';
 
-    protected JsonToken $token;
+    protected Plain $token;
     protected string $tokenString;
     private TokenId $id;
     private DateTimeImmutable $expiry;
@@ -26,16 +26,17 @@ abstract class AbstractToken
         return shortHash(static::class, 8);
     }
 
-    public function __construct(JsonToken $token, string $tokenString)
+    public function __construct(Plain $token)
     {
         $this->validateTokenType($token);
         $this->token = $token;
-        $this->tokenString = $tokenString;
-        $this->id = TokenId::fromString($token->getJti());
-        $this->expiry = DateTimeImmutable::createFromMutable($token->getExpiration());
+        $this->id = TokenId::fromString($token->claims()->get(RegisteredClaims::ID));
+        /** @var DateTimeImmutable $expiry */
+        $expiry = $token->claims()->get(RegisteredClaims::EXPIRATION_TIME);
+        $this->expiry = $expiry;
     }
 
-    public function getOriginalToken(): JsonToken
+    public function getOriginalToken(): Plain
     {
         return $this->token;
     }
@@ -52,7 +53,7 @@ abstract class AbstractToken
 
     public function __toString(): string
     {
-        return \str_replace(self::TOKEN_HEADER, '', $this->tokenString);
+        return $this->token->toString();
     }
 
     protected static function create(array $claims, TokenId $id = null): array
@@ -70,16 +71,15 @@ abstract class AbstractToken
 
     protected function getAnOptionalId(string $key): ?UuidInterface
     {
-        $id = $this->token->get($key);
-        if (!empty($id)) {
-            return Uuid::fromString($id);
+        if ($this->token->claims()->has($key)) {
+            return Uuid::fromString($this->token->claims()->get($key));
         }
         return null;
     }
 
-    private function validateTokenType(JsonToken $token): void
+    private function validateTokenType(Plain $token): void
     {
-        if ($token->getSubject() !== static::getSubject()) {
+        if (!$token->isRelatedTo(static::getSubject())) {
             throw new InvalidTokenException('Token did not match expected type');
         }
     }

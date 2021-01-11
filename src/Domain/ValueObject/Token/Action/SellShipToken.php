@@ -27,16 +27,16 @@ class SellShipToken extends AbstractActionToken
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP_ID));
     }
 
     public function getOwnerId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_OWNER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_OWNER_ID));
     }
 
     public function getEarnings(): int
     {
-        return (int)$this->token->get(self::KEY_EARNING);
+        return (int)$this->token->claims()->get(self::KEY_EARNING);
     }
 }

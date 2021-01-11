@@ -91,8 +91,7 @@ class ShipHealthService extends ShipsService
         return new Transaction(
             $cost,
             new ShipHealthToken(
-                $token->getJsonToken(),
-                (string)$token,
+                $token,
                 TokenProvider::getActionPath(ShipHealthToken::class)
             ),
             0,

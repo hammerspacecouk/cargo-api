@@ -29,21 +29,21 @@ class PurchaseEffectToken extends AbstractActionToken
 
     public function getEffectId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_EFFECT));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_EFFECT));
     }
 
     public function getOwnerId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_OWNER));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_OWNER));
     }
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP));
     }
 
     public function getCost(): ?int
     {
-        return $this->token->get(self::KEY_COST);
+        return $this->token->claims()->get(self::KEY_COST);
     }
 }

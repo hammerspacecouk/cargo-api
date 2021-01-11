@@ -335,7 +335,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $directions = Bearing::getEmptyBearingsList();
 
         $convoyShips = [$ship];
-        if ($ship->isInConvoy()) {
+        if ($ship->getConvoyId()) {
             $convoyShips = $this->shipsService->findAllInConvoy($ship->getConvoyId());
         }
 
@@ -353,7 +353,7 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
                 $user->getRotationSteps()
             );
 
-            $slowestJourneyTimeSeconds = null;
+            $slowestJourneyTimeSeconds = 0;
             foreach ($convoyShips as $convoyShip) {
                 // combine all the travel effects
 

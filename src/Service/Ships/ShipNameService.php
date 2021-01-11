@@ -25,8 +25,7 @@ class ShipNameService extends ShipsService
         return new Transaction(
             Costs::ACTION_REQUEST_SHIP_NAME,
             new RequestShipNameToken(
-                $token->getJsonToken(),
-                (string)$token,
+                $token,
                 TokenProvider::getActionPath(RequestShipNameToken::class),
             ),
         );
@@ -43,8 +42,7 @@ class ShipNameService extends ShipsService
             $newName,
         ));
         return new RenameShipToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(RenameShipToken::class),
         );
     }

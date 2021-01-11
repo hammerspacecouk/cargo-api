@@ -59,8 +59,7 @@ class ShipMovementService extends ShipsService
             $isBreakingBlockade,
         ));
         return new MoveShipToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(MoveShipToken::class),
         );
     }

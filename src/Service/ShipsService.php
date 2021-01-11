@@ -241,8 +241,7 @@ class ShipsService extends AbstractService
             $earnings
         ));
         $sellToken = new SellShipToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(SellShipToken::class)
         );
         return new Transaction(
@@ -290,8 +289,7 @@ class ShipsService extends AbstractService
             $ship->getId()
         ));
         return new JoinConvoyToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(JoinConvoyToken::class)
         );
     }
@@ -307,8 +305,7 @@ class ShipsService extends AbstractService
             $ship->getOwner()->getId(),
         ));
         return new LeaveConvoyToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(LeaveConvoyToken::class)
         );
     }

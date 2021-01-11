@@ -54,13 +54,13 @@ class UsersService extends AbstractService
     public function getLoginToken(string $type): AnonLoginToken
     {
         $token = $this->tokenHandler->makeToken(...AnonLoginToken::make(['login' => $type]));
-        return new AnonLoginToken($token->getJsonToken(), (string)$token);
+        return new AnonLoginToken($token);
     }
 
     public function verifyLoginToken(string $tokenString, string $type): bool
     {
         // will throw if the token is expired or invalid
-        $token = new AnonLoginToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        $token = new AnonLoginToken($this->tokenHandler->parseTokenFromString($tokenString));
         if ($token->getData()['login'] === $type) {
             return true;
         }
@@ -119,7 +119,7 @@ class UsersService extends AbstractService
             return null;
         }
         $token = $this->tokenHandler->makeToken(...ResetToken::make(['id'=>$user->getId()]));
-        return (string)new ResetToken($token->getJsonToken(), (string)$token);
+        return (string)new ResetToken($token);
     }
 
     public function getNicknameToken(User $user): ?string
@@ -130,7 +130,7 @@ class UsersService extends AbstractService
         $token = $this->tokenHandler->makeToken(...SetNicknameToken::make([
             'id'=>$user->getId()
         ]));
-        return (string)new SetNicknameToken($token->getJsonToken(), (string)$token);
+        return (string)new SetNicknameToken($token);
     }
 
     public function makeDeleteAccountToken(UuidInterface $userId, int $stage): DeleteAccountToken
@@ -139,13 +139,13 @@ class UsersService extends AbstractService
             $userId,
             $stage,
         ));
-        return new DeleteAccountToken($token->getJsonToken(), (string)$token);
+        return new DeleteAccountToken($token);
     }
 
     public function parseDeleteAccountToken(
         string $tokenString
     ): DeleteAccountToken {
-        return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        return new DeleteAccountToken($this->tokenHandler->parseTokenFromString($tokenString));
     }
 
     public function useStageTwoDeleteAccountToken(DeleteAccountToken $token): DeleteAccountToken
@@ -162,7 +162,7 @@ class UsersService extends AbstractService
 
     public function parseResetToken(string $tokenString): UuidInterface
     {
-        $token = new ResetToken($this->tokenHandler->parseTokenFromString($tokenString, false), $tokenString);
+        $token = new ResetToken($this->tokenHandler->parseTokenFromString($tokenString, false));
         return $this->uuidFactory->fromString($token->getData()['id']);
     }
 
@@ -209,10 +209,7 @@ class UsersService extends AbstractService
     public function parseAcknowledgePromotionToken(
         string $tokenString
     ): AcknowledgePromotionToken {
-        return new AcknowledgePromotionToken(
-            $this->tokenHandler->parseTokenFromString($tokenString, false),
-            $tokenString,
-        );
+        return new AcknowledgePromotionToken($this->tokenHandler->parseTokenFromString($tokenString, false));
     }
 
     public function useAcknowledgePromotionToken(
@@ -350,7 +347,7 @@ class UsersService extends AbstractService
 
     public function setNickname(User $user, string $tokenString, string $nickname): void
     {
-        $tokenData = new SetNicknameToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+        $tokenData = new SetNicknameToken($this->tokenHandler->parseTokenFromString($tokenString));
         $id = $this->uuidFactory->fromString($tokenData->getData()['id'] ?? null);
         if (!$user->getId()->equals($id)) {
             throw new InvalidTokenException('Token not for this user');

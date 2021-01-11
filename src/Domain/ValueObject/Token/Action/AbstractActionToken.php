@@ -6,15 +6,15 @@ namespace App\Domain\ValueObject\Token\Action;
 use App\Domain\Exception\DataNotFetchedException;
 use App\Domain\ValueObject\Token\AbstractToken;
 use JsonSerializable;
-use ParagonIE\Paseto\JsonToken;
+use Lcobucci\JWT\Token\Plain;
 
 abstract class AbstractActionToken extends AbstractToken implements JsonSerializable
 {
     private ?string $path;
 
-    public function __construct(JsonToken $token, string $tokenString, ?string $path = null)
+    public function __construct(Plain $token, ?string $path = null)
     {
-        parent::__construct($token, $tokenString);
+        parent::__construct($token);
         $this->path = $path;
     }
 

@@ -23,11 +23,11 @@ class RemoveAuthProviderToken extends AbstractActionToken
 
     public function getAuthProvider(): string
     {
-        return $this->token->get(self::KEY_PROVIDER);
+        return $this->token->claims()->get(self::KEY_PROVIDER);
     }
 
     public function getUserId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_ID));
     }
 }

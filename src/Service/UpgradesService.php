@@ -64,8 +64,7 @@ class UpgradesService extends AbstractService
                     $allIds
                 ));
                 $token = new PurchaseShipToken(
-                    $rawToken->getJsonToken(),
-                    (string)$rawToken,
+                    $rawToken,
                     TokenProvider::getActionPath(PurchaseShipToken::class)
                 );
             }

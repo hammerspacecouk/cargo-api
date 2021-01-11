@@ -26,16 +26,16 @@ class JoinConvoyToken extends AbstractActionToken
 
     public function getCurrentShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_CURRENT_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_CURRENT_SHIP_ID));
     }
 
     public function getOwnerId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_OWNER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_OWNER_ID));
     }
 
     public function getChosenShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_CHOSEN_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_CHOSEN_SHIP_ID));
     }
 }

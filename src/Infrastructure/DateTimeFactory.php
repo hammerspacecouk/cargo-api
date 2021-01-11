@@ -15,14 +15,15 @@ class DateTimeFactory
     public static function now(): DateTimeImmutable
     {
         if (!static::$instance) {
-            static::reset();
+            return static::reset();
         }
         return static::$instance;
     }
 
-    public static function reset(): void
+    public static function reset(): DateTimeImmutable
     {
         static::$instance = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        return static::$instance;
     }
 
     public static function set(DateTimeImmutable $newDate): void

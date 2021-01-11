@@ -52,17 +52,17 @@ class GenericApplyEffectToken extends AbstractActionToken
 
     public function getUserEffectId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_EFFECT_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_EFFECT_ID));
     }
 
     public function getEffectId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_EFFECT_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_EFFECT_ID));
     }
 
     public function getTriggeredById(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_TRIGGERED_BY_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_TRIGGERED_BY_ID));
     }
 
     public function getPortId(): ?UuidInterface
@@ -82,12 +82,12 @@ class GenericApplyEffectToken extends AbstractActionToken
 
     public function getHitCount(): ?int
     {
-        return $this->token->get(self::KEY_HIT_COUNT);
+        return $this->token->claims()->get(self::KEY_HIT_COUNT);
     }
 
     public function getDuration(): ?DateInterval
     {
-        $duration = $this->token->get(self::KEY_DURATION);
+        $duration = $this->token->claims()->get(self::KEY_DURATION);
         if (!empty($duration)) {
             return new DateInterval('PT' . $duration . 'S');
         }

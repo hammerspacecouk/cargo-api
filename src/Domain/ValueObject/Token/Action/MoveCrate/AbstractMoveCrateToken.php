@@ -32,21 +32,21 @@ abstract class AbstractMoveCrateToken extends AbstractActionToken
 
     public function getCrateId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_CRATE_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_CRATE_ID));
     }
 
     public function getPortId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_PORT_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_PORT_ID));
     }
 
     public function getShipId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_SHIP_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_SHIP_ID));
     }
 
     public function getUserId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_ID));
     }
 }

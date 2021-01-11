@@ -27,16 +27,16 @@ class AcknowledgePromotionToken extends AbstractToken
 
     public function getUserId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_USER_ID));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_USER_ID));
     }
 
     public function getRankId(): UuidInterface
     {
-        return Uuid::fromString($this->token->get(self::KEY_RANK_SEEN));
+        return Uuid::fromString($this->token->claims()->get(self::KEY_RANK_SEEN));
     }
 
     public function getAvailableCredits(): int
     {
-        return $this->token->get(self::KEY_AVAILABLE_CREDITS);
+        return $this->token->claims()->get(self::KEY_AVAILABLE_CREDITS);
     }
 }

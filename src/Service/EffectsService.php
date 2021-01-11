@@ -235,8 +235,7 @@ class EffectsService extends AbstractService
             $cost,
         ));
         $purchaseToken = new PurchaseEffectToken(
-            $rawToken->getJsonToken(),
-            (string)$rawToken,
+            $rawToken,
             TokenProvider::getActionPath(PurchaseEffectToken::class)
         );
         return new Transaction($cost, $purchaseToken, 0, $effect);
@@ -263,8 +262,7 @@ class EffectsService extends AbstractService
             null
         ));
         return new UseOffenceEffectToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(UseOffenceEffectToken::class)
         );
     }
@@ -283,8 +281,7 @@ class EffectsService extends AbstractService
             $userEffect->getEffect()->getHitCount(),
         ));
         return new ShipDefenceEffectToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(ShipDefenceEffectToken::class)
         );
     }
@@ -303,8 +300,7 @@ class EffectsService extends AbstractService
             $userEffect->getEffect()->getHitCount(),
         ));
         return new ShipTravelEffectToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(ShipTravelEffectToken::class)
         );
     }
@@ -326,8 +322,7 @@ class EffectsService extends AbstractService
             $userEffect->getEffect()->getDurationSeconds(),
         ));
         return new BlockadeEffectToken(
-            $token->getJsonToken(),
-            (string)$token,
+            $token,
             TokenProvider::getActionPath(BlockadeEffectToken::class)
         );
     }
@@ -367,8 +362,7 @@ class EffectsService extends AbstractService
                 $victimShip->getId(),
             ));
             $actionToken = new UseOffenceEffectToken(
-                $token->getJsonToken(),
-                (string)$token,
+                $token,
                 TokenProvider::getActionPath(UseOffenceEffectToken::class)
             );
 
@@ -579,6 +573,10 @@ class EffectsService extends AbstractService
             $applyEffectToken->getUserEffectId(),
             Query::HYDRATE_OBJECT
         );
+
+        if (!$applyEffectToken->getPortId()) {
+            return;
+        }
 
         $triggeredByUserEntity = $this->entityManager->getUserRepo()
             ->getByID($applyEffectToken->getTriggeredById(), Query::HYDRATE_OBJECT);

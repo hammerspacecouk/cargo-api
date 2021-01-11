@@ -34,7 +34,7 @@ class AuthenticationService extends AbstractService
     {
         $state = new OauthState($stateId, $redirectUrl);
         $token = $this->tokenHandler->makeToken(...OauthLoginToken::make($state->getClaims()));
-        $data = (string)new OauthLoginToken($token->getJsonToken(), (string)$token);
+        $data = (string)new OauthLoginToken($token);
         return $this->makeCookie(
             $data,
             self::OAUTH_COOKIE_NAME,
@@ -51,7 +51,7 @@ class AuthenticationService extends AbstractService
             throw new InvalidTokenException('No state cookie or state ID found');
         }
 
-        $token = new OauthLoginToken($this->tokenHandler->parseTokenFromString($cookie, false), $cookie);
+        $token = new OauthLoginToken($this->tokenHandler->parseTokenFromString($cookie, false));
         $state = OauthState::createFromClaims($token->getData());
 
         if ($state->getStateId() !== $stateId) {
@@ -213,8 +213,7 @@ class AuthenticationService extends AbstractService
                 $provider
             ));
             $removalToken = new RemoveAuthProviderToken(
-                $tokenData->getJsonToken(),
-                (string)$tokenData,
+                $tokenData,
                 TokenProvider::getActionPath(RemoveAuthProviderToken::class)
             );
         }
@@ -234,7 +233,7 @@ class AuthenticationService extends AbstractService
                 $userId->toString(),
                 $creationTime->getTimestamp(),
             ], JSON_THROW_ON_ERROR),
-            $this->applicationConfig->getTokenPrivateKey()->encode(),
+            $this->applicationConfig->getTokenPrivateKey(),
         );
     }
 

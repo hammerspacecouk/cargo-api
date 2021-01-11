@@ -24,6 +24,6 @@ abstract class SimpleDataToken extends AbstractToken
 
     public function getData(): array
     {
-        return jsonDecode($this->token->get(self::KEY_DATA));
+        return jsonDecode($this->token->claims()->get(self::KEY_DATA));
     }
 }

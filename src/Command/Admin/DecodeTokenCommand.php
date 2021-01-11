@@ -8,6 +8,7 @@ use App\Data\TokenProvider;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function json_encode;
 
 class DecodeTokenCommand extends AbstractCommand
 {
@@ -40,7 +41,7 @@ class DecodeTokenCommand extends AbstractCommand
         $token = $this->tokenProvider->parseTokenFromString($tokenString, false);
 
         $output->writeln(
-            \json_encode($token->getClaims(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            json_encode($token->claims()->all(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
         );
 
         return 0;

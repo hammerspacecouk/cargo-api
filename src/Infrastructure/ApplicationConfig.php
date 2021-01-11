@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Infrastructure;
 
 use DateInterval;
-use ParagonIE\Paseto\Keys\Version2\SymmetricKey;
 use Stripe\Stripe;
 
 class ApplicationConfig
@@ -128,13 +127,9 @@ class ApplicationConfig
         return $this->emailFromAddress;
     }
 
-    public function getTokenPrivateKey(): SymmetricKey
+    public function getTokenPrivateKey(): string
     {
-        $keyBin = \hex2bin($this->tokenPrivateKey);
-        if (!$keyBin) {
-            throw new \RuntimeException('Private key cannot be converted to binary');
-        }
-        return new SymmetricKey($keyBin);
+        return $this->tokenPrivateKey;
     }
 
     public function getApplicationSecret(): string
@@ -142,7 +137,7 @@ class ApplicationConfig
         return $this->applicationSecret;
     }
 
-    public function getVersion(): string
+    public function getVersion(): ?string
     {
         return $this->version;
     }
