@@ -11,24 +11,13 @@ use Psr\Log\LoggerInterface;
 
 class JoinConvoyAction
 {
-    private UsersService $usersService;
-    private ShipInLocationResponse $shipInLocationResponse;
-    private ShipsService $shipsService;
-    private LoggerInterface $logger;
-    private FleetResponse $fleetResponse;
-
     public function __construct(
-        UsersService $usersService,
-        ShipsService $shipsService,
-        FleetResponse $fleetResponse,
-        ShipInLocationResponse $shipInLocationResponse,
-        LoggerInterface $logger
+        private UsersService $usersService,
+        private ShipsService $shipsService,
+        private FleetResponse $fleetResponse,
+        private ShipInLocationResponse $shipInLocationResponse,
+        private LoggerInterface $logger
     ) {
-        $this->usersService = $usersService;
-        $this->shipInLocationResponse = $shipInLocationResponse;
-        $this->shipsService = $shipsService;
-        $this->logger = $logger;
-        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole

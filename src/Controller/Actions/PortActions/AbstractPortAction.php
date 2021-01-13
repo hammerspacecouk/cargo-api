@@ -15,22 +15,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class AbstractPortAction
 {
-    protected CratesService $cratesService;
-    protected LoggerInterface $logger;
-
-    private ShipInPortResponse $shipInPortResponse;
-    private ShipsService $shipsService;
-
     public function __construct(
-        CratesService $cratesService,
-        ShipsService $shipsService,
-        ShipInPortResponse $shipInPortResponse,
-        LoggerInterface $logger
+        protected CratesService $cratesService,
+        protected ShipsService $shipsService,
+        private ShipInPortResponse $shipInPortResponse,
+        private LoggerInterface $logger
     ) {
-        $this->cratesService = $cratesService;
-        $this->shipInPortResponse = $shipInPortResponse;
-        $this->shipsService = $shipsService;
-        $this->logger = $logger;
     }
 
     public function invoke(string $tokenString): array

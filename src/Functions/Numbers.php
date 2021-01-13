@@ -10,10 +10,6 @@ use function min;
 
 /**
  * Ensures an integer is between a maximum and a minimum
- * @param int $input
- * @param int $min
- * @param int $max
- * @return int
  */
 function clamp(int $input, int $min, int $max): int
 {
@@ -22,10 +18,6 @@ function clamp(int $input, int $min, int $max): int
 
 /**
  * Checks if an integer is between a maximum and minimum (inclusive)
- * @param int $input
- * @param int $min
- * @param int $max
- * @return bool
  */
 function isBetween(int $input, int $min, int $max): bool
 {
@@ -34,10 +26,8 @@ function isBetween(int $input, int $min, int $max): bool
 
 /**
  * Returns the average of all the arguments provided
- * @param mixed ...$values
- * @return float
  */
-function average(...$values): float
+function average(mixed ...$values): float
 {
     return array_sum($values) / count($values);
 }
@@ -45,9 +35,6 @@ function average(...$values): float
 /**
  * Returns the minimum of the two values,
  * but if the first value is null the second value will be returned (even if above zero)
- * @param int|null $original
- * @param int $new
- * @return int
  */
 function minOf(?int $original, int $new): int
 {
@@ -60,9 +47,6 @@ function minOf(?int $original, int $new): int
 /**
  * Returns the maximum of the two values,
  * but if the first value is null the second value will be returned (even if below zero)
- * @param int|null $original
- * @param int $new
- * @return int
  */
 function maxOf(?int $original, int $new): int
 {

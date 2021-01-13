@@ -5,28 +5,21 @@ namespace App\Domain\Entity;
 
 use App\Domain\ValueObject\PlayerRankStatus;
 use App\Infrastructure\DateTimeFactory;
+use DateTimeImmutable;
+use JsonSerializable;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class Achievement extends Entity implements \JsonSerializable
+class Achievement extends Entity implements JsonSerializable
 {
-    private string $name;
-    private string $description;
-    private string $svg;
-    private ?\DateTimeImmutable $collectedAt;
-
     public function __construct(
         UuidInterface $id,
-        string $name,
-        string $description,
-        string $svg,
-        \DateTimeImmutable $collectedAt = null
+        private string $name,
+        private string $description,
+        private string $svg,
+        private ?DateTimeImmutable $collectedAt = null
     ) {
         parent::__construct($id);
-        $this->name = $name;
-        $this->description = $description;
-        $this->svg = $svg;
-        $this->collectedAt = $collectedAt;
     }
 
     public static function getPseudoMissionForPlanets(PlayerRankStatus $rankStatus): self

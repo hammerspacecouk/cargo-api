@@ -11,21 +11,12 @@ use Psr\Log\LoggerInterface;
 
 class ApplyOffenceEffectAction
 {
-    private ShipsService $shipsService;
-    private ShipInPortResponse $shipInPortResponse;
-    private EffectsService $effectsService;
-    private LoggerInterface $logger;
-
     public function __construct(
-        EffectsService $effectsService,
-        ShipsService $shipsService,
-        ShipInPortResponse $shipInPortResponse,
-        LoggerInterface $logger
+        private EffectsService $effectsService,
+        private ShipsService $shipsService,
+        private ShipInPortResponse $shipInPortResponse,
+        private LoggerInterface $logger
     ) {
-        $this->shipInPortResponse = $shipInPortResponse;
-        $this->effectsService = $effectsService;
-        $this->shipsService = $shipsService;
-        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole

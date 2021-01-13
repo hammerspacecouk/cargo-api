@@ -5,8 +5,6 @@ namespace App\Functions\Json;
 
 /**
  * A json_decode with this application's preferred settings
- * @param string $jsonString
- * @return array
  */
 function jsonDecode(string $jsonString): array
 {

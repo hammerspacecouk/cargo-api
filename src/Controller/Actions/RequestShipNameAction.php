@@ -9,18 +9,11 @@ use Psr\Log\LoggerInterface;
 
 class RequestShipNameAction
 {
-    private ShipNameService $shipNameService;
-    private UsersService $usersService;
-    private LoggerInterface $logger;
-
     public function __construct(
-        ShipNameService $shipNameService,
-        UsersService $usersService,
-        LoggerInterface $logger
+        private ShipNameService $shipNameService,
+        private UsersService $usersService,
+        private LoggerInterface $logger
     ) {
-        $this->shipNameService = $shipNameService;
-        $this->usersService = $usersService;
-        $this->logger = $logger;
     }
 
     // general status and stats of the game as a whole

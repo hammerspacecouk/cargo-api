@@ -7,17 +7,12 @@ use Ramsey\Uuid\UuidInterface;
 
 class Crate extends Entity implements \JsonSerializable
 {
-    private string $contents;
-    private int $value;
-
     public function __construct(
         UuidInterface $id,
-        string $contents,
-        int $value
+        private string $contents,
+        private int $value
     ) {
         parent::__construct($id);
-        $this->contents = $contents;
-        $this->value = $value;
     }
 
     public function getValue(): int
@@ -35,11 +30,10 @@ class Crate extends Entity implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        $data = [
+        return [
             'id' => $this->id,
             'value' => $this->value,
             'contents' => $this->contents,
         ];
-        return $data;
     }
 }

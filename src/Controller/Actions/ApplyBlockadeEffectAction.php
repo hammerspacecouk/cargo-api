@@ -11,24 +11,13 @@ use Psr\Log\LoggerInterface;
 
 class ApplyBlockadeEffectAction
 {
-    private UsersService $usersService;
-    private ShipsService $shipsService;
-    private ShipInLocationResponse $shipInLocationResponse;
-    private EffectsService $effectsService;
-    private LoggerInterface $logger;
-
     public function __construct(
-        UsersService $usersService,
-        ShipsService $shipsService,
-        ShipInLocationResponse $shipInLocationResponse,
-        EffectsService $effectsService,
-        LoggerInterface $logger
+        private UsersService $usersService,
+        private ShipsService $shipsService,
+        private ShipInLocationResponse $shipInLocationResponse,
+        private EffectsService $effectsService,
+        private LoggerInterface $logger
     ) {
-        $this->usersService = $usersService;
-        $this->shipsService = $shipsService;
-        $this->shipInLocationResponse = $shipInLocationResponse;
-        $this->effectsService = $effectsService;
-        $this->logger = $logger;
     }
 
     public function invoke(string $tokenString): array

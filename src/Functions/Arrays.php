@@ -11,11 +11,7 @@ use function array_values;
 use function count;
 use function mt_rand;
 
-/**
- * @param mixed $data
- * @return array
- */
-function ensureArray($data): array
+function ensureArray(mixed $data): array
 {
     if (!is_array($data)) {
         $data = [$data];
@@ -23,12 +19,7 @@ function ensureArray($data): array
     return $data;
 }
 
-/**
- * @param callable $checkFunction
- * @param array $inputArray
- * @return mixed|null
- */
-function find(callable $checkFunction, array $inputArray)
+function find(callable $checkFunction, array $inputArray): mixed
 {
     foreach ($inputArray as $input) {
         if ($checkFunction($input)) {
@@ -38,11 +29,7 @@ function find(callable $checkFunction, array $inputArray)
     return null;
 }
 
-/**
- * @param array $array
- * @return mixed
- */
-function seedableRandomItem(array $array)
+function seedableRandomItem(array $array): mixed
 {
     $max = count($array) - 1;
     /** @noinspection RandomApiMigrationInspection - because it needs to be seedable */
@@ -61,22 +48,15 @@ function groupByValue(array $inputArray, callable $valueFinder): array
     }, ARRAY_FILTER_USE_KEY));
 }
 
-/**
- * @param array $array
- * @return mixed
- */
-function firstItem(array $array)
+function firstItem(array $array): mixed
 {
     return $array[array_key_first($array)];
 }
 
 /**
  * Runs a map over an array, filters out nulls and resets the indexes
- * @param array $array
- * @param callable $callback
- * @return array
  */
-function filteredMap(array $array, callable $callback)
+function filteredMap(array $array, callable $callback): array
 {
     return array_values(array_filter(array_map($callback, $array)));
 }

@@ -9,18 +9,11 @@ use App\Service\UsersService;
 
 class RemoveAuthProviderAction
 {
-    private AuthenticationService $authenticationService;
-    private ProfileResponse $profileResponse;
-    private UsersService $usersService;
-
     public function __construct(
-        AuthenticationService $authenticationService,
-        ProfileResponse $profileResponse,
-        UsersService $usersService
+        private AuthenticationService $authenticationService,
+        private ProfileResponse $profileResponse,
+        private UsersService $usersService
     ) {
-        $this->authenticationService = $authenticationService;
-        $this->profileResponse = $profileResponse;
-        $this->usersService = $usersService;
     }
 
     // general status and stats of the game as a whole

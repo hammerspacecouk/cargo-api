@@ -45,10 +45,6 @@ function csvToArray(string $filename): array
 
 /**
  * Converts three colour components into a hex colour (without prefixed #)
- * @param int $red
- * @param int $green
- * @param int $blue
- * @return string
  */
 function rgbToHex(
     int $red,

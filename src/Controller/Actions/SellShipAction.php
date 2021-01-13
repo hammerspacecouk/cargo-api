@@ -7,12 +7,9 @@ use App\Service\ShipsService;
 
 class SellShipAction
 {
-    private ShipsService $shipsService;
-
     public function __construct(
-        ShipsService $shipsService
+        private ShipsService $shipsService
     ) {
-        $this->shipsService = $shipsService;
     }
 
     // general status and stats of the game as a whole

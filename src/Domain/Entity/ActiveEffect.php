@@ -9,20 +9,13 @@ use Ramsey\Uuid\UuidInterface;
 
 class ActiveEffect extends Entity
 {
-    private ?Effect $effect;
-    private DateTimeImmutable $expiry;
-    private ?int $remainingCount;
-
     public function __construct(
         UuidInterface $id,
-        DateTimeImmutable $expiry,
-        ?int $remainingCount = null,
-        Effect $effect = null
+        private DateTimeImmutable $expiry,
+        private ?int $remainingCount = null,
+        private ?Effect $effect = null
     ) {
         parent::__construct($id);
-        $this->effect = $effect;
-        $this->expiry = $expiry;
-        $this->remainingCount = $remainingCount;
     }
 
     public function getEffect(): Effect

@@ -12,27 +12,14 @@ use Psr\Log\LoggerInterface;
 
 class AddHealthAction
 {
-    private ShipHealthService $shipHealthService;
-    private UsersService $usersService;
-    private ShipInLocationResponse $shipInLocationResponse;
-    private ShipsService $shipsService;
-    private LoggerInterface $logger;
-    private FleetResponse $fleetResponse;
-
     public function __construct(
-        FleetResponse $fleetResponse,
-        ShipHealthService $shipHealthService,
-        UsersService $usersService,
-        ShipsService $shipsService,
-        ShipInLocationResponse $shipInLocationResponse,
-        LoggerInterface $logger
+        private FleetResponse $fleetResponse,
+        private ShipHealthService $shipHealthService,
+        private UsersService $usersService,
+        private ShipsService $shipsService,
+        private ShipInLocationResponse $shipInLocationResponse,
+        private LoggerInterface $logger
     ) {
-        $this->shipHealthService = $shipHealthService;
-        $this->usersService = $usersService;
-        $this->shipInLocationResponse = $shipInLocationResponse;
-        $this->shipsService = $shipsService;
-        $this->logger = $logger;
-        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole

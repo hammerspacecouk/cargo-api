@@ -12,24 +12,13 @@ use App\Service\UsersService;
 
 class PurchaseShipAction
 {
-    private UpgradesService $upgradesService;
-    private UsersService $usersService;
-    private UpgradesResponse $upgradesResponse;
-    private PlayerRanksService $playerRanksService;
-    private FleetResponse $fleetResponse;
-
     public function __construct(
-        FleetResponse $fleetResponse,
-        PlayerRanksService $playerRanksService,
-        UpgradesService $upgradesService,
-        UpgradesResponse $upgradesResponse,
-        UsersService $usersService
+        private FleetResponse $fleetResponse,
+        private PlayerRanksService $playerRanksService,
+        private UpgradesService $upgradesService,
+        private UpgradesResponse $upgradesResponse,
+        private UsersService $usersService
     ) {
-        $this->upgradesService = $upgradesService;
-        $this->usersService = $usersService;
-        $this->upgradesResponse = $upgradesResponse;
-        $this->playerRanksService = $playerRanksService;
-        $this->fleetResponse = $fleetResponse;
     }
 
     // general status and stats of the game as a whole

@@ -11,18 +11,13 @@ use Psr\Log\LoggerInterface;
 
 class ApplyShipTravelEffectAction extends AbstractApplySimpleEffectAction
 {
-    private ShipInPortResponse $shipInPortResponse;
-    private ShipsService $shipsService;
-
     public function __construct(
-        ShipInPortResponse $shipInPortResponse,
-        ShipsService $shipsService,
+        private ShipInPortResponse $shipInPortResponse,
+        private ShipsService $shipsService,
         EffectsService $effectsService,
         LoggerInterface $logger
     ) {
         parent::__construct($effectsService, $logger);
-        $this->shipInPortResponse = $shipInPortResponse;
-        $this->shipsService = $shipsService;
     }
 
     public function getResponse(GenericApplyEffectToken $token): array

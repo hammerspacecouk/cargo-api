@@ -19,27 +19,14 @@ use function App\Functions\Arrays\find;
 
 class MoveShipAction
 {
-    private ShipMovementService $shipMovementService;
-    private UsersService $usersService;
-    private ShipInChannelResponse $shipInChannelResponse;
-    private EffectsService $effectsService;
-    private ShipInPortResponse $shipInPortResponse;
-    private ShipLocationsService $shipLocationsService;
-
     public function __construct(
-        ShipLocationsService $shipLocationsService,
-        ShipMovementService $shipMovementService,
-        UsersService $usersService,
-        EffectsService $effectsService,
-        ShipInChannelResponse $shipInChannelResponse,
-        ShipInPortResponse $shipInPortResponse
+        private ShipLocationsService $shipLocationsService,
+        private ShipMovementService $shipMovementService,
+        private UsersService $usersService,
+        private EffectsService $effectsService,
+        private ShipInChannelResponse $shipInChannelResponse,
+        private ShipInPortResponse $shipInPortResponse
     ) {
-        $this->shipMovementService = $shipMovementService;
-        $this->usersService = $usersService;
-        $this->shipInChannelResponse = $shipInChannelResponse;
-        $this->effectsService = $effectsService;
-        $this->shipInPortResponse = $shipInPortResponse;
-        $this->shipLocationsService = $shipLocationsService;
     }
 
     // general status and stats of the game as a whole

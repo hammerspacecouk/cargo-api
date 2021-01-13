@@ -9,16 +9,13 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShipInPort extends AbstractShipLocation
 {
-    private ?Port $port;
-
     public function __construct(
         UuidInterface $id,
         ?Ship $ship,
         DateTimeImmutable $entryTime,
-        ?Port $port
+        private ?Port $port
     ) {
         parent::__construct($id, $ship, $entryTime);
-        $this->port = $port;
     }
 
     public function jsonSerialize(): ?Port

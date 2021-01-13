@@ -9,15 +9,10 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractApplySimpleEffectAction
 {
-    private EffectsService $effectsService;
-    protected LoggerInterface $logger;
-
     public function __construct(
-        EffectsService $effectsService,
-        LoggerInterface $logger
+        private EffectsService $effectsService,
+        protected LoggerInterface $logger
     ) {
-        $this->effectsService = $effectsService;
-        $this->logger = $logger;
     }
 
     abstract public function getResponse(GenericApplyEffectToken $token): array;

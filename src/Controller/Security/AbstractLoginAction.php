@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use function App\Functions\Strings\startsWith;
 
 abstract class AbstractLoginAction
 {
@@ -41,7 +40,7 @@ abstract class AbstractLoginAction
     protected function getRedirectUrl(Request $request): string
     {
         $redirectUrl = $request->get('r');
-        if ($redirectUrl && (!is_string($redirectUrl) || !startsWith('/', $redirectUrl))) {
+        if ($redirectUrl && (!is_string($redirectUrl) || !str_starts_with($redirectUrl, '/'))) {
             throw new BadRequestHttpException('Bad redirect parameter');
         }
 

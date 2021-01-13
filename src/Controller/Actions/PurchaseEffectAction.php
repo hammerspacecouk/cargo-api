@@ -10,21 +10,12 @@ use App\Service\UsersService;
 
 class PurchaseEffectAction
 {
-    private UpgradesService $upgradesService;
-    private UsersService $usersService;
-    private ShipInLocationResponse $shipInLocationResponse;
-    private ShipsService $shipsService;
-
     public function __construct(
-        UpgradesService $upgradesService,
-        ShipsService $shipsService,
-        UsersService $usersService,
-        ShipInLocationResponse $shipInLocationResponse
+        private UpgradesService $upgradesService,
+        private ShipsService $shipsService,
+        private UsersService $usersService,
+        private ShipInLocationResponse $shipInLocationResponse
     ) {
-        $this->upgradesService = $upgradesService;
-        $this->usersService = $usersService;
-        $this->shipInLocationResponse = $shipInLocationResponse;
-        $this->shipsService = $shipsService;
     }
 
     // general status and stats of the game as a whole

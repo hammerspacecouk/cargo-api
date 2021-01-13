@@ -9,29 +9,16 @@ use Ramsey\Uuid\UuidInterface;
 
 class Channel extends Entity implements \JsonSerializable
 {
-    private Port $origin;
-    private Port $destination;
-    private Bearing $bearing;
-    private int $distance;
-    private ?PlayerRank $minimumRank;
-    private int $minimumStrength;
-
     public function __construct(
         UuidInterface $id,
-        Port $origin,
-        Port $destination,
-        Bearing $bearing,
-        int $distance,
-        int $minimumStrength,
-        ?PlayerRank $minimumRank = null
+        private Port $origin,
+        private Port $destination,
+        private Bearing $bearing,
+        private int $distance,
+        private int $minimumStrength,
+        private ?PlayerRank $minimumRank = null
     ) {
         parent::__construct($id);
-        $this->origin = $origin;
-        $this->destination = $destination;
-        $this->bearing = $bearing;
-        $this->distance = $distance;
-        $this->minimumRank = $minimumRank;
-        $this->minimumStrength = $minimumStrength;
     }
 
     public function getOrigin(): Port

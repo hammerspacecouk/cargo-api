@@ -9,17 +9,12 @@ use Ramsey\Uuid\UuidInterface;
 
 abstract class AbstractShipLocation extends Entity implements \JsonSerializable, ShipLocation
 {
-    private DateTimeImmutable $entryTime;
-    private ?Ship $ship;
-
     public function __construct(
         UuidInterface $id,
-        ?Ship $ship,
-        DateTimeImmutable $entryTime
+        private ?Ship $ship,
+        private DateTimeImmutable $entryTime
     ) {
         parent::__construct($id);
-        $this->ship = $ship;
-        $this->entryTime = $entryTime;
     }
 
     public function getEntryTime(): DateTimeImmutable
