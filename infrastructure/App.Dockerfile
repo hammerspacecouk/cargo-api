@@ -9,7 +9,7 @@ ENV APP_ENV=prod
 
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY ../conf/php.d/performance.ini "$PHP_INI_DIR/conf.d/performance.ini"
+COPY ./php.d/performance.ini "$PHP_INI_DIR/conf.d/performance.ini"
 
 # Setup the application
 COPY . /var/www
