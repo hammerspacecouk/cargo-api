@@ -9,7 +9,6 @@ use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipInChannel;
 use App\Domain\ValueObject\Coordinate;
 use JsonSerializable;
-use function App\Functions\Arrays\find;
 use function App\Functions\Arrays\firstItem;
 use function App\Functions\Numbers\maxOf;
 use function App\Functions\Numbers\minOf;
@@ -20,9 +19,9 @@ class MapBuilder implements JsonSerializable
 
     private array $ports = [];
     private array $highlights = [];
+    private array $visited = [];
     private array $shipsInPorts = [];
     private array $links = [];
-    private array $history = [];
     private array $travellingShips = [];
 
     private ?int $minX = null;
@@ -48,7 +47,6 @@ class MapBuilder implements JsonSerializable
                 'planets' => $this->buildPlanets(),
                 'highlights' => $this->buildHighlights(),
                 'ships' => $this->buildShips(),
-                'history' => $this->buildShipHistory(),
             ],
             'viewBox' => $this->getViewBox(),
             'center' => $this->getCenter(),
@@ -86,12 +84,15 @@ class MapBuilder implements JsonSerializable
         return array_values($this->links);
     }
 
-    public function addPort(Port $port, bool $isHighlighted = false): void
+    public function addPort(Port $port, bool $isHighlighted = false, bool $visited = false): void
     {
         $portKey = $port->getId()->toString();
         $this->ports[$portKey] = $port;
         if ($isHighlighted) {
             $this->highlights[$portKey] = $port;
+        }
+        if ($visited) {
+            $this->visited[$portKey] = $port;
         }
         $x = $port->getCoordinates($this->rotationSteps)->getX();
         $y = $port->getCoordinates($this->rotationSteps)->getY();
@@ -149,15 +150,6 @@ class MapBuilder implements JsonSerializable
         ];
     }
 
-    public function addShipHistory(Ship $ship, array $ports): void
-    {
-        // all ports should be in the list of ports
-        foreach ($ports as $port) {
-            $this->addPort($port);
-        }
-        $this->history[$ship->getId()->toString()] = $ports;
-    }
-
     private function calculateOrbits(array $shipsInPort): array
     {
         $angleDiff = (M_PI * 2) / count($shipsInPort);
@@ -188,51 +180,6 @@ class MapBuilder implements JsonSerializable
         }, $this->highlights));
     }
 
-    private function buildShipHistory(): array
-    {
-        $allPaths = [];
-        foreach ($this->history as $shipId => $ports) {
-            $firstPort = firstItem($ports);
-            $point = null;
-
-            if (isset($this->shipsInPorts[$firstPort->getId()->toString()])) {
-                $shipInPort = find(static function ($ship) use ($shipId) {
-                    return $ship['ship']->getId()->toString() === $shipId;
-                }, $this->shipsInPorts[$firstPort->getId()->toString()]);
-                if ($shipInPort) {
-                    $point = [
-                        'angle' => $shipInPort['angle'],
-                        'coords' => $firstPort->getCoordinates($this->rotationSteps),
-                    ];
-                    array_shift($ports); // take the first port off the list
-                }
-            }
-
-            if (!isset($point)) {
-                // in a channel
-                $point = [
-                    'coords' => $this->travellingShips[$shipId]['center'],
-                ];
-            }
-
-            $opacity = 1;
-            $shipPaths = [];
-            $opacityStep = 1 / max(4, count($ports));
-            foreach ($ports as $port) {
-                $to = ['coords' => $port->getCoordinates($this->rotationSteps)];
-                $shipPaths[] = [
-                    'from' => $point,
-                    'to' => $to,
-                    'opacity' => $opacity,
-                ];
-                $point = $to;
-                $opacity -= $opacityStep;
-            }
-            $allPaths[] = $shipPaths;
-        }
-        return $allPaths;
-    }
-
     private function buildShips(): array
     {
         $ships = [];
@@ -260,6 +207,7 @@ class MapBuilder implements JsonSerializable
                 'coords' => $port->getCoordinates($this->rotationSteps),
                 'id' => $port->getId(),
                 'title' => $port->getName(),
+                'isVisited' => isset($this->visited[$port->getId()->toString()]),
             ];
         }, $this->ports));
     }

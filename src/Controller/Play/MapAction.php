@@ -11,6 +11,7 @@ use App\Domain\Entity\ShipInPort;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
 use App\Service\ChannelsService;
+use App\Service\PortsService;
 use App\Service\ShipLocationsService;
 use App\Service\ShipsService;
 use App\Service\MapBuilder;
@@ -20,11 +21,6 @@ use Symfony\Component\Routing\Route;
 
 class MapAction extends AbstractUserAction
 {
-    private ShipsService $shipsService;
-    private ApplicationConfig $applicationConfig;
-    private ChannelsService $channelsService;
-    private ShipLocationsService $shipLocationsService;
-
     public static function getRouteDefinition(): Route
     {
         return new Route('/play/map', [
@@ -33,18 +29,15 @@ class MapAction extends AbstractUserAction
     }
 
     public function __construct(
-        ApplicationConfig $applicationConfig,
+        private ApplicationConfig $applicationConfig,
+        private ChannelsService $channelsService,
+        private ShipLocationsService $shipLocationsService,
+        private ShipsService $shipsService,
+        private PortsService $portsService,
         AuthenticationService $authenticationService,
-        ChannelsService $channelsService,
-        ShipLocationsService $shipLocationsService,
-        ShipsService $shipsService,
         LoggerInterface $logger
     ) {
         parent::__construct($authenticationService, $logger);
-        $this->shipsService = $shipsService;
-        $this->applicationConfig = $applicationConfig;
-        $this->channelsService = $channelsService;
-        $this->shipLocationsService = $shipLocationsService;
     }
 
     public function invoke(Request $request): array
@@ -52,6 +45,13 @@ class MapAction extends AbstractUserAction
         $builder = new MapBuilder($this->applicationConfig->getApiHostname(), $this->user->getRotationSteps());
         // get all the current ship locations
         $playerShips = $this->shipsService->getForOwnerIDWithLocation($this->user->getId());
+        $allChannels = $this->channelsService->getAll();
+        $allVisitedPortIds = array_flip(array_map(
+            static fn($port) => $port->getId()->toString(),
+            $this->portsService->findAllVisitedPortsForUserId($this->user->getId()),
+        ));
+        $recentlyVisitedPortIds = [];
+
         foreach ($playerShips as $ship) {
             if ($ship->isDestroyed()) {
                 continue;
@@ -59,39 +59,35 @@ class MapAction extends AbstractUserAction
             $location = $ship->getLocation();
             if ($location instanceof ShipInPort) {
                 $port = $location->getPort();
-                $builder->addPort($port, true);
+                $builder->addPort($port, true, true);
                 $builder->addShipInPort($ship, $port);
-                $builder = $this->addNearbyPlanets($builder, $port);
             } elseif ($location instanceof ShipInChannel) {
                 $builder->addShipInChannel($ship, $location);
             }
-            $builder = $this->addShipHistory($builder, $ship, $this->user->getMarket()->getHistory());
+
+            $recentPorts = $this->shipLocationsService->getRecentForShip(
+                $ship,
+                $this->user->getMarket()->getHistory() + 1
+            );
+            foreach ($recentPorts as $recentPort) {
+                $recentlyVisitedPortIds[$recentPort->getPort()->getId()->toString()] = true;
+            }
         }
 
+        foreach ($allChannels as $channel) {
+            $fromId = $channel->getOrigin()->getId()->toString();
+            $toId = $channel->getDestination()->getId()->toString();
+            if (!isset($recentlyVisitedPortIds[$fromId]) && !isset($recentlyVisitedPortIds[$toId])) {
+                // unvisited channel. move on. don't include either planet
+                continue;
+            }
 
+            $builder->addPort($channel->getOrigin(), false, isset($allVisitedPortIds[$fromId]));
+            $builder->addPort($channel->getDestination(), false, isset($allVisitedPortIds[$toId]));
+            $builder->addLink($channel);
+        }
         return [
             'map' => $builder,
         ];
-    }
-
-    private function addNearbyPlanets(MapBuilder $builder, Port $port): MapBuilder
-    {
-        $nearby = $this->channelsService->getAllLinkedToPort($port);
-        foreach ($nearby as $nearbyChannel) {
-            $builder->addLink($nearbyChannel);
-        }
-        return $builder;
-    }
-
-    private function addShipHistory(MapBuilder $builder, Ship $ship, int $historyLength): MapBuilder
-    {
-        // get the ship's last X moves. draw lines and planets in decreasing opacity. Add 1 for current location
-        $latestLocations = $this->shipLocationsService->getRecentForShip($ship, $historyLength + 1);
-        $ports = array_map(static function (ShipInPort $shipInPort) {
-            return $shipInPort->getPort();
-        }, $latestLocations);
-
-        $builder->addShipHistory($ship, $ports);
-        return $builder;
     }
 }

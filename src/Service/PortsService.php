@@ -65,6 +65,13 @@ class PortsService extends AbstractService
         return $mapped;
     }
 
+    public function findAllVisitedPortsForUserId(
+        UuidInterface $userId
+    ): array {
+        $results = $this->entityManager->getPortVisitRepo()->getAllForPlayerId($userId);
+        return $this->mapMany(array_column($results, 'port'));
+    }
+
     private function getMapper(): PortMapper
     {
         if (!$this->portMapper) {

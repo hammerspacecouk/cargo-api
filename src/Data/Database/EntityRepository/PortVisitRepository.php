@@ -12,17 +12,11 @@ use Ramsey\Uuid\UuidInterface;
 
 class PortVisitRepository extends AbstractEntityRepository
 {
-    /**
-     * @param UuidInterface $portId
-     * @param UuidInterface $playerId
-     * @param int $resultType
-     * @return mixed
-     */
     public function getForPortAndUser(
         UuidInterface $portId,
         UuidInterface $playerId,
         int $resultType = Query::HYDRATE_ARRAY
-    ) {
+    ): mixed {
         return $this->createQueryBuilder('tbl')
             ->select('tbl')
             ->where('IDENTITY(tbl.port) = :portId')
@@ -31,6 +25,17 @@ class PortVisitRepository extends AbstractEntityRepository
             ->setParameter('playerId', $playerId->getBytes())
             ->getQuery()
             ->getOneOrNullResult($resultType);
+    }
+
+    public function getAllForPlayerId(UuidInterface $playerId): array
+    {
+        return $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port')
+            ->join('tbl.port', 'port')
+            ->andWhere('IDENTITY(tbl.player) = :playerId')
+            ->setParameter('playerId', $playerId->getBytes())
+            ->getQuery()
+            ->getArrayResult();
     }
 
     public function countForPlayerId(UuidInterface $playerId): int
