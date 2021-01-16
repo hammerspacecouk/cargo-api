@@ -54,6 +54,13 @@ class IndexAction extends AbstractUserAction
         $isBlocked = !$this->user->getRank()->isTrialRange() && $this->user->isTrial();
         $showTrialWarning = $this->user->getRank()->isNearTrialEnd() && $this->user->isTrial();
 
+        $fleet = $this->fleetResponse->getResponseDataForUser($this->user);
+
+        $tutorialStep = null;
+        if ($rankStatus->getCurrentRank()->getThreshold() === 3 && count($fleet['ships']) === 1) {
+            $tutorialStep = 4;
+        }
+
         return [
             'showTrialEnded' => $isBlocked,
             'showTrialWarning' => $showTrialWarning,
@@ -61,9 +68,10 @@ class IndexAction extends AbstractUserAction
                 $this->user,
                 $rankStatus,
             ),
-            'fleet' => $this->fleetResponse->getResponseDataForUser($this->user),
+            'fleet' => $fleet,
             'currentMissions' => $currentMissions,
             'allMissions' => $this->achievementService->findForUser($this->user),
+            'tutorialStep' => $tutorialStep,
         ];
     }
 }

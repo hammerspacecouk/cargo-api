@@ -46,7 +46,7 @@ class UsersService extends AbstractService
         return array_map(function ($result) {
             return [
                 'player' => $this->getMapper()->getUser($result),
-                'completionTime' => $result['gameCompletionTime'],
+                'completionTime' => $result['bestCompletionTime'],
             ];
         }, $this->entityManager->getUserRepo()->findWinners());
     }

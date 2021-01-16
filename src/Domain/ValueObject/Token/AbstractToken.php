@@ -71,7 +71,7 @@ abstract class AbstractToken
 
     protected function getAnOptionalId(string $key): ?UuidInterface
     {
-        if ($this->token->claims()->has($key)) {
+        if ($this->token->claims()->has($key) && !empty($this->token->claims()->get($key))) {
             return Uuid::fromString($this->token->claims()->get($key));
         }
         return null;

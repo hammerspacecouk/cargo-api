@@ -79,7 +79,18 @@ class MockWinCommand extends AbstractCommand
             ->setParameter('user', $userId->getBytes())
             ->getQuery()->getOneOrNullResult(Query::HYDRATE_OBJECT);
 
-        $port = $shipLocation->port;
+        /** @var Port $port */
+        $port = $this->entityManager->getPortRepo()->findOneBy(['isDestination' => true]);
+
+        $shipLocation->isCurrent = false;
+        $newLocation = new ShipLocation(
+            $shipLocation->ship,
+            $port,
+            null,
+            new \DateTimeImmutable(),
+        );
+        $this->entityManager->persist($shipLocation);
+        $this->entityManager->persist($newLocation);
 
         // put a saxophone there
         $crateContents = $this->entityManager->getCrateTypeRepo()->getGoalCrateContents();

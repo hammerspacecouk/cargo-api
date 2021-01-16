@@ -5,7 +5,6 @@ namespace App\Controller\Profile;
 
 use App\Controller\CacheControlResponseTrait;
 use App\Controller\ReferrerRedirectResponseTrait;
-use App\Controller\UserAuthenticationTrait;
 use App\Domain\Exception\InvalidTokenException;
 use App\Infrastructure\ApplicationConfig;
 use App\Service\AuthenticationService;
@@ -13,8 +12,6 @@ use App\Service\PlayerRanksService;
 use App\Service\UsersService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -26,12 +23,6 @@ class AcknowledgePromotionAction
     use CacheControlResponseTrait;
     use ReferrerRedirectResponseTrait;
 
-    private AuthenticationService $authenticationService;
-    private ApplicationConfig $applicationConfig;
-    private LoggerInterface $logger;
-    private PlayerRanksService $playerRanksService;
-    private UsersService $usersService;
-
     public static function getRouteDefinition(): Route
     {
         return new Route('/profile/acknowledge-promotion', [
@@ -40,17 +31,12 @@ class AcknowledgePromotionAction
     }
 
     public function __construct(
-        AuthenticationService $authenticationService,
-        ApplicationConfig $applicationConfig,
-        PlayerRanksService $playerRanksService,
-        UsersService $usersService,
-        LoggerInterface $logger
+        private AuthenticationService $authenticationService,
+        private ApplicationConfig $applicationConfig,
+        private PlayerRanksService $playerRanksService,
+        private UsersService $usersService,
+        private LoggerInterface $logger
     ) {
-        $this->authenticationService = $authenticationService;
-        $this->applicationConfig = $applicationConfig;
-        $this->logger = $logger;
-        $this->usersService = $usersService;
-        $this->playerRanksService = $playerRanksService;
     }
 
     public function __invoke(

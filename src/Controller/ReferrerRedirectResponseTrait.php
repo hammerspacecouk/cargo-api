@@ -16,14 +16,10 @@ trait ReferrerRedirectResponseTrait
         string $path
     ): Response {
         $hostname = $applicationConfig->getWebHostname();
-        $referrer = $request->server->get('HTTP_REFERER');
-        if ($referrer) {
-            $url = parse_url($referrer);
-            if (is_array($url) && array_key_exists('path', $url)) {
-                $path = $url['path'];
-            }
+        $returnPath = $request->get('returnPath');
+        if (!empty($returnPath)) {
+            $path = $returnPath;
         }
-
         $response = new RedirectResponse($hostname . $path);
         return $this->noCacheResponse($response);
     }

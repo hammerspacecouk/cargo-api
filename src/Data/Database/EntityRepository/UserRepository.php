@@ -55,6 +55,11 @@ class UserRepository extends AbstractEntityRepository implements CleanableInterf
         $user->gameStartDateTime = (new DateTimeImmutable());
         $user->gameCompletionTime = null;
         $user->lastRankSeen = $initialRank;
+        $user->centiDistanceTravelled = 0;
+        $user->marketDiscovery = 0;
+        $user->marketEconomy = 0;
+        $user->marketHistory = 0;
+        $user->marketMilitary = 0;
 
         $this->getEntityManager()->getEventRepo()->logNewPlayer($user, $user->homePort);
         $this->getEntityManager()->persist($user);

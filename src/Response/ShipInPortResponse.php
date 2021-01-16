@@ -84,9 +84,6 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         if ($user->getRank()->getThreshold() === 2) {
             $tutorialStep = 3;
         }
-        if (!$port->isSafe() && $user->getRank()->getThreshold() === 3) {
-            $tutorialStep = 4;
-        }
 
         $cratesOnShip = $this->getCratesOnShip($cratesOnShip, $user, $port, $ship, $moveCrateKey);
 
@@ -121,6 +118,23 @@ class ShipInPortResponse extends AbstractShipInLocationResponse
         $leaveConvoyToken = $this->shipsService->getLeaveConvoyToken($ship);
         if ($allowOtherShips && !$leaveConvoyToken && $ship->canJoinConvoy()) {
             $convoys = $this->getConvoyOptions($ship, $allShipsInPort);
+        }
+
+        if (!$port->isSafe() && $user->getRank()->getThreshold() === 4) {
+            $hasBlockedDirection = false;
+            foreach ($directions as $direction) {
+                if ($direction && $direction['action'] === null) {
+                    $hasBlockedDirection = true;
+                }
+            }
+
+            if ($hasBlockedDirection) {
+                if (empty($convoys)) {
+                    $tutorialStep = 5;
+                } elseif (!$leaveConvoyToken) {
+                    $tutorialStep = 6;
+                }
+            }
         }
 
         $sellToken = $this->shipsService->getSellToken($ship);

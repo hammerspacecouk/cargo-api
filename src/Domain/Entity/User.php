@@ -174,15 +174,11 @@ class User extends Entity implements \JsonSerializable
 
     public function getStatus(): string
     {
-        switch ($this->permissionLevel) {
-            case self::PERMISSION_ADMIN:
-                return 'Admin';
-            case self::PERMISSION_FULL:
-                return 'Full';
-            case self::PERMISSION_TRIAL:
-            default:
-                return 'Trial';
-        }
+        return match ($this->permissionLevel) {
+            self::PERMISSION_ADMIN => 'Admin',
+            self::PERMISSION_FULL => 'Full',
+        default => 'Trial',
+        };
     }
 
     public function getMarket(): Market
