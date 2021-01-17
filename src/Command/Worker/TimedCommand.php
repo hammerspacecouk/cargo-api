@@ -89,7 +89,6 @@ class TimedCommand extends Command
 
         $this->cratesService->retrieveLostCrates();
 
-
         $this->logger->notice(
             '[WORKER] [TIMED] [SHUTDOWN] ' . ceil((microtime(true) - $start) * 1000) . 'ms'
         );

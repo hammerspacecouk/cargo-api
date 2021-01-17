@@ -321,7 +321,7 @@ class CratesService extends AbstractService
         $crateCount = $this->entityManager->getCrateRepo()->countGoalCrates();
 
         // if there are enough, nothing to do
-        $usersPerCrate = 10;
+        $usersPerCrate = 25;
         $expectedCount = max(1, (int)floor($userCount / $usersPerCrate));
         if ($crateCount >= $expectedCount) {
             return;

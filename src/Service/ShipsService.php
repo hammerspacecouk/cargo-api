@@ -13,7 +13,7 @@ use App\Domain\ValueObject\Token\Action\LeaveConvoyToken;
 use App\Domain\ValueObject\Token\Action\SellShipToken;
 use App\Domain\ValueObject\Transaction;
 use App\Infrastructure\DateTimeFactory;
-use Doctrine\DBAL\Cache\ResultCacheStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\ORM\Query;
 use Ramsey\Uuid\UuidInterface;
 
@@ -385,7 +385,7 @@ class ShipsService extends AbstractService
             AND has_plague = 1;
         SQL;
         $result = $this->entityManager->getConnection()->executeQuery($query, ['percent' => $newPercent,]);
-        if ($result instanceof ResultCacheStatement) {
+        if ($result instanceof Result) {
             $this->logger->notice('[PLAGUE] ' . $result->rowCount() . ' infected lost health');
         }
     }
