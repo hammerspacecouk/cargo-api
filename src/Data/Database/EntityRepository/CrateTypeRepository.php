@@ -17,9 +17,9 @@ class CrateTypeRepository extends AbstractEntityRepository
         return $contents[\mt_rand(0, \count($contents) - 1)];
     }
 
-    public function getRandomCrateContents(): CrateType
+    public function getRandomCrateContents(bool $excludeGoal = false): CrateType
     {
-        $contents = $this->getAvailableCrateTypes();
+        $contents = $this->getAvailableCrateTypes($excludeGoal);
         return $this->getRandomWeighted($contents);
     }
 
@@ -31,7 +31,7 @@ class CrateTypeRepository extends AbstractEntityRepository
         return $qb->getQuery()->getSingleResult();
     }
 
-    private function getAvailableCrateTypes(): array
+    private function getAvailableCrateTypes(bool $excludeGoal = false): array
     {
         $cacheKey = __CLASS__ . '-' . __METHOD__;
         $data = $this->cache->get($cacheKey);
@@ -42,6 +42,10 @@ class CrateTypeRepository extends AbstractEntityRepository
         $qb = $this->createQueryBuilder('tbl')
             ->select('tbl')
             ->orderBy('tbl.abundance', 'DESC');
+
+        if ($excludeGoal) {
+            $qb = $qb->where('tbl.isGoal = false');
+        }
 
         $data = \array_values($qb->getQuery()->getResult());
         $this->cache->set($cacheKey, $data, self::CACHE_LIFETIME);

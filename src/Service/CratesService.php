@@ -27,13 +27,25 @@ class CratesService extends AbstractService
 
     public function makeNew(): void
     {
-        $crateContents = $this->entityManager->getCrateTypeRepo()->getRandomCrateContents();
+        $crateContents = $this->entityManager->getCrateTypeRepo()->getRandomCrateContents(true);
+
         $crate = new DbCrate(
             $crateContents->contents,
             $crateContents->value,
         );
         $crate->isGoal = $crateContents->isGoal;
         $this->entityManager->persist($crate);
+
+        // put in a random planet
+        $port = $this->entityManager->getPortRepo()->getARandomDangerousPort(Query::HYDRATE_OBJECT);
+
+        $this->entityManager->getCrateLocationRepo()->makeInPort($crate, $port);
+
+
+        $this->logger->notice(
+            'Creating ' . $crateContents->contents . ' for ' . $crateContents->value . ' in ' . $port->name
+        );
+
         $this->entityManager->flush();
     }
 

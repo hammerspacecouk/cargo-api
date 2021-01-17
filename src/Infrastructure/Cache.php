@@ -35,7 +35,7 @@ class Cache implements CacheInterface
         if ($value !== $default) {
             $state = self::CACHE_HIT_KEY;
         }
-        $this->logger->notice('[CACHE] [' . $state . '] [' . $key . ']');
+        $this->logger->info('[CACHE] [' . $state . '] [' . $key . ']');
         return $value;
     }
 

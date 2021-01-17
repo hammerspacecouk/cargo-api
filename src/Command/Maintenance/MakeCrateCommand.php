@@ -21,8 +21,8 @@ class MakeCrateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('game:maintenance:make-crate')
-            ->setDescription('Creates a new inactive crate');
+            ->setName('game:maintenance:make-crates')
+            ->setDescription('Creates new crates');
     }
 
     protected function execute(
@@ -31,7 +31,11 @@ class MakeCrateCommand extends Command
     ): int {
         $output->writeln('Making a new crate');
 
-        $this->cratesService->makeNew();
+        $i = 500;
+        while ($i > 0) {
+            $this->cratesService->makeNew();
+            $i--;
+        }
         $output->writeln('Done');
 
         return 0;
