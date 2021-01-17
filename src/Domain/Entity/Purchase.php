@@ -58,7 +58,7 @@ class Purchase extends Entity implements JsonSerializable
         return match ($this->productId) {
             self::PRODUCTS[self::PRODUCT_FULL_ACCOUNT] => 'Full Game',
             self::PRODUCTS[self::PRODUCT_NEW_SHUTTLE] => 'Reticulum Shuttle (continue)',
-            default => 'Misc',
+        default => 'Misc',
         };
     }
 
