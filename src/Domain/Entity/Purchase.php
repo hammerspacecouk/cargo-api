@@ -13,8 +13,8 @@ use Ramsey\Uuid\UuidInterface;
 class Purchase extends Entity implements JsonSerializable
 {
     public const PRODUCTS = [
-        Purchase::PRODUCT_FULL_ACCOUNT => 'price_1GrQmxHmbr44mHgjerk7alxW',
-        Purchase::PRODUCT_NEW_SHUTTLE => 'price_1GrQnOHmbr44mHgjDPalcHfK',
+        Purchase::PRODUCT_FULL_ACCOUNT => 'price_1IAdf8Hmbr44mHgjMlMBXAH2',
+        Purchase::PRODUCT_NEW_SHUTTLE => 'price_1IAdfFHmbr44mHgjmPTlxy3z',
     ];
     public const PRODUCT_FULL_ACCOUNT = 'full_account';
     public const PRODUCT_NEW_SHUTTLE = 'new_shuttle';
@@ -55,14 +55,11 @@ class Purchase extends Entity implements JsonSerializable
 
     public function getProductName(): string
     {
-        switch ($this->productId) {
-            case self::PRODUCTS[self::PRODUCT_FULL_ACCOUNT]:
-                return 'Full Game';
-            case self::PRODUCTS[self::PRODUCT_NEW_SHUTTLE]:
-                return 'Reticulum Shuttle (continue)';
-            default:
-                return 'Misc';
-        }
+        return match ($this->productId) {
+            self::PRODUCTS[self::PRODUCT_FULL_ACCOUNT] => 'Full Game',
+            self::PRODUCTS[self::PRODUCT_NEW_SHUTTLE] => 'Reticulum Shuttle (continue)',
+            default => 'Misc',
+        };
     }
 
     public function getPurchaseTime(): DateTimeImmutable
