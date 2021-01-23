@@ -14,6 +14,7 @@ class AuthProvider implements \JsonSerializable
     public const ALL_PROVIDERS = [
         self::PROVIDER_GOOGLE,
         self::PROVIDER_MICROSOFT,
+        self::PROVIDER_REDDIT,
     ];
 
     private string $provider;
