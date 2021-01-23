@@ -63,10 +63,7 @@ class StatusAction
         return [
             'time' => DateTimeFactory::toJson(DateTimeFactory::now()),
             'host' => getenv('HOSTNAME') ?? 'dev',
-            'calculatedIp' => $request->getClientIp(),
-            'allIps' => $request->getClientIps(),
             'userAgent' => $request->headers->get('user-agent', ''),
-            'headers' => $request->headers->all(),
         ];
     }
 
