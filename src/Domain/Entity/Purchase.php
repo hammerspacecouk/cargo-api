@@ -13,7 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 class Purchase extends Entity implements JsonSerializable
 {
     public const PRODUCTS = [
-        Purchase::PRODUCT_FULL_ACCOUNT => 'price_1IAdf8Hmbr44mHgjMlMBXAH2',
+        Purchase::PRODUCT_FULL_ACCOUNT => 'price_1ICoRpHmbr44mHgjYNYr3RND',
         Purchase::PRODUCT_NEW_SHUTTLE => 'price_1IAdfFHmbr44mHgjmPTlxy3z',
     ];
     public const PRODUCT_FULL_ACCOUNT = 'full_account';
