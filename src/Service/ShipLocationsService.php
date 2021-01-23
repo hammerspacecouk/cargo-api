@@ -238,7 +238,7 @@ class ShipLocationsService extends AbstractService
 
         if (!$destinationPort->isSafeHaven) {
             if ($ship->hasPlague) {
-                $this->infectShips($shipsInPort, $ship, $destinationPort);
+                $this->infectShips($shipsInPort, $ship, $destinationPort, $ownersWithHospitalShip);
             } elseif ($infectedShip &&
                 !$ship->shipClass->isHospitalShip &&
                 !($ownersWithHospitalShip[$owner->id->toString()] ?? false)
@@ -310,8 +310,12 @@ class ShipLocationsService extends AbstractService
         }
     }
 
-    private function infectShips(array $shipsInPort, DbShip $ship, DbPort $destinationPort): void
-    {
+    private function infectShips(
+        array $shipsInPort,
+        DbShip $ship,
+        DbPort $destinationPort,
+        array $ownersWithHospitalShip
+    ): void {
         // infect all ships that don't have a hospital ship
         foreach ($shipsInPort as $shipInPort) {
             // probes can't catch it, and it can't be caught if the player has a hospital ship here
