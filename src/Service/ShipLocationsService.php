@@ -24,7 +24,7 @@ use function array_map;
 
 class ShipLocationsService extends AbstractService
 {
-    private const AUTO_MOVE_TIME = 'PT30M';
+    private const AUTO_MOVE_TIME = 'PT15M';
 
     public function processOldestExpired(
         DateTimeImmutable $since,

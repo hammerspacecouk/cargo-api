@@ -39,8 +39,6 @@ class TimedCommand extends Command
     private LoggerInterface $logger;
     private ShipsService $shipsService;
 
-    private array $travelledRoutes = [];
-
     public function __construct(
         AlgorithmService $algorithmService,
         ChannelsService $channelsService,
@@ -137,14 +135,6 @@ class TimedCommand extends Command
             }
 
             $direction = $directions[0];
-            foreach ($directions as $i => $direct) {
-                $routeKey = $player->getId()->toString() . '-' . $direct->getChannel()->getId()->toString();
-                if (!isset($this->travelledRoutes[$routeKey])) {
-                    $direction = $directions[$i];
-                    $this->travelledRoutes[$routeKey] = true;
-                    break;
-                }
-            }
 
             $channel = $direction->getChannel();
             $this->shipMovementService->moveShip(
@@ -202,18 +192,23 @@ class TimedCommand extends Command
             return $direction->isAllowedToEnter();
         });
 
-        usort($directions, static function (?Direction $a, ?Direction $b) {
+        usort($directions, static function (Direction $a, Direction $b) {
             if ($a === $b) {
                 return 0;
             }
-            if ($a === null) {
+            if ($a->getLastVisitTime() === null) {
                 return -1;
             }
-            if ($b === null) {
+            if ($b->getLastVisitTime() === null) {
                 return 1;
             }
             return $a->getLastVisitTime() <=> $b->getLastVisitTime();
         });
+
+        if (isset($directions[0]) && $directions[0]->getLastVisitTime()) {
+            // if there's no unvisited. just randomise them
+            shuffle($directions);
+        }
 
         return $directions;
     }
