@@ -115,7 +115,7 @@ class PurchasesService extends AbstractService
         $this->entityManager->transactional(function () use ($user, $product, $checkoutId, $productId) {
             switch ($product) {
                 case Purchase::PRODUCT_FULL_ACCOUNT:
-                    $cost = 799;
+                    $cost = 299; // 799 after launch offer
                     $this->upgradeAccount($user);
                     break;
                 case Purchase::PRODUCT_NEW_SHUTTLE:
