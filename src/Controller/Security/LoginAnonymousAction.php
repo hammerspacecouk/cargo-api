@@ -62,6 +62,9 @@ class LoginAnonymousAction extends AbstractLoginAction
                 'Please try again later or log in with another method'
             ); // todo - ensure this renders as plain text in prod
         }
-        return $this->usersService->getNewAnonymousUser($request->getClientIp());
+        return $this->usersService->getNewAnonymousUser(
+            $request->getClientIp(),
+            $request->headers->get('user-agent', '')
+        );
     }
 }

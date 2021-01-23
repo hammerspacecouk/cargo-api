@@ -39,6 +39,8 @@ class TimedCommand extends Command
     private LoggerInterface $logger;
     private ShipsService $shipsService;
 
+    private array $travelledRoutes = [];
+
     public function __construct(
         AlgorithmService $algorithmService,
         ChannelsService $channelsService,
@@ -117,8 +119,8 @@ class TimedCommand extends Command
             $player = $shipLocation->getShip()->getOwner();
 
             if ($player->isTrial() && (
-                !$player->getRank()->isTrialRange() ||
-                $player->getRank()->isNearTrialEnd()
+                    !$player->getRank()->isTrialRange() ||
+                    $player->getRank()->isNearTrialEnd()
                 )) {
                 // don't auto-move users who's trials have ended
                 continue;
@@ -135,6 +137,14 @@ class TimedCommand extends Command
             }
 
             $direction = $directions[0];
+            foreach ($directions as $i => $direct) {
+                $routeKey = $player->getId()->toString() . '-' . $direct->getChannel()->getId()->toString();
+                if (!isset($this->travelledRoutes[$routeKey])) {
+                    $direction = $directions[$i];
+                    $this->travelledRoutes[$routeKey] = true;
+                    break;
+                }
+            }
 
             $channel = $direction->getChannel();
             $this->shipMovementService->moveShip(
@@ -179,7 +189,7 @@ class TimedCommand extends Command
                     $player,
                 ),
                 null,
-                $this->shipLocationsService->getLatestVisitTimeForPort($player, $port),
+                $this->shipLocationsService->getLatestVisitTimeForPort($player, $destination),
                 [],
                 $blockadeStrength,
                 $yourStrength

@@ -8,6 +8,7 @@ use App\Infrastructure\DateTimeFactory;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 class StatusAction
@@ -34,12 +35,12 @@ class StatusAction
     }
 
     // health status of the application itself
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
         $this->logger->debug(__CLASS__);
         return new JsonResponse([
             'app' => $this->getAppStatus(),
-            'request' => $this->getRequestStatus(),
+            'request' => $this->getRequestStatus($request),
         ]);
     }
 
@@ -57,11 +58,15 @@ class StatusAction
         ];
     }
 
-    private function getRequestStatus(): array
+    private function getRequestStatus(Request $request): array
     {
         return [
             'time' => DateTimeFactory::toJson(DateTimeFactory::now()),
             'host' => getenv('HOSTNAME') ?? 'dev',
+            'calculatedIp' => $request->getClientIp(),
+            'allIps' => $request->getClientIps(),
+            'userAgent' => $request->headers->get('user-agent', ''),
+            'headers' => $request->headers->all(),
         ];
     }
 

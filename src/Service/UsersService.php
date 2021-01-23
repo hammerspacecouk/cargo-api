@@ -82,14 +82,14 @@ class UsersService extends AbstractService
 //        );
     }
 
-    public function getNewAnonymousUser(?string $ipAddress): User
+    public function getNewAnonymousUser(?string $ipAddress, string $userAgent): User
     {
         $this->logger->notice('[NEW PLAYER] [ANONYMOUS]');
         $ipHash = null;
         if ($ipAddress) {
             $ipHash = $this->makeContentHash($ipAddress);
         }
-        return $this->newPlayer(null, $ipHash);
+        return $this->newPlayer(null, $ipHash, $userAgent);
     }
 
     public function getUserHint(User $user): string
@@ -237,7 +237,7 @@ class UsersService extends AbstractService
         $this->entityManager->flush();
     }
 
-    protected function newPlayer(?string $oauthHash, ?string $ipHash): User
+    protected function newPlayer(?string $oauthHash, ?string $ipHash, string $userAgent = ''): User
     {
         if (!($oauthHash xor $ipHash)) {
             throw new \DomainException('Must have either an email or ip hash to start');
@@ -247,7 +247,7 @@ class UsersService extends AbstractService
         // this is so that users can't keep deleting and recreating accounts to get new starting variables
         if ($ipHash) {
             // for anonymous users, add the ipHash to the date (so shared IPs are more unlikely to match)
-            $seed = \crc32(\sha1($ipHash . DateTimeFactory::now()->format('dd-MM-yyyy')));
+            $seed = \crc32(\sha1($ipHash . $userAgent . DateTimeFactory::now()->format('dd-MM-yyyy')));
         } else {
             // email based users will get the same outcome for that same email
             $seed = \crc32((string)$oauthHash);
