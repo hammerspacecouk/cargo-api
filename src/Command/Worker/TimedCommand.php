@@ -6,6 +6,7 @@ namespace App\Command\Worker;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
+use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Direction;
@@ -205,12 +206,19 @@ class TimedCommand extends Command
             return $a->getLastVisitTime() <=> $b->getLastVisitTime();
         });
 
-        if (isset($directions[0]) && $directions[0]->getLastVisitTime()) {
-            // if there's no unvisited. just randomise them
-            shuffle($directions);
+        if (isset($directions[0]) && $directions[0]->getLastVisitTime() && count($directions) > 1) {
+            // if there's no unvisited. try to avoid where you've just been
+            $recent = $this->shipLocationsService->getRecentForShip($ship, 3);
+            foreach ($recent as $location) {
+                if ($location instanceof ShipInPort &&
+                    $location->getPort()->equals($directions[0]->getDestinationPort())
+                ) {
+                    $directions[] = array_shift($directions);
+                }
+            }
         }
 
-        return $directions;
+        return array_values($directions);
     }
 
     /**

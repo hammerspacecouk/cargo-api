@@ -86,6 +86,11 @@ class Direction implements \JsonSerializable
         return $this->channel;
     }
 
+    public function getDestinationPort(): Port
+    {
+        return $this->destinationPort;
+    }
+
     public function isAllowedToEnter(): bool
     {
         return empty($this->denialReasons);
