@@ -738,6 +738,7 @@ class EffectsService extends AbstractService
             ->getByIDWithEffect($applyEffectToken->getUserEffectId(), Query::HYDRATE_OBJECT);
         $destinationPortEntity = $this->entityManager->getPortRepo()
             ->getByID($applyEffectToken->getDestinationId(), Query::HYDRATE_OBJECT);
+        /** @var DbShip $actioningShipEntity */
         $actioningShipEntity = $this->entityManager->getShipRepo()
             ->getByID($applyEffectToken->getShipId(), Query::HYDRATE_OBJECT);
 
@@ -747,6 +748,7 @@ class EffectsService extends AbstractService
             $destinationPortEntity,
             $applyEffectToken
         ) {
+            $this->entityManager->getShipRepo()->leaveConvoy($actioningShipEntity->id);
             $this->entityManager->getShipLocationRepo()->exitLocation($actioningShipEntity);
             $this->entityManager->getShipLocationRepo()->makeInPort($actioningShipEntity, $destinationPortEntity);
             $this->entityManager->getUserEffectRepo()->useEffect($playerEffect);

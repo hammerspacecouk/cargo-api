@@ -222,4 +222,31 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
         }
         return null;
     }
+
+    public function leaveConvoy(UuidInterface $currentShipId): void
+    {
+        // get the ship
+        /** @var Ship $currentShip */
+        $currentShip = $this->getByID($currentShipId, Query::HYDRATE_OBJECT);
+
+        $currentConvoy = $currentShip->convoyUuid;
+        if ($currentConvoy === null) {
+            return;
+        }
+
+        /** @var Ship[] $shipsInConvoy */
+        $shipsInConvoy = $this->getByConvoyID($currentConvoy, Query::HYDRATE_OBJECT);
+
+        if (count($shipsInConvoy) <= 2) {
+            foreach ($shipsInConvoy as $ship) {
+                $ship->convoyUuid = null;
+                $this->getEntityManager()->persist($ship);
+            }
+        } else {
+            $currentShip->convoyUuid = null;
+            $this->getEntityManager()->persist($currentShip);
+        }
+
+        $this->getEntityManager()->flush();
+    }
 }

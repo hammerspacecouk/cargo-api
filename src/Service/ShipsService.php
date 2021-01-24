@@ -348,30 +348,8 @@ class ShipsService extends AbstractService
 
     public function useLeaveConvoyToken(LeaveConvoyToken $token): void
     {
-        // get the ship
-        /** @var DbShip $currentShip */
-        $currentShip = $this->entityManager->getShipRepo()->getByID($token->getCurrentShipId(), Query::HYDRATE_OBJECT);
-
-        $currentConvoy = $currentShip->convoyUuid;
-        if ($currentConvoy === null) {
-            return;
-        }
-
-        /** @var DbShip[] $shipsInConvoy */
-        $shipsInConvoy = $this->entityManager->getShipRepo()->getByConvoyID($currentConvoy, Query::HYDRATE_OBJECT);
-
-        if (count($shipsInConvoy) <= 2) {
-            foreach ($shipsInConvoy as $ship) {
-                $ship->convoyUuid = null;
-                $this->entityManager->persist($ship);
-            }
-        } else {
-            $currentShip->convoyUuid = null;
-            $this->entityManager->persist($currentShip);
-        }
-
         $this->entityManager->transactional(function () use ($token) {
-            $this->entityManager->flush();
+            $this->entityManager->getShipRepo()->leaveConvoy($token->getCurrentShipId());
             $this->tokenHandler->markAsUsed($token->getOriginalToken());
         });
     }
