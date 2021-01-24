@@ -8,6 +8,8 @@ use App\Data\Database\Entity\Channel;
 use App\Data\Database\Entity\Port;
 use App\Data\Database\Entity\Ship;
 use App\Data\Database\Entity\ShipLocation;
+use App\Domain\Entity\PlayerRank;
+use App\Domain\Entity\User;
 use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
@@ -199,19 +201,13 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         return $qb->getQuery()->getResult($resultType);
     }
 
-    /**
-     * @param DateTimeImmutable $before
-     * @param int $limit
-     * @param int $resultType
-     * @return mixed
-     */
     public function getProbesThatArrivedInPortBeforeTime(
         DateTimeImmutable $before,
         int $limit,
         int $resultType = Query::HYDRATE_ARRAY
-    ) {
-        $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
+    ): mixed {
+        $qb = $this->createQueryBuilder('tbl');
+        $qb = $qb->select('tbl', 'ship', 'port', 'player', 'shipClass', 'rank')
             ->join('tbl.port', 'port')
             ->join('tbl.ship', 'ship')
             ->join('ship.owner', 'player')
@@ -221,8 +217,14 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
             ->andWhere('ship.strength > 0')
             ->andWhere('shipClass.autoNavigate = true')
             ->andWhere('tbl.entryTime <= :before')
+            ->andWhere($qb->expr()->orX(
+                'player.permissionLevel >= :permission',
+                'rank.threshold < :trialThreshold'
+            ))
             ->setMaxResults($limit)
-            ->setParameter('before', $before);
+            ->setParameter('before', $before)
+            ->setParameter('permission', User::PERMISSION_FULL)
+            ->setParameter('trialThreshold', PlayerRank::TRIAL_END_THRESHOLD);
         return $qb->getQuery()->getResult($resultType);
     }
 
