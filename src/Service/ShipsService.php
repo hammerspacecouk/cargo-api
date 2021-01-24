@@ -161,7 +161,8 @@ class ShipsService extends AbstractService
             ->join('tbl.shipClass', 'c')
             ->where('IDENTITY(tbl.owner) = :id')
             ->orderBy('tbl.convoyUuid', 'desc')
-            ->addOrderBy('tbl.strength', 'desc')
+            ->addOrderBy('c.orderNumber', 'desc')
+            ->addOrderBy('tbl.name', 'asc')
             ->setMaxResults($limit)
             ->setFirstResult($this->getOffset($limit, $page))
             ->setParameter('id', $userId->getBytes());
