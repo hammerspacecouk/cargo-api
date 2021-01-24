@@ -21,6 +21,7 @@ class TacticalEffect implements \JsonSerializable
     private ?UserEffect $userEffect;
     private bool $isActive;
     private ?ActiveEffect $activeEffect;
+    private ?string $specialLabel;
 
     public function __construct(
         Effect $effect,
@@ -28,6 +29,7 @@ class TacticalEffect implements \JsonSerializable
         ?UserEffect $userEffect = null,
         ?ActiveEffect $activeEffect = null,
         bool $shipSelect = false,
+        string $specialLabel = null,
         int $currentCount = 0,
         ?int $hitsRemaining = 0,
         DateTimeImmutable $activeExpiry = null,
@@ -43,6 +45,7 @@ class TacticalEffect implements \JsonSerializable
         $this->userEffect = $userEffect;
         $this->isActive = $isActive;
         $this->activeEffect = $activeEffect;
+        $this->specialLabel = $specialLabel;
     }
 
     /**
@@ -58,6 +61,7 @@ class TacticalEffect implements \JsonSerializable
             'expiry' => DateTimeFactory::toJson($this->activeExpiry),
             'isActive' => $this->isActive,
             'mustSelectShip' => $this->shipSelect,
+            'special' => $this->specialLabel,
         ];
     }
 

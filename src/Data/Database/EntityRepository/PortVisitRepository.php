@@ -27,6 +27,20 @@ class PortVisitRepository extends AbstractEntityRepository
             ->getOneOrNullResult($resultType);
     }
 
+    public function getAllSafeForPlayerId(UuidInterface $playerId): array
+    {
+        return $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port')
+            ->join('tbl.port', 'port')
+            ->andWhere('port.isSafeHaven = true')
+            ->andWhere('port.isDestination = false')
+            ->andWhere('IDENTITY(tbl.player) = :playerId')
+            ->orderBy('port.name', 'ASC')
+            ->setParameter('playerId', $playerId->getBytes())
+            ->getQuery()
+            ->getArrayResult();
+    }
+
     public function getAllForPlayerId(UuidInterface $playerId): array
     {
         return $this->createQueryBuilder('tbl')

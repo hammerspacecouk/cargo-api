@@ -228,7 +228,7 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
 
     public function clean(DateTimeImmutable $now): int
     {
-        return $this->removeInactiveBefore($now->sub(new DateInterval('P120D')));
+        return $this->removeInactiveBefore($now->sub(new DateInterval('P200D')));
     }
 
     public function getRecentForShipID(UuidInterface $shipId, int $limit): array

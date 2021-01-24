@@ -119,6 +119,11 @@ abstract class Effect extends Entity implements \JsonSerializable
         return $this->hitCount;
     }
 
+    public function getLabel(): ?string
+    {
+        return $this->value['label'] ?? null;
+    }
+
     public function getValue(): ?array
     {
         return $this->value;

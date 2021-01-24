@@ -25,10 +25,12 @@ use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipDefenceEffectToken;
 use App\Domain\ValueObject\Token\Action\ApplyEffect\ShipTravelEffectToken;
 use App\Domain\ValueObject\Token\Action\PurchaseEffectToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
+use App\Domain\ValueObject\Token\Action\UseWormholeEffectToken;
 use App\Domain\ValueObject\TokenId;
 use App\Domain\ValueObject\Transaction;
 use App\Infrastructure\DateTimeFactory;
 use Doctrine\ORM\Query;
+use Ramsey\Uuid\Uuid;
 use function App\Functions\Arrays\ensureArray;
 use function App\Functions\Arrays\filteredMap;
 use function App\Functions\Arrays\find;
@@ -72,11 +74,55 @@ class EffectsService extends AbstractService
                 null,
                 $activeEffect,
                 false,
+                null,
                 $countsOfType[$id] ?? 0,
                 $activeEffect->getRemainingCount(),
                 $activeEffect->getExpiry()
             );
         });
+    }
+
+    public function getUserWormholeActions(User $user, Ship $ship, Port $ignore): array
+    {
+        $wormholeEffects = $this->entityManager->getUserEffectRepo()->getAllOfEffectForUserId(
+            $user->getId(),
+            Uuid::fromString('ab5a97d4-12ae-4c7b-8f95-102ee01aa74c')
+        );
+
+        if (empty($wormholeEffects)) {
+            return [];
+        }
+        $userEffectId = $wormholeEffects[0]['id'];
+
+        $mapper = $this->mapperFactory->createPortMapper();
+        /** @var Port[] $availablePorts */
+        $availablePorts = array_map(static function ($result) use ($mapper) {
+            return $mapper->getPort($result['port']);
+        }, $this->entityManager->getPortVisitRepo()->getAllSafeForPlayerId($user->getId()));
+
+        $actions = [];
+        foreach ($availablePorts as $port) {
+            if ($port->equals($ignore)) {
+                continue;
+            }
+
+            $token = $this->tokenHandler->makeToken(...UseWormholeEffectToken::make(
+                new TokenId($userEffectId),
+                $userEffectId,
+                $ship->getId(),
+                $port->getId(),
+            ));
+
+            $actions[] = [
+                'port' => $port,
+                'actionToken' => new UseWormholeEffectToken(
+                    $token,
+                    TokenProvider::getActionPath(UseWormholeEffectToken::class)
+                ),
+            ];
+        }
+
+        return $actions;
     }
 
     /**
@@ -111,6 +157,7 @@ class EffectsService extends AbstractService
                 null,
                 $activeEffect,
                 false,
+                null,
                 $countsOfType[$id] ?? 0,
                 $activeEffect->getRemainingCount(),
                 $activeEffect->getExpiry()
@@ -167,6 +214,7 @@ class EffectsService extends AbstractService
         $expiry = null;
         $shipSelect = false;
         $purchaseToken = null;
+        $specialLabel = null;
 
         // if it's in active effects. populate hitsRemaining or expiry
         if ($canBeUsedHere &&
@@ -193,9 +241,9 @@ class EffectsService extends AbstractService
             !$shipLocation->getPort()->isSafe()
         ) {
             $actionToken = $this->getBlockadeEffectToken($userEffect, $user, $shipLocation->getPort(), $ship);
+        } elseif ($canBeUsedHere && $effect instanceof Effect\SpecialEffect) {
+            $specialLabel = $effect->getLabel();
         }
-
-
 
         if ($effect instanceof Effect\OffenceEffect && !$effect->affectsAllShips()) {
             $shipSelect = true; // no actionToken
@@ -207,10 +255,11 @@ class EffectsService extends AbstractService
             $userEffect,
             null,
             $shipSelect,
+            $specialLabel,
             $countsOfType[$effect->getId()->toString()] ?? 0,
             $hitsRemaining,
             $expiry,
-            $actionToken
+            $actionToken,
         );
     }
 
@@ -673,6 +722,34 @@ class EffectsService extends AbstractService
                 $this->entityManager->getUserAchievementRepo()->recordTravelEffect($triggeredByUserEntity->id);
             }
 
+            $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
+        });
+    }
+
+    public function parseUseWormholeToken(string $tokenString): UseWormholeEffectToken
+    {
+        return new UseWormholeEffectToken($this->tokenHandler->parseTokenFromString($tokenString), $tokenString);
+    }
+
+    public function useWormholeEffectToken(UseWormholeEffectToken $applyEffectToken): void
+    {
+        /** @var \App\Data\Database\Entity\UserEffect $playerEffect */
+        $playerEffect = $this->entityManager->getUserEffectRepo()
+            ->getByIDWithEffect($applyEffectToken->getUserEffectId(), Query::HYDRATE_OBJECT);
+        $destinationPortEntity = $this->entityManager->getPortRepo()
+            ->getByID($applyEffectToken->getDestinationId(), Query::HYDRATE_OBJECT);
+        $actioningShipEntity = $this->entityManager->getShipRepo()
+            ->getByID($applyEffectToken->getShipId(), Query::HYDRATE_OBJECT);
+
+        $this->entityManager->transactional(function () use (
+            $actioningShipEntity,
+            $playerEffect,
+            $destinationPortEntity,
+            $applyEffectToken
+        ) {
+            $this->entityManager->getShipLocationRepo()->exitLocation($actioningShipEntity);
+            $this->entityManager->getShipLocationRepo()->makeInPort($actioningShipEntity, $destinationPortEntity);
+            $this->entityManager->getUserEffectRepo()->useEffect($playerEffect);
             $this->tokenHandler->markAsUsed($applyEffectToken->getOriginalToken());
         });
     }

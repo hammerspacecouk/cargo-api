@@ -60,6 +60,7 @@ $actions = [
     Controller\Play\UpgradesAction::class,
     Controller\Play\MapAction::class,
     Controller\Play\ShipAction::class,
+    Controller\Play\ShipWormholeAction::class,
 
     // use token
     Controller\TokenAction\TokenAction::class,

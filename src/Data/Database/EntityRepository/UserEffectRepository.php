@@ -38,6 +38,23 @@ class UserEffectRepository extends AbstractEntityRepository
      * @param UuidInterface $userId
      * @return mixed
      */
+    public function getAllOfEffectForUserId(UuidInterface $userId, UuidInterface $effectId)
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'effect')
+            ->join('tbl.effect', 'effect')
+            ->where('tbl.usedAt IS NULL')
+            ->andWhere('IDENTITY(tbl.user) = :userId')
+            ->andWhere('IDENTITY(tbl.effect) = :effectId')
+            ->setParameter('userId', $userId->getBytes())
+            ->setParameter('effectId', $effectId->getBytes());
+        return $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+    }
+
+    /**
+     * @param UuidInterface $userId
+     * @return mixed
+     */
     public function getAllForUserId(UuidInterface $userId)
     {
         if (isset($this->userCache[$userId->toString()])) {

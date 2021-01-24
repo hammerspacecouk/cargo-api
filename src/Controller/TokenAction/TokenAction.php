@@ -19,6 +19,7 @@ use App\Controller\Actions\RemoveAuthProviderAction;
 use App\Controller\Actions\RenameShipAction;
 use App\Controller\Actions\RequestShipNameAction;
 use App\Controller\Actions\SellShipAction;
+use App\Controller\Actions\WormholeAction;
 use App\Controller\CacheControlResponseTrait;
 use App\Data\TokenProvider;
 use App\Domain\Exception\IllegalMoveException;
@@ -39,6 +40,7 @@ use App\Domain\ValueObject\Token\Action\RequestShipNameToken;
 use App\Domain\ValueObject\Token\Action\SellShipToken;
 use App\Domain\ValueObject\Token\Action\ShipHealthToken;
 use App\Domain\ValueObject\Token\Action\UseOffenceEffectToken;
+use App\Domain\ValueObject\Token\Action\UseWormholeEffectToken;
 use App\Infrastructure\DateTimeFactory;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
@@ -56,23 +58,6 @@ class TokenAction
 
     private DateTimeImmutable $now;
     private DateTimeImmutable $yesterday;
-    private LoggerInterface $logger;
-    private AddHealthAction $addHealthAction;
-    private ApplyOffenceEffectAction $applyOffenceEffectAction;
-    private MoveShipAction $moveShipAction;
-    private PurchaseEffectAction $purchaseEffectAction;
-    private PurchaseShipAction $purchaseShipAction;
-    private RenameShipAction $renameShipAction;
-    private RequestShipNameAction $requestShipNameAction;
-    private ApplyShipDefenceEffectAction $applyShipDefenceEffectAction;
-    private ApplyShipTravelEffectAction $applyShipTravelEffectAction;
-    private DropCrateAction $dropCrateAction;
-    private PickupCrateAction $pickupCrateAction;
-    private RemoveAuthProviderAction $removeAuthProviderAction;
-    private JoinConvoyAction $joinConvoyAction;
-    private LeaveConvoyAction $leaveConvoyAction;
-    private SellShipAction $sellShipAction;
-    private ApplyBlockadeEffectAction $applyBlockadeEffectAction;
 
     public static function getRouteDefinition(): Route
     {
@@ -82,44 +67,27 @@ class TokenAction
     }
 
     public function __construct(
-        LoggerInterface $logger,
-        AddHealthAction $addHealthAction,
-        ApplyOffenceEffectAction $applyOffenceEffectAction,
-        JoinConvoyAction $joinConvoyAction,
-        LeaveConvoyAction $leaveConvoyAction,
-        MoveShipAction $moveShipAction,
-        PurchaseEffectAction $purchaseEffectAction,
-        PurchaseShipAction $purchaseShipAction,
-        SellShipAction $sellShipAction,
-        RenameShipAction $renameShipAction,
-        RequestShipNameAction $requestShipNameAction,
-        ApplyShipDefenceEffectAction $applyShipDefenceEffectAction,
-        ApplyShipTravelEffectAction $applyShipTravelEffectAction,
-        ApplyBlockadeEffectAction $applyBlockadeEffectAction,
-        DropCrateAction $dropCrateAction,
-        PickupCrateAction $pickupCrateAction,
-        RemoveAuthProviderAction $removeAuthProviderAction
+        private LoggerInterface $logger,
+        private AddHealthAction $addHealthAction,
+        private ApplyOffenceEffectAction $applyOffenceEffectAction,
+        private JoinConvoyAction $joinConvoyAction,
+        private LeaveConvoyAction $leaveConvoyAction,
+        private MoveShipAction $moveShipAction,
+        private PurchaseEffectAction $purchaseEffectAction,
+        private PurchaseShipAction $purchaseShipAction,
+        private SellShipAction $sellShipAction,
+        private WormholeAction $wormholeAction,
+        private RenameShipAction $renameShipAction,
+        private RequestShipNameAction $requestShipNameAction,
+        private ApplyShipDefenceEffectAction $applyShipDefenceEffectAction,
+        private ApplyShipTravelEffectAction $applyShipTravelEffectAction,
+        private ApplyBlockadeEffectAction $applyBlockadeEffectAction,
+        private DropCrateAction $dropCrateAction,
+        private PickupCrateAction $pickupCrateAction,
+        private RemoveAuthProviderAction $removeAuthProviderAction
     ) {
-        $this->logger = $logger;
-        $this->addHealthAction = $addHealthAction;
-        $this->applyOffenceEffectAction = $applyOffenceEffectAction;
-        $this->moveShipAction = $moveShipAction;
-        $this->purchaseEffectAction = $purchaseEffectAction;
-        $this->purchaseShipAction = $purchaseShipAction;
-        $this->renameShipAction = $renameShipAction;
-        $this->requestShipNameAction = $requestShipNameAction;
-        $this->applyShipDefenceEffectAction = $applyShipDefenceEffectAction;
-        $this->applyShipTravelEffectAction = $applyShipTravelEffectAction;
-        $this->dropCrateAction = $dropCrateAction;
-        $this->pickupCrateAction = $pickupCrateAction;
-
         $this->now = DateTimeFactory::now();
         $this->yesterday = $this->now->sub(new \DateInterval('P1D'));
-        $this->removeAuthProviderAction = $removeAuthProviderAction;
-        $this->joinConvoyAction = $joinConvoyAction;
-        $this->leaveConvoyAction = $leaveConvoyAction;
-        $this->sellShipAction = $sellShipAction;
-        $this->applyBlockadeEffectAction = $applyBlockadeEffectAction;
     }
 
     public function __invoke(
@@ -151,6 +119,10 @@ class TokenAction
             case TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->now):
             case TokenProvider::getActionPath(UseOffenceEffectToken::class, $this->yesterday):
                 return $this->applyOffenceEffectAction->invoke($tokenString);
+
+            case TokenProvider::getActionPath(UseWormholeEffectToken::class, $this->now):
+            case TokenProvider::getActionPath(UseWormholeEffectToken::class, $this->yesterday):
+                return $this->wormholeAction->invoke($tokenString);
 
             case TokenProvider::getActionPath(JoinConvoyToken::class, $this->now):
             case TokenProvider::getActionPath(JoinConvoyToken::class, $this->yesterday):
