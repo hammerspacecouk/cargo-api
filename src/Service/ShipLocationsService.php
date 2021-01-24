@@ -24,7 +24,7 @@ use function array_map;
 
 class ShipLocationsService extends AbstractService
 {
-    private const AUTO_MOVE_TIME = 'PT15M';
+    private const AUTO_MOVE_TIME = 'PT1M';
 
     public function processOldestExpired(
         DateTimeImmutable $since,
@@ -330,6 +330,11 @@ class ShipLocationsService extends AbstractService
 
     private function attemptToInfectShip(DbShipLocation $shipInPort, DbShip $ship, DbPort $destinationPort): void
     {
+        // 25% chance of being infected
+        if (random_int(1, 4) !== 1) {
+            return;
+        }
+
         $activeEffects = $this->getActiveEffectsForShipId($shipInPort->ship->id);
         $isImmune = false;
         foreach ($activeEffects as $activeEffect) {

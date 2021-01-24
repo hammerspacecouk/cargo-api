@@ -9,6 +9,7 @@ class PlayerRank extends Entity implements \JsonSerializable
 {
     public const TRIAL_END_THRESHOLD = 175;
     public const TRIAL_END_THRESHOLD_MINUS_ONE = 120;
+    public const NICKNAME_THRESHOLD = 1;
 
     private string $name;
     private int $threshold;
@@ -60,6 +61,11 @@ class PlayerRank extends Entity implements \JsonSerializable
         return $this->threshold === 0;
     }
 
+    public function canSetNickname(): bool
+    {
+        return $this->threshold >= self::NICKNAME_THRESHOLD;
+    }
+
     public function isTrialRange(): bool
     {
         return $this->threshold < self::TRIAL_END_THRESHOLD;
@@ -72,7 +78,7 @@ class PlayerRank extends Entity implements \JsonSerializable
 
     public function getSpeedMultiplier(): float
     {
-        return $this->threshold / Port::TOTAL_PORT_COUNT;
+        return min($this->threshold / Port::TOTAL_PORT_COUNT, 0.05);
     }
 
     public function meets(self $minimumRank): bool

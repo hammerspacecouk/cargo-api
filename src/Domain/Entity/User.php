@@ -169,7 +169,7 @@ class User extends Entity implements \JsonSerializable
 
     public function canSetNickname(): bool
     {
-        return $this->permissionLevel >= self::PERMISSION_FULL;
+        return $this->playerRank->canSetNickname();
     }
 
     public function getStatus(): string

@@ -208,6 +208,7 @@ class MapBuilder implements JsonSerializable
                 'id' => $port->getId(),
                 'title' => $port->getName(),
                 'isVisited' => isset($this->visited[$port->getId()->toString()]),
+                'isSafe' => $port->isSafe(),
             ];
         }, $this->ports));
     }
