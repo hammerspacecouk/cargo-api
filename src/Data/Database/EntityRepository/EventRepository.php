@@ -21,7 +21,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class EventRepository extends AbstractEntityRepository implements CleanableInterface
 {
-    private const DEFAULT_PAGE_SIZE = 15;
+    private const DEFAULT_PAGE_SIZE = 50;
 
     /**
      * @param int $limit

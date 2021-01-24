@@ -42,6 +42,11 @@ class Achievement extends Entity implements JsonSerializable
         );
     }
 
+    public function isCollected(): bool
+    {
+        return !!$this->collectedAt;
+    }
+
     /**
      * @inheritDoc
      */

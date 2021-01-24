@@ -6,6 +6,7 @@ namespace App\Controller\Players;
 use App\Controller\IDRequestTrait;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
+use App\Service\AchievementService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Ramsey\Uuid\Validator\GenericValidator;
@@ -18,9 +19,6 @@ class ShowAction
 {
     use IDRequestTrait;
 
-    private UsersService $usersService;
-    private ShipsService $shipsService;
-
     public static function getRouteDefinition(): Route
     {
         return new Route('/players/{uuid}', [
@@ -31,11 +29,10 @@ class ShowAction
     }
 
     public function __construct(
-        ShipsService $shipsService,
-        UsersService $usersService
+        private AchievementService $achievementService,
+        private ShipsService $shipsService,
+        private UsersService $usersService
     ) {
-        $this->usersService = $usersService;
-        $this->shipsService = $shipsService;
     }
 
     public function __invoke(
@@ -52,6 +49,9 @@ class ShowAction
         $r = new JsonResponse([
             'player' => $player,
             'fleet' => $ships,
+            'missions' => array_values(
+                array_filter($this->achievementService->findForUser($player), fn($a) => $a && $a->isCollected())
+            ),
         ]);
         $r->setMaxAge(60 * 10);
         $r->setPublic();

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Domain\Entity\Achievement;
 use App\Domain\Entity\PlayerRank;
 use App\Domain\Entity\User;
 use Ramsey\Uuid\UuidInterface;
@@ -10,6 +11,7 @@ use function App\Functions\Arrays\find;
 
 class AchievementService extends AbstractService
 {
+    /** @return Achievement[] */
     public function findForUser(User $user): array
     {
         $allAchievements = $this->entityManager->getAchievementRepo()->findAll();
