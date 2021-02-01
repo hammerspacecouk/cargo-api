@@ -192,11 +192,6 @@ class ShipLocationsService extends AbstractService
             // update the users score
             $this->entityManager->getUserRepo()->updateScoreRate($owner, $delta);
 
-            $timeInChannel = $currentLocation->entryTime->diff(DateTimeFactory::now());
-            if (intervalToSeconds($timeInChannel) >= 60 * 60 * 24) {
-                $this->entityManager->getUserAchievementRepo()->recordLongTravel($owner->id);
-            }
-
             if (!$destinationPort->isSafeHaven) {
                 $this->entityManager->getUserAchievementRepo()->recordArrivalToUnsafeTerritory($owner->id);
             }

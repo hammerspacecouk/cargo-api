@@ -104,14 +104,6 @@ class UserAchievementRepository extends AbstractEntityRepository
         }
     }
 
-    public function recordLongTravel(UuidInterface $userId): void
-    {
-        $this->record(
-            $userId,
-            Uuid::fromString('f8cd00cb-315d-42a5-8270-7793ebe57327')
-        );
-    }
-
     public function recordLaunchedShip(UuidInterface $userId): void
     {
         $this->record(

@@ -371,7 +371,7 @@ class ShipsService extends AbstractService
 
     public function randomOutbreak(): void
     {
-        if (random_int(1, 10_000) !== 1) {
+        if (random_int(1, 250) !== 1) {
             return;
         }
 

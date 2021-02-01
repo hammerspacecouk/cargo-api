@@ -7,6 +7,7 @@ use App\Controller\IDRequestTrait;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\User;
 use App\Service\AchievementService;
+use App\Service\EventsService;
 use App\Service\ShipsService;
 use App\Service\UsersService;
 use Ramsey\Uuid\Validator\GenericValidator;
@@ -30,6 +31,7 @@ class ShowAction
 
     public function __construct(
         private AchievementService $achievementService,
+        private EventsService $eventsService,
         private ShipsService $shipsService,
         private UsersService $usersService
     ) {
@@ -49,6 +51,7 @@ class ShowAction
         $r = new JsonResponse([
             'player' => $player,
             'fleet' => $ships,
+            'events' => $this->eventsService->findLatestForUser($player),
             'missions' => array_values(
                 array_filter($this->achievementService->findForUser($player), fn($a) => $a && $a->isCollected())
             ),
