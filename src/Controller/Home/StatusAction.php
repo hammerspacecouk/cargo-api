@@ -49,7 +49,7 @@ class StatusAction
         return [
             'runtime' => true,
             'environment' => $this->applicationConfig->getEnvironment(),
-            'cache' => $this->getCacheStatus(),
+            'cache' => null, // todo - a real cache
             'maxScore' => PHP_INT_MAX,
             'release' => 'Alpha',
             'version' => $this->applicationConfig->getVersion(),

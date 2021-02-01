@@ -89,11 +89,12 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
         int $resultType = Query::HYDRATE_ARRAY
     ) {
         $qb = $this->createQueryBuilder('tbl')
-            ->select('tbl', 'ship', 'channel', 'fromPort', 'toPort')
+            ->select('tbl', 'ship', 'channel', 'shipClass', 'fromPort', 'toPort')
             ->leftJoin('tbl.ship', 'ship')
             ->leftJoin('tbl.channel', 'channel')
             ->leftJoin('channel.fromPort', 'fromPort')
             ->leftJoin('channel.toPort', 'toPort')
+            ->leftJoin('ship.shipClass', 'shipClass')
             ->where('tbl.isCurrent = true')
             ->andWhere('tbl.exitTime <= :now')
             ->orderBy('tbl.exitTime', 'ASC')

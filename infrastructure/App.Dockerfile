@@ -11,6 +11,8 @@ ENV APP_ENV=prod
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY ./conf/php "$PHP_INI_DIR/conf.d/"
 
+COPY ./conf/phpfpm/app.conf /usr/local/etc/php-fpm.d/zz-app.conf
+
 # Setup the application
 COPY . /var/www
 

@@ -180,7 +180,7 @@ class ShipRepository extends AbstractEntityRepository implements CleanableInterf
 
     public function clean(DateTimeImmutable $now): int
     {
-        return $this->removeDestroyed($now->sub(new DateInterval('P14D')));
+        return $this->removeDestroyed($now->sub(new DateInterval('P7D')));
     }
 
     public function infectRandomShip(): ?Ship

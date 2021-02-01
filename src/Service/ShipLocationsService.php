@@ -288,9 +288,14 @@ class ShipLocationsService extends AbstractService
 
     private function exposedToInfection(DbShip $ship, DbShip $infectedShip, DbPort $destinationPort): void
     {
+        // 25% chance of being infected  (todo - combine with the other place)
+        if (random_int(1, 4) !== 1) {
+            return;
+        }
+
         // get infected if you don't have a hospital ship and you're not immune
         $activeEffects = $this->getActiveEffectsForShipId($ship->id);
-        $isImmune = false;
+        $isImmune = $ship->shipClass->autoNavigate;
         foreach ($activeEffects as $activeEffect) {
             $effect = $activeEffect->getEffect();
             if (($effect instanceof Effect\DefenceEffect) && $effect->isImmuneToPlague()) {
