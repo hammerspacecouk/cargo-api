@@ -218,7 +218,7 @@ class TimedCommand extends Command
                 }
             }
             if (!$added) {
-                $options[random_int(1,1000)] = $direction;
+                $options[random_int(1, 1000)] = $direction;
             }
         }
 
