@@ -205,15 +205,20 @@ class TimedCommand extends Command
         }
 
         // if there's no unvisited. try to avoid where you've just been
-        $recent = $this->shipLocationsService->getRecentForShip($ship, 50);
+        $recent = $this->shipLocationsService->getRecentForShip($ship, 100);
         $options = [];
         foreach ($directions as $direction) {
+            $added = false;
             foreach ($recent as $location) {
                 if ($location instanceof ShipInPort &&
                     $location->getPort()->equals($direction->getDestinationPort())
                 ) {
                     $options[$location->getEntryTime()->getTimestamp()] = $direction;
+                    $added = true;
                 }
+            }
+            if (!$added) {
+                $options[random_int(1,1000)] = $direction;
             }
         }
 
