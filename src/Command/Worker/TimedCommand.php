@@ -193,30 +193,31 @@ class TimedCommand extends Command
             return $direction->isAllowedToEnter();
         });
 
-        usort($directions, static function (Direction $a, Direction $b) {
-            if ($a === $b) {
-                return 0;
-            }
-            if ($a->getLastVisitTime() === null) {
-                return -1;
-            }
-            if ($b->getLastVisitTime() === null) {
-                return 1;
-            }
-            return $a->getLastVisitTime() <=> $b->getLastVisitTime();
-        });
+        $unvisited = array_filter(
+            $directions,
+            static fn (Direction $direction) => $direction->getLastVisitTime() === null
+        );
 
-        if (isset($directions[0]) && $directions[0]->getLastVisitTime() && count($directions) > 1) {
-            // if there's no unvisited. try to avoid where you've just been
-            $recent = $this->shipLocationsService->getRecentForShip($ship, 3);
+        // prefer unvisited, randomise them to split up probes launched together
+        if (!empty($unvisited)) {
+            shuffle($unvisited);
+            return array_values($unvisited);
+        }
+
+        // if there's no unvisited. try to avoid where you've just been
+        $recent = $this->shipLocationsService->getRecentForShip($ship, 50);
+        $options = [];
+        foreach ($directions as $direction) {
             foreach ($recent as $location) {
                 if ($location instanceof ShipInPort &&
-                    $location->getPort()->equals($directions[0]->getDestinationPort())
+                    $location->getPort()->equals($direction->getDestinationPort())
                 ) {
-                    $directions[] = array_shift($directions);
+                    $options[$location->getEntryTime()->getTimestamp()] = $direction;
                 }
             }
         }
+
+        ksort($options, SORT_NUMERIC);
 
         return array_values($directions);
     }
