@@ -219,6 +219,11 @@ class TimedCommand extends Command
 
         ksort($options, SORT_NUMERIC);
 
+        if (!empty($options)) {
+            return array_values($options);
+        }
+
+        shuffle($directions);
         return array_values($directions);
     }
 
