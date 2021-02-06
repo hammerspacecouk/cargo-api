@@ -222,10 +222,13 @@ class ShipLocationRepository extends AbstractEntityRepository implements Cleanab
                 'player.permissionLevel >= :permission',
                 'rank.threshold < :trialThreshold'
             ))
+            ->andWhere('rank.threshold < :maxRank')
+            ->orderBy('tbl.entryTime', 'ASC')
             ->setMaxResults($limit)
             ->setParameter('before', $before)
             ->setParameter('permission', User::PERMISSION_FULL)
-            ->setParameter('trialThreshold', PlayerRank::TRIAL_END_THRESHOLD);
+            ->setParameter('trialThreshold', PlayerRank::TRIAL_END_THRESHOLD)
+            ->setParameter('maxRank', 1000);
         return $qb->getQuery()->getResult($resultType);
     }
 
