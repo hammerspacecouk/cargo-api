@@ -9,6 +9,7 @@ use App\Domain\ValueObject\SessionState;
 use App\Response\FleetResponse;
 use App\Service\AchievementService;
 use App\Service\AuthenticationService;
+use App\Service\CratesService;
 use App\Service\PlayerRanksService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,10 +17,6 @@ use Symfony\Component\Routing\Route;
 
 class IndexAction extends AbstractUserAction
 {
-    private PlayerRanksService $playerRanksService;
-    private FleetResponse $fleetResponse;
-    private AchievementService $achievementService;
-
     public static function getRouteDefinition(): Route
     {
         return new Route('/play', [
@@ -28,16 +25,14 @@ class IndexAction extends AbstractUserAction
     }
 
     public function __construct(
-        AchievementService $achievementService,
+        private AchievementService $achievementService,
+        private CratesService $cratesService,
+        private PlayerRanksService $playerRanksService,
+        private FleetResponse $fleetResponse,
         AuthenticationService $authenticationService,
-        PlayerRanksService $playerRanksService,
-        FleetResponse $fleetResponse,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         parent::__construct($authenticationService, $logger);
-        $this->playerRanksService = $playerRanksService;
-        $this->fleetResponse = $fleetResponse;
-        $this->achievementService = $achievementService;
     }
 
     public function invoke(
@@ -72,6 +67,7 @@ class IndexAction extends AbstractUserAction
             'currentMissions' => $currentMissions,
             'allMissions' => $this->achievementService->findForUser($this->user),
             'tutorialStep' => $tutorialStep,
+            'goalCrateLocations' => $this->cratesService->findGoalCratesLocation(3),
         ];
     }
 }

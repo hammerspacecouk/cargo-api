@@ -6,7 +6,6 @@ namespace App\Command\Worker;
 use App\Domain\Entity\Channel;
 use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
-use App\Domain\Entity\ShipInChannel;
 use App\Domain\Entity\ShipInPort;
 use App\Domain\Entity\User;
 use App\Domain\ValueObject\Direction;
@@ -32,31 +31,16 @@ class TimedCommand extends Command
 {
     private const BATCH_SIZE = 100;
 
-    private CratesService $cratesService;
-    private ShipLocationsService $shipLocationsService;
-    private ChannelsService $channelsService;
-    private ShipMovementService $shipMovementService;
-    private AlgorithmService $algorithmService;
-    private LoggerInterface $logger;
-    private ShipsService $shipsService;
-
     public function __construct(
-        AlgorithmService $algorithmService,
-        ChannelsService $channelsService,
-        CratesService $cratesService,
-        ShipsService $shipsService,
-        ShipLocationsService $shipLocationsService,
-        ShipMovementService $shipMovementService,
-        LoggerInterface $logger
+        private AlgorithmService $algorithmService,
+        private ChannelsService $channelsService,
+        private CratesService $cratesService,
+        private ShipsService $shipsService,
+        private ShipLocationsService $shipLocationsService,
+        private ShipMovementService $shipMovementService,
+        private LoggerInterface $logger
     ) {
         parent::__construct();
-        $this->cratesService = $cratesService;
-        $this->shipLocationsService = $shipLocationsService;
-        $this->channelsService = $channelsService;
-        $this->shipMovementService = $shipMovementService;
-        $this->algorithmService = $algorithmService;
-        $this->logger = $logger;
-        $this->shipsService = $shipsService;
     }
 
     protected function configure(): void

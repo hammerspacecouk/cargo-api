@@ -202,9 +202,23 @@ class CrateLocationRepository extends AbstractEntityRepository implements Cleana
             ->join('tbl.crate', 'crate')
             ->where('crate.isGoal = true')
             ->andWhere('tbl.isCurrent = true')
-            ->orderBy('tbl.createdAt', 'DESC')
+            ->orderBy('tbl.createdAt', 'ASC')
             ->setMaxResults(1);
         return $qb->getQuery()->getOneOrNullResult($resultType);
+    }
+
+    public function findGoalCrates(int $limit): array
+    {
+        $qb = $this->createQueryBuilder('tbl')
+            ->select('tbl', 'port')
+            ->join('tbl.port', 'port')
+            ->join('tbl.crate', 'crate')
+            ->where('crate.isGoal = true')
+            ->andWhere('tbl.isCurrent = true')
+            ->orderBy('tbl.createdAt', 'ASC')
+            ->groupBy('port.id')
+            ->setMaxResults($limit);
+        return $qb->getQuery()->getArrayResult();
     }
 
     public function findLostCrates(int $resultType = Query::HYDRATE_ARRAY): array

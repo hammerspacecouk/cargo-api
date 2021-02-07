@@ -373,4 +373,16 @@ class CratesService extends AbstractService
         }
         return null;
     }
+
+    /**
+     * @return Port[]
+     */
+    public function findGoalCratesLocation(int $limit): array
+    {
+        $results = $this->entityManager->getCrateLocationRepo()->findGoalCrates(3);
+        return array_map(
+            fn ($location) => $this->mapperFactory->createPortMapper()->getPort($location['port']),
+            $results
+        );
+    }
 }

@@ -13,13 +13,11 @@ use App\Domain\Entity\Port;
 use App\Domain\Entity\Ship;
 use App\Domain\Entity\ShipLocation;
 use App\Domain\Entity\User;
-use App\Infrastructure\DateTimeFactory;
 use DateInterval;
 use DateTimeImmutable;
 use Doctrine\ORM\Query;
 use LogicException;
 use Ramsey\Uuid\UuidInterface;
-use function App\Functions\Dates\intervalToSeconds;
 use function array_map;
 
 class ShipLocationsService extends AbstractService
@@ -156,7 +154,7 @@ class ShipLocationsService extends AbstractService
             $this->entityManager->getPortVisitRepo()->recordVisit($portVisit, $owner, $destinationPort);
             $this->entityManager->getUserAchievementRepo()->recordSpecialVisit($owner->id, $destinationPort->id);
 
-            // move all the crates to the port
+            // move all the crates to the port (unless it was the goal crate and the goal port)
             foreach ($crateLocations as $crateLocation) {
                 /** @var CrateLocation $crateLocation */
                 $crateLocation->isCurrent = false;
@@ -171,6 +169,8 @@ class ShipLocationsService extends AbstractService
                     // winner
                     $this->entityManager->getUserAchievementRepo()->recordWin($owner->id);
                     $this->entityManager->getUserRepo()->recordWinner($owner);
+
+                    $this->entityManager->remove($crateLocation->crate);
                 }
             }
 
