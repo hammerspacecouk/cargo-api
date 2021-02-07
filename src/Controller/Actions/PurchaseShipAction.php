@@ -6,6 +6,7 @@ namespace App\Controller\Actions;
 use App\Domain\ValueObject\SessionState;
 use App\Response\FleetResponse;
 use App\Response\UpgradesResponse;
+use App\Service\CratesService;
 use App\Service\PlayerRanksService;
 use App\Service\UpgradesService;
 use App\Service\UsersService;
@@ -13,6 +14,7 @@ use App\Service\UsersService;
 class PurchaseShipAction
 {
     public function __construct(
+        private CratesService $cratesService,
         private FleetResponse $fleetResponse,
         private PlayerRanksService $playerRanksService,
         private UpgradesService $upgradesService,
@@ -42,6 +44,7 @@ class PurchaseShipAction
                     $this->playerRanksService->getForUser($user)
                 ),
                 'fleet' => $this->fleetResponse->getResponseDataForUser($user),
+                'goalCrateLocations' => $this->cratesService->findGoalCratesLocation(3),
             ],
             'shipsAvailable' => $this->upgradesResponse->getResponseDataForUser($user),
         ];
