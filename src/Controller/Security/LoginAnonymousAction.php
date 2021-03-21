@@ -10,6 +10,7 @@ use App\Domain\ValueObject\Message\Messages;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Routing\Route;
 
@@ -33,6 +34,7 @@ class LoginAnonymousAction extends AbstractLoginAction
     public function __invoke(
         Request $request
     ): Response {
+        throw new AccessDeniedHttpException('Sorry. New users are not being accepted at this time');
         $loginToken = $request->get('token', '');
         try {
             $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE);

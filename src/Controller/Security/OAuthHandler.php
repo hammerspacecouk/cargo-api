@@ -59,7 +59,7 @@ class OAuthHandler extends AbstractLoginAction
             }
             $user = $oAuthService->attachToUser($currentSessionUser, $ownerId);
         } else {
-            $user = $oAuthService->getOrCreateUserForOAuthId($ownerId);
+            throw new AccessDeniedHttpException('Sorry. New users are not being accepted at this time');
         }
         return $this->getLoginResponseForUser($user, $state->getReturnUrl());
     }
