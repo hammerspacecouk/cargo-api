@@ -35,23 +35,6 @@ class LoginAnonymousAction extends AbstractLoginAction
         Request $request
     ): Response {
         throw new AccessDeniedHttpException('Sorry. New users are not being accepted at this time');
-        $loginToken = $request->get('token', '');
-        try {
-            $this->usersService->verifyLoginToken($loginToken, self::TOKEN_TYPE);
-        } catch (TokenException $exception) {
-            $query = '?messages=' . new Messages([new Error($exception->getMessage())]);
-            return new RedirectResponse(
-                $this->applicationConfig->getWebHostname() . '/login' . $query
-            );
-        }
-
-        // do you already have a session
-        $user = $this->getUserIfExists($request, $this->authenticationService);
-        if (!$user) {
-            // todo - catch TooManyRequestsHttpException and redirect to explanation page
-            $user = $this->getAnonymousUser($request);
-        }
-        return $this->getLoginResponseForUser($user);
     }
 
     protected function getAnonymousUser(

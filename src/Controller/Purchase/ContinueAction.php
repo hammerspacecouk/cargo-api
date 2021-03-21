@@ -35,9 +35,5 @@ class ContinueAction extends AbstractUserAction
         Request $request
     ): array {
         throw new NotFoundHttpException('Cannot purchase this');
-        if ($this->user->isAnonymous()) {
-            throw new NotFoundHttpException('Cannot purchase this');
-        }
-        return $this->purchasesService->getSessionForContinue($this->user);
     }
 }
